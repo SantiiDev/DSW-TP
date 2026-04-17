@@ -40,6 +40,7 @@ Adicionales para Aprobación
 ### Alcance Adicional Voluntario
 
 |Req|Detalle|
+|:-|:-|
 |Listados |1. Ranking global de usuarios más activos (con mayor cantidad de reseñas). <br>2. Listado de "Tendencias": Álbumes con mayor cantidad de reseñas en la última semana.|
 |CUU/Epic|1. Listas personalizadas: Creación y gestión de agrupaciones de álbumes públicas (ej. "Favoritos del Rock Nacional").|
 |Otros|1. Integración con API externa (ej. Last.fm o MusicBrainz) para pre-carga y autocompletado de metadatos/portadas de álbumes al registrarlos en el sistema.|
