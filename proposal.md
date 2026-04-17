@@ -17,8 +17,6 @@ Aplicación web full-stack orientada a funcionar como una red social y bitácora
 ### Modelo
 https://drive.google.com/file/d/1CtgrTv1I3zjxSmRuSaseUSWv7PB62EM7/view?usp=sharing
 
-*Nota*: incluir un link con la imagen de un modelo, puede ser modelo de dominio, diagrama de clases, DER. Si lo prefieren pueden utilizar diagramas con [Mermaid](https://mermaid.js.org) en lugar de imágenes.
-
 ## Alcance Funcional 
 
 ### Alcance Mínimo
@@ -40,8 +38,6 @@ Adicionales para Aprobación
 
 
 ### Alcance Adicional Voluntario
-
-*Nota*: El Alcance Adicional Voluntario es opcional, pero ayuda a que la funcionalidad del sistema esté completa y será considerado en la nota en función de su complejidad y esfuerzo.
 
 |Req|Detalle|
 |Listados |1. Ranking global de usuarios más activos (con mayor cantidad de reseñas). <br>2. Listado de "Tendencias": Álbumes con mayor cantidad de reseñas en la última semana.|
