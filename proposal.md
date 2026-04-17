@@ -34,7 +34,7 @@ Adicionales para Aprobación
 |Req|Detalle|
 |:-|:-|
 |CRUD |1. CRUD Usuario<br>2. CRUD Artista<br>3. CRUD Género<br>4. CRUD Álbum<br>5. CRUD Reseña|
-|CUU/Epic|1. [Core] Sistema de Reseñas: Publicar y gestionar calificación (rating) y review de un álbum validando unicidad.<br>2. [Interacción Social] Timeline interactivo y métricas: Generación del feed de actividad global y cálculo dinámico de los "Álbumes mejor calificados" utilizando los datos de las reseñas (Relacionado al CUU 1).<br>3. [Seguridad/Roles] Panel de Administración: Dashboard exclusivo para rol Admin con métricas de negocio y tabla de moderación para ocultar/eliminar reseñas (Requiere manejo de JWT y rutas protegidas).|
+|CUU/Epic|1. Siistema de Reseñas: Publicar y gestionar calificación (rating) y review de un álbum validando unicidad.<br>2. Timeline interactivo y métricas: Generación del feed de actividad global y cálculo dinámico de los "Álbumes mejor calificados" utilizando los datos de las reseñas (Relacionado al CUU 1).<br>3. Panel de Administración: Dashboard exclusivo para rol Admin con métricas de negocio y tabla de moderación para ocultar/eliminar reseñas (Requiere manejo de JWT y rutas protegidas).|
 
 
 ### Alcance Adicional Voluntario
