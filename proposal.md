@@ -15,7 +15,7 @@
 Aplicación web full-stack orientada a funcionar como una red social y bitácora musical. Los usuarios podrán buscar música (artistas, álbumes, canciones), calificarla, dejar reseñas y llevar un registro ("log") de sus escuchas.
 
 ### Modelo
-![imagen del modelo](https://drive.google.com/file/d/1CtgrTv1I3zjxSmRuSaseUSWv7PB62EM7/view)
+https://drive.google.com/file/d/1CtgrTv1I3zjxSmRuSaseUSWv7PB62EM7/view?usp=sharing
 
 *Nota*: incluir un link con la imagen de un modelo, puede ser modelo de dominio, diagrama de clases, DER. Si lo prefieren pueden utilizar diagramas con [Mermaid](https://mermaid.js.org) en lugar de imágenes.
 
