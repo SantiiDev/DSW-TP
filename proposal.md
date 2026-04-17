@@ -26,15 +26,15 @@ Regularidad:
 |:-|:-|
 |CRUD simple|1. CRUD Usuario<br>2. CRUD Artista<br>3. CRUD Género|
 |CRUD dependiente|1. CRUD Álbum {depende de} CRUD Artista y CRUD Género<br>2. CRUD Reseña {depende de} CRUD Usuario y CRUD Álbum|
-|Listado<br>+<br>detalle| 1. Listado de álbumes filtrado por género y/o año, muestra portada, título y artista => detalle muestra datos completos del álbum, tracklist y listado paginado de reseñas de usuarios.<br> 2. Listado de reservas filtrado por rango de fecha, muestra nro de habitación, fecha inicio y fin estadía, estado y nombre del cliente => detalle muestra datos completos de la reserva y del cliente|
+|Listado<br>+<br>detalle| 1. Listado de álbumes filtrado por género y/o año, muestra portada, título y artista => detalle muestra datos completos del álbum, tracklist y listado paginado de reseñas de usuarios.<br> 2. Listado de reseñas en el perfil público de un usuario, filtrado por calificación (estrellas) => detalle de la reseña y link al álbum asociado.|
 |CUU/Epic|1. Publicar y gestionar una reseña con calificación para un álbum específico.<br>2. Visualizar el timeline social interactivo con las últimas interacciones de la comunidad.|
 
 
 Adicionales para Aprobación
 |Req|Detalle|
 |:-|:-|
-|CRUD |1. CRUD Usuario<br>2. CRUD Artista<br>3. CRUD Género<br>4. CRUD Álbum<br>5. CRUD Reseña|
-|CUU/Epic|1. Siistema de Reseñas: Publicar y gestionar calificación (rating) y review de un álbum validando unicidad.<br>2. Timeline interactivo y métricas: Generación del feed de actividad global y cálculo dinámico de los "Álbumes mejor calificados" utilizando los datos de las reseñas (Relacionado al CUU 1).<br>3. Panel de Administración: Dashboard exclusivo para rol Admin con métricas de negocio y tabla de moderación para ocultar/eliminar reseñas (Requiere manejo de JWT y rutas protegidas).|
+|CRUD |1. CRUD Usuario<br>2. CRUD Artista<br>3. CRUD Género<br>4. CRUD Álbum<br>5. CRUD Reseña<br>6. CRUD Canción|
+|CUU/Epic|1. Sistema de Reseñas: Publicar y gestionar calificación (rating) y review de un álbum validando unicidad.<br>2. Timeline interactivo y métricas: Generación del feed de actividad global y cálculo dinámico de los "Álbumes mejor calificados" utilizando los datos de las reseñas (Relacionado al CUU 1).<br>3. Panel de Administración: Dashboard exclusivo para rol Admin con métricas de negocio y tabla de moderación para ocultar/eliminar reseñas (Requiere manejo de JWT y rutas protegidas).|
 
 
 ### Alcance Adicional Voluntario
