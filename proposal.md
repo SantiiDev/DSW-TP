@@ -2,19 +2,20 @@
 
 ## Grupo
 ### Integrantes
-* legajo - Apellido(s), Nombre(s)
+* 55117 - Gallo, Santino
+* 54507 - Esterri, Juan Ignacio
+* 55037 - Siena, Santiago
 
 ### Repositorios
 * [frontend app](http://hyperlinkToGihubOrGitlab)
 * [backend app](http://hyperlinkToGihubOrGitlab)
-*Nota*: si utiliza un monorepo indicar un solo link con fullstack app.
 
 ## Tema
 ### Descripción
-*2 a 6 líneas describiendo el negocio (menos es más)*
+Aplicación web full-stack orientada a funcionar como una red social y bitácora musical. Los usuarios podrán buscar música (artistas, álbumes, canciones), calificarla, dejar reseñas y llevar un registro ("log") de sus escuchas.
 
 ### Modelo
-![imagen del modelo]()
+![imagen del modelo](https://drive.google.com/file/d/1CtgrTv1I3zjxSmRuSaseUSWv7PB62EM7/view)
 
 *Nota*: incluir un link con la imagen de un modelo, puede ser modelo de dominio, diagrama de clases, DER. Si lo prefieren pueden utilizar diagramas con [Mermaid](https://mermaid.js.org) en lugar de imágenes.
 
@@ -22,22 +23,20 @@
 
 ### Alcance Mínimo
 
-*Nota*: el siguiente es un ejemplo para un grupo de 3 integrantes para un sistema de hotel. El 
-
 Regularidad:
 |Req|Detalle|
 |:-|:-|
-|CRUD simple|1. CRUD Tipo Habitacion<br>2. CRUD Servicio<br>3. CRUD Localidad|
-|CRUD dependiente|1. CRUD Habitación {depende de} CRUD Tipo Habitacion<br>2. CRUD Cliente {depende de} CRUD Localidad|
-|Listado<br>+<br>detalle| 1. Listado de habitaciones filtrado por tipo de habitación, muestra nro y tipo de habitación => detalle CRUD Habitacion<br> 2. Listado de reservas filtrado por rango de fecha, muestra nro de habitación, fecha inicio y fin estadía, estado y nombre del cliente => detalle muestra datos completos de la reserva y del cliente|
-|CUU/Epic|1. Reservar una habitación para la estadía<br>2. Realizar el check-in de una reserva|
+|CRUD simple|1. CRUD Usuario<br>2. CRUD Artista<br>3. CRUD Género|
+|CRUD dependiente|1. CRUD Álbum {depende de} CRUD Artista y CRUD Género<br>2. CRUD Reseña {depende de} CRUD Usuario y CRUD Álbum|
+|Listado<br>+<br>detalle| 1. Listado de álbumes filtrado por género y/o año, muestra portada, título y artista => detalle muestra datos completos del álbum, tracklist y listado paginado de reseñas de usuarios.<br> 2. Listado de reservas filtrado por rango de fecha, muestra nro de habitación, fecha inicio y fin estadía, estado y nombre del cliente => detalle muestra datos completos de la reserva y del cliente|
+|CUU/Epic|1. Publicar y gestionar una reseña con calificación para un álbum específico.<br>2. Visualizar el timeline social interactivo con las últimas interacciones de la comunidad.|
 
 
 Adicionales para Aprobación
 |Req|Detalle|
 |:-|:-|
-|CRUD |1. CRUD Tipo Habitacion<br>2. CRUD Servicio<br>3. CRUD Localidad<br>4. CRUD Provincia<br>5. CRUD Habitación<br>6. CRUD Empleado<br>7. CRUD Cliente|
-|CUU/Epic|1. Reservar una habitación para la estadía<br>2. Realizar el check-in de una reserva<br>3. Realizar el check-out y facturación de estadía y servicios|
+|CRUD |1. CRUD Usuario<br>2. CRUD Artista<br>3. CRUD Género<br>4. CRUD Álbum<br>5. CRUD Reseña|
+|CUU/Epic|1. [Core] Sistema de Reseñas: Publicar y gestionar calificación (rating) y review de un álbum validando unicidad.<br>2. [Interacción Social] Timeline interactivo y métricas: Generación del feed de actividad global y cálculo dinámico de los "Álbumes mejor calificados" utilizando los datos de las reseñas (Relacionado al CUU 1).<br>3. [Seguridad/Roles] Panel de Administración: Dashboard exclusivo para rol Admin con métricas de negocio y tabla de moderación para ocultar/eliminar reseñas (Requiere manejo de JWT y rutas protegidas).|
 
 
 ### Alcance Adicional Voluntario
@@ -45,8 +44,6 @@ Adicionales para Aprobación
 *Nota*: El Alcance Adicional Voluntario es opcional, pero ayuda a que la funcionalidad del sistema esté completa y será considerado en la nota en función de su complejidad y esfuerzo.
 
 |Req|Detalle|
-|:-|:-|
-|Listados |1. Estadía del día filtrado por fecha muestra, cliente, habitaciones y estado <br>2. Reservas filtradas por cliente muestra datos del cliente y de cada reserve fechas, estado cantidad de habitaciones y huespedes|
-|CUU/Epic|1. Consumir servicios<br>2. Cancelación de reserva|
-|Otros|1. Envío de recordatorio de reserva por email|
-
+|Listados |1. Ranking global de usuarios más activos (con mayor cantidad de reseñas). <br>2. Listado de "Tendencias": Álbumes con mayor cantidad de reseñas en la última semana.|
+|CUU/Epic|1. Listas personalizadas: Creación y gestión de agrupaciones de álbumes públicas (ej. "Favoritos del Rock Nacional").|
+|Otros|1. Integración con API externa (ej. Last.fm o MusicBrainz) para pre-carga y autocompletado de metadatos/portadas de álbumes al registrarlos en el sistema.|
