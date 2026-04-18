@@ -34,7 +34,7 @@ Adicionales para Aprobación
 |Req|Detalle|
 |:-|:-|
 |CRUD |1. CRUD Usuario<br>2. CRUD Artista<br>3. CRUD Género<br>4. CRUD Álbum<br>5. CRUD Reseña<br>6. CRUD Canción|
-|CUU/Epic|1. Sistema de Reseñas: Publicar y gestionar calificación y review de un álbum.<br>Feed Social y Estadísticas Avanzadas: Generación de timeline global y cálculo de estadísticas analíticas (ej. "Tu año en música", "Géneros más escuchados"). Nota: Las estadísticas están bloqueadas para usuarios FREE.<br>Pasarela de Pagos y Membresías: Integración con API de pagos (ej. MercadoPago/Stripe). Gestión de Webhooks para actualizar el plan del usuario a PRO o PATRON automáticamente. Esto elimina los anuncios en el frontend, habilita la personalización de perfil y desbloquea las estadísticas del CUU 2|
+|CUU/Epic|1. Sistema de Reseñas: Publicar y gestionar calificación y review de un álbum.<br>2. Feed Social y Estadísticas Avanzadas: Generación de timeline global y cálculo de estadísticas analíticas (ej. "Tu año en música", "Géneros más escuchados"). Nota: Las estadísticas están bloqueadas para usuarios FREE.<br>3. Pasarela de Pagos y Membresías: Integración con API de pagos (ej. MercadoPago/Stripe). Gestión de Webhooks para actualizar el plan del usuario a PRO o PATRON automáticamente. Esto elimina los anuncios en el frontend, habilita la personalización de perfil y desbloquea las estadísticas del CUU 2|
 
 
 ### Alcance Adicional Voluntario
