@@ -1,0 +1,13 @@
+// Abstracts
+@use 'abstracts/variable' as *;
+
+// Base
+@use 'base/reset';
+@use 'base/typography';
+
+// Core Components
+@use '../core/components/navbar';
+
+// Features Components
+@use '../features/home/components/hero';
+@use '../features/home/components/popular-albums';

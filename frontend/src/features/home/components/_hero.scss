@@ -1,0 +1,141 @@
+@use '../../../styles/abstracts/variable' as *;
+
+.hero {
+  position: relative;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: $spacing-xl $spacing-md;
+  overflow: hidden;
+
+  &__background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at top, rgba($color-primary, 0.15) 0%, rgba($color-bg, 0) 60%);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  &__floating-albums {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__title {
+    color: $color-text;
+    font-size: 2rem;
+    margin-bottom: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.5rem;
+    }
+  }
+
+  &__description {
+    color: $color-text-secondary;
+    font-size: 0.95rem;
+    max-width: 600px;
+    line-height: 1.5;
+    margin-bottom: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      font-size: 1rem;
+    }
+  }
+
+  &__cta {
+    background-color: $color-primary;
+    color: #000;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.7rem 1.8rem;
+    border-radius: 30px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    pointer-events: auto;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba($color-primary, 0.4);
+    }
+  }
+}
+
+.floating-album {
+  position: absolute;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  object-fit: cover;
+  opacity: 0.45;
+  filter: brightness(0.8);
+  
+  // Base size
+  width: 90px;
+  height: 90px;
+
+  @media (min-width: $bp-md) {
+    width: 110px;
+    height: 110px;
+  }
+
+  // Positions and rotations to mimic the original image
+  &--1 {
+    top: 5%;
+    left: 5%;
+    transform: rotate(-10deg);
+  }
+  
+  &--2 {
+    top: 40%;
+    left: 15%;
+    transform: rotate(8deg);
+    width: 100px;
+    height: 100px;
+  }
+  
+  &--3 {
+    bottom: 10%;
+    left: 8%;
+    transform: rotate(-5deg);
+  }
+  
+  &--4 {
+    top: 8%;
+    right: 8%;
+    transform: rotate(12deg);
+    width: 80px;
+    height: 80px;
+  }
+  
+  &--5 {
+    top: 35%;
+    right: 12%;
+    transform: rotate(-8deg);
+  }
+  
+  &--6 {
+    bottom: 5%;
+    right: 5%;
+    transform: rotate(6deg);
+    width: 120px;
+    height: 120px;
+  }
+}

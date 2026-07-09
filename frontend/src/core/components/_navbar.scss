@@ -1,0 +1,147 @@
+@use '../../styles/abstracts/variable' as *;
+
+.navbar {
+  background-color: $color-nav-bg;
+  border-bottom: 1px solid $color-nav-border;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 $spacing-md;
+
+  &__container {
+    width: 100%;
+    max-width: 1150px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__left, &__center, &__right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__left {
+    flex: 1;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $color-primary;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 1.2rem;
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    background-color: $color-bg-light;
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
+    width: 100%;
+    max-width: 250px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease;
+
+    &:focus-within {
+      border-color: $color-primary;
+    }
+
+    &-icon {
+      color: $color-text-secondary;
+      margin-right: 0.5rem;
+    }
+
+    &-input {
+      background: none;
+      border: none;
+      color: $color-text;
+      width: 100%;
+      outline: none;
+      font-size: 0.9rem;
+
+      &::placeholder {
+        color: $color-text-secondary;
+      }
+    }
+  }
+
+  &__center {
+    flex: 2;
+    justify-content: center;
+    gap: $spacing-lg;
+    display: none;
+
+    @media (min-width: $bp-md) {
+      display: flex;
+    }
+  }
+
+  &__link {
+    color: $color-text-secondary;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    &--pro {
+      color: $color-primary;
+      
+      &:hover {
+        color: lighten($color-primary, 10%);
+      }
+    }
+  }
+
+  &__more {
+    color: $color-text-secondary;
+    display: flex;
+    align-items: center;
+    
+    &:hover {
+      color: $color-text;
+    }
+  }
+
+  &__right {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  &__btn {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &--login {
+      background-color: transparent;
+      color: $color-text;
+    }
+
+    &--signup {
+      background-color: $color-primary;
+      color: #000;
+    }
+  }
+}
