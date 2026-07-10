@@ -12,17 +12,17 @@
   }
 
   &__title {
-    color: $color-text-secondary;
-    font-size: 1.1rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    margin-bottom: $spacing-md;
+    margin-bottom: $spacing-lg;
+    color: $color-text;
     text-align: left;
   }
 
   &__grid {
     display: flex;
     justify-content: center;
-    gap: $spacing-md;
+    gap: $spacing-sm;
     flex-wrap: wrap;
 
     @media (min-width: $bp-md) {
@@ -32,7 +32,7 @@
 }
 
 .album-card {
-  width: 130px;
+  width: 155px;
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;

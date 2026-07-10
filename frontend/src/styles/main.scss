@@ -7,7 +7,9 @@
 
 // Core Components
 @use '../core/components/navbar';
+@use '../core/components/footer';
 
 // Features Components
 @use '../features/home/components/hero';
 @use '../features/home/components/popular-albums';
+@use '../features/home/components/features';

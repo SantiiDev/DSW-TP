@@ -9,7 +9,7 @@ export const Navbar = () => {
         {/* Left side: Logo & Search */}
         <div className="navbar__left">
           <Link to="/" className="navbar__logo">
-            <div className="navbar__logo-icon">M</div>
+            <img src="/images/logo-musicboxd.png" alt="Musicboxd" className="navbar__logo-img" />
           </Link>
           <div className="navbar__search">
             <Search className="navbar__search-icon" size={18} />
