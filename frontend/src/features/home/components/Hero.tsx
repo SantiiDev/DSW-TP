@@ -5,7 +5,7 @@ export const Hero = () => {
   return (
     <section className="hero">
       <div className="hero__background"></div>
-      
+
       {/* Floating background albums */}
       <div className="hero__floating-albums">
         <img src="/images/abbey-road.jpg" alt="Abbey Road" className="floating-album floating-album--1" />
@@ -19,10 +19,10 @@ export const Hero = () => {
       <div className="hero__content">
         <h1 className="hero__title">
           Reseña tus álbumes favoritos.<br />
-          Cataloga toda la música que escuchas.<br />
+          Cataloga la música que escuchas.<br />
           Comparte tu pasión por la música.
         </h1>
-        
+
         <p className="hero__description">
           Musicboxd es una plataforma social que te permite llevar un registro de toda la
           música que escuchas y hacer crecer tu pasión por la música con amigos. Escribe

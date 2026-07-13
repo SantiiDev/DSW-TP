@@ -16,7 +16,7 @@ export const PopularAlbums = () => {
     <section className="popular-albums">
       <div className="popular-albums__container">
         <h2 className="popular-albums__title">Popular Esta Semana</h2>
-        
+
         <div className="popular-albums__grid">
           {MOCK_ALBUMS.map((album) => (
             <div key={album.id} className="album-card">

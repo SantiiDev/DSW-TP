@@ -13,3 +13,6 @@
 @use '../features/home/components/hero';
 @use '../features/home/components/popular-albums';
 @use '../features/home/components/features';
+
+// User / Auth
+@use '../features/user/styles/auth';

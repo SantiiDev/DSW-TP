@@ -14,7 +14,7 @@ export const Features = () => {
               <Headphones size={32} />
             </div>
             <p className="features-card__text">
-              Lleva un registro de toda la música que has escuchado (o empieza desde el día en que te unes).
+              Podrás llevar un registro de toda la música que has reseñado.
             </p>
           </div>
 
@@ -54,7 +54,7 @@ export const Features = () => {
               <Star size={32} />
             </div>
             <p className="features-card__text">
-              Explora nuestras secciones Top 250 y Más Populares para descubrir buena música y nuevos artistas.
+              Explora nuestras secciones Top 50 y Más Populares para descubrir buena música y nuevos artistas.
             </p>
           </div>
 

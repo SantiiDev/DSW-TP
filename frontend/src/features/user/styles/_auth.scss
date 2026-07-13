@@ -1,0 +1,218 @@
+// Estilos compartidos para las páginas de autenticación (Login y Signup).
+// Usa las variables y tokens del design system del proyecto.
+@use '../../../styles/abstracts/variable' as *;
+
+.auth {
+  // Descuenta los 64px de la navbar para ocupar exactamente el resto del viewport sin scroll
+  height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg $spacing-md;
+  position: relative;
+  overflow: hidden;
+
+  // Gradiente radial verde sutil (misma estética del hero)
+  &__background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(
+      circle at top,
+      rgba($color-primary, 0.12) 0%,
+      rgba($color-bg, 0) 60%
+    );
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  // Card/formulario centrado
+  &__card {
+    width: 100%;
+    max-width: 440px;
+    background-color: $color-bg-light;
+    border-radius: 16px;
+    padding: $spacing-xl $spacing-lg;
+    border: 1px solid $color-nav-border;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-lg;
+
+    @media (min-width: $bp-sm) {
+      padding: $spacing-xl;
+    }
+  }
+
+  // Encabezado del card (logo + título)
+  &__header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__logo {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.75rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+    margin: 0;
+  }
+
+  // Botón de Google
+  &__google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: 0.7rem $spacing-md;
+    background-color: transparent;
+    border: 1px solid #444;
+    border-radius: 30px;
+    color: $color-text;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: #666;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  &__google-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  // Separador "o"
+  &__divider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__divider-line {
+    flex: 1;
+    height: 1px;
+    background-color: $color-nav-border;
+  }
+
+  &__divider-text {
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  // Formulario
+  &__form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  // Grupo de campo (label + input)
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    color: $color-text;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+
+    &::placeholder {
+      color: darken($color-text-secondary, 20%);
+    }
+  }
+
+  // Botón principal de submit
+  &__submit-btn {
+    width: 100%;
+    padding: 0.75rem $spacing-md;
+    background-color: $color-primary;
+    color: #000;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-top: $spacing-sm;
+
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba($color-primary, 0.4);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  // Footer del card (link a la otra página)
+  &__footer {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  &__link {
+    color: $color-primary;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: lighten($color-primary, 10%);
+    }
+  }
+}
