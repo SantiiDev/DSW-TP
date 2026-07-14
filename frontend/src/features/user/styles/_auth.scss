@@ -1,6 +1,7 @@
 // Estilos compartidos para las páginas de autenticación (Login y Signup).
 // Usa las variables y tokens del design system del proyecto.
 @use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
 
 // Animación específica para la tarjeta de auth
 @keyframes slideUpFade {
