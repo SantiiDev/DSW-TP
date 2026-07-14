@@ -8,6 +8,7 @@
 // Core Components
 @use '../core/components/navbar';
 @use '../core/components/footer';
+@use '../core/components/fade-in-section';
 
 // Features Components
 @use '../features/home/components/hero';
@@ -16,3 +17,6 @@
 
 // User / Auth
 @use '../features/user/styles/auth';
+
+// Music Explore
+@use '../features/music/styles/music-explore';

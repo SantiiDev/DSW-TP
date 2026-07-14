@@ -4,18 +4,29 @@ import { Hero } from './components/Hero';
 import { PopularAlbums } from './components/PopularAlbums';
 import { Features } from './components/Features';
 import { CallToAction } from './components/CallToAction';
+import { FadeInSection } from '../../core/components/FadeInSection';
 
 export const Home = () => {
   return (
     <>
       <Navbar />
       <main>
-        <Hero />
-        <PopularAlbums />
-        <Features />
-        <CallToAction />
+        <FadeInSection delay={100}>
+          <Hero />
+        </FadeInSection>
+        <FadeInSection delay={200}>
+          <PopularAlbums />
+        </FadeInSection>
+        <FadeInSection delay={200}>
+          <Features />
+        </FadeInSection>
+        <FadeInSection delay={200}>
+          <CallToAction />
+        </FadeInSection>
       </main>
-      <Footer />
+      <FadeInSection delay={300}>
+        <Footer />
+      </FadeInSection>
     </>
   );
 };

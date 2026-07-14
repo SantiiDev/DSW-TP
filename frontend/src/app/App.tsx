@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { Home } from '../features/home/Home';
 import { Login } from '../features/user/pages/Login';
 import { Signup } from '../features/user/pages/Signup';
+import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
 
 export const App = () => {
   const location = useLocation();
@@ -10,6 +11,7 @@ export const App = () => {
     <div key={location.pathname} className="fade-in">
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/music" element={<MusicExplorePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </Routes>
