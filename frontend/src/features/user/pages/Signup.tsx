@@ -1,3 +1,4 @@
+// Página de registro de nuevos usuarios con el formulario de creación de cuenta.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '../../../core/components/Navbar';

@@ -1,3 +1,4 @@
+// Página de inicio de sesión de usuario que contiene el formulario de autenticación.
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '../../../core/components/Navbar';

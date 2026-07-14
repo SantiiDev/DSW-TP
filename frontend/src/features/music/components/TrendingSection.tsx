@@ -1,3 +1,4 @@
+// Sección de la página de exploración musical que muestra la música en tendencia actual.
 import { Star, TrendingUp, ChevronRight } from 'lucide-react';
 
 const TRENDING_ALBUMS = [

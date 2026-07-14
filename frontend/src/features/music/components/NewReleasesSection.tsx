@@ -1,3 +1,4 @@
+// Sección de la página de exploración musical que muestra los últimos lanzamientos.
 import { Star, Disc3, ChevronRight } from 'lucide-react';
 
 const NEW_RELEASES = [

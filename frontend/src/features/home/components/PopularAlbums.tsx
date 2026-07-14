@@ -1,3 +1,4 @@
+// Sección de la página de inicio que muestra un carrusel o cuadrícula con los álbumes más populares.
 import './_popular-albums.scss';
 
 // Mock data for the albums

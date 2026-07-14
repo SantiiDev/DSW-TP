@@ -1,3 +1,4 @@
+// Sección de la página de exploración musical que destaca lo más escuchado de la semana.
 import { Star, Flame, ChevronRight } from 'lucide-react';
 
 const POPULAR_ALBUMS = [

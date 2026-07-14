@@ -1,3 +1,4 @@
+// Sección de la página de inicio que destaca las características principales de Musicboxd.
 import { Headphones, AlignLeft, Clock, Star, BadgeCheck } from 'lucide-react';
 import './_features.scss';
 

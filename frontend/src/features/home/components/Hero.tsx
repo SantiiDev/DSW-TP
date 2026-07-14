@@ -1,3 +1,4 @@
+// Sección principal (Hero) de la página de inicio con el mensaje de bienvenida y botones de acción.
 import { Link } from 'react-router-dom';
 import './_hero.scss';
 

@@ -1,3 +1,4 @@
+// Sección de la página de exploración musical que lista los álbumes mejor valorados por la comunidad.
 import { Star, Award, ChevronRight } from 'lucide-react';
 
 const TOP_ALBUMS = [

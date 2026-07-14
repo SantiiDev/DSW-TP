@@ -1,3 +1,4 @@
+// Sección de la página de exploración musical para buscar música filtrada por décadas.
 import { Calendar } from 'lucide-react';
 
 const DECADES = [

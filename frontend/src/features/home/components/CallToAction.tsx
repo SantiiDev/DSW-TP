@@ -1,3 +1,4 @@
+// Sección de "Llamada a la acción" (Call to Action) en la página de inicio para invitar a registrarse.
 import { Link } from 'react-router-dom';
 import './_call-to-action.scss';
 

@@ -1,3 +1,4 @@
+// Barra de navegación principal que provee enlaces a las secciones del sitio y opciones de usuario.
 import { Link } from 'react-router-dom';
 import { Search, MoreHorizontal } from 'lucide-react';
 import './_navbar.scss';

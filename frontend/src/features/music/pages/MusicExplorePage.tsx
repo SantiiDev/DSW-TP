@@ -1,3 +1,4 @@
+// Página principal de exploración musical que agrupa diversas secciones de descubrimiento.
 import { useState } from 'react';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';

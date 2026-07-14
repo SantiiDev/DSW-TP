@@ -1,3 +1,4 @@
+// Sección de la página de exploración musical para descubrir álbumes y artistas por género.
 import { Music2 } from 'lucide-react';
 
 const GENRES = [

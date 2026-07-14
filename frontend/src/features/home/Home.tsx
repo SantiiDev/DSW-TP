@@ -1,3 +1,4 @@
+// Página principal (Home) que ensambla las distintas secciones de presentación.
 import { Navbar } from '../../core/components/Navbar';
 import { Footer } from '../../core/components/Footer';
 import { Hero } from './components/Hero';
