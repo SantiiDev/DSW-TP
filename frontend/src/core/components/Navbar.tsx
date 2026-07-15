@@ -1,6 +1,6 @@
 // Barra de navegación principal que provee enlaces a las secciones del sitio y opciones de usuario.
 import { Link } from 'react-router-dom';
-import { Search, MoreHorizontal } from 'lucide-react';
+import { Search } from 'lucide-react';
 import './_navbar.scss';
 
 export const Navbar = () => {
@@ -28,9 +28,6 @@ export const Navbar = () => {
           <Link to="/members" className="navbar__link">Miembros</Link>
           <Link to="/lists" className="navbar__link">Listas</Link>
           <Link to="/pro" className="navbar__link navbar__link--pro">Pro</Link>
-          <button className="navbar__more">
-            <MoreHorizontal size={18} />
-          </button>
         </div>
 
         {/* Right side: Auth buttons */}
