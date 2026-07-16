@@ -1,3 +1,4 @@
+// Componente de modal de autenticación (Login/Signup)
 import { useState } from 'react';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import '../styles/_auth.scss';
@@ -19,6 +20,10 @@ export const AuthModal = () => {
   };
 
   const isLogin = state.view === 'login';
+
+  const handleSwitchView = () => {
+    switchView(isLogin ? 'signup' : 'login');
+  };
 
   return (
     <div className="auth-modal-overlay" onClick={closeModal}>
@@ -141,7 +146,7 @@ export const AuthModal = () => {
               <button 
                 type="button" 
                 className="auth__link-btn"
-                onClick={() => switchView(isLogin ? 'signup' : 'login')}
+                onClick={handleSwitchView}
               >
                 {isLogin ? 'Regístrate' : 'Inicia sesión'}
               </button>

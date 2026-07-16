@@ -20,9 +20,9 @@ const TRENDING_SONGS = [
   { id: 6, title: 'St. Chroma', artist: 'Tyler, the Creator', rating: 4.0, reviews: 1654, cover: 'https://placehold.co/300x300/2d3436/00cec9?text=StCh' },
 ];
 
-interface TrendingSectionProps {
+type TrendingSectionProps = {
   type: 'albums' | 'canciones';
-}
+};
 
 export const TrendingSection = ({ type }: TrendingSectionProps) => {
   const items = type === 'albums' ? TRENDING_ALBUMS : TRENDING_SONGS;

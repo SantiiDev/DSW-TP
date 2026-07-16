@@ -1,3 +1,4 @@
+@use "sass:color";
 @use '../../styles/abstracts/variable' as *;
 @use '../../styles/abstracts/breakpoints' as *;
 
@@ -70,7 +71,7 @@
       font-weight: 600;
       
       &:hover {
-        color: lighten($color-primary, 10%);
+        color: color.adjust($color-primary, $lightness: 10%);
       }
     }
   }
@@ -103,7 +104,7 @@
     }
     
     &::placeholder {
-      color: darken($color-text-secondary, 20%);
+      color: color.adjust($color-text-secondary, $lightness: -20%);
     }
   }
   
@@ -121,7 +122,7 @@
     transition: background-color 0.2s ease, transform 0.1s ease;
     
     &:hover {
-      background-color: lighten($color-primary, 5%);
+      background-color: color.adjust($color-primary, $lightness: 5%);
     }
     
     &:active {

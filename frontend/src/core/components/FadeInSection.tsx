@@ -1,11 +1,12 @@
 // Componente envoltorio que aplica una animación de aparición (fade in) a su contenido al hacer scroll.
-import { useEffect, useRef, useState, ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 
-interface FadeInSectionProps {
+type FadeInSectionProps = {
   children: ReactNode;
   delay?: number;
   className?: string;
-}
+};
 
 export const FadeInSection = ({ children, delay = 0, className = '' }: FadeInSectionProps) => {
   const [isVisible, setVisible] = useState(false);

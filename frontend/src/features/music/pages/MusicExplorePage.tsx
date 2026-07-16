@@ -16,6 +16,10 @@ type Tab = 'albums' | 'canciones';
 export const MusicExplorePage = () => {
   const [activeTab, setActiveTab] = useState<Tab>('albums');
 
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+  };
+
   return (
     <>
       <Navbar />
@@ -32,13 +36,13 @@ export const MusicExplorePage = () => {
             <div className="music-explore__tabs">
               <button
                 className={`music-explore__tab ${activeTab === 'albums' ? 'music-explore__tab--active' : ''}`}
-                onClick={() => setActiveTab('albums')}
+                onClick={() => handleTabChange('albums')}
               >
                 Álbumes
               </button>
               <button
                 className={`music-explore__tab ${activeTab === 'canciones' ? 'music-explore__tab--active' : ''}`}
-                onClick={() => setActiveTab('canciones')}
+                onClick={() => handleTabChange('canciones')}
               >
                 Canciones
               </button>

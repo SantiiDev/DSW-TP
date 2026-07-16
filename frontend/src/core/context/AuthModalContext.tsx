@@ -1,12 +1,14 @@
-import { createContext, useReducer, useContext, ReactNode } from 'react';
+// Contexto y reducer para manejar el estado del modal de autenticación
+import { createContext, useReducer, useContext } from 'react';
+import type { ReactNode } from 'react';
 
 // Tipos de estado y acciones
 type AuthView = 'login' | 'signup';
 
-interface AuthModalState {
+type AuthModalState = {
   isOpen: boolean;
   view: AuthView;
-}
+};
 
 type AuthModalAction =
   | { type: 'OPEN_MODAL'; payload: AuthView }
@@ -19,7 +21,12 @@ const initialState: AuthModalState = {
   view: 'login',
 };
 
-// Reducer
+/**
+ * Reducer para gestionar el estado del modal de autenticación.
+ * @param {AuthModalState} state - Estado actual del modal.
+ * @param {AuthModalAction} action - Acción disparada para modificar el estado.
+ * @returns {AuthModalState} El nuevo estado calculado.
+ */
 const authModalReducer = (state: AuthModalState, action: AuthModalAction): AuthModalState => {
   switch (action.type) {
     case 'OPEN_MODAL':
@@ -34,13 +41,13 @@ const authModalReducer = (state: AuthModalState, action: AuthModalAction): AuthM
 };
 
 // Contexto
-interface AuthModalContextProps {
+type AuthModalContextProps = {
   state: AuthModalState;
   openLogin: () => void;
   openSignup: () => void;
   closeModal: () => void;
   switchView: (view: AuthView) => void;
-}
+};
 
 const AuthModalContext = createContext<AuthModalContextProps | undefined>(undefined);
 
@@ -61,6 +68,7 @@ export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
 };
 
 // Custom hook para consumir el contexto fácilmente
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuthModal = () => {
   const context = useContext(AuthModalContext);
   if (!context) {

@@ -26,7 +26,7 @@ export const FeaturedMembers = () => {
   const { openSignup } = useAuthModal();
 
   // Handler para el botón de seguir (se conectará al backend más adelante)
-  const handleFollow = (memberId: number) => {
+  const handleFollow = () => {
     openSignup();
   };
 
@@ -52,7 +52,7 @@ export const FeaturedMembers = () => {
             </div>
             <button
               className="featured-member-card__follow-btn"
-              onClick={() => handleFollow(member.id)}
+              onClick={handleFollow}
             >
               Seguir
             </button>

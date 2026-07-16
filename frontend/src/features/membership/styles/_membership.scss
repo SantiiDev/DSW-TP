@@ -1,3 +1,4 @@
+@use "sass:color";
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
 
@@ -369,7 +370,7 @@ $pro-gradient: linear-gradient(135deg, $pro-green 0%, #0fd85b 50%, #06d6a0 100%)
       border: none;
 
       &:hover {
-        background-color: lighten($pro-green, 5%);
+        background-color: color.adjust($pro-green, $lightness: 5%);
         box-shadow: 0 6px 20px rgba($pro-green, 0.3);
         transform: translateY(-2px);
       }

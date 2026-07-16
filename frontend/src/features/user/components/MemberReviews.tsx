@@ -1,5 +1,5 @@
 // Sección de reseñas recientes de los miembros.
-import { MessageSquare, Heart, MessageCircle, Share2, ChevronRight } from 'lucide-react';
+import { MessageSquare, Heart, MessageCircle, Share2 } from 'lucide-react';
 
 // Datos mock de reseñas (se reemplazarán con datos del backend)
 const MEMBER_REVIEWS = [

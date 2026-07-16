@@ -24,7 +24,7 @@ export const PopularReviewers = () => {
   const { openSignup } = useAuthModal();
 
   // Handler para el botón de seguir (se conectará al backend más adelante)
-  const handleFollow = (reviewerId: number) => {
+  const handleFollow = () => {
     openSignup();
   };
 
@@ -66,7 +66,7 @@ export const PopularReviewers = () => {
 
             <button
               className="reviewer-item__follow-btn"
-              onClick={() => handleFollow(reviewer.id)}
+              onClick={handleFollow}
             >
               Seguir
             </button>

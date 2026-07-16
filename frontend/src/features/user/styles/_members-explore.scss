@@ -1,3 +1,4 @@
+@use "sass:color";
 // Estilos para la página de exploración de miembros (/members)
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
@@ -296,7 +297,7 @@
   cursor: pointer;
 
   &:hover {
-    background-color: lighten($color-bg-light, 4%);
+    background-color: color.adjust($color-bg-light, $lightness: 4%);
   }
 
   &__avatar {

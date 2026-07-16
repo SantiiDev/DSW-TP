@@ -18,9 +18,9 @@ const TOP_SONGS = [
   { id: 5, rank: 5, title: 'Nights', artist: 'Frank Ocean', year: 2016, rating: 4.5, reviews: 7821, cover: 'https://placehold.co/300x300/6c5b7b/c06c84?text=Nights' },
 ];
 
-interface TopRatedSectionProps {
+type TopRatedSectionProps = {
   type: 'albums' | 'canciones';
-}
+};
 
 export const TopRatedSection = ({ type }: TopRatedSectionProps) => {
   const items = type === 'albums' ? TOP_ALBUMS : TOP_SONGS;

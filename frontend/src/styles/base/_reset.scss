@@ -1,3 +1,4 @@
+@use "sass:color";
 @use '../abstracts/variable' as *;
 @use '../abstracts/breakpoints' as *;
 
@@ -41,7 +42,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: lighten($color-nav-border, 15%);
+  background-color: color.adjust($color-nav-border, $lightness: 15%);
 }
 
 ::-webkit-scrollbar-corner {

@@ -18,9 +18,9 @@ const POPULAR_SONGS = [
   { id: 5, title: 'Devil in a New Dress', artist: 'Kanye West', rating: 4.6, listeners: 65143, cover: 'https://placehold.co/300x300/b71540/fc5c65?text=DiND' },
 ];
 
-interface PopularThisWeekSectionProps {
+type PopularThisWeekSectionProps = {
   type: 'albums' | 'canciones';
-}
+};
 
 export const PopularThisWeekSection = ({ type }: PopularThisWeekSectionProps) => {
   const items = type === 'albums' ? POPULAR_ALBUMS : POPULAR_SONGS;

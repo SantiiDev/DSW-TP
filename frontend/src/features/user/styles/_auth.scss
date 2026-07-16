@@ -1,3 +1,4 @@
+@use "sass:color";
 // Estilos compartidos para las páginas de autenticación (Login y Signup).
 // Usa las variables y tokens del design system del proyecto.
 @use '../../../styles/abstracts/variable' as *;
@@ -185,7 +186,7 @@
     }
 
     &::placeholder {
-      color: darken($color-text-secondary, 20%);
+      color: color.adjust($color-text-secondary, $lightness: -20%);
     }
   }
 
@@ -226,7 +227,7 @@
     transition: color 0.2s ease;
 
     &:hover {
-      color: lighten($color-primary, 10%);
+      color: color.adjust($color-primary, $lightness: 10%);
     }
   }
 
@@ -241,7 +242,7 @@
     transition: color 0.2s ease;
 
     &:hover {
-      color: lighten($color-primary, 10%);
+      color: color.adjust($color-primary, $lightness: 10%);
     }
   }
 

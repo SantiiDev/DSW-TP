@@ -1,3 +1,4 @@
+@use "sass:color";
 // Estilos para la página de exploración de listas (/lists)
 // Layout de dos columnas con efecto sticky/parallax en desktop
 @use '../../../styles/abstracts/variable' as *;
@@ -162,7 +163,7 @@
   cursor: pointer;
 
   &:hover {
-    background-color: lighten($color-bg-light, 4%);
+    background-color: color.adjust($color-bg-light, $lightness: 4%);
   }
 
   &__rank {

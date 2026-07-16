@@ -1,3 +1,4 @@
+@use "sass:color";
 @use '../../styles/abstracts/variable' as *;
 @use '../../styles/abstracts/breakpoints' as *;
 
@@ -109,7 +110,7 @@
       color: $color-primary;
       
       &:hover {
-        color: lighten($color-primary, 10%);
+        color: color.adjust($color-primary, $lightness: 10%);
       }
     }
   }
