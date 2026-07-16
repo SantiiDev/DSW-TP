@@ -1,5 +1,6 @@
 // Sección de reviewers populares: lista vertical con avatar, nombre, badge, género favorito y botón seguir.
 import { Star, ChevronRight } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Datos mock de reviewers populares (se reemplazarán con datos del backend)
 const POPULAR_REVIEWERS = [
@@ -20,9 +21,11 @@ const POPULAR_REVIEWERS = [
 ];
 
 export const PopularReviewers = () => {
+  const { openSignup } = useAuthModal();
+
   // Handler para el botón de seguir (se conectará al backend más adelante)
   const handleFollow = (reviewerId: number) => {
-    console.log(`Seguir reviewer: ${reviewerId}`);
+    openSignup();
   };
 
   return (
@@ -32,7 +35,7 @@ export const PopularReviewers = () => {
           <Star className="members-section__header-icon" size={20} />
           <h2 className="members-section__title">Reviewers Populares</h2>
         </div>
-        <button className="members-section__see-all">
+        <button className="members-section__see-all" onClick={openSignup}>
           Ver todos <ChevronRight size={16} />
         </button>
       </div>

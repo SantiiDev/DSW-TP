@@ -1,9 +1,12 @@
 // Barra de navegación principal que provee enlaces a las secciones del sitio y opciones de usuario.
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import { useAuthModal } from '../context/AuthModalContext';
 import './_navbar.scss';
 
 export const Navbar = () => {
+  const { openLogin, openSignup } = useAuthModal();
+
   return (
     <nav className="navbar">
       <div className="navbar__container">
@@ -24,16 +27,16 @@ export const Navbar = () => {
 
         {/* Center: Navigation Links */}
         <div className="navbar__center">
-          <Link to="/music" className="navbar__link">Música</Link>
-          <Link to="/members" className="navbar__link">Miembros</Link>
-          <Link to="/lists" className="navbar__link">Listas</Link>
-          <Link to="/pro" className="navbar__link navbar__link--pro">Pro</Link>
+          <NavLink to="/music" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Música</NavLink>
+          <NavLink to="/members" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Miembros</NavLink>
+          <NavLink to="/lists" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Listas</NavLink>
+          <NavLink to="/pro" className={({ isActive }) => `navbar__link navbar__link--pro ${isActive ? 'active' : ''}`}>Pro</NavLink>
         </div>
 
         {/* Right side: Auth buttons */}
         <div className="navbar__right">
-          <Link to="/login" className="navbar__btn navbar__btn--login">Iniciar Sesión</Link>
-          <Link to="/signup" className="navbar__btn navbar__btn--signup">Registrarse</Link>
+          <button onClick={openLogin} className="navbar__btn navbar__btn--login">Iniciar Sesión</button>
+          <button onClick={openSignup} className="navbar__btn navbar__btn--signup">Registrarse</button>
         </div>
       </div>
     </nav>

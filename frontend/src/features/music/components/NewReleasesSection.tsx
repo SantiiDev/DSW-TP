@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical que muestra los últimos lanzamientos.
 import { Star, Disc3, ChevronRight } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const NEW_RELEASES = [
   { id: 1, title: 'Hurry Up Tomorrow', artist: 'The Weeknd', releaseDate: '25 Ene 2025', rating: 3.9, cover: 'https://placehold.co/300x300/2c003e/ff6348?text=HUT' },
@@ -11,6 +12,8 @@ const NEW_RELEASES = [
 ];
 
 export const NewReleasesSection = () => {
+  const { openSignup } = useAuthModal();
+
   return (
     <section className="explore-section">
       <div className="explore-section__header">
@@ -18,7 +21,7 @@ export const NewReleasesSection = () => {
           <Disc3 size={22} className="explore-section__header-icon explore-section__header-icon--spin" />
           <h2 className="explore-section__title">Nuevos Lanzamientos</h2>
         </div>
-        <button className="explore-section__see-all">
+        <button className="explore-section__see-all" onClick={openSignup}>
           Ver todos <ChevronRight size={16} />
         </button>
       </div>

@@ -1,0 +1,767 @@
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// ─── Tokens exclusivos de la página Pro ─────────────────────
+$pro-green: $color-primary; // #1ED760
+$pro-green-dark: #17a94d;
+$pro-gradient: linear-gradient(135deg, $pro-green 0%, #0fd85b 50%, #06d6a0 100%);
+
+// ─── Page wrapper ───────────────────────────────────────────
+.pro-page {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HERO — Imagen de fondo con álbumes flotantes
+// ═══════════════════════════════════════════════════════════════
+.pro-hero {
+  position: relative;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: $spacing-xl $spacing-md;
+  overflow: hidden;
+
+  // Fondo con álbumes posicionados absolutamente
+  &__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  // Cada álbum se posiciona manualmente en el fondo
+  &__bg-album {
+    position: absolute;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    opacity: 0.55;
+    filter: brightness(0.9);
+    animation: pro-hero-float 6s ease-in-out infinite alternate;
+
+    // Tamaño base mobile
+    width: 100px;
+    height: 100px;
+
+    @media (min-width: $bp-md) {
+      width: 160px;
+      height: 160px;
+    }
+
+    @media (min-width: $bp-lg) {
+      width: 200px;
+      height: 200px;
+    }
+
+    &--1 {
+      top: 5%;
+      left: 3%;
+      transform: rotate(-8deg);
+      animation-delay: 0s;
+    }
+    &--2 {
+      top: 12%;
+      right: 5%;
+      transform: rotate(6deg);
+      animation-delay: -1s;
+      width: 90px;
+      height: 90px;
+      @media (min-width: $bp-md) { width: 140px; height: 140px; }
+      @media (min-width: $bp-lg) { width: 180px; height: 180px; }
+    }
+    &--3 {
+      top: 45%;
+      left: 8%;
+      transform: rotate(4deg);
+      animation-delay: -2s;
+    }
+    &--4 {
+      top: 50%;
+      right: 3%;
+      transform: rotate(-10deg);
+      animation-delay: -3s;
+    }
+    &--5 {
+      bottom: 8%;
+      left: 15%;
+      transform: rotate(7deg);
+      animation-delay: -4s;
+      width: 80px;
+      height: 80px;
+      @media (min-width: $bp-md) { width: 130px; height: 130px; }
+    }
+    &--6 {
+      bottom: 5%;
+      right: 12%;
+      transform: rotate(-5deg);
+      animation-delay: -1.5s;
+    }
+  }
+
+  // Overlay oscuro que asegura legibilidad del texto
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: radial-gradient(
+      ellipse at center,
+      rgba($color-bg, 0.4) 0%,
+      rgba($color-bg, 0.65) 60%,
+      rgba($color-bg, 0.85) 100%
+    );
+  }
+
+  &__content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-lg;
+  }
+
+  &__title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: $color-text;
+    line-height: 1.15;
+    margin: 0;
+    letter-spacing: -0.5px;
+
+    @media (min-width: $bp-md) {
+      font-size: 3.2rem;
+    }
+
+    @media (min-width: $bp-lg) {
+      font-size: 3.8rem;
+    }
+  }
+
+  // "Pro" con gradiente verde
+  &__title-accent {
+    background: $pro-gradient;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &__subtitle {
+    color: $color-text-secondary;
+    font-size: 1.05rem;
+    margin: 0;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.25rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.8rem 1.8rem;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: none;
+
+    &--primary {
+      background-color: $pro-green;
+      color: #000;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 24px rgba($pro-green, 0.4);
+      }
+    }
+
+    &--secondary {
+      background-color: transparent;
+      color: $color-text;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.45);
+        background-color: rgba(255, 255, 255, 0.04);
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PRICING CARDS — Free vs Pro lado a lado
+// ═══════════════════════════════════════════════════════════════
+.pro-pricing {
+  padding: $spacing-xl $spacing-md;
+  max-width: calc(900px + 2rem);
+  margin: 0 auto;
+
+  &__cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  &__card {
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 20px;
+    padding: $spacing-xl $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    // Variante PRO con borde verde y stickers decorativos
+    &--pro {
+      border-color: rgba($pro-green, 0.3);
+      background: linear-gradient(
+        160deg,
+        rgba($pro-green, 0.06) 0%,
+        $color-bg-light 40%
+      );
+    }
+  }
+
+  // Stickers emoji decorativos que flotan sobre la card Pro (inspirado en musicboard)
+  &__card-stickers {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  &__sticker {
+    position: absolute;
+    font-size: 1.4rem;
+    opacity: 0.2;
+    animation: pro-sticker-float 5s ease-in-out infinite alternate;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.8rem;
+      opacity: 0.25;
+    }
+
+    &--1 { top: 10%; right: 8%; animation-delay: 0s; }
+    &--2 { top: 30%; right: 15%; animation-delay: -1s; }
+    &--3 { top: 55%; right: 5%; animation-delay: -2s; }
+    &--4 { top: 70%; right: 20%; animation-delay: -3s; }
+    &--5 { bottom: 10%; right: 10%; animation-delay: -4s; }
+  }
+
+  &__card-name {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: $color-text;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+
+    svg {
+      color: $pro-green;
+    }
+  }
+
+  &__card-price {
+    position: relative;
+    z-index: 1;
+  }
+
+  &__card-amount {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: $color-text;
+    line-height: 1;
+  }
+
+  &__card-period {
+    font-size: 1rem;
+    color: $color-text-secondary;
+    font-weight: 500;
+  }
+
+  &__card-tagline {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+    font-weight: 600;
+    font-style: italic;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__card-list {
+    list-style: none;
+    padding: 0;
+    margin: $spacing-sm 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: $color-text;
+      font-size: 0.95rem;
+
+      svg {
+        color: $color-text-secondary;
+        flex-shrink: 0;
+      }
+    }
+
+    // En la card Pro, los íconos son verdes
+    .pro-pricing__card--pro & li svg {
+      color: $pro-green;
+    }
+  }
+
+  &__card-btn {
+    margin-top: auto;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+
+    &--primary {
+      background-color: $pro-green;
+      color: #000;
+      border: none;
+
+      &:hover {
+        background-color: lighten($pro-green, 5%);
+        box-shadow: 0 6px 20px rgba($pro-green, 0.3);
+        transform: translateY(-2px);
+      }
+    }
+
+    &--outline {
+      background: transparent;
+      color: $color-text-secondary;
+      border: 1px solid $color-nav-border;
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        color: $color-text;
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FEATURES SHOWCASE — Grid de beneficios con ícono grande
+// ═══════════════════════════════════════════════════════════════
+.pro-features {
+  padding: $spacing-xl $spacing-md;
+  max-width: calc(1150px + 2rem);
+  margin: 0 auto;
+
+  &__heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: $color-text;
+    text-align: center;
+    margin: 0 0 $spacing-xl;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.4rem;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+.pro-feature-card {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  padding: $spacing-xl $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 260px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    border-color: rgba($pro-green, 0.25);
+  }
+
+  &__top {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+  }
+
+  &__desc {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  &__visual {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin-top: $spacing-lg;
+  }
+
+  &__icon {
+    color: rgba($pro-green, 0.25);
+    transition: color 0.3s ease, transform 0.3s ease;
+
+    .pro-feature-card:hover & {
+      color: rgba($pro-green, 0.5);
+      transform: scale(1.1);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  COMPARISON TABLE — Columna Pro destacada con color
+// ═══════════════════════════════════════════════════════════════
+.pro-comparison {
+  padding: $spacing-xl $spacing-md;
+  max-width: calc(900px + 2rem);
+  margin: 0 auto;
+
+  &__heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: $color-text;
+    text-align: center;
+    margin: 0 0 $spacing-xl;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.4rem;
+    }
+  }
+
+  &__table-wrap {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid $color-nav-border;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  &__th {
+    padding: $spacing-md $spacing-lg;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: $color-text-secondary;
+    text-align: center;
+    background-color: $color-bg-light;
+    border-bottom: 1px solid $color-nav-border;
+
+    &--feature {
+      text-align: left;
+      width: 50%;
+    }
+
+    // Columna Pro con fondo verde vibrante
+    &--pro {
+      background: $pro-gradient;
+      color: #000;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+  }
+
+  &__price-row {
+    td {
+      padding: $spacing-md $spacing-lg;
+      border-bottom: 1px solid $color-nav-border;
+      font-weight: 700;
+    }
+  }
+
+  &__row {
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid rgba($color-nav-border, 0.5);
+    }
+  }
+
+  &__td {
+    padding: $spacing-md $spacing-lg;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 0.92rem;
+    color: $color-text;
+
+    &--feature {
+      text-align: left;
+      color: $color-text;
+      font-weight: 500;
+    }
+
+    // Celda de la columna Pro con fondo tenue verde
+    &--pro-cell {
+      background-color: rgba($pro-green, 0.08);
+      font-weight: 600;
+    }
+  }
+
+  &__check {
+    color: $pro-green;
+  }
+
+  &__x {
+    color: #555;
+  }
+
+  &__label {
+    color: $pro-green;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FAQ ACCORDION
+// ═══════════════════════════════════════════════════════════════
+.pro-faq {
+  padding: $spacing-xl $spacing-md;
+  max-width: 750px;
+  margin: 0 auto;
+
+  &__heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: $color-text;
+    text-align: center;
+    margin: 0 0 $spacing-xl;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.2rem;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__item {
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+
+    &--open {
+      border-color: rgba($pro-green, 0.35);
+    }
+  }
+
+  &__question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-md $spacing-lg;
+    background: none;
+    border: none;
+    color: $color-text;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    gap: $spacing-md;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $pro-green;
+    }
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    color: $color-text-secondary;
+
+    .pro-faq__item--open & {
+      transform: rotate(180deg);
+      color: $pro-green;
+    }
+  }
+
+  &__answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+
+    p {
+      color: $color-text-secondary;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      padding: 0 $spacing-lg $spacing-lg;
+      margin: 0;
+    }
+
+    .pro-faq__item--open & {
+      max-height: 250px;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FINAL CTA
+// ═══════════════════════════════════════════════════════════════
+.pro-cta {
+  padding: $spacing-xl $spacing-md;
+
+  &__container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 20px;
+    padding: 4rem $spacing-lg;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-md;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: $color-text;
+    margin: 0;
+    max-width: 500px;
+
+    @media (min-width: $bp-md) {
+      font-size: 2rem;
+    }
+  }
+
+  &__subtitle {
+    color: $color-text-secondary;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  &__btn {
+    margin-top: $spacing-sm;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.85rem 2.2rem;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    background-color: $pro-green;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 28px rgba($pro-green, 0.35);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ANIMACIONES
+// ═══════════════════════════════════════════════════════════════
+@keyframes pro-hero-float {
+  0% {
+    transform: translateY(0) rotate(var(--rot, 0deg));
+  }
+  100% {
+    transform: translateY(-18px) rotate(var(--rot, 0deg));
+  }
+}
+
+@keyframes pro-sticker-float {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-10px) rotate(8deg);
+    opacity: 0.3;
+  }
+}

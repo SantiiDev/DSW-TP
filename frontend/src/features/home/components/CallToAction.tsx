@@ -1,8 +1,10 @@
 // Sección de "Llamada a la acción" (Call to Action) en la página de inicio para invitar a registrarse.
-import { Link } from 'react-router-dom';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 import './_call-to-action.scss';
 
 export const CallToAction = () => {
+  const { openLogin, openSignup } = useAuthModal();
+
   return (
     <section className="cta-section">
       <div className="cta-section__container">
@@ -11,12 +13,12 @@ export const CallToAction = () => {
           <p className="cta-section__subtitle">Únete gratis hoy mismo. Un mundo de música te espera.</p>
 
           <div className="cta-section__actions">
-            <Link to="/login" className="cta-section__btn cta-section__btn--outline">
+            <button onClick={openLogin} className="cta-section__btn cta-section__btn--outline">
               Iniciar Sesión
-            </Link>
-            <Link to="/signup" className="cta-section__btn cta-section__btn--primary">
+            </button>
+            <button onClick={openSignup} className="cta-section__btn cta-section__btn--primary">
               Regístrate &rarr;
-            </Link>
+            </button>
           </div>
         </div>
       </div>

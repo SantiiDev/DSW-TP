@@ -92,10 +92,17 @@
     color: $color-text-secondary;
     font-size: 0.95rem;
     font-weight: 500;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
 
     &:hover {
       color: $color-text;
+    }
+
+    &.active {
+      color: $color-text;
+      background-color: rgba(255, 255, 255, 0.08);
     }
 
     &--pro {

@@ -1,5 +1,6 @@
 // Sección de listas top que muestra un ranking de las listas más populares de la comunidad.
 import { Trophy, ChevronRight, Heart } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Datos mock de listas populares (se reemplazará por datos del backend más adelante)
 const TOP_LISTS = [
@@ -14,6 +15,8 @@ const TOP_LISTS = [
 ];
 
 export const TopListsSection = () => {
+  const { openSignup } = useAuthModal();
+
   return (
     <section className="top-lists">
       <div className="top-lists__header">
@@ -21,7 +24,7 @@ export const TopListsSection = () => {
           <Trophy size={20} className="top-lists__header-icon" />
           <h2 className="top-lists__title">Top Listas</h2>
         </div>
-        <button className="top-lists__see-all">
+        <button className="top-lists__see-all" onClick={openSignup}>
           Ver todas <ChevronRight size={16} />
         </button>
       </div>

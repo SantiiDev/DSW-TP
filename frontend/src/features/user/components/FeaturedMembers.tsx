@@ -1,6 +1,7 @@
 // Sección de miembros destacados: muestra una grilla de avatares con username, nombre y botón de seguir.
 import { Users } from 'lucide-react';
 import { ChevronRight } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Datos mock de miembros destacados (se reemplazarán con datos del backend)
 const FEATURED_MEMBERS = [
@@ -22,9 +23,11 @@ const MemberAvatar = ({ initials, color, size = 100 }: { initials: string; color
 );
 
 export const FeaturedMembers = () => {
+  const { openSignup } = useAuthModal();
+
   // Handler para el botón de seguir (se conectará al backend más adelante)
   const handleFollow = (memberId: number) => {
-    console.log(`Seguir miembro: ${memberId}`);
+    openSignup();
   };
 
   return (
@@ -34,7 +37,7 @@ export const FeaturedMembers = () => {
           <Users className="members-section__header-icon" size={22} />
           <h2 className="members-section__title">Miembros Destacados</h2>
         </div>
-        <button className="members-section__see-all">
+        <button className="members-section__see-all" onClick={openSignup}>
           Ver todos <ChevronRight size={16} />
         </button>
       </div>

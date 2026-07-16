@@ -1,8 +1,10 @@
 // Sección principal (Hero) de la página de inicio con el mensaje de bienvenida y botones de acción.
-import { Link } from 'react-router-dom';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 import './_hero.scss';
 
 export const Hero = () => {
+  const { openSignup } = useAuthModal();
+
   return (
     <section className="hero">
       <div className="hero__background"></div>
@@ -30,9 +32,9 @@ export const Hero = () => {
           reseñas, califica álbumes y compila listas en la comunidad de mayor crecimiento en la música.
         </p>
 
-        <Link to="/signup" className="hero__cta">
+        <button onClick={openSignup} className="hero__cta">
           ¡Únete a Musicboxd gratis!
-        </Link>
+        </button>
       </div>
     </section>
   );

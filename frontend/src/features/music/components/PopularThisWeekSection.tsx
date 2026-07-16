@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical que destaca lo más escuchado de la semana.
 import { Star, Flame, ChevronRight } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const POPULAR_ALBUMS = [
   { id: 1, title: 'The Dark Side of the Moon', artist: 'Pink Floyd', rating: 4.5, listeners: 84521, cover: 'https://placehold.co/300x300/0a0a23/00d2d3?text=DSOTM' },
@@ -23,6 +24,7 @@ interface PopularThisWeekSectionProps {
 
 export const PopularThisWeekSection = ({ type }: PopularThisWeekSectionProps) => {
   const items = type === 'albums' ? POPULAR_ALBUMS : POPULAR_SONGS;
+  const { openSignup } = useAuthModal();
 
   return (
     <section className="explore-section">
@@ -31,7 +33,7 @@ export const PopularThisWeekSection = ({ type }: PopularThisWeekSectionProps) =>
           <Flame size={22} className="explore-section__header-icon explore-section__header-icon--fire" />
           <h2 className="explore-section__title">Populares Esta Semana</h2>
         </div>
-        <button className="explore-section__see-all">
+        <button className="explore-section__see-all" onClick={openSignup}>
           Ver todos <ChevronRight size={16} />
         </button>
       </div>

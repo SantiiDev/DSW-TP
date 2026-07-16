@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical que muestra la música en tendencia actual.
 import { Star, TrendingUp, ChevronRight } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const TRENDING_ALBUMS = [
   { id: 1, title: 'GNX', artist: 'Kendrick Lamar', rating: 4.2, reviews: 1842, cover: 'https://placehold.co/300x300/1a1a2e/e94560?text=GNX' },
@@ -25,6 +26,7 @@ interface TrendingSectionProps {
 
 export const TrendingSection = ({ type }: TrendingSectionProps) => {
   const items = type === 'albums' ? TRENDING_ALBUMS : TRENDING_SONGS;
+  const { openSignup } = useAuthModal();
 
   return (
     <section className="explore-section">
@@ -33,7 +35,7 @@ export const TrendingSection = ({ type }: TrendingSectionProps) => {
           <TrendingUp size={22} className="explore-section__header-icon" />
           <h2 className="explore-section__title">Tendencia Ahora</h2>
         </div>
-        <button className="explore-section__see-all">
+        <button className="explore-section__see-all" onClick={openSignup}>
           Ver todos <ChevronRight size={16} />
         </button>
       </div>

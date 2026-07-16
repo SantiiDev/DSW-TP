@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical que lista los álbumes mejor valorados por la comunidad.
 import { Star, Award, ChevronRight } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const TOP_ALBUMS = [
   { id: 1, rank: 1, title: 'OK Computer', artist: 'Radiohead', year: 1997, rating: 4.6, reviews: 12453, cover: 'https://placehold.co/300x300/1b1b2f/e43f5a?text=OKC' },
@@ -23,6 +24,7 @@ interface TopRatedSectionProps {
 
 export const TopRatedSection = ({ type }: TopRatedSectionProps) => {
   const items = type === 'albums' ? TOP_ALBUMS : TOP_SONGS;
+  const { openSignup } = useAuthModal();
 
   return (
     <section className="explore-section">
@@ -31,7 +33,7 @@ export const TopRatedSection = ({ type }: TopRatedSectionProps) => {
           <Award size={22} className="explore-section__header-icon" />
           <h2 className="explore-section__title">Mejores Calificados</h2>
         </div>
-        <button className="explore-section__see-all">
+        <button className="explore-section__see-all" onClick={openSignup}>
           Ver todos <ChevronRight size={16} />
         </button>
       </div>
