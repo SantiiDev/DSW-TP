@@ -42,7 +42,7 @@ export const TrendingSection = ({ type }: TrendingSectionProps) => {
 
       <div className="explore-section__grid">
         {items.map((item) => (
-          <div key={item.id} className="music-card">
+          <div key={item.id} className="music-card" onClick={openSignup} style={{ cursor: 'pointer' }}>
             <div className="music-card__cover">
               <img src={item.cover} alt={item.title} loading="lazy" />
               <div className="music-card__overlay">

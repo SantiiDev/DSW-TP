@@ -1,7 +1,10 @@
-// Sección de listas creadas por los miembros.
+// Componente UI para exponer listas de música creadas por la comunidad (MemberLists).
+// Renderiza tarjetas (cards) que muestran los metadatos de la lista (título, descripción), 
+// estadísticas sociales y un collage dinámico con las portadas de los álbumes incluidos.
 import { ListMusic, Heart, MessageCircle, Share2 } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
-// Datos mock de listas (se reemplazarán con datos del backend)
+// Mocks de listas de música (estructuradas con covers en array simulando los resultados de búsqueda en BD).
 const MEMBER_LISTS = [
   {
     id: 1,
@@ -32,6 +35,7 @@ const MEMBER_LISTS = [
 ];
 
 export const MemberLists = () => {
+  const { openSignup } = useAuthModal();
   return (
     <section className="member-lists">
       <div className="members-section__header">
@@ -43,7 +47,7 @@ export const MemberLists = () => {
 
       <div className="member-lists__grid">
         {MEMBER_LISTS.map((list) => (
-          <article key={list.id} className="list-card">
+          <article key={list.id} className="list-card" onClick={openSignup} style={{ cursor: 'pointer' }}>
             {/* Collage de imágenes */}
             <div className="list-card__collage">
               {list.covers.map((url, i) => (

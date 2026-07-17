@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical para descubrir álbumes y artistas por género.
 import { Music2 } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const GENRES = [
   { id: 1, name: 'Rock', albumCount: 24531, gradient: 'linear-gradient(135deg, #e94560, #0f3460)' },
@@ -17,6 +18,7 @@ const GENRES = [
 ];
 
 export const BrowseByGenreSection = () => {
+  const { openSignup } = useAuthModal();
   return (
     <section className="explore-section">
       <div className="explore-section__header">
@@ -28,7 +30,7 @@ export const BrowseByGenreSection = () => {
 
       <div className="genre-grid">
         {GENRES.map((genre) => (
-          <button key={genre.id} className="genre-card" style={{ background: genre.gradient }}>
+          <button key={genre.id} className="genre-card" style={{ background: genre.gradient }} onClick={openSignup}>
             <span className="genre-card__name">{genre.name}</span>
             <span className="genre-card__count">{genre.albumCount.toLocaleString()} álbumes</span>
           </button>

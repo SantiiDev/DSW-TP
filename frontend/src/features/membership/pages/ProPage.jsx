@@ -1,5 +1,6 @@
 // Página Pro de Musicboxd: muestra los beneficios de la suscripción Pro vs Free, planes de pricing y FAQ.
 import { useState } from 'react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
 import { FadeInSection } from '../../../core/components/FadeInSection';
@@ -89,6 +90,7 @@ const FAQ_ITEMS = [
 ];
 
 export const ProPage = () => {
+  const { openSignup } = useAuthModal();
   // Controla qué pregunta del FAQ está expandida (-1 = ninguna)
   const [openFaq, setOpenFaq] = useState(-1);
 
@@ -186,7 +188,7 @@ export const ProPage = () => {
                   <li><Zap size={18} /> Acceso anticipado</li>
                   <li><Sparkles size={18} /> ¡Y mucho más!</li>
                 </ul>
-                <button className="pro-pricing__card-btn pro-pricing__card-btn--primary">
+                <button className="pro-pricing__card-btn pro-pricing__card-btn--primary" onClick={openSignup}>
                   <Crown size={16} />
                   Obtener Pro
                 </button>
@@ -296,7 +298,7 @@ export const ProPage = () => {
               <p className="pro-cta__subtitle">
                 Unite a miles de amantes de la música que ya disfrutan Musicboxd Pro.
               </p>
-              <button className="pro-cta__btn">
+              <button className="pro-cta__btn" onClick={openSignup}>
                 <Crown size={18} />
                 Comenzar con Pro
               </button>

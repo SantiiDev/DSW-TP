@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical para buscar música filtrada por décadas.
 import { Calendar } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const DECADES = [
   { id: 1, decade: '2020s', years: '2020 – Presente', albumCount: 8432, emoji: '🔥' },
@@ -13,6 +14,7 @@ const DECADES = [
 ];
 
 export const BrowseByDecadeSection = () => {
+  const { openSignup } = useAuthModal();
   return (
     <section className="explore-section">
       <div className="explore-section__header">
@@ -24,7 +26,7 @@ export const BrowseByDecadeSection = () => {
 
       <div className="decade-grid">
         {DECADES.map((item) => (
-          <button key={item.id} className="decade-card">
+          <button key={item.id} className="decade-card" onClick={openSignup}>
             <span className="decade-card__emoji">{item.emoji}</span>
             <div className="decade-card__info">
               <span className="decade-card__decade">{item.decade}</span>

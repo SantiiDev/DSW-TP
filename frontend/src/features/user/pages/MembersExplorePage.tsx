@@ -1,4 +1,7 @@
-// Página principal de exploración de miembros (/members)
+// Página principal de exploración de miembros (/members).
+// Construye el layout de dos columnas para visualizar la comunidad.
+// Integra componentes independientes que muestran miembros destacados, reviewers populares
+// y actividad reciente (listas/reseñas), preparándolos para conectarse con el backend.
 import { Link } from 'react-router-dom';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
@@ -7,9 +10,11 @@ import { FeaturedMembers } from '../components/FeaturedMembers';
 import { PopularReviewers } from '../components/PopularReviewers';
 import { MemberReviews } from '../components/MemberReviews';
 import { MemberLists } from '../components/MemberLists';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 import '../styles/_members-explore.scss';
 
 export const MembersExplorePage = () => {
+  const { openSignup } = useAuthModal();
   return (
     <>
       <Navbar />
@@ -24,9 +29,9 @@ export const MembersExplorePage = () => {
               Conectá con otros entusiastas de la música en Musicboxd. Descubrí perfiles,
               leé sus reseñas y participá en la comunidad.
             </p>
-            <Link to="/signup" className="members-explore__cta">
+            <button onClick={() => openSignup()} className="members-explore__cta">
               Unirse a la comunidad
-            </Link>
+            </button>
           </header>
         </FadeInSection>
 

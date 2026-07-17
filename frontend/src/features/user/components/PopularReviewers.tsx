@@ -1,8 +1,12 @@
-// Sección de reviewers populares: lista vertical con avatar, nombre, badge, género favorito y botón seguir.
+// Componente UI para mostrar reviewers destacados (PopularReviewers).
+// Presenta una lista vertical de usuarios populares, mostrando su avatar, nombre, insignias (badges) 
+// y género musical favorito. Incluye un botón para seguirlos, conectado al flujo de autenticación.
 import { Star, ChevronRight } from 'lucide-react';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
-// Datos mock de reviewers populares (se reemplazarán con datos del backend)
+// Datos iniciales de prueba (Mocks).
+// Se estructuraron simulando la respuesta esperada del backend para facilitar la migración futura 
+// a la API, respetando la forma del modelo de negocio (Reviewer).
 const POPULAR_REVIEWERS = [
   { id: 1, username: 'critico_musical', name: 'Diego Ramírez', genre: 'Pop', initials: 'DR', color: '#9b59b6', badge: 'pro' as const },
   { id: 2, username: 'sonoradelsur', name: 'Ana García', genre: 'Rock', initials: 'AG', color: '#3498db', badge: 'pro' as const },

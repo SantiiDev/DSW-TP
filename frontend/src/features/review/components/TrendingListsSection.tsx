@@ -193,7 +193,7 @@ export const TrendingListsSection = () => {
 
       <div className="trending-lists__feed">
         {TRENDING_LISTS.map((list) => (
-          <article key={list.id} className="trending-list-card">
+          <article key={list.id} className="trending-list-card" onClick={openSignup} style={{ cursor: 'pointer' }}>
             {/* Collage de portadas */}
             <div className="trending-list-card__collage">
               {list.covers.map((cover, idx) => (

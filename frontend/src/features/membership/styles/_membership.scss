@@ -10,7 +10,6 @@ $pro-gradient: linear-gradient(135deg, $pro-green 0%, #0fd85b 50%, #06d6a0 100%)
 // ─── Page wrapper ───────────────────────────────────────────
 .pro-page {
   min-height: 100vh;
-  overflow-x: hidden;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -211,6 +210,7 @@ $pro-gradient: linear-gradient(135deg, $pro-green 0%, #0fd85b 50%, #06d6a0 100%)
   padding: $spacing-xl $spacing-md;
   max-width: calc(900px + 2rem);
   margin: 0 auto;
+  scroll-margin-top: 80px;
 
   &__cards {
     display: grid;
@@ -396,6 +396,7 @@ $pro-gradient: linear-gradient(135deg, $pro-green 0%, #0fd85b 50%, #06d6a0 100%)
   padding: $spacing-xl $spacing-md;
   max-width: calc(1150px + 2rem);
   margin: 0 auto;
+  scroll-margin-top: 80px;
 
   &__heading {
     font-size: 1.8rem;

@@ -1,5 +1,6 @@
 // Sección de tags/categorías para explorar listas filtradas por género o temática.
 import { Compass } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Tags de categorías para explorar listas (datos mock)
 const EXPLORE_TAGS = [
@@ -20,6 +21,7 @@ const EXPLORE_TAGS = [
 ];
 
 export const ExploreTagsSection = () => {
+  const { openSignup } = useAuthModal();
   return (
     <section className="explore-tags">
       <div className="explore-tags__header">
@@ -29,7 +31,7 @@ export const ExploreTagsSection = () => {
 
       <div className="explore-tags__grid">
         {EXPLORE_TAGS.map((tag) => (
-          <button key={tag.id} className="explore-tag">
+          <button key={tag.id} className="explore-tag" onClick={openSignup}>
             <span className="explore-tag__emoji">{tag.emoji}</span>
             <span className="explore-tag__label">{tag.label}</span>
           </button>

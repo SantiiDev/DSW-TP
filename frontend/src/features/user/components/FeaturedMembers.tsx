@@ -1,9 +1,11 @@
-// Sección de miembros destacados: muestra una grilla de avatares con username, nombre y botón de seguir.
+// Componente UI para presentar miembros activos recientes (FeaturedMembers).
+// Muestra una cuadrícula (grid) horizontal de usuarios con sus respectivos avatares generados,
+// nombre de usuario y controles de seguimiento.
 import { Users } from 'lucide-react';
 import { ChevronRight } from 'lucide-react';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
-// Datos mock de miembros destacados (se reemplazarán con datos del backend)
+// Mocks de miembros destacados (diseñados simulando la estructura del backend para fácil integración posterior).
 const FEATURED_MEMBERS = [
   { id: 1, username: 'melómano_ar', name: 'Martín López', initials: 'ML', color: '#e74c3c' },
   { id: 2, username: 'vinyl.queen', name: 'Lucía Fernández', initials: 'LF', color: '#8e44ad' },
@@ -12,7 +14,9 @@ const FEATURED_MEMBERS = [
   { id: 5, username: 'bass.drop', name: 'Nicolás Gómez', initials: 'NG', color: '#1abc9c' },
 ];
 
-// Genera un avatar circular con las iniciales del usuario
+// Helper funcional (MemberAvatar) que renderiza un componente de avatar circular estilizado.
+// Recibe como parámetros (props) las iniciales, el color de fondo y el tamaño opcional.
+// Devuelve un elemento de interfaz reutilizable.
 const MemberAvatar = ({ initials, color, size = 100 }: { initials: string; color: string; size?: number }) => (
   <div
     className="featured-member-card__avatar"

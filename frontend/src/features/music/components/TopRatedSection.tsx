@@ -40,7 +40,7 @@ export const TopRatedSection = ({ type }: TopRatedSectionProps) => {
 
       <div className="explore-section__list">
         {items.map((item) => (
-          <div key={item.id} className="music-list-item">
+          <div key={item.id} className="music-list-item" onClick={openSignup} style={{ cursor: 'pointer' }}>
             <span className="music-list-item__rank">#{item.rank}</span>
             <div className="music-list-item__cover">
               <img src={item.cover} alt={item.title} loading="lazy" />

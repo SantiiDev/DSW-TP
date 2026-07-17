@@ -1,4 +1,5 @@
 // Componente del pie de página (Footer) de la aplicación, que contiene enlaces rápidos, la suscripción al boletín de noticias y derechos reservados.
+import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import './_footer.scss';
 
@@ -10,24 +11,24 @@ export const Footer = () => {
           <div className="footer__column">
             <h3 className="footer__title">Tablero de música</h3>
             <ul className="footer__list">
-              <li><a href="#" className="footer__link">Inicio</a></li>
-              <li><a href="#" className="footer__link footer__link--pro">Pro</a></li>
+              <li><Link to="/" className="footer__link">Inicio</Link></li>
+              <li><Link to="/pro" className="footer__link footer__link--pro">Pro</Link></li>
             </ul>
           </div>
 
           <div className="footer__column">
             <h3 className="footer__title">Legal</h3>
             <ul className="footer__list">
-              <li><a href="#" className="footer__link">Condiciones de uso</a></li>
-              <li><a href="#" className="footer__link">Política de privacidad</a></li>
+              <li><Link to="/terms" className="footer__link">Condiciones de uso</Link></li>
+              <li><Link to="/privacy" className="footer__link">Política de privacidad</Link></li>
             </ul>
           </div>
 
           <div className="footer__column">
             <h3 className="footer__title">Compañía</h3>
             <ul className="footer__list">
-              <li><a href="#" className="footer__link">Preguntas frecuentes</a></li>
-              <li><a href="#" className="footer__link">Contacto</a></li>
+              <li><Link to="/faq" className="footer__link">Preguntas frecuentes</Link></li>
+              <li><Link to="/contact" className="footer__link">Contacto</Link></li>
             </ul>
           </div>
 
@@ -37,7 +38,7 @@ export const Footer = () => {
             <form className="footer__form" onSubmit={(e) => e.preventDefault()}>
               <input
                 type="email"
-                placeholder="Correo electrónico"
+                placeholder="Dirección de correo electrónico"
                 className="footer__input"
                 required
               />

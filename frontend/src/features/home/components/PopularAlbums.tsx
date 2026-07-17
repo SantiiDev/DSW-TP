@@ -1,4 +1,5 @@
 // Sección de la página de inicio que muestra un carrusel o cuadrícula con los álbumes más populares.
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 import './_popular-albums.scss';
 
 // Mock data for the albums
@@ -13,6 +14,7 @@ const MOCK_ALBUMS = [
 ];
 
 export const PopularAlbums = () => {
+  const { openSignup } = useAuthModal();
   return (
     <section className="popular-albums">
       <div className="popular-albums__container">
@@ -20,7 +22,7 @@ export const PopularAlbums = () => {
 
         <div className="popular-albums__grid">
           {MOCK_ALBUMS.map((album) => (
-            <div key={album.id} className="album-card">
+            <div key={album.id} className="album-card" onClick={openSignup} style={{ cursor: 'pointer' }}>
               <div className="album-card__cover">
                 <img src={album.cover} alt={album.title} />
               </div>

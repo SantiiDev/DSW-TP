@@ -1,4 +1,7 @@
-// Contexto y reducer para manejar el estado del modal de autenticación
+// Contexto global (AuthModalContext) y reducer asociado.
+// Administra el estado de visibilidad y el modo (login o signup) del modal de autenticación
+// de forma centralizada, permitiendo que cualquier componente abra o cierre el modal 
+// sin necesidad de prop-drilling.
 import { createContext, useReducer, useContext } from 'react';
 import type { ReactNode } from 'react';
 

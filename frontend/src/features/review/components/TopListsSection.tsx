@@ -31,7 +31,7 @@ export const TopListsSection = () => {
 
       <div className="top-lists__list">
         {TOP_LISTS.map((list, index) => (
-          <div key={list.id} className="top-list-item">
+          <div key={list.id} className="top-list-item" onClick={openSignup} style={{ cursor: 'pointer' }}>
             <span className="top-list-item__rank">{index + 1}</span>
             <div className="top-list-item__info">
               <h3 className="top-list-item__title">{list.title}</h3>

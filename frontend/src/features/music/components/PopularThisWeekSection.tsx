@@ -40,7 +40,7 @@ export const PopularThisWeekSection = ({ type }: PopularThisWeekSectionProps) =>
 
       <div className="explore-section__grid explore-section__grid--3col">
         {items.map((item) => (
-          <div key={item.id} className="music-card music-card--wide">
+          <div key={item.id} className="music-card music-card--wide" onClick={openSignup} style={{ cursor: 'pointer' }}>
             <div className="music-card__cover">
               <img src={item.cover} alt={item.title} loading="lazy" />
               <div className="music-card__overlay">

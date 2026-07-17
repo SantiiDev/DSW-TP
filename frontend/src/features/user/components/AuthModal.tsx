@@ -1,4 +1,7 @@
-// Componente de modal de autenticación (Login/Signup)
+// Componente de UI para el modal de autenticación (AuthModal).
+// Consume el AuthModalContext para controlar su visibilidad y renderiza condicionalmente
+// el formulario de Iniciar Sesión o de Registro. Previene interacciones traseras cuando está abierto.
+// (Nota: La lógica de autenticación real contra el backend debe implementarse en handleSubmit).
 import { useState } from 'react';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import '../styles/_auth.scss';
@@ -27,11 +30,9 @@ export const AuthModal = () => {
 
   return (
     <div className="auth-modal-overlay" onClick={closeModal}>
-      <div className="auth-modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="auth-modal-content">
         <section className="auth">
-          <div className="auth__background"></div>
-
-          <div className="auth__card">
+          <div className="auth__card" onClick={(e) => e.stopPropagation()}>
             <button className="auth__close-btn" onClick={closeModal} aria-label="Cerrar modal">
               ✕
             </button>

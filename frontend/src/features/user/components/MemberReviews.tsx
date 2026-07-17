@@ -1,7 +1,10 @@
-// Sección de reseñas recientes de los miembros.
+// Componente UI para mostrar las reseñas más recientes (MemberReviews).
+// Compone tarjetas complejas que incluyen información del álbum criticado, el resumen (excerpt) 
+// de la reseña, y la valoración en estrellas del usuario, junto con sus métricas de interacción.
 import { MessageSquare, Heart, MessageCircle, Share2 } from 'lucide-react';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 
-// Datos mock de reseñas (se reemplazarán con datos del backend)
+// Mocks de reseñas estructurados como DTOs (Data Transfer Objects) que incluirían relaciones (Reviewer y Album).
 const MEMBER_REVIEWS = [
   {
     id: 1,
@@ -39,7 +42,9 @@ const MEMBER_REVIEWS = [
   }
 ];
 
-// Helper para renderizar las estrellas
+// Función de ayuda (StarRating) para dibujar visualmente la calificación.
+// Recibe un rating numérico (ej: 4.5) y devuelve una colección de elementos span ('estrellas')
+// llenas o vacías dependiendo del valor.
 const StarRating = ({ rating }: { rating: number }) => {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 !== 0;
@@ -59,6 +64,7 @@ const StarRating = ({ rating }: { rating: number }) => {
 };
 
 export const MemberReviews = () => {
+  const { openSignup } = useAuthModal();
   return (
     <section className="member-reviews">
       <div className="members-section__header">
@@ -91,26 +97,26 @@ export const MemberReviews = () => {
             <p className="review-card__excerpt">
               {review.excerpt}
             </p>
-            <button className="review-card__read-more">Leer más...</button>
+            <button className="review-card__read-more" onClick={() => openSignup()}>Leer más...</button>
 
             {/* Footer con stats y acciones */}
             <footer className="review-card__footer">
               <div className="review-card__stats">
-                <div className="review-card__stat" title="Me gusta">
+                <div className="review-card__stat" title="Me gusta" onClick={openSignup} style={{ cursor: 'pointer' }}>
                   <Heart size={16} />
                   <span>{review.likes}</span>
                 </div>
-                <div className="review-card__stat" title="Comentarios">
+                <div className="review-card__stat" title="Comentarios" onClick={openSignup} style={{ cursor: 'pointer' }}>
                   <MessageCircle size={16} />
                   <span>{review.comments}</span>
                 </div>
               </div>
               
               <div className="review-card__actions">
-                <button className="review-card__action-btn" aria-label="Comentar">
+                <button className="review-card__action-btn" aria-label="Comentar" onClick={openSignup}>
                   <MessageCircle size={18} />
                 </button>
-                <button className="review-card__action-btn" aria-label="Compartir">
+                <button className="review-card__action-btn" aria-label="Compartir" onClick={openSignup}>
                   <Share2 size={18} />
                 </button>
               </div>

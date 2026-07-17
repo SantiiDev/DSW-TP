@@ -1,4 +1,7 @@
-// Página principal (Home) que ensambla las distintas secciones de presentación.
+// Página principal (Home).
+// Ensambla de forma secuencial las distintas secciones de presentación (Hero, Álbumes populares,
+// Características y Llamado a la acción) utilizando animaciones de entrada (FadeInSection).
+// Actúa como el 'landing' o pantalla de inicio (ruta '/') del frontend.
 import { Navbar } from '../../core/components/Navbar';
 import { Footer } from '../../core/components/Footer';
 import { Hero } from './components/Hero';

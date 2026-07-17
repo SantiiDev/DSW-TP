@@ -26,9 +26,9 @@ export const NewReleasesSection = () => {
         </button>
       </div>
 
-      <div className="explore-section__grid">
+      <div className="explore-section__grid explore-section__grid--compact">
         {NEW_RELEASES.map((item) => (
-          <div key={item.id} className="music-card music-card--new">
+          <div key={item.id} className="music-card music-card--new" onClick={openSignup} style={{ cursor: 'pointer' }}>
             <div className="music-card__cover">
               <img src={item.cover} alt={item.title} loading="lazy" />
               <div className="music-card__badge">Nuevo</div>

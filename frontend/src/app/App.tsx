@@ -1,4 +1,7 @@
-// Componente raíz de la aplicación que define las rutas principales y el layout base.
+// Componente raíz de la aplicación (App.tsx).
+// Responsable de definir la configuración del enrutador (React Router v6) y establecer 
+// el layout principal que envuelve a todas las páginas. También inyecta contextos globales
+// (como el modal de autenticación) y maneja el restablecimiento del scroll al cambiar de ruta.
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Home } from '../features/home/Home';
@@ -8,6 +11,12 @@ import { ProPage } from '../features/membership/pages/ProPage';
 import { ListsExplorePage } from '../features/review/pages/ListsExplorePage';
 import { AuthModalProvider } from '../core/context/AuthModalContext';
 import { AuthModal } from '../features/user/components/AuthModal';
+
+// Static Info Pages
+import { TermsPage } from '../features/home/pages/TermsPage';
+import { PrivacyPage } from '../features/home/pages/PrivacyPage';
+import { FaqPage } from '../features/home/pages/FaqPage';
+import { ContactPage } from '../features/home/pages/ContactPage';
 
 export const App = () => {
   const location = useLocation();
@@ -34,9 +43,16 @@ export const App = () => {
           <Route path="/members" element={<MembersExplorePage />} />
           <Route path="/lists" element={<ListsExplorePage />} />
           <Route path="/pro" element={<ProPage />} />
+          
+          {/* Static Pages */}
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Routes>
       </div>
       <AuthModal />
     </AuthModalProvider>
   );
 };
+
