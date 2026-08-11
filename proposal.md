@@ -15,7 +15,7 @@
 Musicboxd es una plataforma social y catálogo musical interactivo donde los usuarios pueden registrar, calificar con estrellas y reseñar los álbumes o canciones de esos albumes que escuchan. Contiene descubrimiento mediante un feed comunitario en tiempo real y rankings de los discos mejor valorados. Su modelo de negocio se basa en membresías escalables (Free, Pro y Patron), ofreciendo a los usuarios premium una experiencia sin anuncios, estadísticas detalladas y opciones de personalización avanzadas.
 
 ### Modelo
-<img width="1168" height="681" alt="MUSICBOXD_DER" src="https://github.com/user-attachments/assets/ab00d957-3334-4eb3-84e5-903ef95bb7ad" />
+<img width="1160" height="702" alt="der-dsw drawio" src="https://github.com/user-attachments/assets/231ba2aa-5e9c-4692-9eb7-c75030129906" />
 https://drive.google.com/drive/folders/1popRH9AojPdvK1NS7iWrenMltxDe6gXC
 
 ## Alcance Funcional 
