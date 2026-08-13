@@ -68,9 +68,11 @@ export const env = {
     password: optional('SEED_ADMIN_PASSWORD', 'Admin1234!'),
   },
 
-  // Estas se empiezan a usar en fases posteriores; por eso son opcionales todavía.
+  // Autenticación. El secreto es obligatorio: sin él la API firmaría los tokens
+  // con una clave vacía y cualquiera podría fabricarse uno de ADMIN. Preferimos
+  // que el servidor no arranque a que arranque inseguro.
   auth: {
-    jwtSecret: optional('JWT_SECRET', ''),
+    jwtSecret: required('JWT_SECRET'),
     jwtExpiresIn: optional('JWT_EXPIRES_IN', '7d'),
   },
 } as const;

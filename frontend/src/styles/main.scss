@@ -10,6 +10,7 @@
 @use '../core/components/navbar';
 @use '../core/components/footer';
 @use '../core/components/fade-in-section';
+@use '../core/components/loader';
 
 // Features Components
 @use '../features/home/components/hero';

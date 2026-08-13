@@ -268,13 +268,15 @@ src/
   entities/          Modelos de Sequelize (una por tabla del DER) +
                      index.ts con TODAS las asociaciones
   shared/
+    auth/jwt.ts      Firma y verificación de los tokens
     config/env.ts    Lectura y validación de variables de entorno
     db/sequelize.ts  Instancia única de conexión
     errors/          Clases de error de negocio (AppError y derivadas)
-    middlewares/     validate, error-handler, not-found
+    middlewares/     validate, require-auth, require-role, error-handler, not-found
     types/enums.ts   Enumerados del dominio (roles, estados)
   types/             Declaraciones de tipos globales (extensión de Request)
   health/            Endpoint de health check (ejemplo del patrón de capas)
+  auth/              Registro, inicio de sesión y usuario logueado
   seed/              Scripts de carga inicial de datos + data/*.json descargados
   routes.ts          Router principal: monta el router de cada feature
   app.ts             Configuración de Express (sin levantar el servidor)
@@ -397,6 +399,91 @@ Ese middleware traduce automáticamente: errores propios (`AppError` y derivadas
 errores de Zod, violaciones de índice único (409), violaciones de clave foránea (409)
 y validaciones del modelo de Sequelize (400). Los 5xx se loguean completos en el
 servidor y nunca exponen el SQL al cliente.
+
+## Autenticación y roles
+
+La API usa **JWT propio** (sin librerías de terceros tipo Passport) y **bcrypt**
+para el hash de las contraseñas. No hay sesiones ni cookies: el token viaja en el
+header `Authorization` en cada request.
+
+### Endpoints
+
+| Método | Ruta                 | Acceso    | Descripción                                     |
+| :----- | :------------------- | :-------- | :---------------------------------------------- |
+| POST   | `/api/auth/register` | público   | Crea la cuenta (siempre `FREE`) y devuelve token |
+| POST   | `/api/auth/login`    | público   | Valida credenciales y devuelve token             |
+| GET    | `/api/auth/me`       | logueado  | Datos del usuario dueño del token                |
+
+`register` y `login` responden lo mismo: el usuario y su token.
+
+```json
+{
+  "user": {
+    "id_user": 1,
+    "username": "admin",
+    "email": "admin@musicboxd.com",
+    "rol": "ADMIN",
+    "registration_date": "2026-08-13T18:31:40.000Z"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+Ejemplo con curl:
+
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@musicboxd.com","password":"Admin1234!"}'
+```
+
+```bash
+curl http://localhost:3000/api/auth/me -H "Authorization: Bearer <token>"
+```
+
+### Proteger una ruta
+
+Dos middlewares, siempre en este orden: primero `requireAuth` (¿quién sos?) y
+después `requireRole` (¿te alcanza el rol?).
+
+```ts
+import { requireAuth } from '../shared/middlewares/require-auth';
+import { requireRole } from '../shared/middlewares/require-role';
+
+// Cualquier usuario logueado
+albumRouter.post('/:id/reviews', requireAuth, reviewController.create);
+
+// Alta de catálogo: solo PATRON o ADMIN
+albumRouter.post('/', requireAuth, requireRole('PATRON', 'ADMIN'), albumController.create);
+
+// Moderación: solo ADMIN
+albumRouter.patch('/:id/approve', requireAuth, requireRole('ADMIN'), albumController.approve);
+```
+
+`requireAuth` verifica el token y deja `{ id_user, rol }` en `req.user`, que el
+controller usa para saber quién está haciendo la operación:
+
+```ts
+const id_user = req.user!.id_user;
+```
+
+Los códigos son los esperables: **401** si falta el token, está vencido o es
+inválido; **403** si el usuario está logueado pero su rol no alcanza.
+
+### Decisiones de esta parte
+
+- **El rol nunca sale de la request.** Todo registro público entra como `FREE`,
+  aunque el body traiga `"rol": "ADMIN"`. Se sube a `PRO` / `PATRON` pagando, y a
+  `ADMIN` solo desde el seed.
+- **La contraseña no sale nunca en una respuesta.** El `defaultScope` de la entidad
+  `User` la excluye de toda consulta; el login es el único lugar que usa
+  `User.scope('withPassword')`, y aun ahí el service arma la respuesta campo por campo.
+- **Login fallido: siempre el mismo mensaje**, exista o no el email. Distinguir los
+  casos le permitiría a un atacante averiguar qué cuentas están registradas.
+- **`JWT_SECRET` es obligatorio.** Si falta, el servidor no arranca: con una clave
+  vacía cualquiera podría fabricarse un token de `ADMIN`.
+- El frontend replica estos permisos con `ProtectedRoute`, pero eso es solo para la
+  navegación: **la validación real es la del backend**.
 
 ## Modelo de datos
 

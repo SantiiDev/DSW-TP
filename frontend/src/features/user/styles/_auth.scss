@@ -176,6 +176,20 @@
     }
   }
 
+  // Mensaje de error del login/registro: credenciales incorrectas, email ya
+  // registrado, contraseñas que no coinciden, servidor caído.
+  &__error {
+    width: 100%;
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    color: color.adjust($color-error, $lightness: 15%);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
   // Botón principal de submit
   &__submit-btn {
     width: 100%;
@@ -190,13 +204,20 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     margin-top: $spacing-sm;
 
-    &:hover {
+    // Los efectos solo cuando el botón está habilitado: mientras se envía el
+    // formulario tiene que quedar claro que no se puede volver a apretar.
+    &:hover:not(:disabled) {
       transform: scale(1.02);
       box-shadow: 0 4px 15px rgba($color-primary, 0.4);
     }
 
-    &:active {
+    &:active:not(:disabled) {
       transform: scale(0.98);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
   }
 

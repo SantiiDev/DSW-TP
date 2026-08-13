@@ -2,10 +2,16 @@
 import { Link, NavLink } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { useAuthModal } from '../context/AuthModalContext';
+import { useAuth } from '../context/AuthContext';
 import './_navbar.scss';
 
 export const Navbar = () => {
   const { openLogin, openSignup } = useAuthModal();
+  const { state: authState, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <nav className="navbar">
@@ -33,10 +39,21 @@ export const Navbar = () => {
           <NavLink to="/pro" className={({ isActive }) => `navbar__link navbar__link--pro ${isActive ? 'active' : ''}`}>Pro</NavLink>
         </div>
 
-        {/* Right side: Auth buttons */}
+        {/* Right side: sesión iniciada o botones de auth */}
+        {/* Mientras el estado es 'checking' se muestran los botones de invitado:
+            es lo correcto en la mayoría de las visitas y evita un parpadeo. */}
         <div className="navbar__right">
-          <button onClick={openLogin} className="navbar__btn navbar__btn--login">Iniciar Sesión</button>
-          <button onClick={openSignup} className="navbar__btn navbar__btn--signup">Registrarse</button>
+          {authState.status === 'authenticated' && authState.user ? (
+            <>
+              <span className="navbar__user">{authState.user.username}</span>
+              <button onClick={handleLogout} className="navbar__btn navbar__btn--logout">Cerrar Sesión</button>
+            </>
+          ) : (
+            <>
+              <button onClick={openLogin} className="navbar__btn navbar__btn--login">Iniciar Sesión</button>
+              <button onClick={openSignup} className="navbar__btn navbar__btn--signup">Registrarse</button>
+            </>
+          )}
         </div>
       </div>
     </nav>

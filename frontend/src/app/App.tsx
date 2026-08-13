@@ -9,6 +9,7 @@ import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
 import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
 import { ProPage } from '../features/membership/pages/ProPage';
 import { ListsExplorePage } from '../features/review/pages/ListsExplorePage';
+import { AuthProvider } from '../core/context/AuthContext';
 import { AuthModalProvider } from '../core/context/AuthModalContext';
 import { AuthModal } from '../features/user/components/AuthModal';
 
@@ -35,24 +36,35 @@ export const App = () => {
   }, [location.pathname]);
 
   return (
-    <AuthModalProvider>
-      <div key={location.pathname} className="fade-in">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/music" element={<MusicExplorePage />} />
-          <Route path="/members" element={<MembersExplorePage />} />
-          <Route path="/lists" element={<ListsExplorePage />} />
-          <Route path="/pro" element={<ProPage />} />
-          
-          {/* Static Pages */}
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/faq" element={<FaqPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-        </Routes>
-      </div>
-      <AuthModal />
-    </AuthModalProvider>
+    // AuthProvider envuelve a todo: la sesión la necesitan tanto el modal de
+    // autenticación como el Navbar y las rutas protegidas.
+    <AuthProvider>
+      <AuthModalProvider>
+        <div key={location.pathname} className="fade-in">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/music" element={<MusicExplorePage />} />
+            <Route path="/members" element={<MembersExplorePage />} />
+            <Route path="/lists" element={<ListsExplorePage />} />
+            <Route path="/pro" element={<ProPage />} />
+
+            {/* Static Pages */}
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/faq" element={<FaqPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+
+            {/* Las rutas privadas se envuelven con ProtectedRoute, por ejemplo:
+                <Route path="/profile" element={
+                  <ProtectedRoute><UserProfilePage /></ProtectedRoute>
+                } />
+                Todavía no hay ninguna porque sus páginas se construyen en las
+                fases siguientes (perfil, aporte de catálogo, moderación). */}
+          </Routes>
+        </div>
+        <AuthModal />
+      </AuthModalProvider>
+    </AuthProvider>
   );
 };
 

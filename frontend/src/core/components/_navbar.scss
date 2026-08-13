@@ -150,5 +150,24 @@
       background-color: $color-primary;
       color: #000;
     }
+
+    &--logout {
+      background-color: transparent;
+      color: $color-text;
+      border: 1px solid $color-nav-border;
+    }
+  }
+
+  // Nombre del usuario logueado, al lado del botón de cerrar sesión.
+  &__user {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-text;
+    // Un username puede tener hasta 50 caracteres: se corta para que no empuje
+    // los botones fuera de la barra.
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

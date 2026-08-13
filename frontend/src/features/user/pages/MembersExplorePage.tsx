@@ -2,7 +2,6 @@
 // Construye el layout de dos columnas para visualizar la comunidad.
 // Integra componentes independientes que muestran miembros destacados, reviewers populares
 // y actividad reciente (listas/reseñas), preparándolos para conectarse con el backend.
-import { Link } from 'react-router-dom';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
 import { FadeInSection } from '../../../core/components/FadeInSection';

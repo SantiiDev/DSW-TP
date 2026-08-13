@@ -1,39 +1,82 @@
 // Componente de UI para el modal de autenticación (AuthModal).
-// Consume el AuthModalContext para controlar su visibilidad y renderiza condicionalmente
-// el formulario de Iniciar Sesión o de Registro. Previene interacciones traseras cuando está abierto.
-// (Nota: La lógica de autenticación real contra el backend debe implementarse en handleSubmit).
+// Consume el AuthModalContext para controlar su visibilidad y el AuthContext para
+// registrar o iniciar sesión contra el backend. Renderiza condicionalmente el
+// formulario de Iniciar Sesión o el de Registro.
 import { useState } from 'react';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
+import { useAuth } from '../../../core/context/AuthContext';
 import '../styles/_auth.scss';
 
 export const AuthModal = () => {
-  const { state, closeModal, switchView } = useAuthModal();
-  
+  const { state: modalState, closeModal, switchView } = useAuthModal();
+  const { state: authState, login, register, clearError } = useAuth();
+
   // Estados para los formularios
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  if (!state.isOpen) return null;
+  // Errores que se detectan en el navegador y ni siquiera llegan al backend
+  // (por ahora, solo que las dos contraseñas no coincidan).
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Aquí iría la lógica de autenticación
+  if (!modalState.isOpen) return null;
+
+  const isLogin = modalState.view === 'login';
+
+  // Se muestra un error por vez: el local tiene prioridad porque es el más
+  // inmediato a lo que el usuario acaba de escribir.
+  const errorMessage = formError ?? authState.error;
+
+  // Deja el modal como recién abierto, para que al volver a entrar no aparezcan
+  // los datos ni el error del intento anterior.
+  const resetForm = () => {
+    setEmail('');
+    setPassword('');
+    setUsername('');
+    setConfirmPassword('');
+    setFormError(null);
+    clearError();
   };
 
-  const isLogin = state.view === 'login';
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    if (!isLogin && password !== confirmPassword) {
+      setFormError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    const succeeded = isLogin
+      ? await login({ email, password })
+      : await register({ username, email, password });
+
+    // Si falló, el modal queda abierto mostrando el error que dejó el AuthContext.
+    if (succeeded) {
+      resetForm();
+      closeModal();
+    }
+  };
+
+  const handleClose = () => {
+    resetForm();
+    closeModal();
+  };
 
   const handleSwitchView = () => {
+    setFormError(null);
+    clearError();
     switchView(isLogin ? 'signup' : 'login');
   };
 
   return (
-    <div className="auth-modal-overlay" onClick={closeModal}>
+    <div className="auth-modal-overlay" onClick={handleClose}>
       <div className="auth-modal-content">
         <section className="auth">
           <div className="auth__card" onClick={(e) => e.stopPropagation()}>
-            <button className="auth__close-btn" onClick={closeModal} aria-label="Cerrar modal">
+            <button className="auth__close-btn" onClick={handleClose} aria-label="Cerrar modal">
               ✕
             </button>
 
@@ -72,6 +115,12 @@ export const AuthModal = () => {
 
             {/* Formulario */}
             <form className="auth__form" onSubmit={handleSubmit}>
+              {errorMessage && (
+                <p className="auth__error" role="alert">
+                  {errorMessage}
+                </p>
+              )}
+
               {!isLogin && (
                 <div className="auth__field">
                   <label htmlFor="auth-username" className="auth__label">
@@ -84,6 +133,8 @@ export const AuthModal = () => {
                     placeholder="Tu nombre de usuario"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    minLength={3}
+                    maxLength={50}
                     required
                   />
                 </div>
@@ -115,6 +166,9 @@ export const AuthModal = () => {
                   placeholder={isLogin ? 'Tu contraseña' : 'Mínimo 8 caracteres'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  // El mínimo se valida igual en el backend; acá es solo para
+                  // avisar antes de gastar una request.
+                  minLength={isLogin ? undefined : 8}
                   required
                 />
               </div>
@@ -136,16 +190,20 @@ export const AuthModal = () => {
                 </div>
               )}
 
-              <button type="submit" className="auth__submit-btn">
-                {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
+              <button type="submit" className="auth__submit-btn" disabled={authState.isSubmitting}>
+                {authState.isSubmitting
+                  ? 'Enviando...'
+                  : isLogin
+                    ? 'Iniciar Sesión'
+                    : 'Crear Cuenta'}
               </button>
             </form>
 
             {/* Footer con toggle de vista */}
             <p className="auth__footer">
               {isLogin ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? '}
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="auth__link-btn"
                 onClick={handleSwitchView}
               >
