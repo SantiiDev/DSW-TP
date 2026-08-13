@@ -1,0 +1,198 @@
+@use "sass:color";
+// Estilos de la página de perfil propio (UserProfilePage) y sus dos vistas:
+// UserProfileCard (solo lectura) y UserForm (edición). Reutiliza los mismos
+// tokens que _auth.scss para que la UI del perfil se sienta parte del mismo set.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.user-profile-page {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-lg $spacing-md;
+
+  &__container {
+    width: 100%;
+    max-width: 480px;
+  }
+}
+
+.user-profile-card {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__username {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  &__role {
+    align-self: flex-start;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $color-primary;
+    background-color: rgba($color-primary, 0.12);
+    border-radius: 20px;
+    padding: 0.2rem 0.7rem;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    margin: 0;
+  }
+
+  &__detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    dt {
+      font-size: 0.8rem;
+      color: $color-text-secondary;
+    }
+
+    dd {
+      font-size: 0.95rem;
+      color: $color-text;
+      margin: 0;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+    }
+  }
+
+  &__edit-btn,
+  &__delete-btn {
+    flex: 1;
+    padding: 0.6rem $spacing-md;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__edit-btn {
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+  }
+
+  &__delete-btn {
+    background-color: transparent;
+    color: $color-error;
+    border: 1px solid rgba($color-error, 0.5);
+  }
+}
+
+// El formulario de edición comparte estructura con el de auth: mismo look de
+// campo/label/input/error/submit, con nombres propios para no acoplar features.
+.user-form {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: $color-text;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  &__error {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    color: color.adjust($color-error, $lightness: 15%);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+  }
+
+  &__submit-btn,
+  &__cancel-btn {
+    flex: 1;
+    padding: 0.65rem $spacing-md;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__submit-btn {
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+  }
+
+  &__cancel-btn {
+    background-color: transparent;
+    color: $color-text;
+    border: 1px solid $color-nav-border;
+  }
+}

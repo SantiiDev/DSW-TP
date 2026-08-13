@@ -3,14 +3,15 @@
 import { Router } from 'express';
 import { authRouter } from './auth/auth.routes';
 import { healthRouter } from './health/health.routes';
+import { userRouter } from './user/user.routes';
 
 export const router = Router();
 
 router.use('/health', healthRouter);
 router.use('/auth', authRouter);
+router.use('/users', userRouter);
 
 // A medida que avancen las features se van montando acá:
-// router.use('/users', userRouter);
 // router.use('/artists', artistRouter);
 // router.use('/genres', genreRouter);
 // router.use('/albums', albumRouter);

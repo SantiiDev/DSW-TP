@@ -45,7 +45,7 @@ export const Navbar = () => {
         <div className="navbar__right">
           {authState.status === 'authenticated' && authState.user ? (
             <>
-              <span className="navbar__user">{authState.user.username}</span>
+              <Link to="/profile" className="navbar__user">{authState.user.username}</Link>
               <button onClick={handleLogout} className="navbar__btn navbar__btn--logout">Cerrar Sesión</button>
             </>
           ) : (
