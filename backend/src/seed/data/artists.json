@@ -1,0 +1,618 @@
+[
+  {
+    "deezer_id": 259,
+    "name": "Michael Jackson",
+    "genres": [
+      "Pop"
+    ]
+  },
+  {
+    "deezer_id": 290,
+    "name": "Madonna",
+    "genres": [
+      "Pop"
+    ]
+  },
+  {
+    "deezer_id": 892,
+    "name": "Coldplay",
+    "genres": [
+      "Pop"
+    ]
+  },
+  {
+    "deezer_id": 8706544,
+    "name": "Dua Lipa",
+    "genres": [
+      "Pop"
+    ]
+  },
+  {
+    "deezer_id": 12246,
+    "name": "Taylor Swift",
+    "genres": [
+      "Pop"
+    ]
+  },
+  {
+    "deezer_id": 4050205,
+    "name": "The Weeknd",
+    "genres": [
+      "Pop"
+    ]
+  },
+  {
+    "deezer_id": 9635624,
+    "name": "Billie Eilish",
+    "genres": [
+      "Pop"
+    ]
+  },
+  {
+    "deezer_id": 412,
+    "name": "Queen",
+    "genres": [
+      "Rock"
+    ]
+  },
+  {
+    "deezer_id": 1,
+    "name": "The Beatles",
+    "genres": [
+      "Rock"
+    ]
+  },
+  {
+    "deezer_id": 848,
+    "name": "Led Zeppelin",
+    "genres": [
+      "Rock"
+    ]
+  },
+  {
+    "deezer_id": 860,
+    "name": "Pink Floyd",
+    "genres": [
+      "Rock"
+    ]
+  },
+  {
+    "deezer_id": 11,
+    "name": "The Rolling Stones",
+    "genres": [
+      "Rock"
+    ]
+  },
+  {
+    "deezer_id": 415,
+    "name": "Nirvana",
+    "genres": [
+      "Rock"
+    ]
+  },
+  {
+    "deezer_id": 566,
+    "name": "Foo Fighters",
+    "genres": [
+      "Rock"
+    ]
+  },
+  {
+    "deezer_id": 163,
+    "name": "U2",
+    "genres": [
+      "Rock"
+    ]
+  },
+  {
+    "deezer_id": 399,
+    "name": "Radiohead",
+    "genres": [
+      "Alternativo"
+    ]
+  },
+  {
+    "deezer_id": 1182,
+    "name": "Arctic Monkeys",
+    "genres": [
+      "Alternativo"
+    ]
+  },
+  {
+    "deezer_id": 569,
+    "name": "The Strokes",
+    "genres": [
+      "Alternativo"
+    ]
+  },
+  {
+    "deezer_id": 14,
+    "name": "Gorillaz",
+    "genres": [
+      "Alternativo"
+    ]
+  },
+  {
+    "deezer_id": 134790,
+    "name": "Tame Impala",
+    "genres": [
+      "Alternativo"
+    ]
+  },
+  {
+    "deezer_id": 193331,
+    "name": "The Smashing Pumpkins",
+    "genres": [
+      "Alternativo"
+    ]
+  },
+  {
+    "deezer_id": 1652,
+    "name": "Interpol",
+    "genres": [
+      "Alternativo"
+    ]
+  },
+  {
+    "deezer_id": 13,
+    "name": "Eminem",
+    "genres": [
+      "Rap/Hip Hop"
+    ]
+  },
+  {
+    "deezer_id": 525046,
+    "name": "Kendrick Lamar",
+    "genres": [
+      "Rap/Hip Hop"
+    ]
+  },
+  {
+    "deezer_id": 230,
+    "name": "Kanye West",
+    "genres": [
+      "Rap/Hip Hop"
+    ]
+  },
+  {
+    "deezer_id": 73,
+    "name": "Nas",
+    "genres": [
+      "Rap/Hip Hop"
+    ]
+  },
+  {
+    "deezer_id": 167095,
+    "name": "2Pac",
+    "genres": [
+      "Rap/Hip Hop"
+    ]
+  },
+  {
+    "deezer_id": 2519,
+    "name": "The Notorious B.I.G.",
+    "genres": [
+      "Rap/Hip Hop"
+    ]
+  },
+  {
+    "deezer_id": 1862,
+    "name": "A Tribe Called Quest",
+    "genres": [
+      "Rap/Hip Hop"
+    ]
+  },
+  {
+    "deezer_id": 27,
+    "name": "Daft Punk",
+    "genres": [
+      "Electro"
+    ]
+  },
+  {
+    "deezer_id": 81,
+    "name": "The Chemical Brothers",
+    "genres": [
+      "Electro"
+    ]
+  },
+  {
+    "deezer_id": 580,
+    "name": "Aphex Twin",
+    "genres": [
+      "Electro"
+    ]
+  },
+  {
+    "deezer_id": 4333065,
+    "name": "justice",
+    "genres": [
+      "Electro"
+    ]
+  },
+  {
+    "deezer_id": 926,
+    "name": "Kraftwerk",
+    "genres": [
+      "Electro"
+    ]
+  },
+  {
+    "deezer_id": 612,
+    "name": "Massive Attack",
+    "genres": [
+      "Electro"
+    ]
+  },
+  {
+    "deezer_id": 85,
+    "name": "The Prodigy",
+    "genres": [
+      "Electro"
+    ]
+  },
+  {
+    "deezer_id": 119,
+    "name": "Metallica",
+    "genres": [
+      "Metal"
+    ]
+  },
+  {
+    "deezer_id": 931,
+    "name": "Iron Maiden",
+    "genres": [
+      "Metal"
+    ]
+  },
+  {
+    "deezer_id": 647,
+    "name": "Black Sabbath",
+    "genres": [
+      "Metal"
+    ]
+  },
+  {
+    "deezer_id": 117,
+    "name": "Slipknot",
+    "genres": [
+      "Metal"
+    ]
+  },
+  {
+    "deezer_id": 3487,
+    "name": "Megadeth",
+    "genres": [
+      "Metal"
+    ]
+  },
+  {
+    "deezer_id": 689,
+    "name": "TOOL",
+    "genres": [
+      "Metal"
+    ]
+  },
+  {
+    "deezer_id": 458,
+    "name": "System of a Down",
+    "genres": [
+      "Metal"
+    ]
+  },
+  {
+    "deezer_id": 1910,
+    "name": "Miles Davis",
+    "genres": [
+      "Jazz"
+    ]
+  },
+  {
+    "deezer_id": 2449,
+    "name": "John Coltrane",
+    "genres": [
+      "Jazz"
+    ]
+  },
+  {
+    "deezer_id": 2060,
+    "name": "Bill Evans",
+    "genres": [
+      "Jazz"
+    ]
+  },
+  {
+    "deezer_id": 1406,
+    "name": "Herbie Hancock",
+    "genres": [
+      "Jazz"
+    ]
+  },
+  {
+    "deezer_id": 5136,
+    "name": "Thelonious Monk",
+    "genres": [
+      "Jazz"
+    ]
+  },
+  {
+    "deezer_id": 5123,
+    "name": "Charles Mingus",
+    "genres": [
+      "Jazz"
+    ]
+  },
+  {
+    "deezer_id": 4080,
+    "name": "Dave Brubeck",
+    "genres": [
+      "Jazz"
+    ]
+  },
+  {
+    "deezer_id": 166,
+    "name": "Stevie Wonder",
+    "genres": [
+      "R&B"
+    ]
+  },
+  {
+    "deezer_id": 1154,
+    "name": "Marvin Gaye",
+    "genres": [
+      "R&B"
+    ]
+  },
+  {
+    "deezer_id": 1350335,
+    "name": "Frank Ocean",
+    "genres": [
+      "R&B"
+    ]
+  },
+  {
+    "deezer_id": 5004,
+    "name": "D'Angelo",
+    "genres": [
+      "R&B"
+    ]
+  },
+  {
+    "deezer_id": 228,
+    "name": "Alicia Keys",
+    "genres": [
+      "R&B"
+    ]
+  },
+  {
+    "deezer_id": 2056,
+    "name": "Erykah Badu",
+    "genres": [
+      "R&B"
+    ]
+  },
+  {
+    "deezer_id": 5531258,
+    "name": "SZA",
+    "genres": [
+      "R&B"
+    ]
+  },
+  {
+    "deezer_id": 1622,
+    "name": "James Brown",
+    "genres": [
+      "Soul & Funk"
+    ]
+  },
+  {
+    "deezer_id": 2059,
+    "name": "Aretha Franklin",
+    "genres": [
+      "Soul & Funk"
+    ]
+  },
+  {
+    "deezer_id": 229,
+    "name": "Sly & The Family Stone",
+    "genres": [
+      "Soul & Funk"
+    ]
+  },
+  {
+    "deezer_id": 2027,
+    "name": "Curtis Mayfield",
+    "genres": [
+      "Soul & Funk"
+    ]
+  },
+  {
+    "deezer_id": 2945,
+    "name": "Otis Redding",
+    "genres": [
+      "Soul & Funk"
+    ]
+  },
+  {
+    "deezer_id": 248,
+    "name": "Earth, Wind & Fire",
+    "genres": [
+      "Soul & Funk"
+    ]
+  },
+  {
+    "deezer_id": 909,
+    "name": "Parliament",
+    "genres": [
+      "Soul & Funk"
+    ]
+  },
+  {
+    "deezer_id": 15796,
+    "name": "Rubén Blades",
+    "genres": [
+      "Latino"
+    ]
+  },
+  {
+    "deezer_id": 94024,
+    "name": "Héctor Lavoe",
+    "genres": [
+      "Latino"
+    ]
+  },
+  {
+    "deezer_id": 5024,
+    "name": "Celia Cruz",
+    "genres": [
+      "Latino"
+    ]
+  },
+  {
+    "deezer_id": 4527779,
+    "name": "Juan Luis Guerra",
+    "genres": [
+      "Latino"
+    ]
+  },
+  {
+    "deezer_id": 7343,
+    "name": "Carlos Vives",
+    "genres": [
+      "Latino"
+    ]
+  },
+  {
+    "deezer_id": 554792,
+    "name": "ROSALÍA",
+    "genres": [
+      "Latino"
+    ]
+  },
+  {
+    "deezer_id": 10606,
+    "name": "Mercedes Sosa",
+    "genres": [
+      "Latino"
+    ]
+  },
+  {
+    "deezer_id": 4345,
+    "name": "Soda Stereo",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 4300,
+    "name": "Charly García",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 1374,
+    "name": "Gustavo Cerati",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 75041,
+    "name": "Luis Alberto Spinetta",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 8355,
+    "name": "Sui Generis",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 12135,
+    "name": "Patricio Rey y sus Redonditos de Ricota",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 10911,
+    "name": "Divididos",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 3491,
+    "name": "Los Fabulosos Cadillacs",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 4998,
+    "name": "Babasónicos",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 103602,
+    "name": "Seru Giran",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 4941,
+    "name": "Fito Páez",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 5838,
+    "name": "Andrés Calamaro",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 12918,
+    "name": "La Renga",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 355716,
+    "name": "Almendra",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 15338825,
+    "name": "Virus",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 13135,
+    "name": "Los Piojos",
+    "genres": [
+      "Rock Nacional"
+    ]
+  },
+  {
+    "deezer_id": 469543,
+    "name": "El Mató a un Policía Motorizado",
+    "genres": [
+      "Rock Nacional"
+    ]
+  }
+]

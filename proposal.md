@@ -16,11 +16,27 @@
 Musicboxd es una plataforma social y catálogo musical interactivo donde los usuarios pueden registrar, calificar con estrellas y reseñar los álbumes o canciones de esos álbumes que escuchan. Contiene descubrimiento mediante un feed comunitario y rankings de los discos mejor valorados. Su modelo de negocio se basa en membresías escalables (Free, Pro y Patron), ofreciendo a los usuarios premium una experiencia sin anuncios, estadísticas detalladas y opciones de personalización avanzadas.
 
 ### Origen de los datos del catálogo
-La base de datos propia del sistema es la **única fuente de verdad en tiempo de ejecución**: la aplicación no consulta APIs externas de música durante su funcionamiento normal.
+La base de datos propia del sistema es la **única fuente de verdad en tiempo de ejecución**: la aplicación no consulta APIs externas de música durante su funcionamiento normal. Ningún endpoint de la API ni ningún componente del frontend le pega a un servicio de metadata musical.
 
-El catálogo inicial (géneros, artistas, álbumes y canciones) se carga mediante un **procedimiento de seed** que se ejecuta **una sola vez**, de forma manual (`npm run seed`), tomando información acotada de un servicio de metadata musical externo (Deezer / Spotify / MusicBrainz). La respuesta cruda de ese servicio se versiona en el repositorio, de modo que el proceso de llenado sea reproducible sin depender de la disponibilidad de la API externa.
+El catálogo inicial (géneros, artistas, álbumes y canciones) se carga mediante un **procedimiento de seed** partido en dos etapas bien separadas:
 
-Alcance previsto del seed: aproximadamente 10 géneros, 60-100 artistas y 200-300 álbumes con sus respectivas canciones, además de los planes de membresía y un usuario administrador inicial.
+1. **Descarga (`npm run seed:fetch`)**: única etapa que sale a internet. Se ejecuta **una sola vez, de forma manual**, y guarda la metadata descargada en `backend/src/seed/data/*.json`. Esos archivos están **versionados en el repositorio**.
+2. **Carga (`npm run seed`)**: lee esos JSON e inserta en las tablas propias. **No requiere conexión a internet** y es idempotente: se puede correr las veces que haga falta sin duplicar registros.
+
+Esta separación es lo que hace que el procedimiento sea reproducible: la carga da siempre el mismo resultado y sigue funcionando aunque el servicio externo esté caído o cambie su API.
+
+**Servicio elegido: Deezer.** Los motivos:
+
+* Sus endpoints son **públicos y no requieren autenticación**, a diferencia de Spotify, que exige el flujo OAuth de Client Credentials.
+* Expone los **géneros a nivel álbum**, que es exactamente como los modela nuestro DER (relación N:M entre `GENRES` y `ALBUMS`). Spotify solo los tiene a nivel artista, con lo cual habría que derivarlos.
+* Devuelve **álbum, artista, tracklist, géneros y portada en pocas llamadas**.
+* Sus términos de uso no restringen la persistencia del catálogo, a diferencia de los Términos de Desarrollador de Spotify.
+
+Alcance efectivamente cargado por el seed: **11 géneros, 88 artistas, 263 álbumes y 3.618 canciones**, además de los 3 planes de membresía y un usuario administrador inicial. La selección de artistas es una curaduría propia (archivo `backend/src/seed/catalog-selection.ts`) e incluye un género propio, **Rock Nacional**, con 17 artistas argentinos.
+
+Para no desviarse del pasaje a tablas, **no se agregó ninguna columna al modelo para el id externo**: la idempotencia del seed se resuelve identificando cada registro por su clave natural (el género por su nombre, el álbum por título + artista, la canción por su número de pista dentro del álbum).
+
+El detalle del procedimiento, la comparación con Spotify y las limitaciones conocidas de los datos están documentados en el [README del backend](https://github.com/SantiiDev/DSW-TP/tree/main/backend#catálogo-inicial).
 
 A partir de ahí, el catálogo crece **desde dentro del sistema**: los usuarios con membresía **Patron** pueden dar de alta nuevos artistas, álbumes y canciones, que quedan en estado pendiente hasta que un administrador los aprueba. De este modo los CRUD de catálogo son operaciones reales sobre tablas propias y siguen siendo casos de uso con valor para el negocio.
 

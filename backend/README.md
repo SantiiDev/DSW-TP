@@ -87,13 +87,37 @@ Debe responder `{"status":"ok","database":"up",...}`.
 Con `DB_SYNC=true` (el valor por defecto en desarrollo), Sequelize crea y ajusta
 las tablas automáticamente al arrancar a partir de las entidades.
 
-### 5. Cargar los planes de membresía
+### 5. Cargar los datos iniciales
 
 ```bash
-npm run seed:plans
+npm run seed
 ```
 
-Es idempotente: se puede correr las veces que haga falta.
+Un solo comando deja la base usable: los 3 planes de membresía, el catálogo completo
+(11 géneros, 88 artistas, 263 álbumes y 3.618 canciones) y el usuario administrador.
+
+**No necesita conexión a internet.** El catálogo se lee de archivos JSON versionados
+en el repositorio, no de una API externa. Ver [Catálogo inicial](#catálogo-inicial).
+
+Tarda alrededor de un minuto y termina con un resumen de lo insertado:
+
+```
+[seed] Géneros: 11 nuevos, 0 ya existentes.
+[seed] Artistas: 88 nuevos, 0 ya existentes.
+[seed] Álbumes: 263 nuevos, 0 ya existentes.
+[seed] Canciones: 3618 nuevas.
+[seed] Vínculos género-álbum: 405 nuevos.
+[seed] Usuario ADMIN creado: admin@musicboxd.com (usuario: admin)
+```
+
+Todos los seeds son **idempotentes**: se pueden correr las veces que haga falta sin
+duplicar registros. Al correrlo una segunda vez, todos los contadores dan cero.
+
+Las credenciales del administrador salen de `SEED_ADMIN_*` en el `.env`. Por defecto:
+
+| Usuario | Email | Contraseña |
+|:-|:-|:-|
+| `admin` | `admin@musicboxd.com` | `Admin1234!` |
 
 ## Scripts
 
@@ -103,7 +127,139 @@ Es idempotente: se puede correr las veces que haga falta.
 | `npm run build` | Compila TypeScript a `dist/` |
 | `npm start` | Ejecuta la versión compilada (producción) |
 | `npm run typecheck` | Verifica tipos sin generar archivos |
-| `npm run seed:plans` | Carga los planes Free / Pro / Patron |
+| `npm run seed` | Corre todos los seeds del proyecto |
+| `npm run seed:plans` | Corre solo el seed de planes Free / Pro / Patron |
+| `npm run seed:catalog` | Corre solo el seed del catálogo |
+| `npm run seed:admin` | Corre solo el seed del usuario administrador |
+| `npm run seed:fetch` | **Descarga el catálogo de Deezer.** Es el único script que sale a internet, y no hace falta correrlo para levantar el proyecto |
+| `npm run db:reset` | Borra la base local, la recrea y corre todos los seeds |
+
+## Reiniciar la base local
+
+Con `DB_SYNC=true`, Sequelize actualiza el esquema solo al arrancar: si un compañero
+agrega una columna a una entidad, alcanza con hacer `git pull` y `npm run dev`.
+
+Pero `sync({ alter: true })` es bueno agregando y flojo renombrando o eliminando, y
+si se corre muchas veces puede acumular índices duplicados. Cuando la base local
+quede rara después de varios cambios de modelo, en vez de pelearla se rehace:
+
+```bash
+npm run db:reset
+```
+
+Borra todas las tablas (incluidas las huérfanas de entidades renombradas), recrea el
+esquema desde las entidades y vuelve a correr los seeds. **La base local es
+descartable**: todos sus datos vienen de los seeds, así que no se pierde nada. En
+ningún momento del proyecto debería haber información importante que exista solo en
+la máquina de un integrante.
+
+El script se niega a correr si `NODE_ENV=production`, y antes de borrar imprime a qué
+host, puerto y base se está conectando.
+
+## Catálogo inicial
+
+### La base propia es la única fuente de verdad
+
+Musicboxd **no consulta APIs externas de música en runtime**. Ningún endpoint de la
+API ni ningún componente del frontend le pega a Deezer, Spotify ni MusicBrainz: todo
+sale de las tablas propias. La metadata musical se descarga **una sola vez, offline**,
+y a partir de ahí el catálogo crece desde adentro del sistema, con los aportes de los
+usuarios PATRON que un ADMIN modera.
+
+Esto tiene una consecuencia importante para el TP: los CRUD de Artista, Álbum, Género
+y Canción son CRUD reales sobre tablas propias, no un proxy contra un servicio ajeno.
+
+### Las dos etapas, y por qué están separadas
+
+```
+   [ Deezer ]                          (1 vez, a mano, con internet)
+       │
+       │  npm run seed:fetch
+       ▼
+ src/seed/data/*.json                  (versionado en git)
+       │
+       │  npm run seed
+       ▼
+   [ MySQL ]                           (sin internet, reproducible)
+       │
+       │  la app solo lee de acá
+       ▼
+   [ API REST ]
+```
+
+`seed:fetch` es lo único que sale a internet, y **no hace falta correrlo**: los tres
+archivos que genera están commiteados. Solo se vuelve a ejecutar si se quiere ampliar
+la selección de `src/seed/catalog-selection.ts`.
+
+Separarlo así es lo que hace que el seed sea reproducible: `npm run seed` carga
+siempre exactamente los mismos datos, funciona sin conexión y sigue funcionando aunque
+Deezer esté caído o cambie su API.
+
+| Archivo | Contenido |
+|:-|:-|
+| `src/seed/catalog-selection.ts` | La curaduría: qué géneros y qué artistas se descargan |
+| `src/seed/deezer-client.ts` | Cliente HTTP de Deezer (rate limit y reintentos) |
+| `src/seed/fetch-metadata.ts` | Etapa 1: descarga y escribe los JSON |
+| `src/seed/data/*.json` | La metadata descargada, versionada en git |
+| `src/seed/seed-catalog.ts` | Etapa 2: inserta los JSON en la base |
+
+### Por qué Deezer y no Spotify
+
+| | Deezer | Spotify |
+|:-|:-|:-|
+| Autenticación | Ninguna, endpoints públicos | OAuth (Client Credentials) |
+| Géneros | A nivel **álbum** | Solo a nivel artista |
+| Tracklist | Viene en el detalle del álbum | Requiere llamadas aparte |
+| Términos de uso | Sin restricción para persistir catálogo | Sus Términos de Desarrollador restringen almacenar el catálogo |
+
+El modelo del TP asocia los géneros al **álbum** (tabla `genres_albums`), que es
+justamente como los expone Deezer. Con Spotify habría que derivarlos del artista.
+
+### Cómo se eligen los datos
+
+Se descargan 3 álbumes de cada artista, de 11 géneros. La selección de artistas está
+escrita a mano en `catalog-selection.ts` en lugar de tomarse de la API por dos motivos:
+
+1. El endpoint `/genre/{id}/artists` de Deezer devuelve un ranking general de
+   popularidad, no una clasificación por género: pedirle los artistas de "Rock"
+   contesta BTS y Bad Bunny.
+2. Permite incluir un género propio, **Rock Nacional**, con 17 artistas argentinos que
+   ningún chart de Deezer prioriza.
+
+Dos detalles del script que vale la pena conocer:
+
+- **Elección de la página de artista.** Deezer tiene páginas duplicadas para casi todos
+  los artistas conocidos, con el mismo nombre y un puñado de singles, y el buscador las
+  devuelve primero. Entre las coincidencias exactas se elige la de más seguidores: la
+  página real de Charly García tiene 198.798 y la que devuelve primero el buscador, 6.
+  Para los nombres genuinamente ambiguos (Virus, la banda argentina, contra Vîrus, el
+  rapero francés, que sin acentos se escriben igual) la curaduría permite fijar el id.
+- **Número de pista.** El detalle del álbum de Deezer no trae `track_position`, pero
+  devuelve las canciones en el orden del disco, así que `number_track` sale de esa
+  posición. Numerarlas corrido resuelve además los álbumes dobles: copiar la numeración
+  por disco daría dos pistas nº 1 en el mismo álbum y violaría el índice único
+  `uq_song_album_track`.
+
+### Limitaciones conocidas de los datos
+
+- **El año es el de la edición, no siempre el del lanzamiento original.** Deezer no
+  expone la fecha original de un disco, sino la de cada edición que tiene cargada. De
+  cada grupo de reediciones el script se queda con la fecha más antigua, que corrige 26
+  de los 263 álbumes; en el resto Deezer directamente no tiene cargada la edición
+  original y el año queda siendo el de la reedición (Clics Modernos, de 1983, figura
+  como 2007).
+- **Los artistas no tienen biografía.** La API pública de Deezer no la expone. La
+  columna queda en `NULL` y se completa desde el CRUD de artista.
+- **Algunos títulos conservan el sufijo de la edición** ("Master Of Puppets
+  (Remastered)"). Se guardan tal como los devuelve Deezer, sin retocarlos.
+
+### Idempotencia sin tocar el DER
+
+Las tablas no guardan el id de Deezer: agregar una columna `deezer_id` al modelo solo
+para el seed habría sido un desvío del pasaje a tablas. En su lugar cada registro se
+identifica por su **clave natural** — el género por `name`, el artista por `name`, el
+álbum por `title` + artista, y la canción por su número de pista dentro del álbum, que
+es la clave única que la entidad ya declaraba.
 
 ## Estructura del proyecto
 
@@ -119,7 +275,7 @@ src/
     types/enums.ts   Enumerados del dominio (roles, estados)
   types/             Declaraciones de tipos globales (extensión de Request)
   health/            Endpoint de health check (ejemplo del patrón de capas)
-  seed/              Scripts de carga inicial de datos
+  seed/              Scripts de carga inicial de datos + data/*.json descargados
   routes.ts          Router principal: monta el router de cada feature
   app.ts             Configuración de Express (sin levantar el servidor)
   server.ts          Punto de entrada: conecta a la DB y escucha
