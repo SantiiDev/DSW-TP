@@ -48,6 +48,26 @@ export const env = {
     logging: bool('DB_LOGGING', false),
   },
 
+  // Servicio de metadata musical (Deezer). Lo usa ÚNICAMENTE el script de descarga
+  // `seed/fetch-metadata.ts`, que se corre a mano una sola vez. Ni la API ni el
+  // frontend consultan este servicio en runtime.
+  metadata: {
+    baseUrl: optional('METADATA_API_BASE_URL', 'https://api.deezer.com'),
+    // Deezer limita a ~50 pedidos cada 5 segundos por IP. 150ms entre llamadas deja
+    // un margen cómodo por debajo de ese techo.
+    requestDelayMs: Number(optional('METADATA_REQUEST_DELAY_MS', '150')),
+    maxRetries: Number(optional('METADATA_MAX_RETRIES', '4')),
+  },
+
+  // Usuario administrador que crea el seed. Tiene valores por defecto para que la
+  // base quede usable con solo clonar el repo y correr `npm run seed`; en un entorno
+  // real se pisan desde el .env.
+  seedAdmin: {
+    username: optional('SEED_ADMIN_USERNAME', 'admin'),
+    email: optional('SEED_ADMIN_EMAIL', 'admin@musicboxd.com'),
+    password: optional('SEED_ADMIN_PASSWORD', 'Admin1234!'),
+  },
+
   // Estas se empiezan a usar en fases posteriores; por eso son opcionales todavía.
   auth: {
     jwtSecret: optional('JWT_SECRET', ''),

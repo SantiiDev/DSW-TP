@@ -9,9 +9,15 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "seed:plans": "tsx src/seed/seed-plans.ts"
+    "seed": "tsx src/seed/run-seeds.ts",
+    "seed:fetch": "tsx src/seed/fetch-metadata.ts",
+    "seed:plans": "tsx src/seed/seed-plans.ts",
+    "seed:catalog": "tsx src/seed/seed-catalog.ts",
+    "seed:admin": "tsx src/seed/seed-admin-user.ts",
+    "db:reset": "tsx src/seed/reset-db.ts"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
