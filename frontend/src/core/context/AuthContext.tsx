@@ -13,6 +13,8 @@ import type { ReactNode } from 'react';
 import type { User } from '../../features/user/models/User';
 import { authService } from '../../features/user/services/authService';
 import type { AuthSession, LoginInput, RegisterInput } from '../../features/user/services/authService';
+import { userService } from '../../features/user/services/userService';
+import type { UpdateUserInput } from '../../features/user/services/userService';
 import { tokenStorage } from '../services/tokenStorage';
 import { getErrorMessage } from '../utils/errorHandler';
 
@@ -40,7 +42,11 @@ type AuthAction =
   | { type: 'AUTH_SUCCEEDED'; payload: AuthSession }
   | { type: 'AUTH_FAILED'; payload: string }
   | { type: 'LOGGED_OUT' }
-  | { type: 'ERROR_CLEARED' };
+  | { type: 'ERROR_CLEARED' }
+  | { type: 'PROFILE_UPDATED'; payload: User }
+  // A diferencia de AUTH_FAILED, esta no desloguea: el usuario sigue con la
+  // sesión activa, solo falló la edición o la baja de su perfil.
+  | { type: 'ACTION_FAILED'; payload: string };
 
 // Se arranca en 'checking' y no en 'guest' para que la UI no llegue a mostrar
 // "Iniciar sesión" un instante antes de darse cuenta de que la sesión seguía viva.
@@ -84,6 +90,12 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     case 'ERROR_CLEARED':
       return { ...state, error: null };
 
+    case 'PROFILE_UPDATED':
+      return { ...state, user: action.payload, isSubmitting: false, error: null };
+
+    case 'ACTION_FAILED':
+      return { ...state, isSubmitting: false, error: action.payload };
+
     default:
       return state;
   }
@@ -97,6 +109,10 @@ type AuthContextProps = {
   register: (input: RegisterInput) => Promise<boolean>;
   logout: () => void;
   clearError: () => void;
+  /** Edita username y/o email del usuario logueado. Devuelve true si salió bien. */
+  updateProfile: (input: UpdateUserInput) => Promise<boolean>;
+  /** Elimina la cuenta del usuario logueado y cierra la sesión. Devuelve true si salió bien. */
+  deleteAccount: () => Promise<boolean>;
 };
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -168,8 +184,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const clearError = () => dispatch({ type: 'ERROR_CLEARED' });
 
+  // Edita el perfil del usuario logueado. No usa runAuthRequest porque una
+  // falla acá no debe deslogear: el usuario sigue con su sesión, solo tiene que
+  // corregir el formulario.
+  const updateProfile = async (input: UpdateUserInput): Promise<boolean> => {
+    if (!state.user) return false;
+    dispatch({ type: 'AUTH_STARTED' });
+
+    try {
+      const updatedUser = await userService.update(state.user.id, input);
+      dispatch({ type: 'PROFILE_UPDATED', payload: updatedUser });
+      return true;
+    } catch (error) {
+      dispatch({ type: 'ACTION_FAILED', payload: getErrorMessage(error) });
+      return false;
+    }
+  };
+
+  // Elimina la cuenta del usuario logueado. Si sale bien, no queda nada que
+  // mostrar: se comporta como un logout.
+  const deleteAccount = async (): Promise<boolean> => {
+    if (!state.user) return false;
+    dispatch({ type: 'AUTH_STARTED' });
+
+    try {
+      await userService.remove(state.user.id);
+      tokenStorage.clear();
+      dispatch({ type: 'LOGGED_OUT' });
+      return true;
+    } catch (error) {
+      dispatch({ type: 'ACTION_FAILED', payload: getErrorMessage(error) });
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ state, login, register, logout, clearError }}>
+    <AuthContext.Provider
+      value={{ state, login, register, logout, clearError, updateProfile, deleteAccount }}
+    >
       {children}
     </AuthContext.Provider>
   );

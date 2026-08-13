@@ -158,16 +158,22 @@
     }
   }
 
-  // Nombre del usuario logueado, al lado del botón de cerrar sesión.
+  // Nombre del usuario logueado, al lado del botón de cerrar sesión. Es un link
+  // al perfil propio (/profile).
   &__user {
     font-size: 0.9rem;
     font-weight: 600;
     color: $color-text;
+    text-decoration: none;
     // Un username puede tener hasta 50 caracteres: se corta para que no empuje
     // los botones fuera de la barra.
     max-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+
+    &:hover {
+      color: $color-primary;
+    }
   }
 }

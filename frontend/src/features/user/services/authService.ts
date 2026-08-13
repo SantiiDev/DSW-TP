@@ -31,7 +31,9 @@ type AuthApiResponse = {
 
 // Pasa el JSON del backend al modelo: renombra los campos a la convención del
 // frontend (camelCase) y convierte la fecha, que viaja como texto ISO.
-function toUser(data: UserApiResponse): User {
+// Se exporta porque userService.ts (mismo feature) la reutiliza para no repetir
+// el mapeo campo por campo.
+export function toUser(data: UserApiResponse): User {
   return new User(
     data.id_user,
     data.username,

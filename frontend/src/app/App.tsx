@@ -7,11 +7,13 @@ import { useEffect } from 'react';
 import { Home } from '../features/home/Home';
 import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
 import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
+import { UserProfilePage } from '../features/user/pages/UserProfilePage';
 import { ProPage } from '../features/membership/pages/ProPage';
 import { ListsExplorePage } from '../features/review/pages/ListsExplorePage';
 import { AuthProvider } from '../core/context/AuthContext';
 import { AuthModalProvider } from '../core/context/AuthModalContext';
 import { AuthModal } from '../features/user/components/AuthModal';
+import { ProtectedRoute } from '../core/components/ProtectedRoute';
 
 // Static Info Pages
 import { TermsPage } from '../features/home/pages/TermsPage';
@@ -54,12 +56,15 @@ export const App = () => {
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/contact" element={<ContactPage />} />
 
-            {/* Las rutas privadas se envuelven con ProtectedRoute, por ejemplo:
-                <Route path="/profile" element={
-                  <ProtectedRoute><UserProfilePage /></ProtectedRoute>
-                } />
-                Todavía no hay ninguna porque sus páginas se construyen en las
-                fases siguientes (perfil, aporte de catálogo, moderación). */}
+            {/* Rutas privadas: solo entran si hay sesión (ver ProtectedRoute). */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfilePage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </div>
         <AuthModal />
