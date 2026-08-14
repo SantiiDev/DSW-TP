@@ -59,7 +59,7 @@ Payment.init(
       // Es NULL hasta que la pasarela confirma la operación por webhook.
       type: DataTypes.STRING(100),
       allowNull: true,
-      unique: true,
+      // El índice único se declara abajo con nombre; ver la nota en `indexes`.
     },
     id_subscription: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -69,5 +69,10 @@ Payment.init(
   {
     sequelize,
     tableName: 'payments',
+    // Índice único nombrado en vez de `unique: true` en la columna: con
+    // sync({ alter: true }) un índice sin nombre se vuelve a crear en cada
+    // arranque hasta romper el límite de 64 índices de MySQL.
+    // Ver la explicación completa en user.entity.ts.
+    indexes: [{ name: 'payments_id_gateway_unique', unique: true, fields: ['id_gateway'] }],
   }
 );

@@ -1,0 +1,273 @@
+@use "sass:color";
+// Estilos del panel de administración de usuarios (/admin/users).
+// Usa los mismos tokens que el resto de la feature user para que se sienta parte
+// del mismo set visual.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.admin-users {
+  width: 100%;
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  // El layout de App.tsx envuelve las páginas en un contenedor flex, y un item
+  // de flex arranca con min-width: auto, o sea que no baja del ancho de su
+  // contenido. Sin esto la tabla estira la página entera en mobile en vez de
+  // scrollear dentro de su propio wrapper.
+  min-width: 0;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.75rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+    margin: 0;
+  }
+
+  &__error {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    color: color.adjust($color-error, $lightness: 15%);
+    font-size: 0.85rem;
+  }
+
+  // --- Formulario de alta -------------------------------------------------
+
+  &__form {
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 16px;
+    padding: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &__form-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+  }
+
+  // Una columna en mobile, dos desde tablet: los cuatro campos del alta entran
+  // cómodos sin estirarse a lo ancho de la pantalla.
+  &__form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: $color-text;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  &__submit-btn {
+    align-self: flex-start;
+    padding: 0.65rem $spacing-lg;
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  // --- Listado ------------------------------------------------------------
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    // Sin esto la sección no se achica por debajo del ancho de la tabla (los
+    // items de un flex arrancan con min-width: auto), la tabla desborda la
+    // pantalla en mobile y el scroll del wrapper nunca llega a activarse.
+    min-width: 0;
+  }
+
+  &__list-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+  }
+
+  &__empty {
+    color: $color-text-secondary;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  // La tabla no entra en pantallas chicas: se le da scroll propio para que no
+  // desborde el ancho de la página.
+  &__table-wrapper {
+    overflow-x: auto;
+    border: 1px solid $color-nav-border;
+    border-radius: 12px;
+    // Misma razón que en __list: permite que el wrapper se achique y muestre su
+    // propio scroll en vez de estirar la página.
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    white-space: nowrap;
+
+    th,
+    td {
+      padding: 0.75rem $spacing-md;
+      text-align: left;
+      border-bottom: 1px solid $color-nav-border;
+    }
+
+    th {
+      background-color: $color-bg-light;
+      color: $color-text-secondary;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      color: $color-text;
+    }
+
+    // La última fila no lleva línea: la cierra el borde del wrapper.
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+  }
+
+  // Avatar + nombre dentro de la celda de usuario.
+  &__user-cell {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  // Marca la fila del admin logueado.
+  &__you-tag {
+    margin-left: $spacing-sm;
+    padding: 0.1rem 0.5rem;
+    border-radius: 20px;
+    background-color: rgba($color-primary, 0.15);
+    color: $color-primary;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  &__role-select {
+    background-color: $color-bg;
+    border: 1px solid $color-nav-border;
+    border-radius: 8px;
+    padding: 0.35rem 0.6rem;
+    color: $color-text;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__delete-btn {
+    background-color: transparent;
+    color: $color-error;
+    border: 1px solid rgba($color-error, 0.5);
+    border-radius: 20px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background-color: rgba($color-error, 0.12);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__no-action {
+    color: $color-text-secondary;
+  }
+}

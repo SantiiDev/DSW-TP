@@ -13,6 +13,30 @@
   &__container {
     width: 100%;
     max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  // Botón para volver a la pantalla anterior.
+  &__back-btn {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+    }
   }
 }
 
@@ -25,10 +49,13 @@
   flex-direction: column;
   gap: $spacing-md;
 
+  // El avatar grande encabeza la tarjeta, con el nombre y el rol debajo.
   &__header {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-sm;
   }
 
   &__username {
@@ -40,7 +67,6 @@
   }
 
   &__role {
-    align-self: flex-start;
     font-size: 0.8rem;
     font-weight: 600;
     color: $color-primary;
@@ -122,6 +148,54 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+
+  // Vista previa de la foto mientras se edita, arriba de los campos.
+  &__avatar-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__avatar-hint {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+    max-width: 280px;
+  }
+
+  // Aviso de imagen que no cargó. Va en tono de advertencia y no de error: el
+  // formulario se puede guardar igual, solo que se verá el avatar por defecto.
+  &__avatar-warning {
+    margin: 0.4rem 0 0;
+    padding: 0.5rem 0.75rem;
+    background-color: rgba($color-error, 0.1);
+    border: 1px solid rgba($color-error, 0.35);
+    border-radius: 8px;
+    color: color.adjust($color-error, $lightness: 15%);
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  &__example-btn {
+    align-self: flex-start;
+    margin-top: 0.4rem;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $color-primary;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: color.adjust($color-primary, $lightness: 10%);
+    }
+  }
 
   &__field {
     display: flex;

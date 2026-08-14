@@ -6,6 +6,14 @@
 export const USER_ROLES = ['FREE', 'PRO', 'PATRON', 'ADMIN'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
+/** Nombre para mostrar de cada rol: en la UI nunca se escribe el valor crudo. */
+export const ROLE_LABELS: Record<UserRole, string> = {
+  FREE: 'Member',
+  PRO: 'Pro',
+  PATRON: 'Patron',
+  ADMIN: 'Admin',
+};
+
 /**
  * Forma cruda con la que viaja un usuario en las respuestas de la API.
  * Respeta los nombres del backend (snake_case y `rol`, como en el DER); pasarlo
@@ -16,6 +24,7 @@ export type UserApiResponse = {
   username: string;
   email: string;
   rol: UserRole;
+  url_avatar: string | null;
   registration_date: string;
 };
 
@@ -25,6 +34,8 @@ export class User {
     public readonly username: string,
     public readonly email: string,
     public readonly rol: UserRole,
+    /** URL de la foto de perfil, o null si usa el avatar por defecto. */
+    public readonly urlAvatar: string | null,
     public readonly registrationDate: Date
   ) {}
 

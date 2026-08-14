@@ -10,7 +10,9 @@ import { router } from './routes';
 
 export const app = express();
 
-// El frontend corre en otro origen (Vite en 5173), así que necesita CORS explícito.
+// El frontend corre en otro origen (Vite en 5173 y siguientes), así que necesita
+// CORS explícito. env.corsOrigin es una lista: el paquete cors acepta el array y
+// habilita cualquiera de esos orígenes.
 app.use(
   cors({
     origin: env.corsOrigin,

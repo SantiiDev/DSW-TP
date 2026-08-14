@@ -8,6 +8,7 @@ import { Home } from '../features/home/Home';
 import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
 import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
 import { UserProfilePage } from '../features/user/pages/UserProfilePage';
+import { AdminUsersPage } from '../features/user/pages/AdminUsersPage';
 import { ProPage } from '../features/membership/pages/ProPage';
 import { ListsExplorePage } from '../features/review/pages/ListsExplorePage';
 import { AuthProvider } from '../core/context/AuthContext';
@@ -62,6 +63,16 @@ export const App = () => {
               element={
                 <ProtectedRoute>
                   <UserProfilePage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Panel de administración: además de sesión exige rol ADMIN. */}
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute roles={['ADMIN']}>
+                  <AdminUsersPage />
                 </ProtectedRoute>
               }
             />

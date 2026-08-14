@@ -27,11 +27,22 @@ function bool(name: string, fallback: boolean): boolean {
   return value.toLowerCase() === 'true';
 }
 
+// Interpreta una variable como lista separada por comas, descartando vacíos.
+function list(name: string, fallback: string): string[] {
+  return optional(name, fallback)
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item !== '');
+}
+
 export const env = {
   nodeEnv: optional('NODE_ENV', 'development'),
   isProduction: optional('NODE_ENV', 'development') === 'production',
   port: Number(optional('PORT', '3000')),
-  corsOrigin: optional('CORS_ORIGIN', 'http://localhost:5173'),
+  // Orígenes habilitados para CORS, separados por coma. Se aceptan varios porque
+  // Vite se corre al siguiente puerto libre (5174, 5175...) si el 5173 está
+  // ocupado por otro proyecto, y si no el frontend queda sin poder llamar a la API.
+  corsOrigin: list('CORS_ORIGIN', 'http://localhost:5173,http://localhost:5174,http://localhost:5175'),
 
   db: {
     host: required('DB_HOST'),
