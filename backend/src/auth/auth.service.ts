@@ -20,6 +20,7 @@ type PublicUser = {
   username: string;
   email: string;
   rol: UserRole;
+  url_avatar: string | null;
   registration_date: Date;
 };
 
@@ -42,6 +43,7 @@ function toPublicUser(user: User): PublicUser {
     username: user.username,
     email: user.email,
     rol: user.rol,
+    url_avatar: user.url_avatar ?? null,
     registration_date: user.registration_date,
   };
 }

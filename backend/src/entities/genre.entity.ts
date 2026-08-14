@@ -28,12 +28,17 @@ Genre.init(
     name: {
       type: DataTypes.STRING(60),
       allowNull: false,
-      unique: true,
+      // El índice único se declara abajo con nombre; ver la nota en `indexes`.
       validate: { notEmpty: { msg: 'El nombre del género no puede estar vacío.' } },
     },
   },
   {
     sequelize,
     tableName: 'genres',
+    // Índice único nombrado en vez de `unique: true` en la columna: con
+    // sync({ alter: true }) un índice sin nombre se vuelve a crear en cada
+    // arranque hasta romper el límite de 64 índices de MySQL.
+    // Ver la explicación completa en user.entity.ts.
+    indexes: [{ name: 'genres_name_unique', unique: true, fields: ['name'] }],
   }
 );

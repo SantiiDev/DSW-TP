@@ -39,6 +39,7 @@ export function toUser(data: UserApiResponse): User {
     data.username,
     data.email,
     data.rol,
+    data.url_avatar,
     new Date(data.registration_date)
   );
 }

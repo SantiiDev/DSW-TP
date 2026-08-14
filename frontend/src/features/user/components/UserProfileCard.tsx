@@ -1,6 +1,8 @@
 // Tarjeta de solo lectura con los datos del perfil propio.
 // Puramente presentacional: UserProfilePage decide cuándo mostrarla (vs. el
 // formulario de edición) y qué hacer con los clicks de editar/eliminar.
+import { Avatar } from '../../../core/components/Avatar';
+import { ROLE_LABELS } from '../models/User';
 import type { User } from '../models/User';
 
 type UserProfileCardProps = {
@@ -9,17 +11,11 @@ type UserProfileCardProps = {
   onDelete: () => void;
 };
 
-const ROLE_LABELS: Record<User['rol'], string> = {
-  FREE: 'Miembro',
-  PRO: 'Miembro Pro',
-  PATRON: 'Patrocinador',
-  ADMIN: 'Administrador',
-};
-
 export const UserProfileCard = ({ user, onEdit, onDelete }: UserProfileCardProps) => {
   return (
     <div className="user-profile-card">
       <div className="user-profile-card__header">
+        <Avatar url={user.urlAvatar} username={user.username} size="lg" />
         <h1 className="user-profile-card__username">{user.username}</h1>
         <span className="user-profile-card__role">{ROLE_LABELS[user.rol]}</span>
       </div>

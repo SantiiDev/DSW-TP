@@ -3,15 +3,41 @@
 import { httpClient } from '../../../core/services/httpClient';
 import { toUser } from './authService';
 import { User } from '../models/User';
-import type { UserApiResponse } from '../models/User';
+import type { UserApiResponse, UserRole } from '../models/User';
 
-/** Campos editables de un usuario. Nunca incluye rol ni password. */
+/**
+ * Campos editables de un usuario.
+ * `rol` solo lo acepta el backend si quien hace la request es ADMIN.
+ */
 export type UpdateUserInput = {
   username?: string;
   email?: string;
+  rol?: UserRole;
+  /** URL de la foto de perfil. String vacío para volver al avatar por defecto. */
+  url_avatar?: string;
+};
+
+/** Alta de una cuenta desde el panel de administración. */
+export type CreateUserInput = {
+  username: string;
+  email: string;
+  password: string;
+  rol: UserRole;
 };
 
 export const userService = {
+  /** Lista todos los usuarios. El backend lo restringe a ADMIN. */
+  async list(): Promise<User[]> {
+    const data = await httpClient.get<UserApiResponse[]>('/users');
+    return data.map(toUser);
+  },
+
+  /** Da de alta una cuenta con el rol indicado. El backend lo restringe a ADMIN. */
+  async create(input: CreateUserInput): Promise<User> {
+    const data = await httpClient.post<UserApiResponse>('/users', input);
+    return toUser(data);
+  },
+
   /** Trae el perfil público de un usuario puntual. */
   async getById(id: number): Promise<User> {
     const data = await httpClient.get<UserApiResponse>(`/users/${id}`);

@@ -5,9 +5,16 @@
 // al middleware de manejo de errores.
 import { Request, Response } from 'express';
 import { userService } from './user.service';
-import { UpdateUserInput, UserIdParam } from './user.schema';
+import { CreateUserInput, UpdateUserInput, UserIdParam } from './user.schema';
 
 export const userController = {
+  async create(req: Request, res: Response): Promise<void> {
+    const data = req.validated.body as CreateUserInput;
+    const user = await userService.create(data);
+    // 201: la request creó un recurso nuevo.
+    res.status(201).json(user);
+  },
+
   async list(_req: Request, res: Response): Promise<void> {
     const users = await userService.list();
     res.status(200).json(users);

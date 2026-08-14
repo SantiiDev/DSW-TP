@@ -14,7 +14,8 @@
     "seed:plans": "tsx src/seed/seed-plans.ts",
     "seed:catalog": "tsx src/seed/seed-catalog.ts",
     "seed:admin": "tsx src/seed/seed-admin-user.ts",
-    "db:reset": "tsx src/seed/reset-db.ts"
+    "db:reset": "tsx src/seed/reset-db.ts",
+    "db:fix-indexes": "tsx src/seed/fix-indexes.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

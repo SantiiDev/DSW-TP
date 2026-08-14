@@ -11,6 +11,8 @@
 @use '../core/components/footer';
 @use '../core/components/fade-in-section';
 @use '../core/components/loader';
+@use '../core/components/modal';
+@use '../core/components/avatar';
 
 // Features Components
 @use '../features/home/components/hero';
@@ -21,6 +23,7 @@
 @use '../features/user/styles/auth';
 @use '../features/user/styles/members-explore';
 @use '../features/user/styles/user';
+@use '../features/user/styles/admin-users';
 
 // Music Explore
 @use '../features/music/styles/music-explore';

@@ -27,7 +27,7 @@ Plan.init(
     name: {
       type: DataTypes.STRING(50),
       allowNull: false,
-      unique: true,
+      // El índice único se declara abajo con nombre; ver la nota en `indexes`.
     },
     amount: {
       // DECIMAL y no FLOAT: es plata, no puede tener error de redondeo.
@@ -48,5 +48,10 @@ Plan.init(
   {
     sequelize,
     tableName: 'plan',
+    // Índice único nombrado en vez de `unique: true` en la columna: con
+    // sync({ alter: true }) un índice sin nombre se vuelve a crear en cada
+    // arranque hasta romper el límite de 64 índices de MySQL.
+    // Ver la explicación completa en user.entity.ts.
+    indexes: [{ name: 'plan_name_unique', unique: true, fields: ['name'] }],
   }
 );
