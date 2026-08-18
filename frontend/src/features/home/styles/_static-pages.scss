@@ -3,7 +3,9 @@
 
 .static-page {
   padding: calc($spacing-xl + 40px) $spacing-md $spacing-xl;
-  min-height: calc(100vh - 200px);
+  // Se descuenta el alto real del navbar y no un valor fijo: con 200px la página
+  // quedaba más corta que la pantalla y el footer asomaba sin hacer scroll.
+  min-height: calc(100vh - #{$navbar-height});
   background-color: $color-bg;
   color: $color-text;
 

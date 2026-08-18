@@ -13,25 +13,41 @@ import { CreateUserInput, UpdateUserInput } from './user.schema';
 // Mismo costo que usan el registro público y el seed del admin.
 const SALT_ROUNDS = 10;
 
-/** Vista pública de un usuario: es lo único que sale en las respuestas de la API. */
+/**
+ * Vista pública de un usuario: es lo único que sale en las respuestas de la API.
+ *
+ * El email es opcional porque no se muestra en el perfil de otro usuario: es un
+ * dato de contacto, no parte del perfil público. Solo viaja cuando el que pide
+ * es el dueño de la cuenta o un ADMIN.
+ */
 type PublicUser = {
   id_user: number;
   username: string;
-  email: string;
+  email?: string;
   rol: UserRole;
   url_avatar: string | null;
   registration_date: Date;
 };
 
-function toPublicUser(user: User): PublicUser {
+/**
+ * Arma la vista pública de un usuario.
+ * @param user usuario de la base.
+ * @param includeEmail si se incluye el email (solo para el dueño o un ADMIN).
+ */
+function toPublicUser(user: User, includeEmail = true): PublicUser {
   return {
     id_user: user.id_user,
     username: user.username,
-    email: user.email,
+    ...(includeEmail ? { email: user.email } : {}),
     rol: user.rol,
     url_avatar: user.url_avatar ?? null,
     registration_date: user.registration_date,
   };
+}
+
+/** ¿El actor es el dueño de esa cuenta, o un ADMIN? */
+function canSeePrivateData(actor: TokenPayload, targetId: number): boolean {
+  return actor.id_user === targetId || actor.rol === 'ADMIN';
 }
 
 /**
@@ -109,16 +125,25 @@ export const userService = {
     return toPublicUser(user);
   },
 
-  /** Lista todos los usuarios. La ruta ya restringe esto a ADMIN. */
+  /**
+   * Lista todos los usuarios, con email incluido: la ruta ya restringe esto a
+   * ADMIN, que es quien administra las cuentas y necesita verlo.
+   */
   async list(): Promise<PublicUser[]> {
     const users = await userRepository.findAll();
-    return users.map(toPublicUser);
+    // La lambda es necesaria: pasar toPublicUser directo le mandaría el índice
+    // del map como segundo parámetro.
+    return users.map((user) => toPublicUser(user));
   },
 
-  /** Perfil público de un usuario puntual. */
-  async getById(id_user: number): Promise<PublicUser> {
+  /**
+   * Perfil de un usuario puntual.
+   * @param id_user usuario a mostrar.
+   * @param actor usuario autenticado que hace la request; define si ve el email.
+   */
+  async getById(id_user: number, actor: TokenPayload): Promise<PublicUser> {
     const user = await findExisting(id_user);
-    return toPublicUser(user);
+    return toPublicUser(user, canSeePrivateData(actor, id_user));
   },
 
   /**

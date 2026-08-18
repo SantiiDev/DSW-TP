@@ -5,7 +5,7 @@
 .navbar {
   background-color: $color-nav-bg;
   border-bottom: 1px solid $color-nav-border;
-  height: 64px;
+  height: $navbar-height;
   display: flex;
   align-items: center;
   position: sticky;
