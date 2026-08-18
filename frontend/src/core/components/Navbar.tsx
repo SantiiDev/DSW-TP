@@ -1,6 +1,6 @@
 // Barra de navegación principal que provee enlaces a las secciones del sitio y opciones de usuario.
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { ChevronDown, LogOut, Search, UserRound } from 'lucide-react';
 import { useAuthModal } from '../context/AuthModalContext';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,7 @@ import './_navbar.scss';
 export const Navbar = () => {
   const { openLogin, openSignup } = useAuthModal();
   const { state: authState, logout } = useAuth();
+  const navigate = useNavigate();
 
   // Cerrar sesión pide confirmación: es fácil apretarlo sin querer y perder lo
   // que se estuviera haciendo.
@@ -47,6 +48,9 @@ export const Navbar = () => {
   const handleConfirmLogout = () => {
     setIsLogoutDialogOpen(false);
     logout();
+    // Si estaba en una ruta privada (perfil, admin) hay que sacarlo de ahí:
+    // ProtectedRoute lo redirigiría igual, pero al inicio y no a donde estaba.
+    navigate('/');
   };
 
   // El diálogo de confirmación se abre desde adentro del menú, así que primero

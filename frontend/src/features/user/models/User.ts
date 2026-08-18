@@ -22,7 +22,8 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 export type UserApiResponse = {
   id_user: number;
   username: string;
-  email: string;
+  /** Solo viene si el que pide es el dueño de la cuenta o un ADMIN. */
+  email?: string;
   rol: UserRole;
   url_avatar: string | null;
   registration_date: string;
@@ -32,6 +33,7 @@ export class User {
   constructor(
     public readonly id: number,
     public readonly username: string,
+    /** Vacío cuando se mira el perfil de otro usuario: la API no lo expone. */
     public readonly email: string,
     public readonly rol: UserRole,
     /** URL de la foto de perfil, o null si usa el avatar por defecto. */

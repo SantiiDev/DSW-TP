@@ -2,8 +2,9 @@
 // Administra el estado de visibilidad y el modo (login o signup) del modal de autenticación
 // de forma centralizada, permitiendo que cualquier componente abra o cierre el modal 
 // sin necesidad de prop-drilling.
-import { createContext, useReducer, useContext } from 'react';
+import { createContext, useReducer, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { useAuth } from './AuthContext';
 
 // Tipos de estado y acciones
 type AuthView = 'login' | 'signup';
@@ -58,8 +59,26 @@ const AuthModalContext = createContext<AuthModalContextProps | undefined>(undefi
 export const AuthModalProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(authModalReducer, initialState);
 
-  const openLogin = () => dispatch({ type: 'OPEN_MODAL', payload: 'login' });
-  const openSignup = () => dispatch({ type: 'OPEN_MODAL', payload: 'signup' });
+  // El modal necesita saber si hay sesión iniciada. Muchos componentes del landing
+  // (cards de álbumes, listas, "ver todo") llaman a openSignup como invitación a
+  // registrarse; a un usuario que ya entró eso no tiene sentido mostrárselo.
+  // Se corta acá, en un solo lugar, en vez de repetir el chequeo en cada botón.
+  const { state: authState } = useAuth();
+  const isAuthenticated = authState.status === 'authenticated';
+
+  // Red de seguridad: si la sesión se abre mientras el modal está en pantalla
+  // (o se restaura al recargar), el modal se cierra solo.
+  useEffect(() => {
+    if (isAuthenticated && state.isOpen) dispatch({ type: 'CLOSE_MODAL' });
+  }, [isAuthenticated, state.isOpen]);
+
+  const openLogin = () => {
+    if (!isAuthenticated) dispatch({ type: 'OPEN_MODAL', payload: 'login' });
+  };
+
+  const openSignup = () => {
+    if (!isAuthenticated) dispatch({ type: 'OPEN_MODAL', payload: 'signup' });
+  };
   const closeModal = () => dispatch({ type: 'CLOSE_MODAL' });
   const switchView = (view: AuthView) => dispatch({ type: 'SWITCH_VIEW', payload: view });
 

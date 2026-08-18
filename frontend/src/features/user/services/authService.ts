@@ -37,7 +37,9 @@ export function toUser(data: UserApiResponse): User {
   return new User(
     data.id_user,
     data.username,
-    data.email,
+    // En el perfil de otro usuario la API no manda el email; el modelo lo
+    // representa como string vacío para no arrastrar undefined por toda la UI.
+    data.email ?? '',
     data.rol,
     data.url_avatar,
     new Date(data.registration_date)

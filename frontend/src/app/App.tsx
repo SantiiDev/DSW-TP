@@ -67,6 +67,17 @@ export const App = () => {
               }
             />
 
+            {/* Perfil público de otro usuario: la misma página, en solo lectura.
+                Pide sesión porque la API exige token en todos sus endpoints. */}
+            <Route
+              path="/users/:id"
+              element={
+                <ProtectedRoute>
+                  <UserProfilePage />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Panel de administración: además de sesión exige rol ADMIN. */}
             <Route
               path="/admin/users"

@@ -22,7 +22,8 @@ export const userController = {
 
   async getById(req: Request, res: Response): Promise<void> {
     const { id } = req.validated.params as UserIdParam;
-    const user = await userService.getById(id);
+    // requireAuth garantiza que req.user esté seteado antes de llegar acá.
+    const user = await userService.getById(id, req.user!);
     res.status(200).json(user);
   },
 

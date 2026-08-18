@@ -12,6 +12,11 @@ $color-error: #E2564A; // Mensajes de error de formularios y de la API
 $font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
 
+// Layout
+// Alto de la barra de navegación. Se usa en el propio navbar y para calcular el
+// alto mínimo del contenido de cada página (ver `main` en base/_reset.scss).
+$navbar-height: 64px;
+
 // Spacing
 $spacing-sm: 0.5rem;
 $spacing-md: 1rem;

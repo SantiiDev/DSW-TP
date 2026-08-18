@@ -57,6 +57,18 @@ body {
   animation: fadeIn 0.5s ease-out forwards;
 }
 
+// El contenido de cada página ocupa como mínimo lo que queda de pantalla debajo
+// del navbar. Sin esto, en una página con poco contenido el footer aparece a
+// mitad de la primera pantalla en vez de esperar a que el usuario baje.
+//
+// No alcanza con un flex-grow: #root ya crece con su contenido, así que cuando
+// navbar + contenido + footer superan el alto de la ventana no queda espacio
+// libre para repartir y el crecimiento no hace nada. El mínimo explícito sí.
+main {
+  flex: 1 0 auto;
+  min-height: calc(100vh - #{$navbar-height});
+}
+
 
 a {
   color: inherit;
