@@ -37,7 +37,7 @@ src/
   app/App.tsx       Rutas y providers globales
   core/
     components/     Componentes reutilizables por todas las features
-                    (Navbar, Footer, Loader, ProtectedRoute, ...)
+                    (Navbar, Footer, Loader, ProtectedRoute, Tabs, ...)
     context/        Estado global: AuthContext (sesión), AuthModalContext (modal)
     services/       httpClient (único punto de salida HTTP) y tokenStorage
     utils/          ApiError y traducción de errores a mensajes de pantalla
@@ -127,6 +127,45 @@ sigue siendo válido, en vez de confiar en lo que haya guardado el navegador.
 que el usuario no va a poder usar. La validación que importa es la del backend
 (`requireAuth` y `requireRole`), porque el estado del navegador se puede editar pero
 la firma de un token no se puede falsificar.
+
+### Pantallas que cambian según la sesión
+
+No todo se resuelve bloqueando una ruta: hay pantallas públicas cuyo contenido tiene
+que cambiar según quién mire. La regla es simple: **a quien ya inició sesión no se le
+ofrece iniciar sesión**, y a quien ya es Pro no se le vende Pro.
+
+| Pantalla | Visitante | Con sesión |
+| :------- | :-------- | :--------- |
+| Navbar | "Iniciar sesión" y "Registrarse" | avatar con el menú de la cuenta |
+| Home (`Hero`, `CallToAction`) | invitación a registrarse | saludo por nombre y accesos a su perfil y al catálogo |
+| `/members` | botón "Unirse a la comunidad" | sin botón: ya es parte |
+| `/pro` | `ProSalesView`, el pitch del plan | Free: mismo pitch, pero el botón dice "Pasarme a Pro"<br>Pro/Admin: `ProMemberView`, el área de socio |
+
+Como red de seguridad, `openLogin` y `openSignup` del `AuthModalContext` no hacen
+nada si ya hay sesión: así ningún botón que se haya pasado por alto puede abrir el
+modal de registro a alguien que ya entró.
+
+### Panel de administración (`/admin`)
+
+Solo para `ADMIN` (`<ProtectedRoute roles={['ADMIN']}>`). Adentro se divide en tres
+pestañas, cada una con su propio componente de panel:
+
+| Pestaña | Componente | Estado |
+| :------ | :--------- | :----- |
+| Usuarios | `AdminUsersPanel` | funcionando contra `/api/users` |
+| Música | `AdminMusicPanel` | shell listo; espera los endpoints de artista, álbum y canción |
+| Solicitudes | `AdminRequestsPanel` | shell listo; espera la moderación de aportes (CUU 3) |
+
+La página solo decide qué pestaña está activa: **cada panel pide sus propios datos**,
+así abrir el panel no dispara las requests de las tres áreas a la vez.
+
+La barra de pestañas es el componente compartido `core/components/Tabs`, el mismo que
+usa el perfil: si cambia el diseño de las pestañas, cambia en las dos pantallas a la
+vez. `Tabs` solo dibuja lo que recibe; qué pestañas existen y cuál se muestra lo
+deciden `ProfileTabs` y `AdminPage`.
+
+El panel vivía en `/admin/users` cuando solo gestionaba cuentas; esa URL sigue
+funcionando porque redirige a `/admin`.
 
 ## Convenciones
 

@@ -96,7 +96,7 @@ export const Navbar = () => {
                   para no ofrecer una pantalla que no va a poder usar: quien
                   corta de verdad es el backend. */}
               {authState.user.isAdmin && (
-                <Link to="/admin/users" className="navbar__btn navbar__btn--admin">Admin</Link>
+                <Link to="/admin" className="navbar__btn navbar__btn--admin">Admin</Link>
               )}
 
               <div className="navbar__menu" ref={menuRef}>

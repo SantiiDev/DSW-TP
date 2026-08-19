@@ -82,7 +82,10 @@
     flex-wrap: wrap;
   }
 
+  // Sirve tanto para los <button> del visitante como para los <a> del router
+  // que ve el usuario logueado.
   &__btn {
+    display: inline-block;
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
     font-weight: 600;

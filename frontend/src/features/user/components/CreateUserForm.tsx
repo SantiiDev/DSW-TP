@@ -2,7 +2,7 @@
 // A diferencia del registro público, acá se elige el rol de la cuenta: es la
 // forma de crear otro administrador desde la interfaz.
 //
-// Es controlado y no llama a la API: delega el submit al padre (AdminUsersPage).
+// Es controlado y no llama a la API: delega el submit al padre (AdminUsersPanel).
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { ROLE_LABELS, USER_ROLES } from '../models/User';

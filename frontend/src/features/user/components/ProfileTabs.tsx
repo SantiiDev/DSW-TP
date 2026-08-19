@@ -5,8 +5,12 @@
 //   Reseñas    -> CRUD Reseña + listado de reseñas del perfil filtrado por estrellas
 //   Álbumes    -> álbumes que el usuario calificó
 //   Canciones  -> canciones que el usuario calificó
-//   Aportes    -> CUU 3, alta de catálogo (solo tiene sentido para PATRON/ADMIN)
+//   Aportes    -> CUU 3, alta de catálogo (solo tiene sentido para PRO/ADMIN)
 //   Membresía  -> CUU 2, plan y pagos (privado: solo en el perfil propio)
+//
+// El dibujo de la barra lo hace el componente compartido core/components/Tabs;
+// acá vive solo la regla de qué pestaña se muestra en cada perfil.
+import { Tabs } from '../../../core/components/Tabs';
 import type { User } from '../models/User';
 
 export const PROFILE_TABS = [
@@ -37,7 +41,7 @@ const TAB_DEFINITIONS: TabDefinition[] = [
   { id: 'albums', label: 'Álbumes', isVisible: () => true },
   { id: 'songs', label: 'Canciones', isVisible: () => true },
   {
-    // Aportar catálogo es exclusivo de PATRON y ADMIN, así que a un usuario FREE
+    // Aportar catálogo es exclusivo de PRO y ADMIN, así que a un usuario FREE
     // la pestaña le mostraría siempre un vacío que nunca va a poder llenar.
     id: 'contributions',
     label: 'Aportes',
@@ -62,23 +66,14 @@ export const ProfileTabs = ({ user, isOwnProfile, activeTab, onChange }: Profile
   const visibleTabs = TAB_DEFINITIONS.filter((tab) => tab.isVisible(user, isOwnProfile));
 
   return (
-    // El wrapper permite scroll horizontal: en mobile las seis pestañas no entran.
-    <nav className="profile-tabs" aria-label="Secciones del perfil">
-      <ul className="profile-tabs__list">
-        {visibleTabs.map((tab) => (
-          <li key={tab.id}>
-            <button
-              type="button"
-              className={`profile-tabs__tab ${activeTab === tab.id ? 'profile-tabs__tab--active' : ''}`}
-              onClick={() => onChange(tab.id)}
-              aria-current={activeTab === tab.id ? 'page' : undefined}
-            >
-              {tab.label}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <Tabs
+      items={visibleTabs.map(({ id, label }) => ({ id, label }))}
+      activeId={activeTab}
+      // Tabs trabaja con ids genéricos (string); acá se vuelve al tipo propio de
+      // esta barra, que es el que espera la página.
+      onChange={(id) => onChange(id as ProfileTab)}
+      ariaLabel="Secciones del perfil"
+    />
   );
 };
 

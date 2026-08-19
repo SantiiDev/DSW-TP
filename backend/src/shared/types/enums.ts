@@ -1,12 +1,12 @@
 // Enumerados compartidos por varias entidades del dominio.
 
 /** Niveles de acceso del sistema (USERS.rol). */
-export const USER_ROLES = ['FREE', 'PRO', 'PATRON', 'ADMIN'] as const;
+export const USER_ROLES = ['FREE', 'PRO', 'ADMIN'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 /**
  * Estado de moderación del contenido de catálogo (ARTIST, ALBUMS, SONG).
- * Lo cargado por el seed queda en 'approved'; lo que da de alta un usuario PATRON
+ * Lo cargado por el seed queda en 'approved'; lo que da de alta un usuario PRO
  * entra como 'pending' hasta que un ADMIN lo revisa.
  */
 export const CONTENT_STATES = ['pending', 'approved', 'rejected'] as const;

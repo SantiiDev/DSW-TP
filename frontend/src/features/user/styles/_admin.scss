@@ -1,7 +1,10 @@
 @use "sass:color";
-// Estilos del panel de administración de usuarios (/admin/users).
+// Estilos del panel de administración (/admin), en sus tres pestañas.
 // Usa los mismos tokens que el resto de la feature user para que se sienta parte
 // del mismo set visual.
+//
+// El bloque .admin-users es el marco de la página y la pestaña de cuentas;
+// .admin-panel son los bloques de las pestañas Música y Solicitudes.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
 
@@ -225,6 +228,13 @@
     text-transform: uppercase;
   }
 
+  // El select y la etiqueta de "antes: X" van juntos en la celda de rol.
+  &__role-cell {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
   &__role-select {
     background-color: $color-bg;
     border: 1px solid $color-nav-border;
@@ -242,6 +252,125 @@
 
     &:disabled {
       opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    // Rol elegido pero todavía sin guardar: se destaca en verde para que se vea
+    // de un vistazo qué filas va a tocar el botón de guardar.
+    &--pending {
+      border-color: $color-primary;
+      color: $color-primary;
+      font-weight: 600;
+    }
+  }
+
+  // Recuerda el rol guardado, para que se entienda qué se va a reemplazar.
+  &__pending-tag {
+    font-size: 0.72rem;
+    color: $color-text-secondary;
+    white-space: nowrap;
+  }
+
+  // Fila con un cambio pendiente: un fondo tenue la separa del resto.
+  &__row--pending td {
+    background-color: rgba($color-primary, 0.07);
+  }
+
+  // --- Barra de cambios sin guardar ---------------------------------------
+
+  // Queda pegada abajo mientras se recorre un listado largo: el admin puede
+  // cambiar varias filas y el botón de guardar sigue estando a la vista.
+  &__changes-bar {
+    position: sticky;
+    bottom: $spacing-md;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    border: 1px solid rgba($color-primary, 0.45);
+    border-radius: 12px;
+    background-color: $color-bg-light;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__changes-text {
+    margin: 0;
+    font-size: 0.88rem;
+    color: $color-text;
+  }
+
+  &__changes-actions {
+    display: flex;
+    gap: $spacing-sm;
+    // En mobile los dos botones se reparten el ancho en vez de quedar chiquitos.
+    & > * {
+      flex: 1;
+    }
+
+    @media (min-width: $bp-md) {
+      flex: none;
+
+      & > * {
+        flex: none;
+      }
+    }
+  }
+
+  &__save-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0.55rem $spacing-lg;
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+    border-radius: 30px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__discard-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0.55rem $spacing-md;
+    background-color: transparent;
+    color: $color-text-secondary;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: $color-text;
+    }
+
+    &:disabled {
+      opacity: 0.5;
       cursor: not-allowed;
     }
   }
@@ -269,5 +398,77 @@
 
   &__no-action {
     color: $color-text-secondary;
+  }
+}
+
+// --- Bloques de las pestañas Música y Solicitudes -------------------------
+//
+// Las dos pestañas comparten la misma estructura: un encabezado propio, un
+// selector de segmentos y el contenido de la opción elegida.
+
+.admin-panel {
+  &__block {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 16px;
+    padding: $spacing-lg;
+    // Igual que en __list: sin esto el bloque no se achica por debajo del ancho
+    // de su contenido y estira la página en mobile.
+    min-width: 0;
+  }
+
+  &__block-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__block-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__block-subtitle {
+    margin: 0;
+    font-size: 0.88rem;
+    color: $color-text-secondary;
+  }
+
+  // Selector de segmentos: distingue las variantes de una misma pestaña sin
+  // repetir el subrayado de la barra principal, que se leería como otro nivel
+  // de navegación.
+  &__segments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  &__segment {
+    padding: 0.4rem 1rem;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    background-color: transparent;
+    color: $color-text-secondary;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &--active {
+      background-color: rgba($color-primary, 0.15);
+      border-color: $color-primary;
+      color: $color-primary;
+    }
   }
 }

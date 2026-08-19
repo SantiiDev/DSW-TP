@@ -14,6 +14,7 @@
 @use '../core/components/modal';
 @use '../core/components/avatar';
 @use '../core/components/empty-state';
+@use '../core/components/tabs';
 
 // Features Components
 @use '../features/home/components/hero';
@@ -24,7 +25,7 @@
 @use '../features/user/styles/auth';
 @use '../features/user/styles/members-explore';
 @use '../features/user/styles/user';
-@use '../features/user/styles/admin-users';
+@use '../features/user/styles/admin';
 
 // Music Explore
 @use '../features/music/styles/music-explore';

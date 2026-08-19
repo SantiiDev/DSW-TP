@@ -154,8 +154,7 @@
     background-color: rgba($color-text-secondary, 0.15);
     color: $color-text-secondary;
 
-    &--pro,
-    &--patron {
+    &--pro {
       background-color: rgba($color-primary, 0.15);
       color: $color-primary;
     }
@@ -278,61 +277,8 @@
 }
 
 // --- Pestañas -------------------------------------------------------------
-
-.profile-tabs {
-  border-bottom: 1px solid $color-nav-border;
-  // Con seis pestañas no entran en mobile: scrollean en horizontal en vez de
-  // romper el ancho de la página.
-  overflow-x: auto;
-  // Sin esto aparece una barra de scroll vertical mínima y no deseada: al fijar
-  // solo overflow-x, la spec de CSS calcula overflow-y como "auto" (no
-  // "visible"), y ese eje queda listo para scrollear ante cualquier desborde de
-  // un píxel por redondeo, aunque las pestañas son de una sola fila.
-  overflow-y: hidden;
-  min-width: 0;
-
-  &__list {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    gap: $spacing-sm;
-  }
-
-  &__tab {
-    position: relative;
-    background: none;
-    border: none;
-    padding: 0.7rem $spacing-md;
-    font: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: $color-text-secondary;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: $color-text;
-    }
-
-    // Subrayado de la pestaña activa, pegado al borde inferior de la barra.
-    &--active {
-      color: $color-text;
-
-      &::after {
-        content: '';
-        position: absolute;
-        left: $spacing-sm;
-        right: $spacing-sm;
-        bottom: -1px;
-        height: 2px;
-        background-color: $color-primary;
-        border-radius: 2px;
-      }
-    }
-  }
-}
+// La barra vive en core/components/Tabs (clase .tabs): la comparten el perfil y
+// el panel de administración.
 
 // --- Panel de contenido ---------------------------------------------------
 

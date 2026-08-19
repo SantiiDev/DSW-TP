@@ -72,7 +72,7 @@ export const authService = {
       email: data.email,
       password: await bcrypt.hash(data.password, SALT_ROUNDS),
       // El rol NO se toma nunca de la request: todo registro público entra como
-      // FREE. Se sube a PRO o PATRON pagando, y a ADMIN solo desde el seed.
+      // FREE. Se sube a PRO pagando, y a ADMIN solo desde el seed.
       rol: 'FREE',
     });
 

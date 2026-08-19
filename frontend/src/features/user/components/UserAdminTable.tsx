@@ -1,8 +1,12 @@
 // Tabla de usuarios del panel de administración: muestra todas las cuentas y
-// permite cambiarles el rol o eliminarlas.
+// permite elegirles otro rol o eliminarlas.
+//
+// El rol elegido en el select NO se guarda solo: queda como cambio pendiente
+// (ver `pendingRoles`) hasta que el admin confirma desde RoleChangesBar. La fila
+// se marca mientras tanto para que se vea qué está por cambiar.
 //
 // Es presentacional: no llama a la API ni guarda estado propio; avisa al padre
-// (AdminUsersPage) con onChangeRole / onDelete.
+// (AdminUsersPanel) con onSelectRole / onDelete.
 import { Avatar } from '../../../core/components/Avatar';
 import { ROLE_LABELS, USER_ROLES } from '../models/User';
 import type { User, UserRole } from '../models/User';
@@ -13,7 +17,11 @@ type UserAdminTableProps = {
   currentUserId: number;
   /** Id de la fila que tiene una operación en curso, para deshabilitar sus controles. */
   busyUserId: number | null;
-  onChangeRole: (user: User, rol: UserRole) => void;
+  /** Roles elegidos pero todavía sin guardar, indexados por id de usuario. */
+  pendingRoles: Record<number, UserRole>;
+  /** true mientras se guarda el lote de cambios: bloquea todos los selects. */
+  isSaving: boolean;
+  onSelectRole: (user: User, rol: UserRole) => void;
   onDelete: (user: User) => void;
 };
 
@@ -21,7 +29,9 @@ export const UserAdminTable = ({
   users,
   currentUserId,
   busyUserId,
-  onChangeRole,
+  pendingRoles,
+  isSaving,
+  onSelectRole,
   onDelete,
 }: UserAdminTableProps) => {
   return (
@@ -43,8 +53,17 @@ export const UserAdminTable = ({
             const isCurrentUser = user.id === currentUserId;
             const isBusy = busyUserId === user.id;
 
+            // El select muestra el rol pendiente si lo hay, y si no el guardado:
+            // así el admin ve lo que eligió aunque todavía no lo haya confirmado.
+            const pendingRole = pendingRoles[user.id];
+            const hasPendingChange = pendingRole !== undefined;
+            const selectedRole = pendingRole ?? user.rol;
+
             return (
-              <tr key={user.id}>
+              <tr
+                key={user.id}
+                className={hasPendingChange ? 'admin-users__row--pending' : undefined}
+              >
                 <td>
                   <span className="admin-users__user-cell">
                     <Avatar url={user.urlAvatar} username={user.username} size="md" />
@@ -54,19 +73,31 @@ export const UserAdminTable = ({
                 </td>
                 <td>{user.email}</td>
                 <td>
-                  <select
-                    className="admin-users__role-select"
-                    value={user.rol}
-                    disabled={isBusy}
-                    aria-label={`Rol de ${user.username}`}
-                    onChange={(e) => onChangeRole(user, e.target.value as UserRole)}
-                  >
-                    {USER_ROLES.map((rol) => (
-                      <option key={rol} value={rol}>
-                        {ROLE_LABELS[rol]}
-                      </option>
-                    ))}
-                  </select>
+                  <span className="admin-users__role-cell">
+                    <select
+                      className={`admin-users__role-select ${
+                        hasPendingChange ? 'admin-users__role-select--pending' : ''
+                      }`}
+                      value={selectedRole}
+                      disabled={isBusy || isSaving}
+                      aria-label={`Rol de ${user.username}`}
+                      onChange={(e) => onSelectRole(user, e.target.value as UserRole)}
+                    >
+                      {USER_ROLES.map((rol) => (
+                        <option key={rol} value={rol}>
+                          {ROLE_LABELS[rol]}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Deja explícito de qué rol viene, para que se entienda qué
+                        se va a aplicar al guardar. */}
+                    {hasPendingChange && (
+                      <span className="admin-users__pending-tag">
+                        antes: {ROLE_LABELS[user.rol]}
+                      </span>
+                    )}
+                  </span>
                 </td>
                 <td>{user.registrationDate.toLocaleDateString('es-AR')}</td>
                 <td>
@@ -79,7 +110,7 @@ export const UserAdminTable = ({
                     <button
                       type="button"
                       className="admin-users__delete-btn"
-                      disabled={isBusy}
+                      disabled={isBusy || isSaving}
                       onClick={() => onDelete(user)}
                     >
                       Eliminar

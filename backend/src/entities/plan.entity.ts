@@ -1,4 +1,4 @@
-// Entidad PLAN (planes de membresía: Free, Pro, Patron).
+// Entidad PLAN (planes de membresía: Free y Pro).
 // PLAN (id_plan, name, amount, description)
 //   id_plan -> PK
 import {

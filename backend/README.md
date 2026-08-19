@@ -93,7 +93,7 @@ las tablas automáticamente al arrancar a partir de las entidades.
 npm run seed
 ```
 
-Un solo comando deja la base usable: los 3 planes de membresía, el catálogo completo
+Un solo comando deja la base usable: los 2 planes de membresía, el catálogo completo
 (11 géneros, 88 artistas, 263 álbumes y 3.618 canciones) y el usuario administrador.
 
 **No necesita conexión a internet.** El catálogo se lee de archivos JSON versionados
@@ -128,11 +128,12 @@ Las credenciales del administrador salen de `SEED_ADMIN_*` en el `.env`. Por def
 | `npm start` | Ejecuta la versión compilada (producción) |
 | `npm run typecheck` | Verifica tipos sin generar archivos |
 | `npm run seed` | Corre todos los seeds del proyecto |
-| `npm run seed:plans` | Corre solo el seed de planes Free / Pro / Patron |
+| `npm run seed:plans` | Corre solo el seed de planes Free / Pro |
 | `npm run seed:catalog` | Corre solo el seed del catálogo |
 | `npm run seed:admin` | Corre solo el seed del usuario administrador |
 | `npm run seed:fetch` | **Descarga el catálogo de Deezer.** Es el único script que sale a internet, y no hace falta correrlo para levantar el proyecto |
 | `npm run db:reset` | Borra la base local, la recrea y corre todos los seeds |
+| `npm run db:migrate:patron` | Migración puntual: pasa a `PRO` los usuarios `PATRON` y borra ese plan. Solo hace falta en bases creadas antes de que se eliminara ese nivel |
 
 ## Reiniciar la base local
 
@@ -156,6 +157,24 @@ la máquina de un integrante.
 El script se niega a correr si `NODE_ENV=production`, y antes de borrar imprime a qué
 host, puerto y base se está conectando.
 
+### Bases creadas antes de que se eliminara el nivel PATRON
+
+El sistema tenía cuatro niveles de acceso (`FREE | PRO | PATRON | ADMIN`) y pasó a
+tener tres: lo que era exclusivo de Patron —aportar al catálogo— ahora entra en Pro.
+
+Una base creada antes de ese cambio todavía guarda el rol `PATRON` y el plan del
+mismo nombre, y eso rompe el arranque: con `DB_SYNC=true` Sequelize achica el ENUM
+de `users.rol` y falla si quedan filas con un valor que ya no existe. Antes de
+levantar el backend hay que limpiarla:
+
+```bash
+npm run db:migrate:patron
+```
+
+Pasa a `PRO` los usuarios que eran `PATRON`, reapunta sus suscripciones al plan Pro
+y borra el plan Patron. Es idempotente: sobre una base ya migrada no hace nada.
+Si la base local es descartable, `npm run db:reset` logra lo mismo desde cero.
+
 ## Catálogo inicial
 
 ### La base propia es la única fuente de verdad
@@ -164,7 +183,7 @@ Musicboxd **no consulta APIs externas de música en runtime**. Ningún endpoint 
 API ni ningún componente del frontend le pega a Deezer, Spotify ni MusicBrainz: todo
 sale de las tablas propias. La metadata musical se descarga **una sola vez, offline**,
 y a partir de ahí el catálogo crece desde adentro del sistema, con los aportes de los
-usuarios PATRON que un ADMIN modera.
+usuarios PRO que un ADMIN modera.
 
 Esto tiene una consecuencia importante para el TP: los CRUD de Artista, Álbum, Género
 y Canción son CRUD reales sobre tablas propias, no un proxy contra un servicio ajeno.
@@ -453,8 +472,8 @@ import { requireRole } from '../shared/middlewares/require-role';
 // Cualquier usuario logueado
 albumRouter.post('/:id/reviews', requireAuth, reviewController.create);
 
-// Alta de catálogo: solo PATRON o ADMIN
-albumRouter.post('/', requireAuth, requireRole('PATRON', 'ADMIN'), albumController.create);
+// Alta de catálogo: solo PRO o ADMIN
+albumRouter.post('/', requireAuth, requireRole('PRO', 'ADMIN'), albumController.create);
 
 // Moderación: solo ADMIN
 albumRouter.patch('/:id/approve', requireAuth, requireRole('ADMIN'), albumController.approve);
@@ -473,8 +492,8 @@ inválido; **403** si el usuario está logueado pero su rol no alcanza.
 ### Decisiones de esta parte
 
 - **El rol nunca sale de la request.** Todo registro público entra como `FREE`,
-  aunque el body traiga `"rol": "ADMIN"`. Se sube a `PRO` / `PATRON` pagando, y a
-  `ADMIN` solo desde el seed.
+  aunque el body traiga `"rol": "ADMIN"`. Se sube a `PRO` pagando, y a `ADMIN`
+  solo desde el seed.
 - **La contraseña no sale nunca en una respuesta.** El `defaultScope` de la entidad
   `User` la excluye de toda consulta; el login es el único lugar que usa
   `User.scope('withPassword')`, y aun ahí el service arma la respuesta campo por campo.
@@ -521,7 +540,7 @@ En los tres casos la regla de unicidad del modelo original se conserva mediante 
   editar o borrar una reseña.
 - El contenido de catálogo (`artist`, `albums`, `song`) tiene `state`
   (`pending | approved | rejected`) y `created_by`: lo que carga el seed entra como
-  `approved`, lo que aporta un usuario PATRON entra como `pending` hasta que un
+  `approved`, lo que aporta un usuario PRO entra como `pending` hasta que un
   ADMIN lo aprueba.
 - La contraseña del usuario nunca sale en una consulta: el `defaultScope` de `User`
   la excluye. Para el login se usa explícitamente `User.scope('withPassword')`.

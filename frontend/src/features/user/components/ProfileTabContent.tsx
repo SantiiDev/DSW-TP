@@ -94,7 +94,7 @@ export const ProfileTabContent = ({ user, isOwnProfile, activeTab }: ProfileTabC
             title={emptyCopy(isOwnProfile, 'Todavía no aportaste al catálogo.', `${name} no tiene aportes.`)}
             message={emptyCopy(
               isOwnProfile,
-              'Como Patron podés dar de alta artistas, álbumes y canciones. Quedan pendientes hasta que un administrador los aprueba.',
+              'Como Pro podés dar de alta artistas, álbumes y canciones. Quedan pendientes hasta que un administrador los aprueba.',
               'Los artistas, álbumes y canciones que aporte van a listarse acá una vez aprobados.'
             )}
           />

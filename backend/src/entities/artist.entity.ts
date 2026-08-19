@@ -3,7 +3,7 @@
 //   id_artist -> PK
 //
 // `state` y `created_by` sostienen el CUU de aporte de catálogo: lo que carga el seed
-// entra como 'approved', y lo que da de alta un usuario PATRON entra como 'pending'
+// entra como 'approved', y lo que da de alta un usuario PRO entra como 'pending'
 // hasta que un ADMIN lo aprueba.
 import {
   CreationOptional,

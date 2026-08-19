@@ -64,7 +64,11 @@
     }
   }
 
+  // Es un <button> para el visitante (abre el modal de registro) y un <a> del
+  // router para el usuario logueado, así que los estilos sirven para los dos.
   &__cta {
+    display: inline-block;
+    text-decoration: none;
     background-color: $color-primary;
     color: #000;
     font-weight: 700;

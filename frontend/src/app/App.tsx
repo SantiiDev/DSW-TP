@@ -2,13 +2,13 @@
 // Responsable de definir la configuración del enrutador (React Router v6) y establecer 
 // el layout principal que envuelve a todas las páginas. También inyecta contextos globales
 // (como el modal de autenticación) y maneja el restablecimiento del scroll al cambiar de ruta.
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Home } from '../features/home/Home';
 import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
 import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
 import { UserProfilePage } from '../features/user/pages/UserProfilePage';
-import { AdminUsersPage } from '../features/user/pages/AdminUsersPage';
+import { AdminPage } from '../features/user/pages/AdminPage';
 import { ProPage } from '../features/membership/pages/ProPage';
 import { ListsExplorePage } from '../features/review/pages/ListsExplorePage';
 import { AuthProvider } from '../core/context/AuthContext';
@@ -78,15 +78,21 @@ export const App = () => {
               }
             />
 
-            {/* Panel de administración: además de sesión exige rol ADMIN. */}
+            {/* Panel de administración: además de sesión exige rol ADMIN.
+                Adentro se divide en pestañas (usuarios, música, solicitudes). */}
             <Route
-              path="/admin/users"
+              path="/admin"
               element={
                 <ProtectedRoute roles={['ADMIN']}>
-                  <AdminUsersPage />
+                  <AdminPage />
                 </ProtectedRoute>
               }
             />
+
+            {/* El panel vivía en /admin/users cuando solo gestionaba cuentas.
+                Se mantiene la URL vieja redirigiendo, para no romper links ya
+                guardados. */}
+            <Route path="/admin/users" element={<Navigate to="/admin" replace />} />
           </Routes>
         </div>
         <AuthModal />

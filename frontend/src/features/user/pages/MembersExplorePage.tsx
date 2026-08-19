@@ -9,11 +9,17 @@ import { FeaturedMembers } from '../components/FeaturedMembers';
 import { PopularReviewers } from '../components/PopularReviewers';
 import { MemberReviews } from '../components/MemberReviews';
 import { MemberLists } from '../components/MemberLists';
+import { useAuth } from '../../../core/context/AuthContext';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import '../styles/_members-explore.scss';
 
 export const MembersExplorePage = () => {
   const { openSignup } = useAuthModal();
+  const { state: authState } = useAuth();
+
+  // El botón invita a sumarse a la comunidad: a quien ya es parte no se le muestra.
+  const isAuthenticated = authState.status === 'authenticated';
+
   return (
     <>
       <Navbar />
@@ -28,9 +34,11 @@ export const MembersExplorePage = () => {
               Conectá con otros entusiastas de la música en Musicboxd. Descubrí perfiles,
               leé sus reseñas y participá en la comunidad.
             </p>
-            <button onClick={() => openSignup()} className="members-explore__cta">
-              Unirse a la comunidad
-            </button>
+            {!isAuthenticated && (
+              <button onClick={() => openSignup()} className="members-explore__cta">
+                Unirse a la comunidad
+              </button>
+            )}
           </header>
         </FadeInSection>
 

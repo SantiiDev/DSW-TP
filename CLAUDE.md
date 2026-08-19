@@ -133,10 +133,10 @@ El controller no arma queries; el service no toca `req` ni `res`.
 
 ## Niveles de acceso
 
-`USERS.rol` ∈ `FREE | PRO | PATRON | ADMIN`.
+`USERS.rol` ∈ `FREE | PRO | ADMIN`.
 
-- Rutas de escritura de catálogo (artista, álbum, canción): requieren `PATRON` o `ADMIN`.
-- Contenido creado por un `PATRON` entra con `state = 'pending'` y solo un `ADMIN` lo aprueba.
+- Rutas de escritura de catálogo (artista, álbum, canción): requieren `PRO` o `ADMIN`.
+- Contenido creado por un `PRO` entra con `state = 'pending'` y solo un `ADMIN` lo aprueba.
 - Rutas de moderación y de gestión de planes: solo `ADMIN`.
 - El frontend replica esta protección con un componente `ProtectedRoute`, pero **la validación
   real vive siempre en el backend**.

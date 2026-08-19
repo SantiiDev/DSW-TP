@@ -2,10 +2,10 @@
 //
 // Va SIEMPRE después de requireAuth, que es el que deja el usuario en req.user:
 //
-//   router.post('/', requireAuth, requireRole('PATRON', 'ADMIN'), albumController.create);
+//   router.post('/', requireAuth, requireRole('PRO', 'ADMIN'), albumController.create);
 //   router.patch('/:id/approve', requireAuth, requireRole('ADMIN'), albumController.approve);
 //
-// Los niveles de acceso del sistema son FREE | PRO | PATRON | ADMIN (ver
+// Los niveles de acceso del sistema son FREE | PRO | ADMIN (ver
 // shared/types/enums.ts). El frontend replica esta protección con ProtectedRoute,
 // pero la validación real es esta: la del backend.
 import { NextFunction, Request, Response } from 'express';

@@ -1,4 +1,4 @@
-// Seed mínimo: carga los tres planes de membresía del modelo de negocio.
+// Seed mínimo: carga los dos planes de membresía del modelo de negocio.
 //
 // Es idempotente: se puede correr las veces que haga falta sin duplicar registros.
 // Sirve además para verificar de punta a punta que la conexión, las entidades y el esquema están bien (si esto corre, el modelo funciona).
@@ -18,13 +18,8 @@ const PLANS = [
   {
     name: 'Pro',
     amount: 3500,
-    description: 'Sin anuncios, estadísticas avanzadas y personalización de perfil.',
-  },
-  {
-    name: 'Patron',
-    amount: 7000,
     description:
-      'Todo lo de Pro, más la posibilidad de aportar artistas, álbumes y canciones al catálogo.',
+      'Sin anuncios, estadísticas avanzadas, personalización del perfil y aporte de catálogo.',
   },
 ];
 

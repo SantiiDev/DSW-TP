@@ -1,7 +1,7 @@
 // Crea el usuario ADMIN inicial.
 //
 // Hace falta para poder entrar al sistema la primera vez: el circuito de moderación
-// del catálogo (aprobar lo que aporta un usuario PATRON) exige un ADMIN, y no hay
+// del catálogo (aprobar lo que aporta un usuario PRO) exige un ADMIN, y no hay
 // forma de que se cree solo desde el registro público, que siempre da de alta FREE.
 //
 // Uso:  npm run seed:admin     (o `npm run seed`, que corre todos los seeds)

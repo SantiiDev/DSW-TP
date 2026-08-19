@@ -3,14 +3,13 @@
 // no sale nunca de la capa de servicios (ver services/authService.ts).
 
 /** Niveles de acceso del sistema, igual que el enum USERS.rol del backend. */
-export const USER_ROLES = ['FREE', 'PRO', 'PATRON', 'ADMIN'] as const;
+export const USER_ROLES = ['FREE', 'PRO', 'ADMIN'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 /** Nombre para mostrar de cada rol: en la UI nunca se escribe el valor crudo. */
 export const ROLE_LABELS: Record<UserRole, string> = {
   FREE: 'Member',
   PRO: 'Pro',
-  PATRON: 'Patron',
   ADMIN: 'Admin',
 };
 
@@ -43,7 +42,12 @@ export class User {
 
   /** ¿Puede dar de alta artistas, álbumes y canciones? (circuito de aporte de catálogo) */
   get canContributeCatalog(): boolean {
-    return this.rol === 'PATRON' || this.rol === 'ADMIN';
+    return this.rol === 'PRO' || this.rol === 'ADMIN';
+  }
+
+  /** ¿Tiene la membresía paga? Decide qué versión de la página /pro se muestra. */
+  get isPro(): boolean {
+    return this.rol === 'PRO' || this.rol === 'ADMIN';
   }
 
   /** ¿Puede moderar contenido y gestionar planes? */

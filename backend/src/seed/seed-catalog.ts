@@ -76,7 +76,7 @@ export async function seedCatalog(): Promise<void> {
 
   // --- Artistas -------------------------------------------------------------
   // `state: 'approved'` y `created_by: null` porque son contenido del catálogo base,
-  // no un aporte de un usuario PATRON pendiente de moderación.
+  // no un aporte de un usuario PRO pendiente de moderación.
   //
   // La biografía queda en null: la API pública de Deezer no la expone. El CRUD de
   // artista permite completarla después desde el panel de administración.
