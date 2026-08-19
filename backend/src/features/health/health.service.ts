@@ -1,5 +1,5 @@
 // Service del health check: contiene la lógica, sin saber nada de HTTP.
-import { sequelize } from '../shared/db/sequelize';
+import { sequelize } from '../../shared/db/sequelize';
 
 type HealthStatus = {
   status: 'ok' | 'degraded';

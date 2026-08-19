@@ -2,10 +2,10 @@
 // usuario logueado. No conoce req ni res; recibe datos ya validados y devuelve
 // objetos planos, o lanza un error de negocio que traduce el errorHandler.
 import bcrypt from 'bcryptjs';
-import { User } from '../entities';
-import { signToken } from '../shared/auth/jwt';
-import { ConflictError, NotFoundError, UnauthorizedError } from '../shared/errors/app-error';
-import { UserRole } from '../shared/types/enums';
+import { User } from '../../entities';
+import { signToken } from '../../shared/auth/jwt';
+import { ConflictError, NotFoundError, UnauthorizedError } from '../../shared/errors/app-error';
+import { UserRole } from '../../shared/types/enums';
 import { authRepository } from './auth.repository';
 import { LoginInput, RegisterInput } from './auth.schema';
 

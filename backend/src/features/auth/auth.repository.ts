@@ -1,8 +1,8 @@
 // Acceso a datos de la feature auth: todas las consultas a la tabla users que
 // necesita el circuito de registro e inicio de sesión. Es la única capa que
 // habla con Sequelize.
-import { User } from '../entities';
-import { UserRole } from '../shared/types/enums';
+import { User } from '../../entities';
+import { UserRole } from '../../shared/types/enums';
 
 type CreateUserData = {
   username: string;

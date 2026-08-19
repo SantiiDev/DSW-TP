@@ -3,10 +3,10 @@
 // autenticado (para chequear "dueño o admin"), y lanza errores de negocio que
 // traduce el errorHandler.
 import bcrypt from 'bcryptjs';
-import { User } from '../entities';
-import { ConflictError, ForbiddenError, NotFoundError } from '../shared/errors/app-error';
-import { TokenPayload } from '../shared/auth/jwt';
-import { UserRole } from '../shared/types/enums';
+import { User } from '../../entities';
+import { ConflictError, ForbiddenError, NotFoundError } from '../../shared/errors/app-error';
+import { TokenPayload } from '../../shared/auth/jwt';
+import { UserRole } from '../../shared/types/enums';
 import { userRepository } from './user.repository';
 import { CreateUserInput, UpdateUserInput } from './user.schema';
 

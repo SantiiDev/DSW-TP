@@ -10,9 +10,9 @@
 // token, así que no lo puede resolver un middleware genérico: vive en el service.
 // Lo mismo con el rol en el PATCH, que solo puede tocar un ADMIN.
 import { Router } from 'express';
-import { requireAuth } from '../shared/middlewares/require-auth';
-import { requireRole } from '../shared/middlewares/require-role';
-import { validate } from '../shared/middlewares/validate';
+import { requireAuth } from '../../shared/middlewares/require-auth';
+import { requireRole } from '../../shared/middlewares/require-role';
+import { validate } from '../../shared/middlewares/validate';
 import { userController } from './user.controller';
 import { createUserSchema, updateUserSchema, userIdParamSchema } from './user.schema';
 

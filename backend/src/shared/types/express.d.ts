@@ -5,7 +5,7 @@
 //     Los controllers leen de acá y nunca de req.body / req.query crudos.
 //   - user: el usuario autenticado que sale del JWT (middleware requireAuth).
 //     Es opcional porque en una ruta pública no está definido.
-import { TokenPayload } from '../shared/auth/jwt';
+import { TokenPayload } from '../auth/jwt';
 
 declare global {
   namespace Express {

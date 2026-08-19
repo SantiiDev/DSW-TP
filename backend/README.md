@@ -133,6 +133,7 @@ Las credenciales del administrador salen de `SEED_ADMIN_*` en el `.env`. Por def
 | `npm run seed:admin` | Corre solo el seed del usuario administrador |
 | `npm run seed:fetch` | **Descarga el catálogo de Deezer.** Es el único script que sale a internet, y no hace falta correrlo para levantar el proyecto |
 | `npm run db:reset` | Borra la base local, la recrea y corre todos los seeds |
+| `npm run db:fix-indexes` | Limpia índices duplicados que puede dejar `sync({ alter: true })` |
 | `npm run db:migrate:patron` | Migración puntual: pasa a `PRO` los usuarios `PATRON` y borra ese plan. Solo hace falta en bases creadas antes de que se eliminara ese nivel |
 
 ## Reiniciar la base local
@@ -284,30 +285,63 @@ es la clave única que la entidad ya declaraba.
 
 ```
 src/
-  entities/          Modelos de Sequelize (una por tabla del DER) +
+  server.ts          Punto de entrada: conecta a la DB y escucha
+  app.ts             Configuración de Express (sin levantar el servidor)
+  routes.ts          Router principal: monta el router de cada feature
+
+  features/          EL DOMINIO: una carpeta por entidad, con sus cinco capas
+    health/          Health check (además, ejemplo del patrón de capas)
+    auth/            Registro, inicio de sesión y usuario logueado
+    user/            CRUD de usuarios y cambio de rol
+
+  entities/          Modelos de Sequelize (uno por tabla del DER) +
                      index.ts con TODAS las asociaciones
-  shared/
+
+  shared/            LO TRANSVERSAL: lo que usan varias features
     auth/jwt.ts      Firma y verificación de los tokens
     config/env.ts    Lectura y validación de variables de entorno
     db/sequelize.ts  Instancia única de conexión
     errors/          Clases de error de negocio (AppError y derivadas)
     middlewares/     validate, require-auth, require-role, error-handler, not-found
-    types/enums.ts   Enumerados del dominio (roles, estados)
-  types/             Declaraciones de tipos globales (extensión de Request)
-  health/            Endpoint de health check (ejemplo del patrón de capas)
-  auth/              Registro, inicio de sesión y usuario logueado
-  seed/              Scripts de carga inicial de datos + data/*.json descargados
-  routes.ts          Router principal: monta el router de cada feature
-  app.ts             Configuración de Express (sin levantar el servidor)
-  server.ts          Punto de entrada: conecta a la DB y escucha
+    types/           Enumerados del dominio + extensión global de Request
+
+  seed/              Carga inicial de datos + data/*.json descargados
+  scripts/           Mantenimiento de la base (reset, índices, migraciones)
 ```
+
+La organización es la misma que la del frontend: **`features/` es el dominio y
+`shared/` es lo transversal** (el equivalente de `core/` del lado del cliente). Con
+esa separación, `src/` no crece: sumar el CRUD de álbum agrega una carpeta adentro
+de `features/`, no una más en la raíz.
+
+### Por qué `entities/` está afuera de las features
+
+Es la única parte que no espeja al frontend, y es a propósito. En el frontend cada
+feature tiene su `models/` porque esas clases son independientes entre sí. Acá las
+entidades son un grafo conectado: `entities/index.ts` declara **todas** las
+asociaciones en un solo lugar, justamente para evitar imports circulares.
+
+Si cada entidad viviera dentro de su feature, `review` importaría de `album`, `song`
+y `user`, y `album` de `artist` y `genre`: círculos de imports y el mapa de
+relaciones repartido en diez archivos. Centralizarlas es una restricción del ORM,
+no un descuido.
+
+### `seed/` y `scripts/`: qué va en cada una
+
+| Carpeta | Qué contiene | Cuándo se corre |
+|:-|:-|:-|
+| `seed/` | Todo lo que **carga datos iniciales**: los cargadores (`run-seeds`, `seed-*.ts`), los JSON de `data/` y el descargador de Deezer que los generó | Al preparar una base nueva |
+| `scripts/` | Tareas de **mantenimiento de la base**: `reset-db`, `fix-indexes`, `migrate-patron-to-pro` | Puntualmente, cuando hace falta |
+
+No son seeds: un `reset-db` borra tablas y una migración corrige datos existentes.
+Tenerlos mezclados hacía que `seed/` pareciera un cajón de sastre.
 
 ## Arquitectura en capas
 
 Cada feature se organiza en cinco archivos con una responsabilidad cada uno:
 
 ```
-src/album/
+src/features/album/
   album.routes.ts       define las rutas y encadena los middlewares
   album.controller.ts   traduce HTTP <-> service. No consulta la base
   album.service.ts      lógica de negocio. No conoce req ni res
@@ -334,7 +368,7 @@ export type CreateAlbumInput = z.infer<typeof createAlbumSchema>;
 
 ```ts
 // album.repository.ts
-import { Album } from '../entities';
+import { Album } from '../../entities';
 import { CreateAlbumInput } from './album.schema';
 
 export const albumRepository = {
@@ -346,7 +380,7 @@ export const albumRepository = {
 
 ```ts
 // album.service.ts
-import { NotFoundError } from '../shared/errors/app-error';
+import { NotFoundError } from '../../shared/errors/app-error';
 import { albumRepository } from './album.repository';
 
 export const albumService = {
@@ -376,7 +410,7 @@ export const albumController = {
 ```ts
 // album.routes.ts
 import { Router } from 'express';
-import { validate } from '../shared/middlewares/validate';
+import { validate } from '../../shared/middlewares/validate';
 import { albumController } from './album.controller';
 import { createAlbumSchema } from './album.schema';
 
@@ -466,8 +500,8 @@ Dos middlewares, siempre en este orden: primero `requireAuth` (¿quién sos?) y
 después `requireRole` (¿te alcanza el rol?).
 
 ```ts
-import { requireAuth } from '../shared/middlewares/require-auth';
-import { requireRole } from '../shared/middlewares/require-role';
+import { requireAuth } from '../../shared/middlewares/require-auth';
+import { requireRole } from '../../shared/middlewares/require-role';
 
 // Cualquier usuario logueado
 albumRouter.post('/:id/reviews', requireAuth, reviewController.create);

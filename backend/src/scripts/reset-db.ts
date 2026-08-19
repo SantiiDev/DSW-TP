@@ -14,7 +14,7 @@
 import { QueryTypes } from 'sequelize';
 import { env } from '../shared/config/env';
 import { sequelize } from '../shared/db/sequelize';
-import { runAllSeeds } from './run-seeds';
+import { runAllSeeds } from '../seed/run-seeds';
 
 // Importa las entidades por su efecto colateral: registra los modelos y sus
 // asociaciones, que es lo que sync() necesita para recrear el esquema.

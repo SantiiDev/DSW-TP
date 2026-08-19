@@ -1,8 +1,8 @@
 // Acceso a datos de la feature user: consultas a la tabla users para el CRUD de
 // perfiles (no confundir con auth.repository, que es específico del circuito de
 // registro/login). Es la única capa que habla con Sequelize.
-import { User } from '../entities';
-import { UserRole } from '../shared/types/enums';
+import { User } from '../../entities';
+import { UserRole } from '../../shared/types/enums';
 
 type CreateUserData = {
   username: string;

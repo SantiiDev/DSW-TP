@@ -1,7 +1,7 @@
 // Schemas de Zod para validar la entrada de los endpoints del CRUD de usuarios.
 // Los usa el middleware validate() en user.routes.ts, antes del controller.
 import { z } from 'zod';
-import { USER_ROLES } from '../shared/types/enums';
+import { USER_ROLES } from '../../shared/types/enums';
 
 // Reglas de cada campo definidas una sola vez: las comparten el alta y la edición.
 const usernameSchema = z

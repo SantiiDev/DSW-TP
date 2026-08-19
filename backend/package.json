@@ -14,9 +14,9 @@
     "seed:plans": "tsx src/seed/seed-plans.ts",
     "seed:catalog": "tsx src/seed/seed-catalog.ts",
     "seed:admin": "tsx src/seed/seed-admin-user.ts",
-    "db:reset": "tsx src/seed/reset-db.ts",
-    "db:migrate:patron": "tsx src/seed/migrate-patron-to-pro.ts",
-    "db:fix-indexes": "tsx src/seed/fix-indexes.ts"
+    "db:reset": "tsx src/scripts/reset-db.ts",
+    "db:migrate:patron": "tsx src/scripts/migrate-patron-to-pro.ts",
+    "db:fix-indexes": "tsx src/scripts/fix-indexes.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

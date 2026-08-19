@@ -4,8 +4,8 @@
 //   POST /api/auth/login      inicio de sesión, devuelve el token
 //   GET  /api/auth/me         datos del usuario logueado
 import { Router } from 'express';
-import { requireAuth } from '../shared/middlewares/require-auth';
-import { validate } from '../shared/middlewares/validate';
+import { requireAuth } from '../../shared/middlewares/require-auth';
+import { validate } from '../../shared/middlewares/validate';
 import { authController } from './auth.controller';
 import { loginSchema, registerSchema } from './auth.schema';
 

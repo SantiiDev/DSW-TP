@@ -1,9 +1,9 @@
 // Router principal de la API. Cada feature aporta su propio router y se monta acá
 // bajo su prefijo. Es el índice de todos los endpoints del sistema.
 import { Router } from 'express';
-import { authRouter } from './auth/auth.routes';
-import { healthRouter } from './health/health.routes';
-import { userRouter } from './user/user.routes';
+import { authRouter } from './features/auth/auth.routes';
+import { healthRouter } from './features/health/health.routes';
+import { userRouter } from './features/user/user.routes';
 
 export const router = Router();
 

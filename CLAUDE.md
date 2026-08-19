@@ -70,21 +70,39 @@ No modificar ni alterar las carpetas sin antes preguntar.
 
 ### Backend
 
+Misma idea que el frontend: **`features/` es el dominio y `shared/` es lo transversal**
+(el equivalente de `core/`). No agregar carpetas nuevas en la raíz de `src/`: una feature
+nueva es una carpeta adentro de `features/`.
+
 ```
 backend/src/
-  entities/          modelos de Sequelize (User, Plan, Subscription, Payment,
-                     Artist, Genre, Album, Song, Review)
-  <feature>/         por cada entidad: <x>.controller.ts, <x>.service.ts,
-                     <x>.repository.ts, <x>.routes.ts, <x>.schema.ts
-  shared/            middlewares (auth, requireRole, validate, errorHandler),
-                     config de la DB, tipos comunes
-  seed/              script de carga inicial + data/*.json
+  server.ts          arranque: conecta a la DB y escucha
   app.ts             configuración de Express
-  server.ts          arranque
+  routes.ts          monta el router de cada feature
+  features/          una carpeta por entidad, con sus cinco capas:
+    <feature>/       <x>.routes.ts, <x>.controller.ts, <x>.service.ts,
+                     <x>.repository.ts, <x>.schema.ts
+  entities/          modelos de Sequelize (User, Plan, Subscription, Payment,
+                     Artist, Genre, Album, Song, Review) + index.ts con TODAS
+                     las asociaciones
+  shared/            middlewares (auth, requireRole, validate, errorHandler),
+                     config de la DB, errores, tipos comunes
+  seed/              carga inicial de datos + data/*.json
+  scripts/           mantenimiento de la base (reset, índices, migraciones)
 ```
 
 Separación de capas estricta: **routes → controller → service → repository → entity**.
 El controller no arma queries; el service no toca `req` ni `res`.
+
+Dos reglas de ubicación que no son obvias:
+
+- **`entities/` va afuera de `features/`**, aunque en el frontend los modelos vivan dentro
+  de cada feature. Las entidades de Sequelize son un grafo conectado y `entities/index.ts`
+  declara todas las asociaciones en un solo lugar para evitar imports circulares. Meterlas
+  en las features haría que `review` importe de `album`, `song` y `user`, y `album` de
+  `artist` y `genre`.
+- **`seed/` no es `scripts/`**: en `seed/` va lo que carga datos iniciales; en `scripts/`,
+  las tareas de mantenimiento de la base (borrar y recrear, arreglar índices, migraciones).
 
 ## Nomenclatura
 
