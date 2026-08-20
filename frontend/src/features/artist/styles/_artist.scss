@@ -1,0 +1,812 @@
+// Estilos de la feature artist: la tabla y el formulario del panel de
+// administración, la cola de solicitudes, y los aportes del perfil con su modal
+// de propuesta.
+//
+// Mobile-first: primero los estilos para pantalla chica y después las media
+// queries que amplían. Los colores y espaciados salen de las variables globales.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// Los tres estados de moderación se pintan igual en la card, en la tabla y en la
+// cola de solicitudes, así que el color de cada uno se define una sola vez.
+$state-colors: (
+  'pending': #E0A33E,
+  'approved': $color-primary,
+  'rejected': $color-error,
+);
+
+// Píldora con el estado de moderación. La usan .artist-card, .artist-admin y
+// .artist-request con su propio nombre de clase.
+@mixin state-badge {
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+
+  @each $state, $color in $state-colors {
+    &--#{$state} {
+      background-color: rgba($color, 0.15);
+      color: $color;
+    }
+  }
+}
+
+// --- Buscador por nombre (tabla del panel) ---------------------------------
+
+.artist-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+
+  &__field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1 1 220px;
+  }
+
+  &__icon {
+    position: absolute;
+    left: 0.75rem;
+    color: $color-text-secondary;
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    padding: 0.6rem 1rem 0.6rem 2.4rem;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  &__search-btn,
+  &__clear-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.6rem $spacing-md;
+    border-radius: 30px;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  &__search-btn {
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__clear-btn {
+    background-color: transparent;
+    color: $color-text-secondary;
+    border: 1px solid $color-nav-border;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: $color-text;
+    }
+  }
+}
+
+// --- Card de un artista (aportes del perfil) -------------------------------
+
+.artist-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  height: 100%;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+
+  &__name {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  // La biografía es un texto largo: se corta a tres líneas para que todas las
+  // cards de la grilla queden parejas.
+  &__bio {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: $color-text-secondary;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    &--empty {
+      font-style: italic;
+    }
+  }
+
+  &__meta {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__albums {
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+  &__badge {
+    @include state-badge;
+  }
+}
+
+// --- Formulario de alta y edición ------------------------------------------
+
+.artist-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__optional {
+    font-weight: 400;
+    text-transform: none;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  &__submit-btn,
+  &__cancel-btn {
+    padding: 0.6rem $spacing-lg;
+    border-radius: 30px;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__submit-btn {
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+  }
+
+  &__cancel-btn {
+    background-color: transparent;
+    color: $color-text-secondary;
+    border: 1px solid $color-nav-border;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: $color-text;
+    }
+  }
+}
+
+// --- Sección del panel de administración -----------------------------------
+
+.artist-admin {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__error,
+  &__feedback {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+  }
+
+  &__error {
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    color: $color-error;
+  }
+
+  &__feedback {
+    background-color: rgba($color-primary, 0.12);
+    border: 1px solid rgba($color-primary, 0.4);
+    color: $color-primary;
+  }
+
+  &__form-block {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    // El navbar es sticky: sin este margen, al traer el formulario con
+    // scrollIntoView (botón "Editar") su título quedaría tapado por la barra.
+    scroll-margin-top: calc(#{$navbar-height} + #{$spacing-md});
+  }
+
+  &__form-title,
+  &__list-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__filter {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__select {
+    background-color: $color-bg;
+    border: 1px solid $color-nav-border;
+    border-radius: 8px;
+    padding: 0.35rem 0.6rem;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // Pie del listado paginado: cuántas filas se ven y el botón para traer más.
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__more-count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+
+  &__more-btn {
+    padding: 0.5rem $spacing-lg;
+    background-color: transparent;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      border-color: $color-primary;
+      background-color: rgba($color-primary, 0.1);
+    }
+  }
+
+  // La tabla no entra en pantallas chicas: scroll propio para que no desborde el
+  // ancho del panel.
+  &__table-wrapper {
+    overflow-x: auto;
+    border: 1px solid $color-nav-border;
+    border-radius: 12px;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+
+    th,
+    td {
+      padding: 0.75rem $spacing-md;
+      text-align: left;
+      border-bottom: 1px solid $color-nav-border;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: $color-bg;
+      color: $color-text-secondary;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    td {
+      color: $color-text;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+  }
+
+  &__name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 180px;
+  }
+
+  // Adelanto de la biografía debajo del nombre: una línea, cortada con puntos
+  // suspensivos para que no estire la columna.
+  &__bio {
+    max-width: 320px;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__badge {
+    @include state-badge;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  &__btn {
+    padding: 0.35rem 0.9rem;
+    background-color: transparent;
+    border: 1px solid $color-nav-border;
+    border-radius: 20px;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &--approve {
+      color: $color-primary;
+      border-color: rgba($color-primary, 0.5);
+
+      &:hover:not(:disabled) {
+        background-color: rgba($color-primary, 0.12);
+      }
+    }
+
+    &--reject,
+    &--delete {
+      color: $color-error;
+      border-color: rgba($color-error, 0.5);
+
+      &:hover:not(:disabled) {
+        background-color: rgba($color-error, 0.12);
+      }
+    }
+  }
+}
+
+// --- Cola de solicitudes (pestaña "Solicitudes" del panel) ------------------
+
+.artist-requests {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__error,
+  &__feedback {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+  }
+
+  &__error {
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    color: $color-error;
+  }
+
+  &__feedback {
+    background-color: rgba($color-primary, 0.12);
+    border: 1px solid rgba($color-primary, 0.4);
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  // Una propuesta por fila en mobile; desde tablet entran de a dos, que es donde
+  // el panel ya tiene ancho de sobra.
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+  }
+}
+
+.artist-request {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background-color: $color-bg;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__badge {
+    @include state-badge;
+  }
+
+  &__author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+  // La biografía propuesta puede ser larga: se corta a cuatro líneas para que
+  // todas las tarjetas de la grilla queden parejas.
+  &__bio {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    &--empty {
+      font-style: italic;
+    }
+  }
+
+  &__actions {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    padding-top: $spacing-sm;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.4rem 0.9rem;
+    background-color: transparent;
+    border-radius: 20px;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &--approve {
+      color: $color-primary;
+      border: 1px solid rgba($color-primary, 0.5);
+
+      &:hover:not(:disabled) {
+        background-color: rgba($color-primary, 0.12);
+      }
+    }
+
+    &--reject {
+      color: $color-error;
+      border: 1px solid rgba($color-error, 0.5);
+
+      &:hover:not(:disabled) {
+        background-color: rgba($color-error, 0.12);
+      }
+    }
+  }
+}
+
+// --- Aportes del perfil (pestaña "Aportes") --------------------------------
+
+.artist-contributions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__error {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    color: $color-error;
+    font-size: 0.85rem;
+  }
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  // Botón que abre el modal de propuesta. Se usa tanto en la cabecera del
+  // listado como dentro del estado vacío.
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem $spacing-md;
+    border: 1px solid $color-primary;
+    border-radius: 30px;
+    background-color: rgba($color-primary, 0.12);
+    color: $color-primary;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba($color-primary, 0.2);
+    }
+  }
+
+  &__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+  }
+}
+
+// --- Modal de propuesta (pestaña "Aportes") --------------------------------
+//
+// Mismo comportamiento visual que el ConfirmDialog de core, pero con un
+// formulario adentro. El overlay es propio de la feature, igual que el del
+// modal de autenticación.
+
+.artist-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  // Por encima del AuthModal (1000), igual que el diálogo de confirmación.
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+}
+
+.artist-modal {
+  width: 100%;
+  max-width: 460px;
+  // En pantallas bajas el formulario no entra entero: el modal scrollea solo.
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: $spacing-lg;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__close {
+    display: inline-flex;
+    padding: 0.3rem;
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: $color-text;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+  }
+
+  &__error {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    color: $color-error;
+    font-size: 0.85rem;
+  }
+
+  // Adentro del modal el formulario no necesita su propio marco: ya lo tiene.
+  .artist-form {
+    padding: 0;
+    background-color: transparent;
+    border: none;
+  }
+}
