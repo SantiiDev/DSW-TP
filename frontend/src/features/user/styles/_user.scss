@@ -1,0 +1,810 @@
+@use "sass:color";
+// Estilos de la página de perfil (UserProfilePage) y sus piezas: cabecera con
+// contadores, pestañas, paneles de contenido, columna lateral y formulario de
+// edición. Reutiliza los tokens de _auth.scss para que el perfil se sienta parte
+// del mismo set visual que el resto del sitio.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.user-profile-page {
+  width: 100%;
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-md;
+  // El layout de App.tsx envuelve las páginas en un contenedor flex, y un item
+  // de flex no baja del ancho de su contenido salvo que se le diga.
+  min-width: 0;
+
+  &__container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    min-width: 0;
+  }
+
+  // Botón para volver a la pantalla anterior.
+  &__back-btn {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+
+  &__error {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    color: color.adjust($color-error, $lightness: 15%);
+    font-size: 0.85rem;
+  }
+
+  // Contenido + columna lateral. Una sola columna en mobile; desde LG el sidebar
+  // se va a la derecha con ancho fijo.
+  &__body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    min-width: 0;
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: minmax(0, 1fr) 320px;
+      align-items: start;
+    }
+  }
+
+  &__main {
+    min-width: 0;
+  }
+}
+
+// --- Cabecera -------------------------------------------------------------
+
+.profile-header {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  // En mobile se achica el padding: con 2rem a cada lado los cuatro contadores
+  // no entran en una pantalla de 375px.
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media (min-width: $bp-sm) {
+    padding: $spacing-lg;
+  }
+
+  // Desde MD la identidad va a la izquierda y los contadores a la derecha.
+  @media (min-width: $bp-md) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-md;
+    min-width: 0;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      align-items: center;
+      text-align: left;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  &__username {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-text;
+    word-break: break-word;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.75rem;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-sm) {
+      justify-content: flex-start;
+    }
+  }
+
+  // El color del badge distingue el nivel de la cuenta de un vistazo.
+  &__role {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-radius: 20px;
+    padding: 0.2rem 0.7rem;
+    background-color: rgba($color-text-secondary, 0.15);
+    color: $color-text-secondary;
+
+    &--pro,
+    &--patron {
+      background-color: rgba($color-primary, 0.15);
+      color: $color-primary;
+    }
+
+    &--admin {
+      background-color: rgba($color-error, 0.15);
+      color: color.adjust($color-error, $lightness: 12%);
+    }
+  }
+
+  &__since,
+  &__email {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+  &__side {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &__stats {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+
+  &__stat {
+    flex: 1;
+    // Sin esto los items no bajan del ancho de su etiqueta y la fila desborda
+    // la pantalla en mobile.
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0 0.4rem;
+
+    @media (min-width: $bp-sm) {
+      padding: 0 $spacing-md;
+    }
+
+    // Separadores entre contadores, como en la referencia.
+    & + & {
+      border-left: 1px solid $color-nav-border;
+    }
+  }
+
+  &__stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: $color-text;
+    line-height: 1.1;
+
+    @media (min-width: $bp-sm) {
+      font-size: 1.35rem;
+    }
+  }
+
+  &__stat-label {
+    font-size: 0.7rem;
+    color: $color-text-secondary;
+    text-align: center;
+    // Se recorta si no entra, en vez de empujar la fila a lo ancho.
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @media (min-width: $bp-sm) {
+      font-size: 0.75rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+    }
+  }
+
+  &__edit-btn,
+  &__delete-btn {
+    flex: 1;
+    padding: 0.55rem $spacing-lg;
+    border-radius: 30px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__edit-btn {
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+  }
+
+  &__delete-btn {
+    background-color: transparent;
+    color: $color-error;
+    border: 1px solid rgba($color-error, 0.5);
+
+    &:hover {
+      background-color: rgba($color-error, 0.1);
+    }
+  }
+}
+
+// --- Pestañas -------------------------------------------------------------
+
+.profile-tabs {
+  border-bottom: 1px solid $color-nav-border;
+  // Con seis pestañas no entran en mobile: scrollean en horizontal en vez de
+  // romper el ancho de la página.
+  overflow-x: auto;
+  // Sin esto aparece una barra de scroll vertical mínima y no deseada: al fijar
+  // solo overflow-x, la spec de CSS calcula overflow-y como "auto" (no
+  // "visible"), y ese eje queda listo para scrollear ante cualquier desborde de
+  // un píxel por redondeo, aunque las pestañas son de una sola fila.
+  overflow-y: hidden;
+  min-width: 0;
+
+  &__list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: $spacing-sm;
+  }
+
+  &__tab {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0.7rem $spacing-md;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    // Subrayado de la pestaña activa, pegado al borde inferior de la barra.
+    &--active {
+      color: $color-text;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: $spacing-sm;
+        right: $spacing-sm;
+        bottom: -1px;
+        height: 2px;
+        background-color: $color-primary;
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+// --- Panel de contenido ---------------------------------------------------
+
+.profile-panel {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  padding: $spacing-lg;
+  min-width: 0;
+
+  &__title {
+    margin: 0 0 $spacing-md;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__cta {
+    display: inline-block;
+    padding: 0.5rem $spacing-lg;
+    background-color: $color-primary;
+    color: #000;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}
+
+.profile-membership {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__current {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: $spacing-md;
+    background-color: $color-bg;
+    border: 1px solid $color-nav-border;
+    border-radius: 12px;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+  &__plan {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: $color-primary;
+  }
+
+  &__cta {
+    align-self: flex-start;
+    padding: 0.55rem $spacing-lg;
+    background-color: $color-primary;
+    color: #000;
+    border-radius: 30px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__note {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin: 0;
+    font-size: 0.825rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Columna lateral ------------------------------------------------------
+
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__card {
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 16px;
+    padding: $spacing-md;
+
+    &--pro {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+      // Degradado sutil para que la promo destaque sin gritar.
+      background: linear-gradient(140deg, rgba($color-primary, 0.14), $color-bg-light 65%);
+      border-color: rgba($color-primary, 0.35);
+    }
+  }
+
+  &__card-title {
+    margin: 0 0 $spacing-md;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__pro-badge {
+    align-self: flex-start;
+    background-color: $color-primary;
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+  }
+
+  &__pro-text {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+    line-height: 1.5;
+  }
+
+  &__pro-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem $spacing-md;
+    background-color: $color-primary;
+    color: #000;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__share {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    min-width: 0;
+  }
+
+  &__share-url {
+    flex: 1;
+    min-width: 0;
+    padding: 0.4rem 0.6rem;
+    background-color: $color-bg;
+    border: 1px solid $color-nav-border;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+    // La URL es larga: se recorta en vez de estirar la tarjeta.
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.45rem 0.7rem;
+    background-color: transparent;
+    border: 1px solid $color-nav-border;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $color-text;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      border-color: $color-primary;
+      color: $color-primary;
+    }
+  }
+}
+
+// --- Histograma de calificaciones -----------------------------------------
+
+.rating-histogram {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  &__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 70px;
+  }
+
+  &__bar-wrapper {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  &__bar {
+    width: 100%;
+    background-color: $color-primary;
+    border-radius: 2px 2px 0 0;
+    // El alto lo pone el componente a partir de los datos.
+    transition: height 0.3s ease;
+  }
+
+  &__scale {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: $color-text-secondary;
+  }
+
+  &__scale-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    color: $color-primary;
+  }
+
+  &__total {
+    color: $color-text-secondary;
+  }
+}
+
+.user-profile-card {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  // El avatar grande encabeza la tarjeta, con el nombre y el rol debajo.
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-sm;
+  }
+
+  &__username {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  &__role {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $color-primary;
+    background-color: rgba($color-primary, 0.12);
+    border-radius: 20px;
+    padding: 0.2rem 0.7rem;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    margin: 0;
+  }
+
+  &__detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+
+    dt {
+      font-size: 0.8rem;
+      color: $color-text-secondary;
+    }
+
+    dd {
+      font-size: 0.95rem;
+      color: $color-text;
+      margin: 0;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+    }
+  }
+
+  &__edit-btn,
+  &__delete-btn {
+    flex: 1;
+    padding: 0.6rem $spacing-md;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__edit-btn {
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+  }
+
+  &__delete-btn {
+    background-color: transparent;
+    color: $color-error;
+    border: 1px solid rgba($color-error, 0.5);
+  }
+}
+
+// El formulario de edición comparte estructura con el de auth: mismo look de
+// campo/label/input/error/submit, con nombres propios para no acoplar features.
+.user-form {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  // Vista previa de la foto mientras se edita, arriba de los campos.
+  &__avatar-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__avatar-hint {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+    max-width: 280px;
+  }
+
+  // Aviso de imagen que no cargó. Va en tono de advertencia y no de error: el
+  // formulario se puede guardar igual, solo que se verá el avatar por defecto.
+  &__avatar-warning {
+    margin: 0.4rem 0 0;
+    padding: 0.5rem 0.75rem;
+    background-color: rgba($color-error, 0.1);
+    border: 1px solid rgba($color-error, 0.35);
+    border-radius: 8px;
+    color: color.adjust($color-error, $lightness: 15%);
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  &__example-btn {
+    align-self: flex-start;
+    margin-top: 0.4rem;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $color-primary;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: color.adjust($color-primary, $lightness: 10%);
+    }
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: $color-text;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  &__error {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    color: color.adjust($color-error, $lightness: 15%);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+  }
+
+  &__submit-btn,
+  &__cancel-btn {
+    flex: 1;
+    padding: 0.65rem $spacing-md;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__submit-btn {
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+  }
+
+  &__cancel-btn {
+    background-color: transparent;
+    color: $color-text;
+    border: 1px solid $color-nav-border;
+  }
+}

@@ -1,0 +1,296 @@
+@use "sass:color";
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/breakpoints' as *;
+
+.navbar {
+  background-color: $color-nav-bg;
+  border-bottom: 1px solid $color-nav-border;
+  height: $navbar-height;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 $spacing-md;
+
+  &__container {
+    width: 100%;
+    max-width: 1150px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__left, &__center, &__right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__left {
+    flex: 1;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+
+    &-img {
+      height: 32px;
+      width: auto;
+      object-fit: contain;
+    }
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    background-color: $color-bg-light;
+    border-radius: 20px;
+    padding: 0.4rem 0.8rem;
+    width: 100%;
+    max-width: 250px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease;
+
+    &:focus-within {
+      border-color: $color-primary;
+    }
+
+    &-icon {
+      color: $color-text-secondary;
+      margin-right: 0.5rem;
+    }
+
+    &-input {
+      background: none;
+      border: none;
+      color: $color-text;
+      width: 100%;
+      outline: none;
+      font-size: 0.9rem;
+
+      &::placeholder {
+        color: $color-text-secondary;
+      }
+    }
+  }
+
+  &__center {
+    flex: 2;
+    justify-content: center;
+    gap: $spacing-lg;
+    display: none;
+
+    @media (min-width: $bp-md) {
+      display: flex;
+    }
+  }
+
+  &__link {
+    color: $color-text-secondary;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    &.active {
+      color: $color-text;
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &--pro {
+      color: $color-primary;
+      
+      &:hover {
+        color: color.adjust($color-primary, $lightness: 10%);
+      }
+    }
+  }
+
+  &__more {
+    color: $color-text-secondary;
+    display: flex;
+    align-items: center;
+    
+    &:hover {
+      color: $color-text;
+    }
+  }
+
+  &__right {
+    flex: 1;
+    justify-content: flex-end;
+  }
+
+  &__btn {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+
+    &--login {
+      background-color: transparent;
+      color: $color-text;
+    }
+
+    &--signup {
+      background-color: $color-primary;
+      color: #000;
+    }
+
+    // Nota: el botón de cerrar sesión ya no vive en la barra. Está dentro del
+    // menú desplegable del usuario (&__dropdown), más abajo.
+
+    // Acceso al panel de administración, visible solo para usuarios ADMIN.
+    &--admin {
+      background-color: transparent;
+      color: $color-primary;
+      border: 1px solid $color-primary;
+      text-decoration: none;
+    }
+  }
+
+  // Contenedor del menú de usuario. position: relative es lo que ancla el
+  // desplegable justo debajo del avatar.
+  &__menu {
+    position: relative;
+  }
+
+  // Disparador del menú: avatar + nombre + flecha.
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 30px;
+    padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-text;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.06);
+      border-color: $color-nav-border;
+    }
+  }
+
+  // La flecha rota al abrir, para que se note que el menú está desplegado.
+  &__chevron {
+    color: $color-text-secondary;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 220px;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 12px;
+    padding: $spacing-sm;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    // Por encima del contenido de la página, pero por debajo de los modales.
+    z-index: 200;
+  }
+
+  &__dropdown-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.4rem 0.6rem $spacing-sm;
+    border-bottom: 1px solid $color-nav-border;
+    margin-bottom: 0.25rem;
+  }
+
+  &__dropdown-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__dropdown-email {
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    width: 100%;
+    padding: 0.55rem 0.6rem;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $color-text;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &--logout {
+      color: $color-error;
+
+      &:hover {
+        background-color: rgba($color-error, 0.12);
+      }
+    }
+  }
+
+  // Un username puede tener hasta 50 caracteres: se corta para que no empuje los
+  // botones fuera de la barra. El recorte va en el texto y no en el link, para
+  // que no se le aplique también al avatar.
+  //
+  // En mobile directamente no se muestra: con el logo, el buscador y los botones
+  // no entra, y el avatar ya alcanza para identificar la sesión y llegar al perfil.
+  &__username {
+    display: none;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    @media (min-width: $bp-md) {
+      display: inline;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+node_modules
+dist
+
+# Variables de entorno reales: NUNCA se commitean.
+# Lo que se versiona es .env.example
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Certificados descargados del servicio de base de datos cloud
+*.pem
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store

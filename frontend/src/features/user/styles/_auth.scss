@@ -1,0 +1,301 @@
+@use "sass:color";
+// Estilos compartidos para las páginas de autenticación (Login y Signup).
+// Usa las variables y tokens del design system del proyecto.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// Animación específica para la tarjeta de auth
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth {
+  // Ocupa todo el espacio disponible en el flex container
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg $spacing-md;
+  position: relative;
+  overflow: hidden;
+
+
+
+  // Card/formulario centrado
+  &__card {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    background-color: $color-bg-light;
+    border-radius: 16px;
+    padding: $spacing-lg;
+    border: 1px solid $color-nav-border;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-md;
+    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    @media (min-width: $bp-sm) {
+      padding: $spacing-lg $spacing-xl;
+    }
+  }
+
+  // Encabezado del card (logo + título)
+  &__header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__logo {
+    height: 32px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.75rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+    margin: 0;
+  }
+
+  // Botón de Google
+  &__google-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    padding: 0.7rem $spacing-md;
+    background-color: transparent;
+    border: 1px solid #444;
+    border-radius: 30px;
+    color: $color-text;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: #666;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  &__google-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  // Separador "o"
+  &__divider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__divider-line {
+    flex: 1;
+    height: 1px;
+    background-color: $color-nav-border;
+  }
+
+  &__divider-text {
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  // Formulario
+  &__form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  // Grupo de campo (label + input)
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: $color-text;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+
+    &::placeholder {
+      color: color.adjust($color-text-secondary, $lightness: -20%);
+    }
+  }
+
+  // Mensaje de error del login/registro: credenciales incorrectas, email ya
+  // registrado, contraseñas que no coinciden, servidor caído.
+  &__error {
+    width: 100%;
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    color: color.adjust($color-error, $lightness: 15%);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  // Botón principal de submit
+  &__submit-btn {
+    width: 100%;
+    padding: 0.75rem $spacing-md;
+    background-color: $color-primary;
+    color: #000;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-top: $spacing-sm;
+
+    // Los efectos solo cuando el botón está habilitado: mientras se envía el
+    // formulario tiene que quedar claro que no se puede volver a apretar.
+    &:hover:not(:disabled) {
+      transform: scale(1.02);
+      box-shadow: 0 4px 15px rgba($color-primary, 0.4);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  // Footer del card (link a la otra página)
+  &__footer {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  &__link {
+    color: $color-primary;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: color.adjust($color-primary, $lightness: 10%);
+    }
+  }
+
+  &__link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    color: $color-primary;
+    font-weight: 600;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: color.adjust($color-primary, $lightness: 10%);
+    }
+  }
+
+  &__close-btn {
+    position: absolute;
+    top: $spacing-md;
+    right: $spacing-md;
+    background: transparent;
+    border: none;
+    color: $color-text-secondary;
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: $color-text;
+    }
+  }
+}
+
+// Modal Container Styles
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.auth-modal-content {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

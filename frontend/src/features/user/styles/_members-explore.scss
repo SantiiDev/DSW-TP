@@ -1,0 +1,673 @@
+@use "sass:color";
+// Estilos para la página de exploración de miembros (/members)
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// ─── Page Layout ────────────────────────────────────────────
+.members-explore {
+  min-height: 100vh;
+  padding-bottom: $spacing-xl;
+
+  &__header {
+    padding: $spacing-xl $spacing-md $spacing-lg;
+    text-align: center;
+    max-width: calc(1150px + 2rem);
+    margin: 0 auto;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, $color-nav-border, transparent);
+    }
+  }
+
+  &__title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: $color-text;
+    margin: 0 0 $spacing-sm;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, $color-text 0%, $color-primary 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+
+    @media (max-width: $bp-md) {
+      font-size: 1.8rem;
+    }
+  }
+
+  &__subtitle {
+    color: $color-text-secondary;
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto $spacing-lg;
+    line-height: 1.6;
+
+    @media (max-width: $bp-md) {
+      font-size: 0.95rem;
+    }
+  }
+
+  &__cta {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    background-color: transparent;
+    color: $color-text;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 1px solid $color-text-secondary;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+
+    &:hover {
+      border-color: $color-primary;
+      color: $color-primary;
+      box-shadow: 0 0 20px rgba($color-primary, 0.15);
+    }
+  }
+
+  &__content {
+    width: 100%;
+    max-width: calc(1150px + 2rem);
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+  }
+
+  // Layout de dos columnas para reviewers + reseñas
+  &__two-columns {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+    margin-top: $spacing-xl;
+
+    @media (min-width: $bp-lg) {
+      flex-direction: row;
+      gap: $spacing-lg;
+    }
+  }
+
+  &__column {
+    flex: 1;
+    min-width: 0;
+
+    &--main {
+      @media (min-width: $bp-lg) {
+        flex: 1.2;
+      }
+    }
+
+    &--side {
+      @media (min-width: $bp-lg) {
+        flex: 0.8;
+      }
+    }
+  }
+}
+
+// ─── Shared Section Header ──────────────────────────────────
+.members-section {
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-lg;
+    gap: $spacing-md;
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__header-icon {
+    color: $color-primary;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+
+    @media (max-width: $bp-md) {
+      font-size: 1.15rem;
+    }
+  }
+
+  &__see-all {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: $color-primary;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+// ─── Featured Members (horizontal row) ──────────────────────
+.featured-members {
+  margin-top: $spacing-xl;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+}
+
+.featured-member-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-lg $spacing-md;
+  background-color: rgba($color-bg-light, 0.6);
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    border-color: rgba($color-primary, 0.3);
+    background-color: rgba($color-bg-light, 0.9);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  }
+
+  &__avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    border: 3px solid transparent;
+    transition: border-color 0.3s ease;
+
+    .featured-member-card:hover & {
+      border-color: $color-primary;
+    }
+
+    @media (max-width: $bp-sm) {
+      width: 80px;
+      height: 80px;
+      font-size: 1.6rem;
+    }
+  }
+
+  &__info {
+    text-align: center;
+  }
+
+  &__username {
+    color: $color-text;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+
+  &__name {
+    color: $color-text-secondary;
+    font-size: 0.82rem;
+    margin: 2px 0 0;
+  }
+
+  &__follow-btn {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background-color: $color-primary;
+    color: #000;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 4px;
+
+    &:hover {
+      opacity: 0.85;
+      transform: scale(1.03);
+    }
+  }
+}
+
+// ─── Popular Reviewers (list) ───────────────────────────────
+.popular-reviewers {
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background-color: rgba($color-bg-light, 0.5);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+
+.reviewer-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color.adjust($color-bg-light, $lightness: 4%);
+  }
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__username {
+    color: $color-text;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__badge {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+
+    &--pro {
+      background-color: $color-primary;
+      color: #000;
+    }
+
+    &--mod {
+      background-color: #3b82f6;
+      color: #fff;
+    }
+  }
+
+  &__meta {
+    color: $color-text-secondary;
+    font-size: 0.82rem;
+    margin: 2px 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__follow-btn {
+    padding: 0.4rem 1.2rem;
+    background-color: $color-primary;
+    color: #000;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+}
+
+// ─── Member Reviews ─────────────────────────────────────────
+.member-reviews {
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+}
+
+.review-card {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 14px;
+  padding: $spacing-md;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: rgba($color-primary, 0.3);
+  }
+
+  // Encabezado con portada + info del álbum
+  &__header {
+    display: flex;
+    gap: $spacing-md;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__cover {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #222;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__album-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__album-title {
+    color: $color-text;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  &__album-meta {
+    color: $color-text-secondary;
+    font-size: 0.82rem;
+    margin: 2px 0 0;
+  }
+
+  // Título de la reseña
+  &__title {
+    color: $color-primary;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: $spacing-sm 0 4px;
+  }
+
+  // Rating con estrellas
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: $spacing-sm;
+
+    .star {
+      color: #feca57;
+      font-size: 0.9rem;
+    }
+
+    .star--empty {
+      color: #444;
+    }
+  }
+
+  // Extracto de texto
+  &__excerpt {
+    color: $color-text-secondary;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  // Botón "Leer más"
+  &__read-more {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.55rem;
+    margin-top: $spacing-sm;
+    background-color: rgba($color-nav-border, 0.5);
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: rgba($color-nav-border, 0.8);
+      color: $color-text;
+    }
+  }
+
+  // Stats del footer
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid rgba($color-nav-border, 0.5);
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__action-btn {
+    background: none;
+    border: none;
+    color: $color-text-secondary;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// ─── Member Lists ───────────────────────────────────────────
+.member-lists {
+  margin-top: $spacing-xl;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+.list-card {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba($color-primary, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  }
+
+  // Collage de portadas
+  &__collage {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    aspect-ratio: 16 / 5;
+    overflow: hidden;
+  }
+
+  &__collage-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #222;
+  }
+
+  &__body {
+    padding: $spacing-md;
+  }
+
+  &__title {
+    color: $color-text;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+
+  &__description {
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid rgba($color-nav-border, 0.5);
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__action-btn {
+    background: none;
+    border: none;
+    color: $color-text-secondary;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}

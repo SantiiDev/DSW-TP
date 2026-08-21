@@ -1,0 +1,115 @@
+@use "sass:color";
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.cta-section {
+  padding: $spacing-xl $spacing-md;
+  display: flex;
+  justify-content: center;
+  background-color: transparent;
+
+  &__container {
+    position: relative;
+    width: 100%;
+    max-width: 1150px;
+    background-color: $color-bg-light;
+    border-radius: 16px;
+    padding: 5rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+      background-color: color.adjust(#181818, $lightness: 3%);
+    }
+  }
+
+  &__crosshair {
+    position: absolute;
+    color: #444;
+    font-size: 1.5rem;
+    line-height: 1;
+    user-select: none;
+    transform: translate(-50%, -50%);
+    
+    &--tl {
+      top: 0;
+      left: 0;
+    }
+    &--tr {
+      top: 0;
+      left: 100%;
+    }
+    &--bl {
+      top: 100%;
+      left: 0;
+    }
+    &--br {
+      top: 100%;
+      left: 100%;
+    }
+  }
+
+  &__content {
+    text-align: center;
+    max-width: 600px;
+  }
+
+  &__title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: $color-text;
+    margin-bottom: $spacing-sm;
+    
+    @media (min-width: $bp-md) {
+      font-size: 2.2rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    color: $color-text-secondary;
+    margin-bottom: 2rem;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+  }
+
+  &__btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    
+    &--outline {
+      background-color: transparent;
+      color: $color-text;
+      border: 1px solid #444;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        border-color: #666;
+      }
+    }
+    
+    &--primary {
+      background-color: $color-primary;
+      color: #000;
+      border: 1px solid $color-primary;
+      
+      &:hover {
+        background-color: color.adjust(#1ED760, $lightness: 5%);
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
