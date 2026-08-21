@@ -27,6 +27,8 @@ export type UserApiResponse = {
   rol: UserRole;
   url_avatar: string | null;
   registration_date: string;
+  /** false = cuenta dada de baja por un admin (o por el propio usuario). */
+  is_active: boolean;
 };
 
 export class User {
@@ -38,7 +40,12 @@ export class User {
     public readonly rol: UserRole,
     /** URL de la foto de perfil, o null si usa el avatar por defecto. */
     public readonly urlAvatar: string | null,
-    public readonly registrationDate: Date
+    public readonly registrationDate: Date,
+    /**
+     * Baja lógica: una cuenta desactivada sigue en la base con todas sus reseñas,
+     * pero no puede iniciar sesión. Solo un ADMIN la vuelve a activar.
+     */
+    public readonly isActive: boolean
   ) {}
 
   /** ¿Puede dar de alta artistas, álbumes y canciones? (circuito de aporte de catálogo) */

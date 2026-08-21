@@ -1,5 +1,6 @@
 // Entidad USERS.
-// USERS (id_user, username, email, password, rol, url_avatar, registration_date)
+// USERS (id_user, username, email, password, rol, url_avatar, registration_date,
+//        is_active)
 //   id_user -> PK
 import {
   CreationOptional,
@@ -19,6 +20,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare rol: CreationOptional<UserRole>;
   declare url_avatar: CreationOptional<string | null>;
   declare registration_date: CreationOptional<Date>;
+  declare is_active: CreationOptional<boolean>;
 }
 
 User.init(
@@ -62,6 +64,15 @@ User.init(
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
+    },
+    is_active: {
+      // Baja lógica: una cuenta dada de baja no se borra de la tabla, se marca
+      // en false. Así no se pierden sus reseñas, pagos ni suscripciones, que la
+      // referencian por FK, y un ADMIN la puede volver a activar cuando quiera.
+      // Mientras esté en false no puede iniciar sesión (ver auth.service.ts).
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
     },
   },
   {

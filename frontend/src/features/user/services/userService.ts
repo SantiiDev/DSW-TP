@@ -50,7 +50,23 @@ export const userService = {
     return toUser(data);
   },
 
-  /** Elimina la cuenta de un usuario. */
+  /**
+   * Activa o desactiva la cuenta de un usuario (baja lógica). El backend lo
+   * restringe a ADMIN y no deja que se desactive a sí mismo.
+   * @param id usuario a activar o desactivar.
+   * @param isActive true para reactivar la cuenta, false para darla de baja.
+   */
+  async setActive(id: number, isActive: boolean): Promise<User> {
+    const data = await httpClient.patch<UserApiResponse>(`/users/${id}/status`, {
+      is_active: isActive,
+    });
+    return toUser(data);
+  },
+
+  /**
+   * Da de baja la cuenta de un usuario. La baja es lógica: el registro no se
+   * borra, queda inactivo y un admin lo puede reactivar.
+   */
   async remove(id: number): Promise<void> {
     await httpClient.delete<null>(`/users/${id}`);
   },

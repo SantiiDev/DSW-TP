@@ -423,7 +423,8 @@ header `Authorization` en cada request.
     "username": "admin",
     "email": "admin@musicboxd.com",
     "rol": "ADMIN",
-    "registration_date": "2026-08-13T18:31:40.000Z"
+    "registration_date": "2026-08-13T18:31:40.000Z",
+    "is_active": true
   },
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }

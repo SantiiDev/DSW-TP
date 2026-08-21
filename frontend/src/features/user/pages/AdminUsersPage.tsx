@@ -27,8 +27,10 @@ export const AdminUsersPage = () => {
   const [isCreating, setIsCreating] = useState(false);
   // Fila con una operación en curso: deshabilita solo sus controles, no toda la tabla.
   const [busyUserId, setBusyUserId] = useState<number | null>(null);
-  // Usuario que el admin eligió eliminar, a la espera de que confirme el diálogo.
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  // Usuario que el admin eligió activar o desactivar, a la espera de que confirme
+  // el diálogo. Se guarda el usuario entero (y no solo el id) porque el texto del
+  // diálogo depende de su nombre y de si la cuenta está activa o no.
+  const [userToToggle, setUserToToggle] = useState<User | null>(null);
 
   const loadUsers = useCallback(async () => {
     setIsLoading(true);
@@ -79,17 +81,19 @@ export const AdminUsersPage = () => {
     }
   };
 
-  const handleConfirmDelete = async () => {
-    if (!userToDelete) return;
+  // Confirma la baja o el alta de una cuenta. La baja es lógica: la fila no
+  // desaparece de la tabla, se actualiza con el estado nuevo.
+  const handleConfirmToggleActive = async () => {
+    if (!userToToggle) return;
 
-    const { id } = userToDelete;
-    setUserToDelete(null);
+    const { id, isActive } = userToToggle;
+    setUserToToggle(null);
     setBusyUserId(id);
     setError(null);
 
     try {
-      await userService.remove(id);
-      setUsers((current) => current.filter((u) => u.id !== id));
+      const updated = await userService.setActive(id, !isActive);
+      setUsers((current) => current.map((u) => (u.id === updated.id ? updated : u)));
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -104,7 +108,7 @@ export const AdminUsersPage = () => {
         <header className="admin-users__header">
           <h1 className="admin-users__title">Administración de usuarios</h1>
           <p className="admin-users__subtitle">
-            Dar de alta cuentas, cambiar roles y eliminar usuarios de Musicboxd.
+            Dar de alta cuentas, cambiar roles y activar o desactivar usuarios de Musicboxd.
           </p>
         </header>
 
@@ -129,7 +133,7 @@ export const AdminUsersPage = () => {
               currentUserId={authState.user?.id ?? 0}
               busyUserId={busyUserId}
               onChangeRole={handleChangeRole}
-              onDelete={setUserToDelete}
+              onToggleActive={setUserToToggle}
             />
           )}
         </section>
@@ -137,13 +141,18 @@ export const AdminUsersPage = () => {
       <Footer />
 
       <ConfirmDialog
-        isOpen={userToDelete !== null}
-        title="Eliminar usuario"
-        message={`¿Seguro que querés eliminar la cuenta de ${userToDelete?.username ?? ''}? Esta acción no se puede deshacer.`}
-        confirmLabel="Eliminar"
-        isDestructive
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setUserToDelete(null)}
+        isOpen={userToToggle !== null}
+        title={userToToggle?.isActive ? 'Desactivar usuario' : 'Activar usuario'}
+        message={
+          userToToggle?.isActive
+            ? `¿Seguro que querés desactivar la cuenta de ${userToToggle.username}? No va a poder iniciar sesión, pero sus reseñas se conservan y podés reactivarla cuando quieras.`
+            : `¿Querés volver a activar la cuenta de ${userToToggle?.username ?? ''}? Va a poder iniciar sesión de nuevo.`
+        }
+        confirmLabel={userToToggle?.isActive ? 'Desactivar' : 'Activar'}
+        // Solo la baja se pinta como destructiva: reactivar no rompe nada.
+        isDestructive={userToToggle?.isActive ?? false}
+        onConfirm={handleConfirmToggleActive}
+        onCancel={() => setUserToToggle(null)}
       />
     </>
   );

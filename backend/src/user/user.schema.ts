@@ -80,6 +80,14 @@ export const updateUserSchema = z
     message: 'Hay que enviar al menos un campo para actualizar.',
   });
 
+// Alta o baja lógica de una cuenta (PATCH /api/users/:id/status).
+// Va en su propio endpoint y no como un campo más del PATCH general porque no es
+// un dato del perfil: es una acción de administración, solo para ADMIN.
+export const updateUserStatusSchema = z.object({
+  is_active: z.boolean({ message: 'Hay que indicar si la cuenta queda activa o no.' }),
+});
+
 export type UserIdParam = z.infer<typeof userIdParamSchema>;
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type UpdateUserStatusInput = z.infer<typeof updateUserStatusSchema>;

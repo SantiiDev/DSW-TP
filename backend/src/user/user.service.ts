@@ -1,7 +1,12 @@
 // Lógica de negocio del CRUD de usuarios: crear, listar, ver perfil, actualizar
-// y eliminar. No conoce req ni res; recibe datos ya validados y al actor
-// autenticado (para chequear "dueño o admin"), y lanza errores de negocio que
-// traduce el errorHandler.
+// y dar de alta/baja una cuenta. No conoce req ni res; recibe datos ya validados
+// y al actor autenticado (para chequear "dueño o admin"), y lanza errores de
+// negocio que traduce el errorHandler.
+//
+// La baja es SIEMPRE lógica: ninguna operación borra un registro de la tabla.
+// Una cuenta dada de baja queda con is_active = false, no puede iniciar sesión y
+// desaparece del perfil público, pero conserva sus reseñas, pagos y
+// suscripciones, y un ADMIN la puede reactivar.
 import bcrypt from 'bcryptjs';
 import { User } from '../entities';
 import { ConflictError, ForbiddenError, NotFoundError } from '../shared/errors/app-error';
@@ -27,6 +32,8 @@ type PublicUser = {
   rol: UserRole;
   url_avatar: string | null;
   registration_date: Date;
+  /** false = cuenta dada de baja: no puede iniciar sesión. */
+  is_active: boolean;
 };
 
 /**
@@ -42,6 +49,7 @@ function toPublicUser(user: User, includeEmail = true): PublicUser {
     rol: user.rol,
     url_avatar: user.url_avatar ?? null,
     registration_date: user.registration_date,
+    is_active: user.is_active,
   };
 }
 
@@ -128,6 +136,9 @@ export const userService = {
   /**
    * Lista todos los usuarios, con email incluido: la ruta ya restringe esto a
    * ADMIN, que es quien administra las cuentas y necesita verlo.
+   *
+   * Incluye a propósito las cuentas dadas de baja: el panel las muestra con su
+   * estado para poder reactivarlas, que es justamente el punto de la baja lógica.
    */
   async list(): Promise<PublicUser[]> {
     const users = await userRepository.findAll();
@@ -143,6 +154,14 @@ export const userService = {
    */
   async getById(id_user: number, actor: TokenPayload): Promise<PublicUser> {
     const user = await findExisting(id_user);
+
+    // Para el resto del sistema una cuenta dada de baja es una cuenta que no
+    // existe: se responde 404 igual que si nunca hubiera estado. La excepción es
+    // el ADMIN, que necesita poder verla para reactivarla desde el panel.
+    if (!user.is_active && actor.rol !== 'ADMIN') {
+      throw new NotFoundError('El usuario');
+    }
+
     return toPublicUser(user, canSeePrivateData(actor, id_user));
   },
 
@@ -169,13 +188,39 @@ export const userService = {
   },
 
   /**
-   * Elimina la cuenta de un usuario.
-   * @param id_user usuario a eliminar.
+   * Da de baja una cuenta (baja lógica): la deja en is_active = false.
+   *
+   * Es lo que corre cuando un usuario se da de baja desde su perfil. El registro
+   * no se borra, así que sus reseñas y pagos siguen en pie y un ADMIN puede
+   * reactivar la cuenta más adelante.
+   *
+   * @param id_user usuario a dar de baja.
    * @param actor usuario autenticado que hace la request.
    */
   async remove(id_user: number, actor: TokenPayload): Promise<void> {
     assertOwnerOrAdmin(actor, id_user);
     const user = await findExisting(id_user);
-    await userRepository.delete(user);
+    await userRepository.setActive(user, false);
+  },
+
+  /**
+   * Activa o desactiva una cuenta desde el panel de administración.
+   * La ruta ya restringe esto a ADMIN.
+   *
+   * @param id_user usuario a activar o desactivar.
+   * @param actor administrador que hace la request.
+   * @param is_active true para reactivar la cuenta, false para darla de baja.
+   */
+  async setActive(id_user: number, actor: TokenPayload, is_active: boolean): Promise<PublicUser> {
+    // Un admin no puede desactivarse a sí mismo: se quedaría afuera del sistema
+    // en la próxima request, y si es el único admin no quedaría nadie que pueda
+    // reactivarlo. Para darse de baja está la opción de su propio perfil.
+    if (!is_active && actor.id_user === id_user) {
+      throw new ForbiddenError('No podés desactivar tu propia cuenta desde el panel.');
+    }
+
+    const user = await findExisting(id_user);
+    const updated = await userRepository.setActive(user, is_active);
+    return toPublicUser(updated);
   },
 };

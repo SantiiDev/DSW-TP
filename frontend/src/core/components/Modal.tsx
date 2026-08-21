@@ -2,7 +2,7 @@
 //
 // Reemplaza al window.confirm del navegador, que no se puede estilar y rompe el
 // look del sitio. Lo usan el cierre de sesión, la baja de cuenta propia y la
-// eliminación de usuarios desde el panel de administración.
+// activación/desactivación de usuarios desde el panel de administración.
 //
 //   <ConfirmDialog
 //     isOpen={...}

@@ -111,7 +111,10 @@ type AuthContextProps = {
   clearError: () => void;
   /** Edita username y/o email del usuario logueado. Devuelve true si salió bien. */
   updateProfile: (input: UpdateUserInput) => Promise<boolean>;
-  /** Elimina la cuenta del usuario logueado y cierra la sesión. Devuelve true si salió bien. */
+  /**
+   * Da de baja la cuenta del usuario logueado (baja lógica) y cierra la sesión.
+   * Devuelve true si salió bien.
+   */
   deleteAccount: () => Promise<boolean>;
 };
 
@@ -201,8 +204,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Elimina la cuenta del usuario logueado. Si sale bien, no queda nada que
-  // mostrar: se comporta como un logout.
+  // Da de baja la cuenta del usuario logueado. La baja es lógica: el backend deja
+  // la cuenta inactiva (no puede volver a iniciar sesión) pero conserva sus datos,
+  // así que un admin la puede reactivar. Acá no queda nada que mostrar, así que se
+  // comporta como un logout.
   const deleteAccount = async (): Promise<boolean> => {
     if (!state.user) return false;
     dispatch({ type: 'AUTH_STARTED' });

@@ -70,7 +70,7 @@ export const ProfileHeader = ({
               Editar perfil
             </button>
             <button type="button" className="profile-header__delete-btn" onClick={onDelete}>
-              Eliminar cuenta
+              Dar de baja
             </button>
           </div>
         )}

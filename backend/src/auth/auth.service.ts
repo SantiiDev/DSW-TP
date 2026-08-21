@@ -4,7 +4,12 @@
 import bcrypt from 'bcryptjs';
 import { User } from '../entities';
 import { signToken } from '../shared/auth/jwt';
-import { ConflictError, NotFoundError, UnauthorizedError } from '../shared/errors/app-error';
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../shared/errors/app-error';
 import { UserRole } from '../shared/types/enums';
 import { authRepository } from './auth.repository';
 import { LoginInput, RegisterInput } from './auth.schema';
@@ -22,6 +27,10 @@ type PublicUser = {
   rol: UserRole;
   url_avatar: string | null;
   registration_date: Date;
+  /** false = cuenta dada de baja. Acá siempre viene true: una cuenta inactiva no
+   * llega a iniciar sesión. Se manda igual para que el usuario tenga la misma
+   * forma en todas las respuestas de la API. */
+  is_active: boolean;
 };
 
 /** Respuesta de register y login: el usuario y su token recién emitido. */
@@ -45,6 +54,7 @@ function toPublicUser(user: User): PublicUser {
     rol: user.rol,
     url_avatar: user.url_avatar ?? null,
     registration_date: user.registration_date,
+    is_active: user.is_active,
   };
 }
 
@@ -100,6 +110,15 @@ export const authService = {
     const passwordMatches = await bcrypt.compare(data.password, user.password);
     if (!passwordMatches) throw invalidCredentials;
 
+    // Recién acá, con las credenciales ya validadas, se avisa que la cuenta está
+    // dada de baja. Chequearlo antes le permitiría a un atacante distinguir un
+    // email desactivado de uno inexistente sin saber la contraseña.
+    if (!user.is_active) {
+      throw new ForbiddenError(
+        'Tu cuenta está desactivada. Escribinos si querés volver a activarla.'
+      );
+    }
+
     return {
       user: toPublicUser(user),
       token: signToken({ id_user: user.id_user, rol: user.rol }),
@@ -119,8 +138,14 @@ export const authService = {
   async getProfile(id_user: number): Promise<PublicUser> {
     const user = await authRepository.findById(id_user);
 
-    // Puede pasar con un token todavía vigente de una cuenta ya dada de baja.
     if (!user) throw new NotFoundError('El usuario');
+
+    // Un token emitido antes de la baja sigue siendo criptográficamente válido,
+    // así que la cuenta se vuelve a chequear en cada arranque de la app: si la
+    // desactivaron mientras tanto, el 401 hace que el frontend cierre la sesión.
+    if (!user.is_active) {
+      throw new UnauthorizedError('Tu cuenta está desactivada. Iniciá sesión de nuevo.');
+    }
 
     return toPublicUser(user);
   },

@@ -188,9 +188,9 @@ export const UserProfilePage = () => {
 
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
-        title="Eliminar cuenta"
-        message="¿Seguro que querés eliminar tu cuenta? Se borrarán todos tus datos y esta acción no se puede deshacer."
-        confirmLabel="Eliminar cuenta"
+        title="Dar de baja la cuenta"
+        message="¿Seguro que querés dar de baja tu cuenta? Vas a salir de la sesión y no vas a poder volver a entrar. Tus reseñas se conservan, y un administrador puede reactivarte la cuenta si cambiás de idea."
+        confirmLabel="Dar de baja"
         isDestructive
         onConfirm={handleConfirmDelete}
         onCancel={() => setIsDeleteDialogOpen(false)}

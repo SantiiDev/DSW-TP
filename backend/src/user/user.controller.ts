@@ -5,7 +5,12 @@
 // al middleware de manejo de errores.
 import { Request, Response } from 'express';
 import { userService } from './user.service';
-import { CreateUserInput, UpdateUserInput, UserIdParam } from './user.schema';
+import {
+  CreateUserInput,
+  UpdateUserInput,
+  UpdateUserStatusInput,
+  UserIdParam,
+} from './user.schema';
 
 export const userController = {
   async create(req: Request, res: Response): Promise<void> {
@@ -40,5 +45,15 @@ export const userController = {
     await userService.remove(id, req.user!);
     // 204: la baja fue exitosa y no hay contenido que devolver.
     res.status(204).send();
+  },
+
+  async setActive(req: Request, res: Response): Promise<void> {
+    const { id } = req.validated.params as UserIdParam;
+    const { is_active } = req.validated.body as UpdateUserStatusInput;
+    // requireAuth garantiza que req.user esté seteado antes de llegar acá.
+    const user = await userService.setActive(id, req.user!, is_active);
+    // 200 y no 204: se devuelve el usuario ya actualizado para que el panel
+    // refresque la fila sin volver a pedir el listado entero.
+    res.status(200).json(user);
   },
 };

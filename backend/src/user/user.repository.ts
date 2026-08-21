@@ -33,5 +33,12 @@ export const userRepository = {
 
   update: async (user: User, data: UpdateUserData): Promise<User> => user.update(data),
 
-  delete: (user: User): Promise<void> => user.destroy(),
+  /**
+   * Da de alta o de baja una cuenta (baja lógica).
+   * No hay un delete: las cuentas nunca se borran de la tabla, se marcan
+   * inactivas para no perder las reseñas, pagos y suscripciones que las
+   * referencian por FK.
+   */
+  setActive: async (user: User, is_active: boolean): Promise<User> =>
+    user.update({ is_active }),
 };
