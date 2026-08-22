@@ -5,11 +5,14 @@
 // entra con state = 'pending' y no lo ve nadie más hasta que un ADMIN lo aprueba
 // o lo rechaza desde acá. Los tres filtros son justamente esos estados.
 //
-// La cola se llena cuando existan los endpoints de catálogo con su moderación;
-// hasta entonces cada filtro muestra su estado vacío, igual que hace el perfil.
+// Las propuestas de artistas ya salen de la API, en la sección que aporta la
+// feature artist; los álbumes y las canciones se suman cuando existan sus
+// endpoints. Si no hay ninguna solicitud en el estado elegido, se sigue mostrando
+// el estado vacío de ese filtro, que es de dónde salen los textos que recibe la
+// sección.
 import { useState } from 'react';
 import { CheckCircle2, Clock, XCircle } from 'lucide-react';
-import { EmptyState } from '../../../core/components/EmptyState';
+import { ArtistRequestsSection } from '../../artist/components/ArtistRequestsSection';
 
 // Los ids son los mismos valores del enum CONTENT_STATES del backend.
 const REQUEST_FILTERS = [
@@ -71,7 +74,12 @@ export const AdminRequestsPanel = () => {
         ))}
       </div>
 
-      <EmptyState icon={<Icon size={22} />} title={filter.title} message={filter.message} />
+      <ArtistRequestsSection
+        state={activeFilter}
+        emptyIcon={<Icon size={22} />}
+        emptyTitle={filter.title}
+        emptyMessage={filter.message}
+      />
     </section>
   );
 };

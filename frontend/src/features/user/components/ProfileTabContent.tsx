@@ -1,14 +1,16 @@
 // Contenido de la pestaña activa del perfil.
 //
 // Las secciones que dependen de features todavía no implementadas (reseñas,
-// aportes de catálogo) muestran su estado vacío definitivo. Cuando esos
-// endpoints existan, se reemplaza el EmptyState por el listado real sin tocar
-// ni la cabecera ni la navegación de pestañas.
+// álbumes y canciones calificados) muestran su estado vacío definitivo. Cuando
+// esos endpoints existan, se reemplaza el EmptyState por el listado real sin
+// tocar ni la cabecera ni la navegación de pestañas: es lo que ya se hizo con
+// "Aportes", que lista los artistas propuestos por el dueño del perfil.
 import { Link } from 'react-router-dom';
-import { Activity, CreditCard, Disc3, Music, PlusCircle, Star } from 'lucide-react';
+import { Activity, CreditCard, Disc3, Music, Star } from 'lucide-react';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { ROLE_LABELS } from '../models/User';
 import type { User } from '../models/User';
+import { ArtistContributionsList } from '../../artist/components/ArtistContributionsList';
 import type { ProfileTab } from './ProfileTabs';
 
 type ProfileTabContentProps = {
@@ -89,14 +91,14 @@ export const ProfileTabContent = ({ user, isOwnProfile, activeTab }: ProfileTabC
       return (
         <section className="profile-panel">
           <h2 className="profile-panel__title">Aportes al catálogo</h2>
-          <EmptyState
-            icon={<PlusCircle size={22} />}
-            title={emptyCopy(isOwnProfile, 'Todavía no aportaste al catálogo.', `${name} no tiene aportes.`)}
-            message={emptyCopy(
-              isOwnProfile,
-              'Como Pro podés dar de alta artistas, álbumes y canciones. Quedan pendientes hasta que un administrador los aprueba.',
-              'Los artistas, álbumes y canciones que aporte van a listarse acá una vez aprobados.'
-            )}
+
+          {/* Los artistas ya salen de la API, en la lista que aporta la feature
+              artist. Los álbumes y las canciones se suman cuando existan sus
+              endpoints, cada uno con su propia sección debajo de esta. */}
+          <ArtistContributionsList
+            userId={user.id}
+            username={name}
+            isOwnProfile={isOwnProfile}
           />
         </section>
       );
