@@ -1,22 +1,24 @@
 // Pestaña "Música" del panel de administración: el ABM del catálogo.
 //
-// Un selector interno separa las tres entidades (artistas, álbumes y canciones)
-// en vez de sumar tres pestañas más arriba: son variantes de la misma tarea, y
-// así la barra principal sigue mostrando las tres áreas del panel.
+// Un selector interno separa las cuatro entidades (artistas, álbumes, canciones y
+// géneros) en vez de sumar cuatro pestañas más arriba: son variantes de la misma
+// tarea, y así la barra principal sigue mostrando las tres áreas del panel.
 //
-// Artistas ya trabaja contra la API (`/api/artists`), en la sección que aporta la
-// feature artist. Álbumes y canciones siguen mostrando su estado vacío definitivo
-// hasta que existan sus endpoints; cuando estén, se reemplaza el EmptyState por su
-// sección sin tocar ni el selector ni la pestaña.
+// Artistas y géneros ya trabajan contra la API (`/api/artists` y `/api/genres`),
+// en las secciones que aportan sus features. Álbumes y canciones siguen mostrando
+// su estado vacío definitivo hasta que existan sus endpoints; cuando estén, se
+// reemplaza el EmptyState por su sección sin tocar ni el selector ni la pestaña.
 import { useState } from 'react';
-import { Disc3, Mic2, Music } from 'lucide-react';
+import { Disc3, Mic2, Music, Tags } from 'lucide-react';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { ArtistAdminSection } from '../../artist/components/ArtistAdminSection';
+import { GenreAdminSection } from '../../genre/components/GenreAdminSection';
 
 const CATALOG_SECTIONS = [
   { id: 'artists', label: 'Artistas', icon: Mic2 },
   { id: 'albums', label: 'Álbumes', icon: Disc3 },
   { id: 'songs', label: 'Canciones', icon: Music },
+  { id: 'genres', label: 'Géneros', icon: Tags },
 ] as const;
 
 type CatalogSectionId = (typeof CATALOG_SECTIONS)[number]['id'];
@@ -47,7 +49,7 @@ export const AdminMusicPanel = () => {
       <header className="admin-panel__block-header">
         <h2 className="admin-panel__block-title">Catálogo de música</h2>
         <p className="admin-panel__block-subtitle">
-          Alta, edición y baja de los artistas, álbumes y canciones de Musicboxd.
+          Alta, edición y baja de los artistas, álbumes, canciones y géneros de Musicboxd.
         </p>
       </header>
 
@@ -69,6 +71,8 @@ export const AdminMusicPanel = () => {
 
       {activeSection === 'artists' ? (
         <ArtistAdminSection />
+      ) : activeSection === 'genres' ? (
+        <GenreAdminSection />
       ) : (
         <EmptyState
           icon={<Icon size={22} />}

@@ -1,0 +1,375 @@
+// Estilos de la feature genre: el formulario y la tabla del panel de
+// administración, y la ficha pública de un género.
+//
+// La grilla de tarjetas de "Explorar por Género" NO está acá: vive en
+// music-explore.scss porque es parte del layout de esa página, y este parcial
+// solo suma los estados de carga y error que la grilla no tenía cuando era una
+// lista de datos fijos.
+//
+// Mobile-first: primero los estilos para pantalla chica y después las media
+// queries que amplían. Los colores y espaciados salen de las variables globales.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// --- Formulario de alta y edición ------------------------------------------
+
+.genre-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  &__submit-btn,
+  &__cancel-btn {
+    padding: 0.6rem $spacing-lg;
+    border-radius: 30px;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__submit-btn {
+    background-color: $color-primary;
+    color: #000;
+    border: none;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+  }
+
+  &__cancel-btn {
+    background-color: transparent;
+    color: $color-text-secondary;
+    border: 1px solid $color-nav-border;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: $color-text;
+    }
+  }
+}
+
+// --- Sección del panel de administración -----------------------------------
+
+.genre-admin {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__error,
+  &__feedback {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+  }
+
+  &__error {
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    color: $color-error;
+  }
+
+  &__feedback {
+    background-color: rgba($color-primary, 0.12);
+    border: 1px solid rgba($color-primary, 0.4);
+    color: $color-primary;
+  }
+
+  &__form-block {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    // El navbar es sticky: sin este margen, al traer el formulario con
+    // scrollIntoView (botón "Editar") su título quedaría tapado por la barra.
+    scroll-margin-top: calc(#{$navbar-height} + #{$spacing-md});
+  }
+
+  &__form-title,
+  &__list-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // La tabla no entra en pantallas chicas: scroll propio para que no desborde el
+  // ancho del panel.
+  &__table-wrapper {
+    overflow-x: auto;
+    border: 1px solid $color-nav-border;
+    border-radius: 12px;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+
+    th,
+    td {
+      padding: 0.75rem $spacing-md;
+      text-align: left;
+      border-bottom: 1px solid $color-nav-border;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: $color-bg;
+      color: $color-text-secondary;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    td {
+      color: $color-text;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+  }
+
+  &__name-cell {
+    display: inline-block;
+    min-width: 140px;
+    font-weight: 600;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  &__btn {
+    padding: 0.35rem 0.9rem;
+    background-color: transparent;
+    border: 1px solid $color-nav-border;
+    border-radius: 20px;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &--delete {
+      color: $color-error;
+      border-color: rgba($color-error, 0.5);
+
+      &:hover:not(:disabled) {
+        background-color: rgba($color-error, 0.12);
+      }
+    }
+  }
+}
+
+// --- Estados de la grilla de "Explorar por Género" --------------------------
+//
+// La grilla en sí (.genre-grid y .genre-card) se estila en music-explore.scss.
+// Acá solo van los estados que aparecieron al conectarla con la API.
+
+.genre-grid {
+  &__error,
+  &__empty {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  &__error {
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    color: $color-error;
+  }
+
+  &__empty {
+    color: $color-text-secondary;
+  }
+}
+
+// --- Ficha pública de un género --------------------------------------------
+
+.genre-detail {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media (min-width: $bp-md) {
+    padding: $spacing-xl $spacing-lg;
+  }
+
+  &__error {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    border-radius: 8px;
+    color: $color-error;
+    font-size: 0.9rem;
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: $color-text;
+    line-height: 1.1;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.6rem;
+    }
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // Una columna en mobile; desde tablet entran varias, que es donde la lista de
+  // títulos empieza a quedar demasiado alta.
+  &__albums {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+  }
+
+  &__album {
+    padding: 0.7rem $spacing-md;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: $color-text;
+  }
+
+  &__back {
+    align-self: flex-start;
+    padding: 0.5rem $spacing-lg;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    color: $color-text;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      border-color: $color-primary;
+      background-color: rgba($color-primary, 0.1);
+    }
+  }
+}

@@ -6,6 +6,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Home } from '../features/home/Home';
 import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
+import { GenreDetailPage } from '../features/genre/pages/GenreDetailPage';
 import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
 import { UserProfilePage } from '../features/user/pages/UserProfilePage';
 import { AdminPage } from '../features/user/pages/AdminPage';
@@ -47,6 +48,10 @@ export const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/music" element={<MusicExplorePage />} />
+
+            {/* Ficha de un género. Es pública, igual que el explorador desde el
+                que se llega: leer géneros no pide token. */}
+            <Route path="/genres/:id" element={<GenreDetailPage />} />
             <Route path="/members" element={<MembersExplorePage />} />
             <Route path="/lists" element={<ListsExplorePage />} />
             <Route path="/pro" element={<ProPage />} />
