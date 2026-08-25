@@ -50,8 +50,18 @@ export const userService = {
     return toUser(data);
   },
 
-  /** Elimina la cuenta de un usuario. */
-  async remove(id: number): Promise<void> {
-    await httpClient.delete<null>(`/users/${id}`);
+  /**
+   * Da de baja una cuenta. Es una BAJA LÓGICA: el backend no borra el registro,
+   * lo deja en estado 'suspended' y devuelve el usuario actualizado.
+   */
+  async suspend(id: number): Promise<User> {
+    const data = await httpClient.delete<UserApiResponse>(`/users/${id}`);
+    return toUser(data);
+  },
+
+  /** Reactiva una cuenta suspendida. El backend lo restringe a ADMIN. */
+  async activate(id: number): Promise<User> {
+    const data = await httpClient.patch<UserApiResponse>(`/users/${id}/activate`, {});
+    return toUser(data);
   },
 };

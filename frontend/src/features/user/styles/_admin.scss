@@ -149,10 +149,24 @@
   }
 
   &__list-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
     font-size: 1.1rem;
     font-weight: 700;
     color: $color-text;
     margin: 0;
+  }
+
+  // Cuántas de las cuentas listadas están dadas de baja.
+  &__list-note {
+    padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+    background-color: rgba($color-error, 0.12);
+    color: color.adjust($color-error, $lightness: 10%);
+    font-size: 0.75rem;
+    font-weight: 600;
   }
 
   &__empty {
@@ -235,33 +249,41 @@
     gap: $spacing-sm;
   }
 
-  &__role-select {
-    background-color: $color-bg;
-    border: 1px solid $color-nav-border;
-    border-radius: 8px;
-    padding: 0.35rem 0.6rem;
-    color: $color-text;
-    font-size: 0.85rem;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
+  // La caja del desplegable de rol la pone el componente Select (core/components).
+  // Acá queda solo la variante: rol elegido pero todavía sin guardar, en verde
+  // para que se vea de un vistazo qué filas va a tocar el botón de guardar.
+  &__role-select--pending {
+    border-color: $color-primary;
+    color: $color-primary;
+    font-weight: 600;
+  }
 
-    &:focus {
-      border-color: $color-primary;
-    }
+  // Estado de la cuenta, como pastilla: verde si está activa, roja si fue dada
+  // de baja. Es el resultado visible de la baja lógica.
+  &__state {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    // Rol elegido pero todavía sin guardar: se destaca en verde para que se vea
-    // de un vistazo qué filas va a tocar el botón de guardar.
-    &--pending {
-      border-color: $color-primary;
+    &--active {
+      background-color: rgba($color-primary, 0.15);
       color: $color-primary;
-      font-weight: 600;
     }
+
+    &--suspended {
+      background-color: rgba($color-error, 0.15);
+      color: color.adjust($color-error, $lightness: 10%);
+    }
+  }
+
+  // Fila de una cuenta suspendida: se atenúa para diferenciarla sin ocultarla.
+  // Los controles quedan al 100% para que se puedan seguir usando.
+  &__row--suspended td {
+    opacity: 0.65;
   }
 
   // Recuerda el rol guardado, para que se entienda qué se va a reemplazar.
@@ -375,24 +397,40 @@
     }
   }
 
-  &__delete-btn {
+  // Los dos botones de la baja lógica comparten forma y solo cambian de color:
+  // rojo para suspender, verde para reactivar.
+  &__suspend-btn,
+  &__activate-btn {
     background-color: transparent;
-    color: $color-error;
-    border: 1px solid rgba($color-error, 0.5);
     border-radius: 20px;
     padding: 0.35rem 0.9rem;
+    font: inherit;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s ease;
 
-    &:hover:not(:disabled) {
-      background-color: rgba($color-error, 0.12);
-    }
-
     &:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+    }
+  }
+
+  &__suspend-btn {
+    color: $color-error;
+    border: 1px solid rgba($color-error, 0.5);
+
+    &:hover:not(:disabled) {
+      background-color: rgba($color-error, 0.12);
+    }
+  }
+
+  &__activate-btn {
+    color: $color-primary;
+    border: 1px solid rgba($color-primary, 0.5);
+
+    &:hover:not(:disabled) {
+      background-color: rgba($color-primary, 0.12);
     }
   }
 

@@ -1,12 +1,19 @@
 // Lógica de negocio del CRUD de usuarios: crear, listar, ver perfil, actualizar
-// y eliminar. No conoce req ni res; recibe datos ya validados y al actor
+// y dar de baja. No conoce req ni res; recibe datos ya validados y al actor
 // autenticado (para chequear "dueño o admin"), y lanza errores de negocio que
 // traduce el errorHandler.
+//
+// La baja es LÓGICA: ver userService.suspend() al final del archivo.
 import bcrypt from 'bcryptjs';
 import { User } from '../../entities';
-import { ConflictError, ForbiddenError, NotFoundError } from '../../shared/errors/app-error';
+import {
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../shared/errors/app-error';
 import { TokenPayload } from '../../shared/auth/jwt';
-import { UserRole } from '../../shared/types/enums';
+import { UserRole, UserState } from '../../shared/types/enums';
 import { userRepository } from './user.repository';
 import { CreateUserInput, UpdateUserInput } from './user.schema';
 
@@ -25,6 +32,8 @@ type PublicUser = {
   username: string;
   email?: string;
   rol: UserRole;
+  /** 'active' o 'suspended': una cuenta suspendida no puede iniciar sesión. */
+  state: UserState;
   url_avatar: string | null;
   registration_date: Date;
 };
@@ -40,6 +49,7 @@ function toPublicUser(user: User, includeEmail = true): PublicUser {
     username: user.username,
     ...(includeEmail ? { email: user.email } : {}),
     rol: user.rol,
+    state: user.state,
     url_avatar: user.url_avatar ?? null,
     registration_date: user.registration_date,
   };
@@ -161,6 +171,11 @@ export const userService = {
       throw new ForbiddenError('Solo un administrador puede cambiar el rol de una cuenta.');
     }
 
+    // Lo mismo con el estado: si no, un usuario suspendido se reactivaría solo.
+    if (data.state !== undefined && actor.rol !== 'ADMIN') {
+      throw new ForbiddenError('Solo un administrador puede cambiar el estado de una cuenta.');
+    }
+
     const user = await findExisting(id_user);
     await assertAvailable({ username: data.username, email: data.email }, id_user);
 
@@ -169,13 +184,44 @@ export const userService = {
   },
 
   /**
-   * Elimina la cuenta de un usuario.
-   * @param id_user usuario a eliminar.
-   * @param actor usuario autenticado que hace la request.
+   * Da de baja la cuenta de un usuario: BAJA LÓGICA.
+   *
+   * No borra la fila, la deja en state = 'suspended'. Se hace así por dos motivos:
+   * el usuario deja reseñas y pagos que lo referencian por FK (borrarlo obligaría
+   * a borrar todo eso), y una suspensión se puede revertir, un DELETE no.
+   *
+   * A partir de acá la cuenta no puede iniciar sesión ni usar su token viejo, pero
+   * sigue existiendo para el ADMIN, que puede reactivarla con activate().
+   *
+   * @param id_user usuario a suspender.
+   * @param actor usuario autenticado que hace la request (el dueño o un ADMIN).
+   * @returns el usuario ya suspendido, para que el panel actualice la fila.
    */
-  async remove(id_user: number, actor: TokenPayload): Promise<void> {
+  async suspend(id_user: number, actor: TokenPayload): Promise<PublicUser> {
     assertOwnerOrAdmin(actor, id_user);
     const user = await findExisting(id_user);
-    await userRepository.delete(user);
+
+    if (user.state === 'suspended') {
+      throw new BadRequestError('La cuenta ya está suspendida.');
+    }
+
+    const suspended = await userRepository.updateState(user, 'suspended');
+    return toPublicUser(suspended);
+  },
+
+  /**
+   * Reactiva una cuenta suspendida. Solo ADMIN: la ruta ya lo restringe.
+   * @param id_user usuario a reactivar.
+   * @returns el usuario ya activo.
+   */
+  async activate(id_user: number): Promise<PublicUser> {
+    const user = await findExisting(id_user);
+
+    if (user.state === 'active') {
+      throw new BadRequestError('La cuenta ya está activa.');
+    }
+
+    const activated = await userRepository.updateState(user, 'active');
+    return toPublicUser(activated);
   },
 };

@@ -41,6 +41,9 @@ export function toUser(data: UserApiResponse): User {
     // representa como string vacío para no arrastrar undefined por toda la UI.
     data.email ?? '',
     data.rol,
+    // Respuestas viejas sin el campo se toman como cuentas activas: el estado se
+    // agregó después y el default de la base es 'active'.
+    data.state ?? 'active',
     data.url_avatar,
     new Date(data.registration_date)
   );

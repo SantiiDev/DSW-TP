@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader } from '../../../core/components/Loader';
 import { ConfirmDialog } from '../../../core/components/Modal';
+import { Select } from '../../../core/components/Select';
 import { useAuth } from '../../../core/context/AuthContext';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { artistService } from '../services/artistService';
@@ -257,20 +258,21 @@ export const ArtistAdminSection = () => {
       <div className="artist-admin__toolbar">
         <h3 className="artist-admin__list-title">Artistas del catálogo ({artists.length})</h3>
 
-        <label className="artist-admin__filter">
+        {/* Es un <span> y no un <label>: el desplegable propio es un botón, y un
+            label envolviéndolo no lo describiría como sí lo hace su aria-label. */}
+        <span className="artist-admin__filter">
           Estado
-          <select
-            className="artist-admin__select"
+          <Select
+            options={STATE_OPTIONS.map((state) => ({
+              value: state,
+              label: STATE_LABELS[state],
+            }))}
             value={stateFilter}
-            onChange={(e) => handleFilterByState(e.target.value as ContentState)}
-          >
-            {STATE_OPTIONS.map((state) => (
-              <option key={state} value={state}>
-                {STATE_LABELS[state]}
-              </option>
-            ))}
-          </select>
-        </label>
+            onChange={handleFilterByState}
+            size="sm"
+            ariaLabel="Filtrar artistas por estado"
+          />
+        </span>
       </div>
 
       <ArtistFilterBar

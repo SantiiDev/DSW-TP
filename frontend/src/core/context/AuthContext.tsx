@@ -201,14 +201,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Elimina la cuenta del usuario logueado. Si sale bien, no queda nada que
-  // mostrar: se comporta como un logout.
+  // Da de baja la cuenta del usuario logueado. La baja es lógica: la cuenta
+  // queda suspendida en el backend y ya no puede volver a iniciar sesión, así
+  // que acá se cierra la sesión igual que en un logout.
   const deleteAccount = async (): Promise<boolean> => {
     if (!state.user) return false;
     dispatch({ type: 'AUTH_STARTED' });
 
     try {
-      await userService.remove(state.user.id);
+      await userService.suspend(state.user.id);
       tokenStorage.clear();
       dispatch({ type: 'LOGGED_OUT' });
       return true;

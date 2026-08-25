@@ -8,11 +8,12 @@
 // además el backend, que es donde vale la restricción.
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, UserX } from 'lucide-react';
 import { useAuth } from '../../../core/context/AuthContext';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
 import { Loader } from '../../../core/components/Loader';
+import { EmptyState } from '../../../core/components/EmptyState';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { ProfileHeader } from '../components/ProfileHeader';
@@ -122,6 +123,20 @@ export const UserProfilePage = () => {
     }
 
     if (!viewedUser) return <Loader message="Cargando perfil..." />;
+
+    // Cuenta dada de baja (baja lógica: sigue existiendo, pero no se puede
+    // mostrar como si nada). No debería pasar en el perfil propio, porque una
+    // cuenta suspendida se desloguea sola al pedir /auth/me, pero sí al entrar
+    // a /users/:id de un usuario que un admin suspendió.
+    if (!viewedUser.isActive) {
+      return (
+        <EmptyState
+          icon={<UserX size={24} aria-hidden="true" />}
+          title="Esta cuenta fue suspendida"
+          message={`${viewedUser.username} ya no está disponible en Musicboxd.`}
+        />
+      );
+    }
 
     // La edición reemplaza todo el contenido: es una pantalla de formulario, no
     // una pestaña más.

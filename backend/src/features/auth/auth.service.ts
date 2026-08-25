@@ -4,8 +4,13 @@
 import bcrypt from 'bcryptjs';
 import { User } from '../../entities';
 import { signToken } from '../../shared/auth/jwt';
-import { ConflictError, NotFoundError, UnauthorizedError } from '../../shared/errors/app-error';
-import { UserRole } from '../../shared/types/enums';
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../../shared/errors/app-error';
+import { UserRole, UserState } from '../../shared/types/enums';
 import { authRepository } from './auth.repository';
 import { LoginInput, RegisterInput } from './auth.schema';
 
@@ -20,9 +25,19 @@ type PublicUser = {
   username: string;
   email: string;
   rol: UserRole;
+  state: UserState;
   url_avatar: string | null;
   registration_date: Date;
 };
+
+/**
+ * Mensaje de una cuenta dada de baja. Es un 403 y no un 401: las credenciales
+ * están bien, lo que pasa es que la cuenta está suspendida.
+ */
+const suspendedAccountError = () =>
+  new ForbiddenError(
+    'Tu cuenta está suspendida. Escribinos si creés que se trata de un error.'
+  );
 
 /** Respuesta de register y login: el usuario y su token recién emitido. */
 type AuthResult = {
@@ -43,6 +58,7 @@ function toPublicUser(user: User): PublicUser {
     username: user.username,
     email: user.email,
     rol: user.rol,
+    state: user.state,
     url_avatar: user.url_avatar ?? null,
     registration_date: user.registration_date,
   };
@@ -100,6 +116,10 @@ export const authService = {
     const passwordMatches = await bcrypt.compare(data.password, user.password);
     if (!passwordMatches) throw invalidCredentials;
 
+    // Recién acá se avisa que la cuenta está suspendida: si se chequeara antes de
+    // la contraseña, cualquiera podría averiguar qué emails están registrados.
+    if (user.state === 'suspended') throw suspendedAccountError();
+
     return {
       user: toPublicUser(user),
       token: signToken({ id_user: user.id_user, rol: user.rol }),
@@ -119,8 +139,12 @@ export const authService = {
   async getProfile(id_user: number): Promise<PublicUser> {
     const user = await authRepository.findById(id_user);
 
-    // Puede pasar con un token todavía vigente de una cuenta ya dada de baja.
     if (!user) throw new NotFoundError('El usuario');
+
+    // El token de una cuenta suspendida sigue siendo válido hasta que vence, así
+    // que la baja se chequea acá: el frontend llama a /auth/me al abrir la app y
+    // este 403 lo saca de la sesión.
+    if (user.state === 'suspended') throw suspendedAccountError();
 
     return toPublicUser(user);
   },

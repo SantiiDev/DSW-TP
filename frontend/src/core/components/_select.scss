@@ -1,0 +1,162 @@
+// Estilos del desplegable propio (core/components/Select.tsx).
+//
+// El botón imita la caja de los inputs del sitio (mismo fondo, borde y radio)
+// para que un formulario se vea parejo, y el panel toma los colores de las
+// superficies elevadas: fondo $color-bg-light y sombra, igual que los modales.
+@use 'sass:color';
+@use '../../styles/abstracts/variable' as *;
+
+.select {
+  position: relative;
+  display: inline-flex;
+  // Sin esto el botón no se achica por debajo del texto de la opción más larga y
+  // estira la celda o la columna que lo contiene.
+  min-width: 0;
+
+  // Ocupa todo el ancho: formularios y filtros en una sola columna.
+  &--full {
+    display: flex;
+    width: 100%;
+  }
+
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    width: 100%;
+    min-width: 0;
+    background-color: $color-bg;
+    border: 1px solid $color-nav-border;
+    border-radius: 8px;
+    color: $color-text;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    // El foco se marca con el mismo verde que los inputs. Va sin outline propio
+    // porque el borde ya lo señala con suficiente contraste.
+    &:focus-visible {
+      outline: none;
+      border-color: $color-primary;
+    }
+
+    &--open {
+      border-color: $color-primary;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    // Dos tamaños: el chico para tablas y barras de filtros, donde el control
+    // convive con texto de 0.85rem; el mediano para los formularios.
+    &--sm {
+      padding: 0.35rem 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    &--md {
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  // El texto de la opción elegida. Si no entra, se corta con puntos suspensivos
+  // en vez de estirar el control.
+  &__value {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    color: $color-text-secondary;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  // La flecha gira mientras el panel está abierto.
+  &__trigger--open &__icon {
+    transform: rotate(180deg);
+    color: $color-primary;
+  }
+
+  // --- Panel de opciones ---------------------------------------------------
+  //
+  // Va montado en el <body> (ver el portal en Select.tsx), así que no hereda
+  // nada del bloque: las medidas de posición las pone el componente por style.
+
+  &__panel {
+    position: fixed;
+    z-index: 60;
+    margin: 0;
+    padding: 0.3rem;
+    list-style: none;
+    max-height: 260px;
+    overflow-y: auto;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    animation: select-panel-in 0.12s ease-out;
+
+    // Barra de scroll al tono del panel: la del sistema es clara y corta el
+    // bloque oscuro cuando hay muchas opciones (el filtro de géneros, por ej).
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    padding: 0.45rem 0.6rem;
+    border-radius: 6px;
+    color: $color-text-secondary;
+    font-size: 0.88rem;
+    cursor: pointer;
+    // La transición va solo en el color: animar el fondo deja un rastro al
+    // recorrer la lista rápido con el mouse.
+    transition: color 0.15s ease;
+
+    &--highlighted {
+      background-color: rgba(255, 255, 255, 0.07);
+      color: $color-text;
+    }
+
+    // La opción vigente, con su tilde a la derecha.
+    &--selected {
+      color: $color-primary;
+      font-weight: 600;
+    }
+  }
+
+  &__option-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// Entrada corta: el panel se despliega desde arriba en vez de aparecer de golpe.
+@keyframes select-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

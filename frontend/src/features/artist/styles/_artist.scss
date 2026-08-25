@@ -319,22 +319,8 @@ $state-colors: (
     color: $color-text-secondary;
   }
 
-  &__select {
-    background-color: $color-bg;
-    border: 1px solid $color-nav-border;
-    border-radius: 8px;
-    padding: 0.35rem 0.6rem;
-    color: $color-text;
-    font: inherit;
-    font-size: 0.85rem;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-
-    &:focus {
-      border-color: $color-primary;
-    }
-  }
+  // El desplegable de estado es el componente Select (core/components/Select.tsx),
+  // que trae sus propios estilos.
 
   &__empty {
     margin: 0;

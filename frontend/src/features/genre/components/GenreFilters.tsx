@@ -8,6 +8,8 @@
 // de Jazz. Elegir otro lleva a la ficha de ese otro, que es lo que espera
 // cualquiera al ver un desplegable de géneros.
 import { X } from 'lucide-react';
+import { Select } from '../../../core/components/Select';
+import type { SelectOption } from '../../../core/components/Select';
 import type { Genre } from '../models/Genre';
 import '../styles/_genre.scss';
 
@@ -17,6 +19,11 @@ import '../styles/_genre.scss';
  * - 'from':  ese año y todos los posteriores.
  */
 export type YearMode = 'exact' | 'from';
+
+// Valor de la opción "Todos" del filtro de año. El desplegable necesita un valor
+// concreto para cada opción y el "sin filtro" es null, así que se representa con
+// un 0, que nunca va a ser un año de lanzamiento real.
+const ALL_YEARS = 0;
 
 type GenreFiltersProps = {
   /** Todos los géneros, para poder saltar a otro. */
@@ -42,6 +49,18 @@ export const GenreFilters = ({
   onYearChange,
   onYearModeChange,
 }: GenreFiltersProps) => {
+  // Las listas del desplegable se arman acá y no en el JSX para no mezclar la
+  // preparación de los datos con el dibujo.
+  const genreOptions: SelectOption<number>[] = genres.map((genre) => ({
+    value: genre.id,
+    label: genre.name,
+  }));
+
+  const yearOptions: SelectOption<number>[] = [
+    { value: ALL_YEARS, label: 'Todos' },
+    ...availableYears.map((year) => ({ value: year, label: String(year) })),
+  ];
+
   return (
     <aside className="genre-filters" aria-label="Filtros">
       <h2 className="genre-filters__title">Filtros</h2>
@@ -50,38 +69,27 @@ export const GenreFilters = ({
         <label className="genre-filters__label" htmlFor="filter-genre">
           Género
         </label>
-        <select
+        <Select
           id="filter-genre"
-          className="genre-filters__select"
+          options={genreOptions}
           value={currentGenreId}
-          onChange={(e) => onGenreChange(Number(e.target.value))}
-        >
-          {genres.map((genre) => (
-            <option key={genre.id} value={genre.id}>
-              {genre.name}
-            </option>
-          ))}
-        </select>
+          onChange={onGenreChange}
+          fullWidth
+        />
       </div>
 
       <div className="genre-filters__group">
         <label className="genre-filters__label" htmlFor="filter-year">
           Año de lanzamiento
         </label>
-        <select
+        <Select
           id="filter-year"
-          className="genre-filters__select"
-          value={selectedYear ?? ''}
-          // El value de un <option> es siempre string: '' es la opción "Todos".
-          onChange={(e) => onYearChange(e.target.value === '' ? null : Number(e.target.value))}
-        >
-          <option value="">Todos</option>
-          {availableYears.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
+          options={yearOptions}
+          value={selectedYear ?? ALL_YEARS}
+          // ALL_YEARS es la opción "Todos"; el resto son años de verdad.
+          onChange={(year) => onYearChange(year === ALL_YEARS ? null : year)}
+          fullWidth
+        />
 
         {/* Los dos modos solo tienen sentido con un año elegido: sobre "Todos"
             no hay nada que acotar. */}

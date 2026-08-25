@@ -1,5 +1,5 @@
 // Entidad USERS.
-// USERS (id_user, username, email, password, rol, url_avatar, registration_date)
+// USERS (id_user, username, email, password, rol, state, url_avatar, registration_date)
 //   id_user -> PK
 import {
   CreationOptional,
@@ -9,7 +9,7 @@ import {
   Model,
 } from 'sequelize';
 import { sequelize } from '../shared/db/sequelize';
-import { USER_ROLES, UserRole } from '../shared/types/enums';
+import { USER_ROLES, USER_STATES, UserRole, UserState } from '../shared/types/enums';
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id_user: CreationOptional<number>;
@@ -17,6 +17,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare email: string;
   declare password: string;
   declare rol: CreationOptional<UserRole>;
+  declare state: CreationOptional<UserState>;
   declare url_avatar: CreationOptional<string | null>;
   declare registration_date: CreationOptional<Date>;
 }
@@ -49,6 +50,13 @@ User.init(
       type: DataTypes.ENUM(...USER_ROLES),
       allowNull: false,
       defaultValue: 'FREE',
+    },
+    state: {
+      // Baja lógica: dar de baja una cuenta la deja en 'suspended', nunca borra
+      // la fila. Toda cuenta nueva arranca activa.
+      type: DataTypes.ENUM(...USER_STATES),
+      allowNull: false,
+      defaultValue: 'active',
     },
     url_avatar: {
       // Link a la foto de perfil, igual que ALBUMS.url_cover. Guardamos la URL y

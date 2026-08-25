@@ -35,10 +35,18 @@ export const userController = {
     res.status(200).json(user);
   },
 
-  async remove(req: Request, res: Response): Promise<void> {
+  // Baja lógica: la cuenta queda suspendida, no se borra.
+  // Devuelve 200 con el usuario ya suspendido (y no 204) porque el panel de
+  // administración necesita el estado nuevo para redibujar la fila.
+  async suspend(req: Request, res: Response): Promise<void> {
     const { id } = req.validated.params as UserIdParam;
-    await userService.remove(id, req.user!);
-    // 204: la baja fue exitosa y no hay contenido que devolver.
-    res.status(204).send();
+    const user = await userService.suspend(id, req.user!);
+    res.status(200).json(user);
+  },
+
+  async activate(req: Request, res: Response): Promise<void> {
+    const { id } = req.validated.params as UserIdParam;
+    const user = await userService.activate(id);
+    res.status(200).json(user);
   },
 };

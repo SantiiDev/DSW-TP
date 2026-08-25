@@ -5,6 +5,17 @@ export const USER_ROLES = ['FREE', 'PRO', 'ADMIN'] as const;
 export type UserRole = (typeof USER_ROLES)[number];
 
 /**
+ * Estado de una cuenta (USERS.state).
+ *
+ * La baja de un usuario es LÓGICA: la fila no se borra nunca, pasa a 'suspended'.
+ * Si se borrara, se irían con ella sus reseñas y su historial de pagos, y las
+ * FK que apuntan a users lo rechazarían igual. Una cuenta suspendida no puede
+ * iniciar sesión, y un ADMIN puede reactivarla cuando quiera.
+ */
+export const USER_STATES = ['active', 'suspended'] as const;
+export type UserState = (typeof USER_STATES)[number];
+
+/**
  * Estado de moderación del contenido de catálogo (ARTIST, ALBUMS, SONG).
  * Lo cargado por el seed queda en 'approved'; lo que da de alta un usuario PRO
  * entra como 'pending' hasta que un ADMIN lo revisa.

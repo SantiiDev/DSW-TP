@@ -5,6 +5,7 @@
 // Es controlado y no llama a la API: delega el submit al padre (AdminUsersPanel).
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { Select } from '../../../core/components/Select';
 import { ROLE_LABELS, USER_ROLES } from '../models/User';
 import type { UserRole } from '../models/User';
 import type { CreateUserInput } from '../services/userService';
@@ -88,18 +89,13 @@ export const CreateUserForm = ({ isSubmitting, onSubmit }: CreateUserFormProps) 
           <label htmlFor="new-user-rol" className="admin-users__label">
             Rol
           </label>
-          <select
+          <Select
             id="new-user-rol"
-            className="admin-users__input"
+            options={USER_ROLES.map((rol) => ({ value: rol, label: ROLE_LABELS[rol] }))}
             value={form.rol}
-            onChange={(e) => setForm({ ...form, rol: e.target.value as UserRole })}
-          >
-            {USER_ROLES.map((rol) => (
-              <option key={rol} value={rol}>
-                {ROLE_LABELS[rol]}
-              </option>
-            ))}
-          </select>
+            onChange={(rol) => setForm({ ...form, rol })}
+            fullWidth
+          />
         </div>
       </div>
 

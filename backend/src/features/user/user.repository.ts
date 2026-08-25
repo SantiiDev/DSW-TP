@@ -2,7 +2,7 @@
 // perfiles (no confundir con auth.repository, que es específico del circuito de
 // registro/login). Es la única capa que habla con Sequelize.
 import { User } from '../../entities';
-import { UserRole } from '../../shared/types/enums';
+import { UserRole, UserState } from '../../shared/types/enums';
 
 type CreateUserData = {
   username: string;
@@ -17,6 +17,7 @@ type UpdateUserData = {
   username?: string;
   email?: string;
   rol?: UserRole;
+  state?: UserState;
   url_avatar?: string | null;
 };
 
@@ -33,5 +34,11 @@ export const userRepository = {
 
   update: async (user: User, data: UpdateUserData): Promise<User> => user.update(data),
 
-  delete: (user: User): Promise<void> => user.destroy(),
+  /**
+   * Cambia el estado de la cuenta: es la baja (y el alta) lógica.
+   *
+   * No existe un delete acá a propósito. Borrar la fila se llevaría puestas las
+   * reseñas y los pagos del usuario, que la referencian por FK.
+   */
+  updateState: async (user: User, state: UserState): Promise<User> => user.update({ state }),
 };

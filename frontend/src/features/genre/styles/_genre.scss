@@ -711,23 +711,8 @@
     color: $color-text-secondary;
   }
 
-  &__select {
-    width: 100%;
-    background-color: $color-bg;
-    border: 1px solid $color-nav-border;
-    border-radius: 8px;
-    padding: 0.55rem 0.7rem;
-    color: $color-text;
-    font: inherit;
-    font-size: 0.88rem;
-    outline: none;
-    cursor: pointer;
-    transition: border-color 0.2s ease;
-
-    &:focus {
-      border-color: $color-primary;
-    }
-  }
+  // Los dos desplegables de este panel son el componente Select
+  // (core/components/Select.tsx), que trae sus propios estilos.
 
   // Los dos modos del año ("Solo 1997" / "Desde 1997"), como un par de pastillas.
   &__modes {

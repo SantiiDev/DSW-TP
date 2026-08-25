@@ -32,7 +32,7 @@ type AdminTab = (typeof ADMIN_TABS)[number]['id'];
 
 /** Texto de apoyo de la cabecera, distinto según la pestaña abierta. */
 const TAB_SUBTITLES: Record<AdminTab, string> = {
-  users: 'Dar de alta cuentas, cambiar roles y eliminar usuarios de Musicboxd.',
+  users: 'Dar de alta cuentas, cambiar roles y suspender usuarios de Musicboxd.',
   music: 'Mantener el catálogo: artistas, álbumes y canciones.',
   requests: 'Revisar los aportes al catálogo que envían los usuarios Pro.',
 };

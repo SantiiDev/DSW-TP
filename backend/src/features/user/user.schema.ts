@@ -1,7 +1,7 @@
 // Schemas de Zod para validar la entrada de los endpoints del CRUD de usuarios.
 // Los usa el middleware validate() en user.routes.ts, antes del controller.
 import { z } from 'zod';
-import { USER_ROLES } from '../../shared/types/enums';
+import { USER_ROLES, USER_STATES } from '../../shared/types/enums';
 
 // Reglas de cada campo definidas una sola vez: las comparten el alta y la edición.
 const usernameSchema = z
@@ -31,6 +31,13 @@ const passwordSchema = z
 
 const rolSchema = z.enum(USER_ROLES, {
   message: `El rol debe ser uno de: ${USER_ROLES.join(', ')}.`,
+});
+
+// Estado de la cuenta. Es lo que hace que la baja sea lógica: el alta no lo
+// recibe (toda cuenta nueva entra activa) y en la edición solo lo puede mandar
+// un ADMIN, que es quien suspende y reactiva cuentas.
+const stateSchema = z.enum(USER_STATES, {
+  message: `El estado debe ser uno de: ${USER_STATES.join(', ')}.`,
 });
 
 // Foto de perfil: se guarda la URL, no el archivo.
@@ -68,12 +75,13 @@ export const createUserSchema = z.object({
 
 // Todo opcional: PATCH permite mandar solo el campo que se quiere cambiar.
 // password no se edita por acá (no hay endpoint de cambio de contraseña todavía);
-// rol solo lo puede tocar un ADMIN, y eso lo chequea el service.
+// rol y state solo los puede tocar un ADMIN, y eso lo chequea el service.
 export const updateUserSchema = z
   .object({
     username: usernameSchema.optional(),
     email: emailSchema.optional(),
     rol: rolSchema.optional(),
+    state: stateSchema.optional(),
     url_avatar: urlAvatarSchema.optional(),
   })
   .refine((data) => Object.values(data).some((value) => value !== undefined), {

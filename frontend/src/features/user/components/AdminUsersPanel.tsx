@@ -1,8 +1,11 @@
 // Pestaña "Usuarios" del panel de administración.
 //
 // Concentra el estado de la gestión de cuentas (listado, alta, cambios de rol
-// pendientes, baja) y delega el dibujo en CreateUserForm, UserAdminTable y
-// RoleChangesBar.
+// pendientes, baja y reactivación) y delega el dibujo en CreateUserForm,
+// UserAdminTable y RoleChangesBar.
+//
+// La baja es LÓGICA: suspender una cuenta no la saca de la lista, le cambia el
+// estado. Por eso las dos operaciones reemplazan la fila en vez de quitarla.
 //
 // Todos estos endpoints exigen rol ADMIN en el backend: que la pestaña se vea
 // solo dentro de /admin es comodidad de navegación, no la protección real.
@@ -30,13 +33,16 @@ export const AdminUsersPanel = () => {
   const [isCreating, setIsCreating] = useState(false);
   // Fila con una operación en curso: deshabilita solo sus controles, no toda la tabla.
   const [busyUserId, setBusyUserId] = useState<number | null>(null);
-  // Usuario que el admin eligió eliminar, a la espera de que confirme el diálogo.
-  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  // Usuario que el admin eligió suspender, a la espera de que confirme el diálogo.
+  const [userToSuspend, setUserToSuspend] = useState<User | null>(null);
   // Cambios de rol en borrador: se aplican recién al apretar "Guardar cambios".
   const [pendingRoles, setPendingRoles] = useState<PendingRoles>({});
   const [isSavingRoles, setIsSavingRoles] = useState(false);
 
   const pendingCount = Object.keys(pendingRoles).length;
+  // Las cuentas dadas de baja siguen en el listado, así que se cuentan aparte
+  // para que el admin sepa cuántas hay sin recorrer la tabla entera.
+  const suspendedCount = users.filter((user) => !user.isActive).length;
 
   const loadUsers = useCallback(async () => {
     setIsLoading(true);
@@ -131,23 +137,51 @@ export const AdminUsersPanel = () => {
     setIsSavingRoles(false);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!userToDelete) return;
+  /** Reemplaza una fila del listado por su versión actualizada. */
+  const replaceUser = (updated: User) => {
+    setUsers((current) => current.map((u) => (u.id === updated.id ? updated : u)));
+  };
 
-    const { id } = userToDelete;
-    setUserToDelete(null);
+  /**
+   * Confirma la baja de la cuenta elegida.
+   *
+   * Es una baja lógica: el backend devuelve el usuario ya suspendido y la fila se
+   * reemplaza en el listado. Un cambio de rol pendiente sobre esa cuenta se
+   * descarta, porque la cuenta quedó deshabilitada y ese cambio ya no tiene
+   * sentido hasta que se la reactive.
+   */
+  const handleConfirmSuspend = async () => {
+    if (!userToSuspend) return;
+
+    const { id } = userToSuspend;
+    setUserToSuspend(null);
     setBusyUserId(id);
     setError(null);
 
     try {
-      await userService.remove(id);
-      setUsers((current) => current.filter((u) => u.id !== id));
-      // Si tenía un cambio de rol en borrador ya no aplica: la cuenta no existe.
+      replaceUser(await userService.suspend(id));
       setPendingRoles((current) => {
         const next = { ...current };
         delete next[id];
         return next;
       });
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setBusyUserId(null);
+    }
+  };
+
+  /**
+   * Vuelve a habilitar una cuenta suspendida.
+   * No pide confirmación: no se pierde nada y se puede volver a suspender.
+   */
+  const handleActivate = async (user: User) => {
+    setBusyUserId(user.id);
+    setError(null);
+
+    try {
+      replaceUser(await userService.activate(user.id));
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -166,7 +200,14 @@ export const AdminUsersPanel = () => {
       <CreateUserForm isSubmitting={isCreating} onSubmit={handleCreate} />
 
       <section className="admin-users__list">
-        <h2 className="admin-users__list-title">Usuarios registrados ({users.length})</h2>
+        <h2 className="admin-users__list-title">
+          Usuarios registrados ({users.length})
+          {suspendedCount > 0 && (
+            <span className="admin-users__list-note">
+              {suspendedCount === 1 ? '1 suspendido' : `${suspendedCount} suspendidos`}
+            </span>
+          )}
+        </h2>
 
         {isLoading ? (
           <Loader message="Cargando usuarios..." />
@@ -181,7 +222,8 @@ export const AdminUsersPanel = () => {
               pendingRoles={pendingRoles}
               isSaving={isSavingRoles}
               onSelectRole={handleSelectRole}
-              onDelete={setUserToDelete}
+              onSuspend={setUserToSuspend}
+              onActivate={handleActivate}
             />
 
             <RoleChangesBar
@@ -195,13 +237,13 @@ export const AdminUsersPanel = () => {
       </section>
 
       <ConfirmDialog
-        isOpen={userToDelete !== null}
-        title="Eliminar usuario"
-        message={`¿Seguro que querés eliminar la cuenta de ${userToDelete?.username ?? ''}? Esta acción no se puede deshacer.`}
-        confirmLabel="Eliminar"
+        isOpen={userToSuspend !== null}
+        title="Suspender usuario"
+        message={`¿Seguro que querés suspender la cuenta de ${userToSuspend?.username ?? ''}? No va a poder iniciar sesión, pero sus reseñas se mantienen y podés reactivarla cuando quieras.`}
+        confirmLabel="Suspender"
         isDestructive
-        onConfirm={handleConfirmDelete}
-        onCancel={() => setUserToDelete(null)}
+        onConfirm={handleConfirmSuspend}
+        onCancel={() => setUserToSuspend(null)}
       />
     </>
   );
