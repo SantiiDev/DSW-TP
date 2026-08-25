@@ -278,7 +278,9 @@
 // --- Ficha pública de un género --------------------------------------------
 
 .genre-detail {
-  max-width: 900px;
+  // Más ancha que antes: ahora convive la lista de álbumes con la columna de
+  // filtros al costado.
+  max-width: 1200px;
   margin: 0 auto;
   padding: $spacing-lg $spacing-md;
   display: flex;
@@ -299,10 +301,15 @@
     font-size: 0.9rem;
   }
 
+  // Las tres líneas del encabezado (la etiqueta "Género", el nombre y el conteo)
+  // van centradas. align-items centra cada línea como bloque y text-align se
+  // ocupa del caso en que alguna ocupe más de un renglón.
   &__header {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.3rem;
+    text-align: center;
   }
 
   &__eyebrow {
@@ -332,28 +339,78 @@
     color: $color-text-secondary;
   }
 
-  // Una columna en mobile; desde tablet entran varias, que es donde la lista de
-  // títulos empieza a quedar demasiado alta.
-  &__albums {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  // Cuerpo de la página: en mobile los filtros van arriba de los resultados
+  // (order los sube), y desde escritorio pasan a ser una columna fija al costado.
+  &__body {
     display: grid;
     grid-template-columns: 1fr;
-    gap: $spacing-sm;
+    gap: $spacing-lg;
 
-    @media (min-width: $bp-sm) {
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    @media (min-width: $bp-lg) {
+      grid-template-columns: 1fr 280px;
+      align-items: start;
     }
   }
 
-  &__album {
-    padding: 0.7rem $spacing-md;
+  &__results {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    // Sin esto, una fila muy ancha estiraría la columna del grid en vez de
+    // scrollear dentro de ella.
+    min-width: 0;
+    order: 2;
+
+    @media (min-width: $bp-lg) {
+      order: 1;
+    }
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__results-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  // Los dos botones que alternan entre grilla y lista, pegados como un solo control.
+  &__views {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
     border-radius: 10px;
-    font-size: 0.9rem;
-    color: $color-text;
+  }
+
+  &__view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.5rem;
+    background-color: transparent;
+    border: none;
+    border-radius: 7px;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    &--active {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: $color-text;
+    }
   }
 
   &__back {
@@ -370,6 +427,355 @@
     &:hover {
       border-color: $color-primary;
       background-color: rgba($color-primary, 0.1);
+    }
+  }
+}
+
+// --- Carátula de un álbum ---------------------------------------------------
+
+.album-cover {
+  flex-shrink: 0;
+  border-radius: 6px;
+  // Las portadas de Deezer son cuadradas, pero un álbum cargado a mano podría
+  // traer otra proporción: cover la recorta en vez de deformarla.
+  object-fit: cover;
+  background-color: $color-bg;
+
+  &--sm {
+    width: 56px;
+    height: 56px;
+  }
+
+  &--lg {
+    width: 100%;
+    // La carátula manda el alto de la tarjeta en la grilla: cuadrada siempre,
+    // así todas las filas quedan parejas sin importar la imagen.
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+  }
+
+  // Reserva cuando el álbum no tiene portada o la imagen no cargó.
+  &--fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__initial {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  &--lg &__initial {
+    font-size: 3rem;
+  }
+}
+
+// --- Calificación promedio --------------------------------------------------
+
+.album-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: $color-text;
+  white-space: nowrap;
+
+  &__star {
+    color: #f5c518;
+    fill: #f5c518;
+  }
+
+  &__max {
+    color: $color-text-secondary;
+    font-size: 0.82rem;
+  }
+
+  // Mientras el álbum no tenga reseñas se muestra un texto gris, no un "0 / 5".
+  &--empty {
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Colección de álbumes: las dos vistas -----------------------------------
+//
+// El JSX es el mismo para lista y grilla (ver GenreAlbumList); lo único que
+// cambia es este CSS.
+
+.album-collection {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  // Vista de lista: una fila por álbum, con la carátula chica a la izquierda y
+  // la calificación empujada contra el borde derecho.
+  &--list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    .album-item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      padding: 0.6rem 0.8rem;
+      background-color: $color-bg-light;
+      border: 1px solid $color-nav-border;
+      border-radius: 10px;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+
+      &__info {
+        // El margen automático es lo que manda la calificación a la derecha.
+        margin-right: auto;
+        min-width: 0;
+      }
+    }
+  }
+
+  // Vista de grilla: tarjetas con la carátula grande arriba. Mobile-first: dos
+  // columnas en pantalla chica y se van sumando a medida que hay ancho.
+  &--grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .album-item {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+      min-width: 0;
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: translateY(-3px);
+      }
+
+      &__info {
+        min-width: 0;
+      }
+    }
+  }
+}
+
+// Pie del listado: cuántos álbumes se ven y el botón que trae la tanda siguiente.
+// Mismo patrón que el "Ver más" de la tabla de artistas del panel.
+
+.album-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+
+  @media (min-width: $bp-md) {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+
+  // Los dos botones van juntos, para que el conteo quede solo de un lado.
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.5rem $spacing-lg;
+    background-color: transparent;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      border-color: $color-primary;
+      background-color: rgba($color-primary, 0.1);
+    }
+
+    // "Volver arriba" es un atajo, no la acción principal del pie: va sin marco
+    // para que no compita con "Ver más álbumes".
+    &--ghost {
+      border-color: transparent;
+      color: $color-text-secondary;
+      font-weight: 500;
+
+      &:hover {
+        border-color: transparent;
+        background-color: rgba(255, 255, 255, 0.06);
+        color: $color-text;
+      }
+    }
+  }
+}
+
+.album-item {
+  &__title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: $color-text;
+    // Los títulos largos se cortan con puntos suspensivos en vez de estirar la
+    // fila o desbordar la tarjeta.
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__artist {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__year {
+    margin: 0.15rem 0 0;
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Panel de filtros -------------------------------------------------------
+
+.genre-filters {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+  // En mobile va arriba de los resultados; desde escritorio pasa al costado
+  // (ver .genre-detail__body).
+  order: 1;
+
+  @media (min-width: $bp-lg) {
+    order: 2;
+    // Acompaña el scroll de la lista, que puede ser larga.
+    position: sticky;
+    top: calc(#{$navbar-height} + #{$spacing-md});
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-secondary;
+  }
+
+  &__select {
+    width: 100%;
+    background-color: $color-bg;
+    border: 1px solid $color-nav-border;
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.88rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  // Los dos modos del año ("Solo 1997" / "Desde 1997"), como un par de pastillas.
+  &__modes {
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  &__mode {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    background-color: transparent;
+    border: 1px solid $color-nav-border;
+    border-radius: 20px;
+    color: $color-text-secondary;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    &--active {
+      border-color: $color-primary;
+      background-color: rgba($color-primary, 0.12);
+      color: $color-primary;
+    }
+  }
+
+  &__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0.35rem;
+    background-color: transparent;
+    border: none;
+    color: $color-text-secondary;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
     }
   }
 }

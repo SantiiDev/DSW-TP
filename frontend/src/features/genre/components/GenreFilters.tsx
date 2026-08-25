@@ -1,0 +1,130 @@
+// Panel de filtros de la ficha de un género: género y año de lanzamiento.
+//
+// Es presentacional: no filtra ni navega, avisa al padre (GenreDetailPage) con
+// los handlers que recibe.
+//
+// El filtro de género no reduce la lista sino que cambia de página: estando en la
+// ficha de "Rock" no tiene sentido filtrar por "Jazz", porque acá no hay álbumes
+// de Jazz. Elegir otro lleva a la ficha de ese otro, que es lo que espera
+// cualquiera al ver un desplegable de géneros.
+import { X } from 'lucide-react';
+import type { Genre } from '../models/Genre';
+import '../styles/_genre.scss';
+
+/**
+ * Cómo se aplica el año elegido.
+ * - 'exact': solo los álbumes de ese año.
+ * - 'from':  ese año y todos los posteriores.
+ */
+export type YearMode = 'exact' | 'from';
+
+type GenreFiltersProps = {
+  /** Todos los géneros, para poder saltar a otro. */
+  genres: Genre[];
+  currentGenreId: number;
+  /** Años que existen entre los álbumes de este género. */
+  availableYears: number[];
+  /** Año elegido, o null si el filtro está en "Todos". */
+  selectedYear: number | null;
+  yearMode: YearMode;
+  onGenreChange: (id: number) => void;
+  onYearChange: (year: number | null) => void;
+  onYearModeChange: (mode: YearMode) => void;
+};
+
+export const GenreFilters = ({
+  genres,
+  currentGenreId,
+  availableYears,
+  selectedYear,
+  yearMode,
+  onGenreChange,
+  onYearChange,
+  onYearModeChange,
+}: GenreFiltersProps) => {
+  return (
+    <aside className="genre-filters" aria-label="Filtros">
+      <h2 className="genre-filters__title">Filtros</h2>
+
+      <div className="genre-filters__group">
+        <label className="genre-filters__label" htmlFor="filter-genre">
+          Género
+        </label>
+        <select
+          id="filter-genre"
+          className="genre-filters__select"
+          value={currentGenreId}
+          onChange={(e) => onGenreChange(Number(e.target.value))}
+        >
+          {genres.map((genre) => (
+            <option key={genre.id} value={genre.id}>
+              {genre.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="genre-filters__group">
+        <label className="genre-filters__label" htmlFor="filter-year">
+          Año de lanzamiento
+        </label>
+        <select
+          id="filter-year"
+          className="genre-filters__select"
+          value={selectedYear ?? ''}
+          // El value de un <option> es siempre string: '' es la opción "Todos".
+          onChange={(e) => onYearChange(e.target.value === '' ? null : Number(e.target.value))}
+        >
+          <option value="">Todos</option>
+          {availableYears.map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+
+        {/* Los dos modos solo tienen sentido con un año elegido: sobre "Todos"
+            no hay nada que acotar. */}
+        {selectedYear !== null && (
+          <div
+            className="genre-filters__modes"
+            role="group"
+            aria-label="Cómo aplicar el año elegido"
+          >
+            <button
+              type="button"
+              className={`genre-filters__mode ${
+                yearMode === 'exact' ? 'genre-filters__mode--active' : ''
+              }`}
+              aria-pressed={yearMode === 'exact'}
+              onClick={() => onYearModeChange('exact')}
+            >
+              Solo {selectedYear}
+            </button>
+            <button
+              type="button"
+              className={`genre-filters__mode ${
+                yearMode === 'from' ? 'genre-filters__mode--active' : ''
+              }`}
+              aria-pressed={yearMode === 'from'}
+              onClick={() => onYearModeChange('from')}
+            >
+              Desde {selectedYear}
+            </button>
+          </div>
+        )}
+
+        {selectedYear !== null && (
+          <button
+            type="button"
+            className="genre-filters__clear"
+            onClick={() => onYearChange(null)}
+          >
+            <X size={14} aria-hidden="true" />
+            Quitar el filtro de año
+          </button>
+        )}
+      </div>
+    </aside>
+  );
+};
