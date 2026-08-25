@@ -1,7 +1,7 @@
 // Servicio del CRUD de géneros: centraliza las llamadas HTTP de /api/genres y
 // mapea la respuesta cruda del backend al modelo Genre.
 import { httpClient } from '../../../core/services/httpClient';
-import { Genre, GenreAlbum } from '../models/Genre';
+import { Genre, GenreAlbum, GenreAlbumArtist } from '../models/Genre';
 import type { GenreApiResponse } from '../models/Genre';
 
 /** Campos que acepta el alta y la edición de un género. */
@@ -23,7 +23,20 @@ function toGenre(data: GenreApiResponse): Genre {
   return new Genre(
     data.id_genre,
     data.name,
-    (data.albums ?? []).map((album) => new GenreAlbum(album.id_album, album.title, album.state))
+    (data.albums ?? []).map(
+      (album) =>
+        new GenreAlbum(
+          album.id_album,
+          album.title,
+          album.state,
+          // Los campos de presentación solo vienen en la ficha; en el listado
+          // quedan en su valor por defecto (ver el comentario del modelo).
+          album.release_year ?? null,
+          album.url_cover ?? null,
+          album.average_rating ?? 0,
+          album.artist ? new GenreAlbumArtist(album.artist.id_artist, album.artist.name) : null
+        )
+    )
   );
 }
 

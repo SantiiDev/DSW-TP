@@ -9,11 +9,17 @@
 // las reglas del dominio.
 import { ConflictError, NotFoundError } from '../../shared/errors/app-error';
 import { ContentState } from '../../shared/types/enums';
-import { genreRepository, GenreAlbum, GenreWithAlbums } from './genre.repository';
+import {
+  genreRepository,
+  GenreAlbum,
+  GenreWithAlbumDetails,
+  GenreWithAlbums,
+} from './genre.repository';
 import { CreateGenreInput, ListGenresQuery, UpdateGenreInput } from './genre.schema';
 
 /**
- * Vista pública de un género: es lo que sale en todas las respuestas de la API.
+ * Vista pública de un género: es lo que sale en el listado, en el alta y en la
+ * edición.
  *
  * Incluye sus álbumes (id, título y estado) porque los necesitan las dos puntas:
  * la grilla pública muestra cuántos álbumes aprobados tiene cada género, y el
@@ -33,6 +39,24 @@ type PublicGenreAlbum = {
 };
 
 /**
+ * Vista de la ficha de un género: los mismos datos, pero con cada álbum completo.
+ * Es la que consume la página /genres/:id, que dibuja la carátula, el artista, el
+ * año y la calificación de cada uno.
+ */
+type PublicGenreDetail = {
+  id_genre: number;
+  name: string;
+  albums: PublicGenreAlbumDetail[];
+};
+
+type PublicGenreAlbumDetail = PublicGenreAlbum & {
+  release_year: number | null;
+  url_cover: string | null;
+  average_rating: number;
+  artist: { id_artist: number; name: string } | null;
+};
+
+/**
  * Arma la vista pública de un género.
  * @param genre género de la base, con sus álbumes si la consulta los trajo.
  */
@@ -46,6 +70,30 @@ function toPublicGenre(genre: GenreWithAlbums): PublicGenre {
       id_album: album.id_album,
       title: album.title,
       state: album.state,
+    })),
+  };
+}
+
+/**
+ * Arma la vista de la ficha, con los álbumes completos.
+ * @param genre género traído con el include detallado (ver findById).
+ */
+function toPublicGenreDetail(genre: GenreWithAlbumDetails): PublicGenreDetail {
+  return {
+    id_genre: genre.id_genre,
+    name: genre.name,
+    albums: (genre.albums ?? []).map((album) => ({
+      id_album: album.id_album,
+      title: album.title,
+      state: album.state,
+      release_year: album.release_year ?? null,
+      url_cover: album.url_cover ?? null,
+      // El getter de la entidad ya lo devuelve como número: la columna es un
+      // DECIMAL y sin él llegaría como string.
+      average_rating: album.average_rating,
+      artist: album.artist
+        ? { id_artist: album.artist.id_artist, name: album.artist.name }
+        : null,
     })),
   };
 }
@@ -102,7 +150,7 @@ async function assertNameAvailable(name: string, excludeId?: number): Promise<vo
  * Busca el género por id o corta con 404 si no existe. La usan todas las
  * operaciones que reciben un :id en la URL.
  */
-async function findExisting(id_genre: number): Promise<GenreWithAlbums> {
+async function findExisting(id_genre: number): Promise<GenreWithAlbumDetails> {
   const genre = await genreRepository.findById(id_genre);
   if (!genre) throw new NotFoundError('El género');
   return genre;
@@ -149,10 +197,13 @@ export const genreService = {
     return genres.map(toPublicGenre);
   },
 
-  /** Ficha de un género puntual, con los álbumes que lo tienen asignado. */
-  async getById(id_genre: number): Promise<PublicGenre> {
+  /**
+   * Ficha de un género puntual, con los álbumes que lo tienen asignado y todo lo
+   * que hace falta para dibujarlos: carátula, artista, año y calificación.
+   */
+  async getById(id_genre: number): Promise<PublicGenreDetail> {
     const genre = await findExisting(id_genre);
-    return toPublicGenre(genre);
+    return toPublicGenreDetail(genre);
   },
 
   /**

@@ -1,15 +1,41 @@
 // Acceso a datos de la feature genre: consultas a la tabla genres para el CRUD
 // del catálogo. Es la única capa que habla con Sequelize.
 import { Op } from 'sequelize';
-import { Album, Genre } from '../../entities';
+import { Album, Artist, Genre } from '../../entities';
 import { ContentState } from '../../shared/types/enums';
 
-/** Álbum reducido a lo mínimo que hace falta para mostrar la ficha de un género. */
+/**
+ * Álbum reducido a lo mínimo: alcanza para contar cuántos tiene cada género y
+ * para saber cuáles bloquean su eliminación. Es lo que devuelve el listado.
+ */
 export type GenreAlbum = {
   id_album: number;
   title: string;
   /** Se trae para poder mostrar solo los aprobados sin una consulta aparte. */
   state: ContentState;
+};
+
+/** Artista del álbum, reducido a lo que se muestra debajo del título. */
+export type GenreAlbumArtist = {
+  id_artist: number;
+  name: string;
+};
+
+/**
+ * Álbum con todo lo que dibuja la ficha del género: carátula, artista, año y
+ * calificación promedio.
+ *
+ * Va aparte de GenreAlbum a propósito. El listado trae los once géneros de una,
+ * con sus 405 álbumes: pedirle a esa consulta la carátula y un JOIN con artista
+ * sería traer datos que la grilla de /music no usa (solo cuenta). La ficha, en
+ * cambio, es un género solo y ahí sí hace falta todo.
+ */
+export type GenreAlbumDetail = GenreAlbum & {
+  release_year: number | null;
+  url_cover: string | null;
+  average_rating: number;
+  /** null si el álbum quedó sin artista, aunque hoy la FK lo exige. */
+  artist?: GenreAlbumArtist | null;
 };
 
 /** Género reducido a lo que hace falta para comparar nombres entre sí. */
@@ -29,6 +55,11 @@ export type GenreNameRow = {
  */
 export type GenreWithAlbums = Genre & {
   albums?: GenreAlbum[];
+};
+
+/** Lo mismo, pero con los álbumes completos: es lo que devuelve findById. */
+export type GenreWithAlbumDetails = Genre & {
+  albums?: GenreAlbumDetail[];
 };
 
 /** Filtros opcionales del listado. Sin ninguno, devuelve los géneros completos. */
@@ -53,6 +84,17 @@ const albumsInclude = {
   through: { attributes: [] },
 };
 
+// Versión completa para la ficha: suma la carátula, el año, la calificación y el
+// artista. El include anidado es el que trae el artista de cada álbum, para no
+// tener que pedirlos aparte y armar el cruce a mano.
+const albumsDetailInclude = {
+  model: Album,
+  as: 'albums',
+  attributes: ['id_album', 'title', 'state', 'release_year', 'url_cover', 'average_rating'],
+  through: { attributes: [] },
+  include: [{ model: Artist, as: 'artist', attributes: ['id_artist', 'name'] }],
+};
+
 /**
  * Arma la cláusula where del listado a partir de los filtros recibidos.
  * @param filters nombre a filtrar.
@@ -75,12 +117,15 @@ export const genreRepository = {
     return genres as GenreWithAlbums[];
   },
 
-  findById: async (id_genre: number): Promise<GenreWithAlbums | null> => {
+  // La ficha del género: un solo género, pero con sus álbumes completos y
+  // ordenados por título, que es como los lista la página.
+  findById: async (id_genre: number): Promise<GenreWithAlbumDetails | null> => {
     const genre = await Genre.findByPk(id_genre, {
-      include: [albumsInclude],
+      include: [albumsDetailInclude],
+      order: [[{ model: Album, as: 'albums' }, 'title', 'ASC']],
     });
 
-    return genre as GenreWithAlbums | null;
+    return genre as GenreWithAlbumDetails | null;
   },
 
   // Nombres de todos los géneros, sin includes: es lo único que necesita la
