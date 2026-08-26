@@ -7,6 +7,7 @@
 // Es presentacional: no conoce la API ni los usuarios, solo avisa al padre
 // (AdminUsersPanel) con onSave / onDiscard.
 import { Save, Undo2 } from 'lucide-react';
+import { Button } from '../../../core/components/Button';
 
 type RoleChangesBarProps = {
   /** Cantidad de roles modificados y todavía sin guardar. */
@@ -31,25 +32,15 @@ export const RoleChangesBar = ({ count, isSaving, onSave, onDiscard }: RoleChang
       </p>
 
       <div className="admin-users__changes-actions">
-        <button
-          type="button"
-          className="admin-users__discard-btn"
-          onClick={onDiscard}
-          disabled={isSaving}
-        >
+        <Button variant="subtle" onClick={onDiscard} disabled={isSaving}>
           <Undo2 size={16} aria-hidden="true" />
           Descartar
-        </button>
+        </Button>
 
-        <button
-          type="button"
-          className="admin-users__save-btn"
-          onClick={onSave}
-          disabled={isSaving}
-        >
+        <Button onClick={onSave} disabled={isSaving}>
           <Save size={16} aria-hidden="true" />
           {isSaving ? 'Guardando...' : 'Guardar cambios'}
-        </button>
+        </Button>
       </div>
     </div>
   );

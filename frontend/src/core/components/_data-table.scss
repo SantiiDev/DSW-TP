@@ -1,0 +1,103 @@
+// Estilos de la tabla de datos reutilizable (core/components/DataTable.tsx).
+// Reemplaza a los bloques __table-wrapper / __table que estaban repetidos en
+// _admin.scss, _artist.scss y _genre.scss.
+@use '../../styles/abstracts/variable' as *;
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  // El wrapper es el que scrollea, no la tabla: así el borde redondeado queda
+  // fijo y lo que se mueve es el contenido.
+  &__wrapper {
+    overflow-x: auto;
+    border: 1px solid $color-nav-border;
+    border-radius: 12px;
+    // Sin esto el wrapper no se achica por debajo del ancho de la tabla y estira
+    // la página entera en mobile, en vez de mostrar su propio scroll.
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  th,
+  td {
+    padding: 0.75rem $spacing-md;
+    text-align: left;
+    border-bottom: 1px solid $color-nav-border;
+  }
+
+  th {
+    background-color: $color-bg;
+    color: $color-text-secondary;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  td {
+    color: $color-text;
+  }
+
+  // La última fila no lleva línea: la cierra el borde del wrapper.
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  // Alineación vertical de las celdas, según si alguna columna tiene dos líneas.
+  &--top td {
+    vertical-align: top;
+  }
+
+  &--middle td {
+    vertical-align: middle;
+  }
+
+  // --- Piezas que se repiten dentro de las celdas --------------------------
+
+  // Grupo de botones de acción de una fila.
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  // Celda de identificación (nombre, o avatar + nombre): la que define el ancho
+  // mínimo de la primera columna para que no quede espachurrada.
+  &__name-cell {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    min-width: 140px;
+  }
+
+  // Variante en dos líneas: nombre arriba, detalle abajo.
+  &__name-cell--stacked {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    min-width: 180px;
+  }
+
+  // Texto de apoyo debajo del nombre. Una línea, cortada con puntos suspensivos
+  // para que no estire la columna.
+  &__hint {
+    max-width: 320px;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Celda sin acciones disponibles (el guión).
+  &__no-action {
+    color: $color-text-secondary;
+  }
+}

@@ -1,5 +1,6 @@
 // Sección de listas top que muestra un ranking de las listas más populares de la comunidad.
-import { Trophy, ChevronRight, Heart } from 'lucide-react';
+import { Trophy, Heart } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Datos mock de listas populares (se reemplazará por datos del backend más adelante)
@@ -19,15 +20,13 @@ export const TopListsSection = () => {
 
   return (
     <section className="top-lists">
-      <div className="top-lists__header">
-        <div className="top-lists__header-left">
-          <Trophy size={20} className="top-lists__header-icon" />
-          <h2 className="top-lists__title">Top Listas</h2>
-        </div>
-        <button className="top-lists__see-all" onClick={openSignup}>
-          Ver todas <ChevronRight size={16} />
-        </button>
-      </div>
+      <SectionHeader
+        icon={<Trophy size={20} />}
+        title="Top Listas"
+        iconTone="gold"
+        actionLabel="Ver todas"
+        onAction={openSignup}
+      />
 
       <div className="top-lists__list">
         {TOP_LISTS.map((list, index) => (

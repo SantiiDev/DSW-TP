@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, UserX } from 'lucide-react';
+import { Alert } from '../../../core/components/Alert';
 import { useAuth } from '../../../core/context/AuthContext';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
@@ -114,13 +115,7 @@ export const UserProfilePage = () => {
   const renderContent = () => {
     if (isLoading) return <Loader message="Cargando perfil..." />;
 
-    if (loadError) {
-      return (
-        <p className="user-profile-page__error" role="alert">
-          {loadError}
-        </p>
-      );
-    }
+    if (loadError) return <Alert tone="error">{loadError}</Alert>;
 
     if (!viewedUser) return <Loader message="Cargando perfil..." />;
 
@@ -203,9 +198,9 @@ export const UserProfilePage = () => {
 
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
-        title="Eliminar cuenta"
-        message="¿Seguro que querés eliminar tu cuenta? Se borrarán todos tus datos y esta acción no se puede deshacer."
-        confirmLabel="Eliminar cuenta"
+        title="Dar de baja la cuenta"
+        message="¿Seguro que querés dar de baja tu cuenta? Vas a salir de la sesión y no vas a poder volver a entrar. Tus reseñas se mantienen, y un administrador puede reactivarla si cambiás de opinión."
+        confirmLabel="Dar de baja"
         isDestructive
         onConfirm={handleConfirmDelete}
         onCancel={() => setIsDeleteDialogOpen(false)}

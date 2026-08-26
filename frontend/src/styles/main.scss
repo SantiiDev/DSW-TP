@@ -7,6 +7,13 @@
 @use 'base/typography';
 
 // Core Components
+@use '../core/components/button';
+@use '../core/components/card';
+@use '../core/components/badge';
+@use '../core/components/alert';
+@use '../core/components/form-field';
+@use '../core/components/data-table';
+@use '../core/components/section-header';
 @use '../core/components/navbar';
 @use '../core/components/footer';
 @use '../core/components/fade-in-section';

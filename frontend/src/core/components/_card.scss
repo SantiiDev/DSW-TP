@@ -1,0 +1,46 @@
+// Estilos de la tarjeta reutilizable (core/components/Card.tsx).
+@use '../../styles/abstracts/variable' as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  // Un item de flex arranca con min-width: auto, o sea que no baja del ancho de
+  // su contenido. Sin esto una tarjeta con una tabla adentro estira la página en
+  // mobile en vez de dejar que la tabla scrollee dentro de su propio wrapper.
+  min-width: 0;
+
+  // Tarjeta de primer nivel: la que se apoya sobre el fondo de la página.
+  &--panel {
+    padding: $spacing-lg;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 16px;
+  }
+
+  // Tarjeta anidada: sin marco propio, porque el marco ya lo puso la de afuera.
+  // Se apoya en una línea inferior para separarse de lo que viene después.
+  &--plain {
+    padding: 0 0 $spacing-lg;
+    border-bottom: 1px solid $color-nav-border;
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 0.88rem;
+    color: $color-text-secondary;
+  }
+}

@@ -38,6 +38,16 @@ type SelectProps<T extends string | number> = {
   ariaLabel?: string;
   /** 'sm' para tablas y barras de filtros, 'md' para formularios. */
   size?: 'sm' | 'md';
+  /**
+   * Resalta el control en verde. Lo usa la tabla de usuarios para marcar un rol
+   * elegido y todavía sin guardar.
+   *
+   * Es una prop y no una clase que mande la feature porque el estilo base ya fija
+   * el borde: una clase de afuera con la misma especificidad ganaría o perdería
+   * según el orden en que se carguen las hojas de estilo, que no es el mismo en
+   * desarrollo que en el build.
+   */
+  highlighted?: boolean;
   /** Estira el control al ancho del contenedor (formularios, filtros en columna). */
   fullWidth?: boolean;
   /** Clases extra para el botón, por si una feature necesita destacarlo. */
@@ -51,6 +61,13 @@ const MAX_PANEL_HEIGHT = 260;
 // Separación entre el botón y el panel.
 const PANEL_GAP = 4;
 
+// Ancho máximo del panel (tiene que coincidir con el max-width del CSS). Se usa
+// para que, cuando el panel crece más que el botón, no se salga de la pantalla.
+const MAX_PANEL_WIDTH = 320;
+
+// Aire mínimo contra el borde de la ventana.
+const VIEWPORT_MARGIN = 8;
+
 /**
  * Posición del panel en la ventana.
  *
@@ -61,7 +78,12 @@ const PANEL_GAP = 4;
  */
 type PanelPosition = {
   left: number;
-  width: number;
+  /**
+   * El panel arranca del ancho del botón, pero crece si alguna opción no entra:
+   * las opciones tienen que poder leerse enteras aunque el botón sea angosto.
+   * El techo lo pone MAX_PANEL_WIDTH.
+   */
+  minWidth: number;
   /** Se usa uno u otro según hacia dónde se abra. */
   top?: number;
   bottom?: number;
@@ -76,6 +98,7 @@ export function Select<T extends string | number>({
   id,
   ariaLabel,
   size = 'md',
+  highlighted = false,
   fullWidth = false,
   className = '',
 }: SelectProps<T>) {
@@ -105,9 +128,13 @@ export function Select<T extends string | number>({
     // últimas filas de una tabla larga).
     const opensUpwards = spaceBelow < MAX_PANEL_HEIGHT && rect.top > spaceBelow;
 
+    // El panel puede terminar más ancho que el botón, así que se corre a la
+    // izquierda si con ese ancho llegaría a pasarse del borde de la ventana.
+    const maxLeft = window.innerWidth - MAX_PANEL_WIDTH - VIEWPORT_MARGIN;
+
     setPosition({
-      left: rect.left,
-      width: rect.width,
+      left: Math.max(VIEWPORT_MARGIN, Math.min(rect.left, maxLeft)),
+      minWidth: rect.width,
       ...(opensUpwards
         ? { bottom: window.innerHeight - rect.top + PANEL_GAP }
         : { top: rect.bottom + PANEL_GAP }),
@@ -224,6 +251,7 @@ export function Select<T extends string | number>({
     'select__trigger',
     `select__trigger--${size}`,
     isOpen ? 'select__trigger--open' : '',
+    highlighted ? 'select__trigger--highlighted' : '',
     className,
   ]
     .filter(Boolean)

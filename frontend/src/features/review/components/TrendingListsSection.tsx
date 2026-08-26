@@ -1,5 +1,6 @@
 // Sección de listas en tendencia que muestra un feed vertical de cards con listas populares recientes.
-import { TrendingUp, Heart, MessageCircle, Music, ChevronRight } from 'lucide-react';
+import { TrendingUp, Heart, MessageCircle, Music } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Datos mock de listas en tendencia con portadas simuladas
@@ -181,15 +182,13 @@ export const TrendingListsSection = () => {
 
   return (
     <section className="trending-lists">
-      <div className="trending-lists__header">
-        <div className="trending-lists__header-left">
-          <TrendingUp size={22} className="trending-lists__header-icon" />
-          <h2 className="trending-lists__title">Listas en Tendencia</h2>
-        </div>
-        <button className="trending-lists__see-all" onClick={openSignup}>
-          Ver todas <ChevronRight size={16} />
-        </button>
-      </div>
+      <SectionHeader
+        icon={<TrendingUp size={22} />}
+        title="Listas en Tendencia"
+        iconTone="fire"
+        actionLabel="Ver todas"
+        onAction={openSignup}
+      />
 
       <div className="trending-lists__feed">
         {TRENDING_LISTS.map((list) => (

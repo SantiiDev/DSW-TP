@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical para buscar música filtrada por décadas.
 import { Calendar } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const DECADES = [
@@ -17,12 +18,10 @@ export const BrowseByDecadeSection = () => {
   const { openSignup } = useAuthModal();
   return (
     <section className="explore-section">
-      <div className="explore-section__header">
-        <div className="explore-section__header-left">
-          <Calendar size={22} className="explore-section__header-icon" />
-          <h2 className="explore-section__title">Explorar por Década</h2>
-        </div>
-      </div>
+      <SectionHeader
+        icon={<Calendar size={22} />}
+        title="Explorar por Década"
+      />
 
       <div className="decade-grid">
         {DECADES.map((item) => (

@@ -12,6 +12,7 @@
 //     onCancel={...}
 //   />
 import { useEffect } from 'react';
+import { Button } from './Button';
 import './_modal.scss';
 
 type ConfirmDialogProps = {
@@ -68,16 +69,14 @@ export const ConfirmDialog = ({
         <p className="modal__message">{message}</p>
 
         <div className="modal__actions">
-          <button type="button" className="modal__cancel-btn" onClick={onCancel}>
+          <Button variant="subtle" onClick={onCancel}>
             {cancelLabel}
-          </button>
-          <button
-            type="button"
-            className={`modal__confirm-btn ${isDestructive ? 'modal__confirm-btn--danger' : ''}`}
-            onClick={onConfirm}
-          >
+          </Button>
+          {/* En una acción destructiva el botón de confirmar va en rojo, para que
+              no se apriete de memoria como si fuera un "aceptar" cualquiera. */}
+          <Button variant={isDestructive ? 'danger' : 'primary'} onClick={onConfirm}>
             {confirmLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

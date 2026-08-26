@@ -1,0 +1,88 @@
+// Estilos de la cabecera de sección (core/components/SectionHeader.tsx).
+// Reemplaza a los bloques __header / __header-left / __header-icon / __title /
+// __see-all que estaban repetidos en _music-explore, _lists-explore y
+// _members-explore.
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/breakpoints' as *;
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__icon {
+    display: inline-flex;
+    // Sin esto el ícono se achica cuando el título es largo y no entra.
+    flex-shrink: 0;
+
+    &--primary {
+      color: $color-primary;
+    }
+
+    &--gold {
+      color: #FECA57;
+    }
+
+    &--fire {
+      color: #FF6B35;
+    }
+
+    // El disco de "Nuevos Lanzamientos" gira despacio, como un vinilo.
+    &--spin {
+      animation: spin-disc 4s linear infinite;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: $color-text;
+
+    @media (max-width: $bp-md) {
+      font-size: 1.15rem;
+    }
+  }
+
+  // "Ver todos": es texto con una flecha, no un botón con caja, para que no
+  // compita con el título de la sección.
+  &__action {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    padding: 0;
+    color: $color-primary;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+// La animación vivía en _music-explore.scss, junto al único ícono que la usaba.
+// Se muda acá con el componente que la aplica.
+@keyframes spin-disc {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

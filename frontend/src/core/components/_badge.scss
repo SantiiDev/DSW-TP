@@ -1,0 +1,32 @@
+// Estilos de la pastilla de estado (core/components/Badge.tsx).
+@use 'sass:color';
+@use '../../styles/abstracts/variable' as *;
+
+// Color de cada tono. Todas las pastillas se pintan igual (fondo al 15% y texto
+// al color pleno), así que se recorre el mapa en vez de escribir cinco bloques
+// iguales.
+$badge-tones: (
+  'neutral': $color-text-secondary,
+  'success': $color-primary,
+  'danger': color.adjust($color-error, $lightness: 8%),
+  'warning': #E5A50A,
+  'info': #4A9DE2,
+);
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+
+  @each $tone, $tone-color in $badge-tones {
+    &--#{$tone} {
+      background-color: rgba($tone-color, 0.15);
+      color: $tone-color;
+    }
+  }
+}

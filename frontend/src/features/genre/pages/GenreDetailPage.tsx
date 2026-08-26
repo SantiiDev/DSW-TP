@@ -6,16 +6,17 @@
 // duplicaría lo mismo.
 //
 // Es una página pública, igual que el explorador: leer géneros no pide token.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Disc3, LayoutGrid, List } from 'lucide-react';
+import { Alert } from '../../../core/components/Alert';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
 import { Loader } from '../../../core/components/Loader';
 import { EmptyState } from '../../../core/components/EmptyState';
-import { getErrorMessage } from '../../../core/utils/errorHandler';
+import { useFetch } from '../../../core/hooks/useFetch';
 import { genreService } from '../services/genreService';
-import type { Genre, GenreAlbum } from '../models/Genre';
+import type { GenreAlbum } from '../models/Genre';
 import { GenreAlbumList } from '../components/GenreAlbumList';
 import type { AlbumView } from '../components/GenreAlbumList';
 import { GenreFilters } from '../components/GenreFilters';
@@ -46,40 +47,26 @@ export const GenreDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [genre, setGenre] = useState<Genre | null>(null);
-  // Todos los géneros, solo para el desplegable que permite saltar a otro.
-  const [genres, setGenres] = useState<Genre[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [view, setView] = useState<AlbumView>('list');
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [yearMode, setYearMode] = useState<YearMode>('exact');
-
-  const loadGenre = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Las dos consultas son independientes, así que salen juntas en vez de una
-      // después de la otra.
+  // Las dos consultas son independientes, así que salen juntas en vez de una
+  // después de la otra: la ficha del género y la lista completa, esta última
+  // solo para el desplegable que permite saltar a otro.
+  const { data, isLoading, error } = useFetch(
+    async () => {
       const [detail, all] = await Promise.all([
         genreService.getById(Number(id)),
         genreService.list(),
       ]);
+      return { genre: detail, genres: all };
+    },
+    id
+  );
 
-      setGenre(detail);
-      setGenres(all);
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [id]);
+  const genre = data?.genre ?? null;
+  const genres = data?.genres ?? [];
 
-  useEffect(() => {
-    void loadGenre();
-  }, [loadGenre]);
+  const [view, setView] = useState<AlbumView>('list');
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [yearMode, setYearMode] = useState<YearMode>('exact');
 
   // Al cambiar de género el filtro de año se reinicia: los años del género
   // anterior no tienen por qué existir en el nuevo.
@@ -110,9 +97,7 @@ export const GenreDetailPage = () => {
         {isLoading ? (
           <Loader message="Cargando el género..." />
         ) : error ? (
-          <p className="genre-detail__error" role="alert">
-            {error}
-          </p>
+          <Alert tone="error">{error}</Alert>
         ) : genre ? (
           <>
             <header className="genre-detail__header">

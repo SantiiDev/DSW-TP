@@ -4,10 +4,14 @@
 // Concentra el estado y las llamadas a la API, y delega el dibujo en ArtistForm,
 // ArtistFilterBar y ArtistAdminTable. Vive en la feature artist y no en la feature
 // user para que el panel (AdminMusicPanel) solo tenga que montarla.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { Alert } from '../../../core/components/Alert';
+import { Button } from '../../../core/components/Button';
+import { Card } from '../../../core/components/Card';
 import { Loader } from '../../../core/components/Loader';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { Select } from '../../../core/components/Select';
+import { useFetch } from '../../../core/hooks/useFetch';
 import { useAuth } from '../../../core/context/AuthContext';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { artistService } from '../services/artistService';
@@ -52,9 +56,6 @@ export const ArtistAdminSection = () => {
   const { state: authState } = useAuth();
   const isAdmin = authState.user?.isAdmin ?? false;
 
-  const [artists, setArtists] = useState<Artist[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [stateFilter, setStateFilter] = useState<ContentState>('approved');
   // Lo que se está escribiendo en el buscador, y lo último que se buscó de verdad:
@@ -76,27 +77,21 @@ export const ArtistAdminSection = () => {
   // que el botón no hizo nada.
   const formRef = useRef<HTMLElement>(null);
 
-  const loadArtists = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      setArtists(
-        await artistService.list({
-          state: stateFilter,
-          name: appliedSearch || undefined,
-        })
-      );
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [stateFilter, appliedSearch]);
-
-  useEffect(() => {
-    void loadArtists();
-  }, [loadArtists]);
+  // Se vuelve a pedir cada vez que cambia el estado elegido o la búsqueda
+  // aplicada: el filtrado lo resuelve la API, no el cliente.
+  const {
+    data,
+    isLoading,
+    error,
+    reload: loadArtists,
+    setError,
+  } = useFetch(
+    () => artistService.list({ state: stateFilter, name: appliedSearch || undefined }),
+    // La clave junta los dos valores de los que depende el listado: cambiar
+    // cualquiera de los dos tiene que volver a pedirlo.
+    `${stateFilter}|${appliedSearch}`
+  );
+  const artists = data ?? [];
 
   /**
    * Aplica un filtro nuevo (estado o búsqueda) y vuelve a la primera página: el
@@ -218,25 +213,18 @@ export const ArtistAdminSection = () => {
 
   return (
     <div className="artist-admin">
-      {error && (
-        <p className="artist-admin__error" role="alert">
-          {error}
-        </p>
-      )}
-
-      {feedback && (
-        <p className="artist-admin__feedback" role="status">
-          {feedback}
-        </p>
-      )}
+      {error && <Alert tone="error">{error}</Alert>}
+      {feedback && <Alert tone="success">{feedback}</Alert>}
 
       {/* El formulario es el mismo para alta y edición. La key lo remonta al
           cambiar de artista, así arranca con los valores del que se eligió. */}
-      <section className="artist-admin__form-block" ref={formRef}>
-        <h3 className="artist-admin__form-title">
-          {editingArtist ? `Editando a ${editingArtist.name}` : 'Agregar artista'}
-        </h3>
-
+      {/* variant="plain": esta sección ya vive adentro de la Card del panel de
+          música, y dos marcos anidados del mismo color se ven mal. */}
+      <Card
+        ref={formRef}
+        variant="plain"
+        title={editingArtist ? `Editando a ${editingArtist.name}` : 'Agregar artista'}
+      >
         {editingArtist ? (
           <ArtistForm
             key={editingArtist.id}
@@ -253,7 +241,7 @@ export const ArtistAdminSection = () => {
         ) : (
           <ArtistForm key="new" isSubmitting={isSubmitting} onSubmit={handleCreate} />
         )}
-      </section>
+      </Card>
 
       <div className="artist-admin__toolbar">
         <h3 className="artist-admin__list-title">Artistas del catálogo ({artists.length})</h3>
@@ -309,13 +297,12 @@ export const ArtistAdminSection = () => {
               <p className="artist-admin__more-count">
                 Mostrando {visibleArtists.length} de {artists.length} artistas.
               </p>
-              <button
-                type="button"
-                className="artist-admin__more-btn"
+              <Button
+                variant="outline"
                 onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}
               >
                 Ver más artistas
-              </button>
+              </Button>
             </div>
           )}
         </>

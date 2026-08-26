@@ -5,8 +5,8 @@
 // esos endpoints existan, se reemplaza el EmptyState por el listado real sin
 // tocar ni la cabecera ni la navegación de pestañas: es lo que ya se hizo con
 // "Aportes", que lista los artistas propuestos por el dueño del perfil.
-import { Link } from 'react-router-dom';
 import { Activity, CreditCard, Disc3, Music, Star } from 'lucide-react';
+import { ButtonLink } from '../../../core/components/Button';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { ROLE_LABELS } from '../models/User';
 import type { User } from '../models/User';
@@ -42,9 +42,9 @@ export const ProfileTabContent = ({ user, isOwnProfile, activeTab }: ProfileTabC
             )}
             action={
               isOwnProfile ? (
-                <Link to="/music" className="profile-panel__cta">
+                <ButtonLink to="/music" size="sm">
                   Explorar música
-                </Link>
+                </ButtonLink>
               ) : undefined
             }
           />
@@ -117,9 +117,9 @@ export const ProfileTabContent = ({ user, isOwnProfile, activeTab }: ProfileTabC
             </div>
 
             {user.rol === 'FREE' ? (
-              <Link to="/pro" className="profile-membership__cta">
+              <ButtonLink to="/pro" size="sm">
                 Mejorar mi plan
-              </Link>
+              </ButtonLink>
             ) : (
               <p className="profile-membership__note">
                 <CreditCard size={16} aria-hidden="true" />

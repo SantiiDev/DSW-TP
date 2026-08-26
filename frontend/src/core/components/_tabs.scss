@@ -3,6 +3,7 @@
 // necesitó las mismas pestañas, para no tener dos copias que se desincronicen.
 @use '../../styles/abstracts/variable' as *;
 @use '../../styles/abstracts/breakpoints' as *;
+@use '../../styles/abstracts/mixins' as *;
 
 .tabs {
   border-bottom: 1px solid $color-nav-border;
@@ -36,6 +37,8 @@
     white-space: nowrap;
     cursor: pointer;
     transition: color 0.2s ease;
+    // Después de `font: inherit`, que reescribe el line-height.
+    @include control-centrado;
 
     &:hover {
       color: $color-text;

@@ -6,6 +6,8 @@
 // posible duplicado. El nombre repetido lo sigue rechazando el backend con un 409.
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { Button } from '../../../core/components/Button';
+import { FormField, TextInput } from '../../../core/components/FormField';
 import type { GenreInput } from '../services/genreService';
 import '../styles/_genre.scss';
 
@@ -49,14 +51,10 @@ export const GenreForm = ({
 
   return (
     <form className="genre-form" onSubmit={handleSubmit}>
-      <div className="genre-form__field">
-        <label htmlFor="genre-name" className="genre-form__label">
-          Nombre
-        </label>
-        <input
+      <FormField id="genre-name" label="Nombre">
+        <TextInput
           id="genre-name"
           type="text"
-          className="genre-form__input"
           placeholder="Rock Nacional, Jazz, Trip Hop..."
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -65,22 +63,17 @@ export const GenreForm = ({
           maxLength={60}
           required
         />
-      </div>
+      </FormField>
 
       <div className="genre-form__actions">
-        <button type="submit" className="genre-form__submit-btn" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Guardando...' : submitLabel}
-        </button>
+        </Button>
 
         {onCancel && (
-          <button
-            type="button"
-            className="genre-form__cancel-btn"
-            disabled={isSubmitting}
-            onClick={onCancel}
-          >
+          <Button variant="subtle" disabled={isSubmitting} onClick={onCancel}>
             Cancelar
-          </button>
+          </Button>
         )}
       </div>
     </form>

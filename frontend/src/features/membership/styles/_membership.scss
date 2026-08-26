@@ -1,6 +1,7 @@
 @use "sass:color";
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 // ─── Tokens exclusivos de la página Pro ─────────────────────
 $pro-green: $color-primary; // #1ED760
@@ -933,7 +934,7 @@ $pro-section-max: calc(1150px + #{$spacing-md} * 2);
   }
 
   &__panel-cta {
-    display: inline-block;
+    @include control-centrado;
     padding: 0.6rem 1.4rem;
     border-radius: 30px;
     background-color: $pro-green;

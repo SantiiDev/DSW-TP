@@ -1,6 +1,7 @@
 @use "sass:color";
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 .cta-section {
   padding: $spacing-xl $spacing-md;
@@ -24,32 +25,6 @@
       transform: translateY(-6px);
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
       background-color: color.adjust(#181818, $lightness: 3%);
-    }
-  }
-
-  &__crosshair {
-    position: absolute;
-    color: #444;
-    font-size: 1.5rem;
-    line-height: 1;
-    user-select: none;
-    transform: translate(-50%, -50%);
-    
-    &--tl {
-      top: 0;
-      left: 0;
-    }
-    &--tr {
-      top: 0;
-      left: 100%;
-    }
-    &--bl {
-      top: 100%;
-      left: 0;
-    }
-    &--br {
-      top: 100%;
-      left: 100%;
     }
   }
 
@@ -85,7 +60,7 @@
   // Sirve tanto para los <button> del visitante como para los <a> del router
   // que ve el usuario logueado.
   &__btn {
-    display: inline-block;
+    @include control-centrado;
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
     font-weight: 600;

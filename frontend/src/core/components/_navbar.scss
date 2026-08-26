@@ -1,6 +1,7 @@
 @use "sass:color";
 @use '../../styles/abstracts/variable' as *;
 @use '../../styles/abstracts/breakpoints' as *;
+@use '../../styles/abstracts/mixins' as *;
 
 .navbar {
   background-color: $color-nav-bg;
@@ -90,6 +91,7 @@
   }
 
   &__link {
+    @include control-centrado;
     color: $color-text-secondary;
     font-size: 0.95rem;
     font-weight: 500;
@@ -115,22 +117,13 @@
     }
   }
 
-  &__more {
-    color: $color-text-secondary;
-    display: flex;
-    align-items: center;
-    
-    &:hover {
-      color: $color-text;
-    }
-  }
-
   &__right {
     flex: 1;
     justify-content: flex-end;
   }
 
   &__btn {
+    @include control-centrado;
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-weight: 600;

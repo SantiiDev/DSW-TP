@@ -1,7 +1,9 @@
 // Componente UI para mostrar reviewers destacados (PopularReviewers).
 // Presenta una lista vertical de usuarios populares, mostrando su avatar, nombre, insignias (badges) 
 // y género musical favorito. Incluye un botón para seguirlos, conectado al flujo de autenticación.
-import { Star, ChevronRight } from 'lucide-react';
+import { Star } from 'lucide-react';
+import { Button } from '../../../core/components/Button';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Datos iniciales de prueba (Mocks).
@@ -34,15 +36,12 @@ export const PopularReviewers = () => {
 
   return (
     <section className="popular-reviewers">
-      <div className="members-section__header">
-        <div className="members-section__header-left">
-          <Star className="members-section__header-icon" size={20} />
-          <h2 className="members-section__title">Reviewers Populares</h2>
-        </div>
-        <button className="members-section__see-all" onClick={openSignup}>
-          Ver todos <ChevronRight size={16} />
-        </button>
-      </div>
+      <SectionHeader
+        icon={<Star size={20} />}
+        title="Reviewers Populares"
+        actionLabel="Ver todos"
+        onAction={openSignup}
+      />
 
       <div className="popular-reviewers__list">
         {POPULAR_REVIEWERS.map((reviewer) => (
@@ -68,12 +67,9 @@ export const PopularReviewers = () => {
               </p>
             </div>
 
-            <button
-              className="reviewer-item__follow-btn"
-              onClick={handleFollow}
-            >
+            <Button size="sm" onClick={handleFollow}>
               Seguir
-            </button>
+            </Button>
           </div>
         ))}
       </div>

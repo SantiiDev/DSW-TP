@@ -10,7 +10,10 @@
 // reemplaza el EmptyState por su sección sin tocar ni el selector ni la pestaña.
 import { useState } from 'react';
 import { Disc3, Mic2, Music, Tags } from 'lucide-react';
+import { Card } from '../../../core/components/Card';
 import { EmptyState } from '../../../core/components/EmptyState';
+import { SegmentedControl } from '../../../core/components/SegmentedControl';
+import type { SegmentOption } from '../../../core/components/SegmentedControl';
 import { ArtistAdminSection } from '../../artist/components/ArtistAdminSection';
 import { GenreAdminSection } from '../../genre/components/GenreAdminSection';
 
@@ -22,6 +25,12 @@ const CATALOG_SECTIONS = [
 ] as const;
 
 type CatalogSectionId = (typeof CATALOG_SECTIONS)[number]['id'];
+
+// Lo que espera el selector de segmentos: value + label. El ícono de cada
+// sección solo se usa para el estado vacío, así que no viaja hasta el selector.
+const SECTION_OPTIONS: SegmentOption<CatalogSectionId>[] = CATALOG_SECTIONS.map(
+  ({ id, label }) => ({ value: id, label })
+);
 
 /** Texto del estado vacío de las entidades que todavía no tienen endpoints. */
 const PENDING_SECTIONS: Record<'albums' | 'songs', { title: string; message: string }> = {
@@ -45,29 +54,19 @@ export const AdminMusicPanel = () => {
   const Icon = section.icon;
 
   return (
-    <section className="admin-panel__block">
-      <header className="admin-panel__block-header">
-        <h2 className="admin-panel__block-title">Catálogo de música</h2>
-        <p className="admin-panel__block-subtitle">
-          Alta, edición y baja de los artistas, álbumes, canciones y géneros de Musicboxd.
-        </p>
-      </header>
-
-      <div className="admin-panel__segments" role="group" aria-label="Entidad del catálogo">
-        {CATALOG_SECTIONS.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            className={`admin-panel__segment ${
-              activeSection === id ? 'admin-panel__segment--active' : ''
-            }`}
-            aria-pressed={activeSection === id}
-            onClick={() => setActiveSection(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+    <Card
+      title="Catálogo de música"
+      subtitle="Alta, edición y baja de los artistas, álbumes, canciones y géneros de Musicboxd."
+    >
+      <SegmentedControl
+        options={SECTION_OPTIONS}
+        value={activeSection}
+        // Va envuelto y no como `setActiveSection` a secas: el tipo que espera un
+        // setter de useState admite también una función, y con eso TypeScript no
+        // logra deducir cuál es el tipo de las opciones.
+        onChange={(section) => setActiveSection(section)}
+        ariaLabel="Entidad del catálogo"
+      />
 
       {activeSection === 'artists' ? (
         <ArtistAdminSection />
@@ -80,6 +79,6 @@ export const AdminMusicPanel = () => {
           message={PENDING_SECTIONS[activeSection].message}
         />
       )}
-    </section>
+    </Card>
   );
 };

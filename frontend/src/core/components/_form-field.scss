@@ -1,0 +1,63 @@
+// Estilos del campo de formulario reutilizable (core/components/FormField.tsx).
+@use '../../styles/abstracts/variable' as *;
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  // Sin esto un campo dentro de una grilla no se achica por debajo del ancho de
+  // su input y desborda la columna.
+  min-width: 0;
+
+  &__label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  // Aclaración al lado de la etiqueta: pesa menos que el nombre del campo.
+  &__hint {
+    font-weight: 400;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  &__control {
+    width: 100%;
+    background-color: $color-bg;
+    // El borde va transparente y no ausente: si apareciera recién en el foco,
+    // el campo se movería un píxel al enfocarlo.
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    // El textarea solo se diferencia en que se puede estirar, y solo a lo alto:
+    // a lo ancho rompería la grilla del formulario.
+    &--textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.5;
+    }
+  }
+}

@@ -2,7 +2,8 @@
 // Muestra una cuadrícula (grid) horizontal de usuarios con sus respectivos avatares generados,
 // nombre de usuario y controles de seguimiento.
 import { Users } from 'lucide-react';
-import { ChevronRight } from 'lucide-react';
+import { Button } from '../../../core/components/Button';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Mocks de miembros destacados (diseñados simulando la estructura del backend para fácil integración posterior).
@@ -36,15 +37,12 @@ export const FeaturedMembers = () => {
 
   return (
     <section className="featured-members">
-      <div className="members-section__header">
-        <div className="members-section__header-left">
-          <Users className="members-section__header-icon" size={22} />
-          <h2 className="members-section__title">Miembros Destacados</h2>
-        </div>
-        <button className="members-section__see-all" onClick={openSignup}>
-          Ver todos <ChevronRight size={16} />
-        </button>
-      </div>
+      <SectionHeader
+        icon={<Users size={22} />}
+        title="Miembros Destacados"
+        actionLabel="Ver todos"
+        onAction={openSignup}
+      />
 
       <div className="featured-members__grid">
         {FEATURED_MEMBERS.map((member) => (
@@ -54,12 +52,9 @@ export const FeaturedMembers = () => {
               <p className="featured-member-card__username">{member.username}</p>
               <p className="featured-member-card__name">{member.name}</p>
             </div>
-            <button
-              className="featured-member-card__follow-btn"
-              onClick={handleFollow}
-            >
+            <Button size="sm" fullWidth onClick={handleFollow}>
               Seguir
-            </button>
+            </Button>
           </div>
         ))}
       </div>

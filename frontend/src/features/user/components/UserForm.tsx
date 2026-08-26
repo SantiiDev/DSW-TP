@@ -4,7 +4,10 @@
 // updateProfile del AuthContext).
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
+import { Alert } from '../../../core/components/Alert';
 import { Avatar } from '../../../core/components/Avatar';
+import { Button } from '../../../core/components/Button';
+import { FormField, TextInput } from '../../../core/components/FormField';
 import type { UpdateUserInput } from '../services/userService';
 
 // Imagen de ejemplo para probar el campo rápido. Es un servicio de fotos random
@@ -55,11 +58,7 @@ export const UserForm = ({
 
   return (
     <form className="user-form" onSubmit={handleSubmit}>
-      {error && (
-        <p className="user-form__error" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="error">{error}</Alert>}
 
       {/* Vista previa en vivo: el usuario ve cómo queda la foto antes de guardar. */}
       <div className="user-form__avatar-preview">
@@ -74,14 +73,10 @@ export const UserForm = ({
         </p>
       </div>
 
-      <div className="user-form__field">
-        <label htmlFor="user-form-avatar" className="user-form__label">
-          Foto de perfil (URL)
-        </label>
-        <input
+      <FormField id="user-form-avatar" label="Foto de perfil (URL)">
+        <TextInput
           id="user-form-avatar"
           type="url"
-          className="user-form__input"
           placeholder="https://ejemplo.com/mi-foto.jpg"
           value={avatarUrl}
           onChange={(e) => setAvatarUrl(e.target.value)}
@@ -92,11 +87,11 @@ export const UserForm = ({
             donde está la foto. Como el backend no puede distinguirlos (los dos son
             URLs válidas), se avisa acá, cuando el navegador falla al cargarla. */}
         {avatarFailed && (
-          <p className="user-form__avatar-warning" role="alert">
+          <Alert tone="error">
             No pudimos cargar esa imagen. Asegurate de que el link sea el de la foto y no
             el de la página donde está: hacé clic derecho sobre la imagen y elegí{' '}
             <em>Copiar dirección de imagen</em>.
-          </p>
+          </Alert>
         )}
 
         <button
@@ -106,50 +101,37 @@ export const UserForm = ({
         >
           Probar con una imagen de ejemplo
         </button>
-      </div>
+      </FormField>
 
-      <div className="user-form__field">
-        <label htmlFor="user-form-username" className="user-form__label">
-          Nombre de usuario
-        </label>
-        <input
+      <FormField id="user-form-username" label="Nombre de usuario">
+        <TextInput
           id="user-form-username"
           type="text"
-          className="user-form__input"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           minLength={3}
           maxLength={50}
           required
         />
-      </div>
+      </FormField>
 
-      <div className="user-form__field">
-        <label htmlFor="user-form-email" className="user-form__label">
-          Correo electrónico
-        </label>
-        <input
+      <FormField id="user-form-email" label="Correo electrónico">
+        <TextInput
           id="user-form-email"
           type="email"
-          className="user-form__input"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-      </div>
+      </FormField>
 
       <div className="user-form__actions">
-        <button
-          type="button"
-          className="user-form__cancel-btn"
-          onClick={onCancel}
-          disabled={isSubmitting}
-        >
+        <Button variant="subtle" fullWidth onClick={onCancel} disabled={isSubmitting}>
           Cancelar
-        </button>
-        <button type="submit" className="user-form__submit-btn" disabled={isSubmitting}>
+        </Button>
+        <Button type="submit" fullWidth disabled={isSubmitting}>
           {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
-        </button>
+        </Button>
       </div>
     </form>
   );

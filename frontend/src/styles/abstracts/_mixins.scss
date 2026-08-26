@@ -1,0 +1,19 @@
+// Mixins compartidos por los estilos del sitio.
+
+// Centra el contenido de un control (su texto, o su texto más un ícono) dentro
+// de la caja que le da el padding.
+//
+// Sin esto, un <button> o un <a> apoya su texto en la caja de línea que define
+// el line-height heredado (1.6 del body). Esa caja es más alta que las letras,
+// así que el texto no queda en el centro real del control: se nota sobre todo en
+// las mayúsculas acentuadas ("Álbumes") y en las letras con cola ("Géneros").
+//
+// IMPORTANTE: si el bloque usa el atajo `font` (por ejemplo `font: inherit`),
+// este include tiene que ir DESPUÉS. Ese atajo reescribe el line-height y, puesto
+// antes, dejaría la última línea del mixin sin efecto.
+@mixin control-centrado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}

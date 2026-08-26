@@ -1,0 +1,120 @@
+// Estilos del botón reutilizable (core/components/Button.tsx).
+//
+// Es la única definición de botón del sitio: lo que antes estaba repetido como
+// __submit-btn, __cancel-btn, __delete-btn, __approve-btn, etc. en cada feature
+// vive acá como variantes.
+@use 'sass:color';
+@use '../../styles/abstracts/variable' as *;
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  // ButtonLink dibuja un <a>: sin esto quedaría subrayado como un link común.
+  text-decoration: none;
+  // Píldora: es la forma de todos los botones del sitio.
+  border-radius: 30px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  // transform y box-shadow van incluidos para los botones que además se agrandan
+  // al pasar por encima (el submit del modal de acceso).
+  transition: opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+  // Un botón deshabilitado se ve apagado y no responde al hover: cada variante
+  // define su hover con :not(:disabled).
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  // --- Tamaños -------------------------------------------------------------
+
+  &--sm {
+    padding: 0.35rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  &--md {
+    padding: 0.6rem $spacing-lg;
+    font-size: 0.88rem;
+  }
+
+  &--lg {
+    padding: 0.75rem $spacing-md;
+    font-size: 1rem;
+  }
+
+  &--full {
+    display: flex;
+    width: 100%;
+  }
+
+  // --- Variantes -----------------------------------------------------------
+
+  // Acción principal: el verde de la marca, con texto negro para que contraste.
+  &--primary {
+    background-color: $color-primary;
+    color: #000;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+  }
+
+  // Acción secundaria con peso: se lee como botón, pero no compite con el verde.
+  &--outline {
+    background-color: transparent;
+    border-color: $color-nav-border;
+    color: $color-text;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.3);
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+  }
+
+  // Salida sin consecuencias (cancelar, descartar): la más callada de todas.
+  &--subtle {
+    background-color: transparent;
+    border-color: $color-nav-border;
+    color: $color-text-secondary;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: $color-text;
+    }
+  }
+
+  // Destructivo. Va en rojo pero sin relleno: pesa lo justo para frenar, sin
+  // gritar desde una fila de tabla.
+  &--danger {
+    background-color: transparent;
+    border-color: rgba($color-error, 0.5);
+    color: color.adjust($color-error, $lightness: 8%);
+
+    &:hover:not(:disabled) {
+      background-color: rgba($color-error, 0.12);
+      border-color: $color-error;
+    }
+  }
+
+  // Habilita o aprueba: mismo verde que primary, pero como contorno, para que
+  // no se confunda con el botón principal de la pantalla.
+  &--success {
+    background-color: transparent;
+    border-color: rgba($color-primary, 0.5);
+    color: $color-primary;
+
+    &:hover:not(:disabled) {
+      background-color: rgba($color-primary, 0.12);
+      border-color: $color-primary;
+    }
+  }
+}

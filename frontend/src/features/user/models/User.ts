@@ -1,6 +1,7 @@
 // Modelo de un usuario dentro del frontend.
 // El resto de la app trabaja SIEMPRE con esta clase; el JSON crudo del backend
 // no sale nunca de la capa de servicios (ver services/authService.ts).
+import type { BadgeTone } from '../../../core/components/Badge';
 
 /** Niveles de acceso del sistema, igual que el enum USERS.rol del backend. */
 export const USER_ROLES = ['FREE', 'PRO', 'ADMIN'] as const;
@@ -11,6 +12,16 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   FREE: 'Member',
   PRO: 'Pro',
   ADMIN: 'Admin',
+};
+
+/**
+ * Color de la pastilla de cada rol (ver core/components/Badge). Va acá, al lado
+ * de las etiquetas, para que el rol se pinte igual en el perfil y en el panel.
+ */
+export const ROLE_TONES: Record<UserRole, BadgeTone> = {
+  FREE: 'neutral',
+  PRO: 'success',
+  ADMIN: 'info',
 };
 
 /**

@@ -1,0 +1,23 @@
+// Estilos del aviso reutilizable (core/components/Alert.tsx).
+@use 'sass:color';
+@use '../../styles/abstracts/variable' as *;
+
+.alert {
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.85rem;
+
+  &--error {
+    background-color: rgba($color-error, 0.12);
+    border-color: rgba($color-error, 0.4);
+    color: color.adjust($color-error, $lightness: 15%);
+  }
+
+  &--success {
+    background-color: rgba($color-primary, 0.12);
+    border-color: rgba($color-primary, 0.4);
+    color: $color-primary;
+  }
+}

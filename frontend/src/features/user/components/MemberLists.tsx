@@ -2,6 +2,7 @@
 // Renderiza tarjetas (cards) que muestran los metadatos de la lista (título, descripción), 
 // estadísticas sociales y un collage dinámico con las portadas de los álbumes incluidos.
 import { ListMusic, Heart, MessageCircle, Share2 } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Mocks de listas de música (estructuradas con covers en array simulando los resultados de búsqueda en BD).
@@ -38,12 +39,10 @@ export const MemberLists = () => {
   const { openSignup } = useAuthModal();
   return (
     <section className="member-lists">
-      <div className="members-section__header">
-        <div className="members-section__header-left">
-          <ListMusic className="members-section__header-icon" size={20} />
-          <h2 className="members-section__title">Listas de Miembros</h2>
-        </div>
-      </div>
+      <SectionHeader
+        icon={<ListMusic size={20} />}
+        title="Listas de Miembros"
+      />
 
       <div className="member-lists__grid">
         {MEMBER_LISTS.map((list) => (

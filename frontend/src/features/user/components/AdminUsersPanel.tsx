@@ -9,10 +9,12 @@
 //
 // Todos estos endpoints exigen rol ADMIN en el backend: que la pestaña se vea
 // solo dentro de /admin es comodidad de navegación, no la protección real.
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { Alert } from '../../../core/components/Alert';
 import { Loader } from '../../../core/components/Loader';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { useAuth } from '../../../core/context/AuthContext';
+import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { userService } from '../services/userService';
 import type { CreateUserInput } from '../services/userService';
@@ -27,9 +29,9 @@ type PendingRoles = Record<number, UserRole>;
 export const AdminUsersPanel = () => {
   const { state: authState } = useAuth();
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, error, setData, setError } = useFetch(() => userService.list());
+  const users = data ?? [];
+
   const [isCreating, setIsCreating] = useState(false);
   // Fila con una operación en curso: deshabilita solo sus controles, no toda la tabla.
   const [busyUserId, setBusyUserId] = useState<number | null>(null);
@@ -44,23 +46,6 @@ export const AdminUsersPanel = () => {
   // para que el admin sepa cuántas hay sin recorrer la tabla entera.
   const suspendedCount = users.filter((user) => !user.isActive).length;
 
-  const loadUsers = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      setUsers(await userService.list());
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadUsers();
-  }, [loadUsers]);
-
   const handleCreate = async (input: CreateUserInput): Promise<boolean> => {
     setIsCreating(true);
     setError(null);
@@ -69,7 +54,7 @@ export const AdminUsersPanel = () => {
       const created = await userService.create(input);
       // Se agrega al final en vez de recargar toda la lista: es una request menos
       // y el orden coincide con el del backend, que devuelve por id ascendente.
-      setUsers((current) => [...current, created]);
+      setData((current) => [...(current ?? []), created]);
       return true;
     } catch (err) {
       setError(getErrorMessage(err));
@@ -131,7 +116,9 @@ export const AdminUsersPanel = () => {
       }
     }
 
-    setUsers((current) => current.map((u) => saved.find((s) => s.id === u.id) ?? u));
+    setData((current) =>
+      (current ?? []).map((u) => saved.find((s) => s.id === u.id) ?? u)
+    );
     setPendingRoles(stillPending);
     if (firstError) setError(firstError);
     setIsSavingRoles(false);
@@ -139,7 +126,7 @@ export const AdminUsersPanel = () => {
 
   /** Reemplaza una fila del listado por su versión actualizada. */
   const replaceUser = (updated: User) => {
-    setUsers((current) => current.map((u) => (u.id === updated.id ? updated : u)));
+    setData((current) => (current ?? []).map((u) => (u.id === updated.id ? updated : u)));
   };
 
   /**
@@ -191,11 +178,7 @@ export const AdminUsersPanel = () => {
 
   return (
     <>
-      {error && (
-        <p className="admin-users__error" role="alert">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="error">{error}</Alert>}
 
       <CreateUserForm isSubmitting={isCreating} onSubmit={handleCreate} />
 

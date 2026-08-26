@@ -1,6 +1,7 @@
 @use "sass:color";
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 // ─── Page Layout ────────────────────────────────────────────
 .music-explore {
@@ -63,6 +64,7 @@
   }
 
   &__tab {
+    @include control-centrado;
     padding: 0.6rem 1.8rem;
     border-radius: 10px;
     font-size: 0.9rem;
@@ -98,62 +100,6 @@
 // ─── Shared Section Layout ──────────────────────────────────
 .explore-section {
   margin-top: $spacing-xl;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: $spacing-lg;
-    gap: $spacing-md;
-  }
-
-  &__header-left {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-  }
-
-  &__header-icon {
-    color: $color-primary;
-    flex-shrink: 0;
-
-    &--spin {
-      animation: spin-disc 4s linear infinite;
-    }
-
-    &--fire {
-      color: #ff6b35;
-    }
-  }
-
-  &__title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: $color-text;
-    margin: 0;
-
-    @media (max-width: $bp-md) {
-      font-size: 1.15rem;
-    }
-  }
-
-  &__see-all {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: $color-primary;
-    font-size: 0.9rem;
-    font-weight: 600;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-    white-space: nowrap;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
 
   // ── Grid Layout ────────────────────
   &__grid {
@@ -490,8 +436,3 @@
   }
 }
 
-// ─── Animations ─────────────────────────────────────────────
-@keyframes spin-disc {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}

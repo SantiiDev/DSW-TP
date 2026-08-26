@@ -2,6 +2,7 @@
 // Compone tarjetas complejas que incluyen información del álbum criticado, el resumen (excerpt) 
 // de la reseña, y la valoración en estrellas del usuario, junto con sus métricas de interacción.
 import { MessageSquare, Heart, MessageCircle, Share2 } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 // Mocks de reseñas estructurados como DTOs (Data Transfer Objects) que incluirían relaciones (Reviewer y Album).
@@ -67,12 +68,10 @@ export const MemberReviews = () => {
   const { openSignup } = useAuthModal();
   return (
     <section className="member-reviews">
-      <div className="members-section__header">
-        <div className="members-section__header-left">
-          <MessageSquare className="members-section__header-icon" size={20} />
-          <h2 className="members-section__title">Reseñas de Miembros</h2>
-        </div>
-      </div>
+      <SectionHeader
+        icon={<MessageSquare size={20} />}
+        title="Reseñas de Miembros"
+      />
 
       <div className="member-reviews__list">
         {MEMBER_REVIEWS.map((review) => (

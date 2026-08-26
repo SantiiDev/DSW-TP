@@ -6,6 +6,7 @@
 // vez de una por letra.
 import type { FormEvent } from 'react';
 import { Search, X } from 'lucide-react';
+import { Button } from '../../../core/components/Button';
 import '../styles/_artist.scss';
 
 type ArtistFilterBarProps = {
@@ -44,15 +45,13 @@ export const ArtistFilterBar = ({
         />
       </div>
 
-      <button type="submit" className="artist-filter__search-btn">
-        Buscar
-      </button>
+      <Button type="submit">Buscar</Button>
 
       {hasActiveSearch && (
-        <button type="button" className="artist-filter__clear-btn" onClick={onClear}>
+        <Button variant="subtle" onClick={onClear}>
           <X size={16} aria-hidden="true" />
           Limpiar
-        </button>
+        </Button>
       )}
     </form>
   );

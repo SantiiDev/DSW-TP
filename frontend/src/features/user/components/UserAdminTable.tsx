@@ -1,6 +1,9 @@
 // Tabla de usuarios del panel de administración: muestra todas las cuentas y
 // permite elegirles otro rol, suspenderlas o reactivarlas.
 //
+// Solo define sus columnas: el armado de la tabla lo pone DataTable, el mismo
+// que usan las tablas de artistas y géneros.
+//
 // La baja es lógica: una cuenta suspendida sigue en la tabla, con su estado a la
 // vista y el botón para volver a activarla. Nunca desaparece del listado.
 //
@@ -12,6 +15,10 @@
 // Es presentacional: no llama a la API ni guarda estado propio; avisa al padre
 // (AdminUsersPanel) con onSelectRole / onSuspend / onActivate.
 import { Avatar } from '../../../core/components/Avatar';
+import { Badge } from '../../../core/components/Badge';
+import { Button } from '../../../core/components/Button';
+import { DataTable } from '../../../core/components/DataTable';
+import type { DataTableColumn } from '../../../core/components/DataTable';
 import { Select } from '../../../core/components/Select';
 import { ROLE_LABELS, USER_ROLES } from '../models/User';
 import type { User, UserRole } from '../models/User';
@@ -47,115 +54,119 @@ export const UserAdminTable = ({
   onSuspend,
   onActivate,
 }: UserAdminTableProps) => {
+  const columns: DataTableColumn<User>[] = [
+    {
+      key: 'user',
+      header: 'Usuario',
+      render: (user) => (
+        <span className="data-table__name-cell">
+          <Avatar url={user.urlAvatar} username={user.username} size="md" />
+          {user.username}
+          {user.id === currentUserId && <Badge tone="success">vos</Badge>}
+        </span>
+      ),
+    },
+    {
+      key: 'email',
+      header: 'Email',
+      render: (user) => user.email,
+    },
+    {
+      key: 'rol',
+      header: 'Rol',
+      render: (user) => {
+        // El desplegable muestra el rol pendiente si lo hay, y si no el
+        // guardado: así el admin ve lo que eligió aunque todavía no lo haya
+        // confirmado.
+        const pendingRole = pendingRoles[user.id];
+        const hasPendingChange = pendingRole !== undefined;
+        const isBusy = busyUserId === user.id;
+
+        return (
+          <span className="admin-users__role-cell">
+            <Select
+              options={ROLE_OPTIONS}
+              value={pendingRole ?? user.rol}
+              disabled={isBusy || isSaving}
+              size="sm"
+              ariaLabel={`Rol de ${user.username}`}
+              highlighted={hasPendingChange}
+              onChange={(rol) => onSelectRole(user, rol)}
+            />
+
+            {/* Deja explícito de qué rol viene, para que se entienda qué se va a
+                aplicar al guardar. */}
+            {hasPendingChange && (
+              <span className="admin-users__pending-tag">antes: {ROLE_LABELS[user.rol]}</span>
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'state',
+      header: 'Estado',
+      render: (user) => (
+        <Badge tone={user.isActive ? 'success' : 'danger'}>{user.stateLabel}</Badge>
+      ),
+    },
+    {
+      key: 'since',
+      header: 'Miembro desde',
+      render: (user) => user.registrationDate.toLocaleDateString('es-AR'),
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (user) => {
+        const isBusy = busyUserId === user.id;
+
+        // El admin no puede darse de baja a sí mismo desde el panel: se quedaría
+        // sin sesión a mitad de la pantalla. Para dar de baja la cuenta propia
+        // está /profile.
+        if (user.id === currentUserId) {
+          return <span className="data-table__no-action">—</span>;
+        }
+
+        return user.isActive ? (
+          <Button
+            variant="danger"
+            size="sm"
+            disabled={isBusy || isSaving}
+            onClick={() => onSuspend(user)}
+          >
+            Suspender
+          </Button>
+        ) : (
+          <Button
+            variant="success"
+            size="sm"
+            disabled={isBusy || isSaving}
+            onClick={() => onActivate(user)}
+          >
+            Reactivar
+          </Button>
+        );
+      },
+    },
+  ];
+
+  /** Marca la fila con un cambio de rol sin guardar y/o con la cuenta suspendida. */
+  const getRowClassName = (user: User): string | undefined => {
+    const classes = [
+      pendingRoles[user.id] !== undefined ? 'admin-users__row--pending' : '',
+      user.isActive ? '' : 'admin-users__row--suspended',
+    ].filter(Boolean);
+
+    return classes.length > 0 ? classes.join(' ') : undefined;
+  };
+
   return (
-    // El wrapper permite scroll horizontal en mobile: una tabla de 5 columnas no
-    // entra en 375px y sin esto rompería el layout de la página.
-    <div className="admin-users__table-wrapper">
-      <table className="admin-users__table">
-        <thead>
-          <tr>
-            <th>Usuario</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            <th>Miembro desde</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => {
-            const isCurrentUser = user.id === currentUserId;
-            const isBusy = busyUserId === user.id;
-
-            // El select muestra el rol pendiente si lo hay, y si no el guardado:
-            // así el admin ve lo que eligió aunque todavía no lo haya confirmado.
-            const pendingRole = pendingRoles[user.id];
-            const hasPendingChange = pendingRole !== undefined;
-            const selectedRole = pendingRole ?? user.rol;
-
-            // Una fila suspendida se atenúa para que se distinga de un vistazo,
-            // sin sacarla del listado: la cuenta sigue existiendo.
-            const rowClasses = [
-              hasPendingChange ? 'admin-users__row--pending' : '',
-              user.isActive ? '' : 'admin-users__row--suspended',
-            ]
-              .filter(Boolean)
-              .join(' ');
-
-            return (
-              <tr key={user.id} className={rowClasses || undefined}>
-                <td>
-                  <span className="admin-users__user-cell">
-                    <Avatar url={user.urlAvatar} username={user.username} size="md" />
-                    {user.username}
-                    {isCurrentUser && <span className="admin-users__you-tag">vos</span>}
-                  </span>
-                </td>
-                <td>{user.email}</td>
-                <td>
-                  <span className="admin-users__role-cell">
-                    <Select
-                      options={ROLE_OPTIONS}
-                      value={selectedRole}
-                      disabled={isBusy || isSaving}
-                      size="sm"
-                      ariaLabel={`Rol de ${user.username}`}
-                      className={hasPendingChange ? 'admin-users__role-select--pending' : ''}
-                      onChange={(rol) => onSelectRole(user, rol)}
-                    />
-
-                    {/* Deja explícito de qué rol viene, para que se entienda qué
-                        se va a aplicar al guardar. */}
-                    {hasPendingChange && (
-                      <span className="admin-users__pending-tag">
-                        antes: {ROLE_LABELS[user.rol]}
-                      </span>
-                    )}
-                  </span>
-                </td>
-                <td>
-                  <span
-                    className={`admin-users__state ${
-                      user.isActive
-                        ? 'admin-users__state--active'
-                        : 'admin-users__state--suspended'
-                    }`}
-                  >
-                    {user.stateLabel}
-                  </span>
-                </td>
-                <td>{user.registrationDate.toLocaleDateString('es-AR')}</td>
-                <td>
-                  {/* El admin no puede darse de baja a sí mismo desde el panel:
-                      se quedaría sin sesión a mitad de la pantalla. Para dar de
-                      baja la cuenta propia está /profile. */}
-                  {isCurrentUser ? (
-                    <span className="admin-users__no-action">—</span>
-                  ) : user.isActive ? (
-                    <button
-                      type="button"
-                      className="admin-users__suspend-btn"
-                      disabled={isBusy || isSaving}
-                      onClick={() => onSuspend(user)}
-                    >
-                      Suspender
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="admin-users__activate-btn"
-                      disabled={isBusy || isSaving}
-                      onClick={() => onActivate(user)}
-                    >
-                      Reactivar
-                    </button>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      columns={columns}
+      rows={users}
+      getRowKey={(user) => user.id}
+      getRowClassName={getRowClassName}
+    />
   );
 };

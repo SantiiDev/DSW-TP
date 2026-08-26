@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical que destaca lo más escuchado de la semana.
-import { Star, Flame, ChevronRight } from 'lucide-react';
+import { Star, Flame } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const POPULAR_ALBUMS = [
@@ -28,15 +29,13 @@ export const PopularThisWeekSection = ({ type }: PopularThisWeekSectionProps) =>
 
   return (
     <section className="explore-section">
-      <div className="explore-section__header">
-        <div className="explore-section__header-left">
-          <Flame size={22} className="explore-section__header-icon explore-section__header-icon--fire" />
-          <h2 className="explore-section__title">Populares Esta Semana</h2>
-        </div>
-        <button className="explore-section__see-all" onClick={openSignup}>
-          Ver todos <ChevronRight size={16} />
-        </button>
-      </div>
+      <SectionHeader
+        icon={<Flame size={22} />}
+        title="Populares Esta Semana"
+        iconTone="fire"
+        actionLabel="Ver todos"
+        onAction={openSignup}
+      />
 
       <div className="explore-section__grid explore-section__grid--3col">
         {items.map((item) => (

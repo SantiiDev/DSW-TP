@@ -1,7 +1,9 @@
 // Cabecera del perfil: avatar, nombre, rol, contadores y acciones.
 // Es presentacional; quien decide qué hacer con los botones es UserProfilePage.
 import { Avatar } from '../../../core/components/Avatar';
-import { ROLE_LABELS } from '../models/User';
+import { Badge } from '../../../core/components/Badge';
+import { Button } from '../../../core/components/Button';
+import { ROLE_LABELS, ROLE_TONES } from '../models/User';
 import type { User } from '../models/User';
 import type { ProfileStats } from '../models/ProfileStats';
 
@@ -39,9 +41,7 @@ export const ProfileHeader = ({
           <h1 className="profile-header__username">{user.username}</h1>
 
           <div className="profile-header__meta">
-            <span className={`profile-header__role profile-header__role--${user.rol.toLowerCase()}`}>
-              {ROLE_LABELS[user.rol]}
-            </span>
+            <Badge tone={ROLE_TONES[user.rol]}>{ROLE_LABELS[user.rol]}</Badge>
             <span className="profile-header__since">
               Miembro desde {user.registrationDate.toLocaleDateString('es-AR')}
             </span>
@@ -66,12 +66,12 @@ export const ProfileHeader = ({
 
         {isOwnProfile && (
           <div className="profile-header__actions">
-            <button type="button" className="profile-header__edit-btn" onClick={onEdit}>
+            <Button variant="outline" size="sm" onClick={onEdit}>
               Editar perfil
-            </button>
-            <button type="button" className="profile-header__delete-btn" onClick={onDelete}>
-              Eliminar cuenta
-            </button>
+            </Button>
+            <Button variant="danger" size="sm" onClick={onDelete}>
+              Dar de baja mi cuenta
+            </Button>
           </div>
         )}
       </div>

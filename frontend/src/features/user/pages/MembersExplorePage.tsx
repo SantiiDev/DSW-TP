@@ -2,6 +2,7 @@
 // Construye el layout de dos columnas para visualizar la comunidad.
 // Integra componentes independientes que muestran miembros destacados, reviewers populares
 // y actividad reciente (listas/reseñas), preparándolos para conectarse con el backend.
+import { Button } from '../../../core/components/Button';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
 import { FadeInSection } from '../../../core/components/FadeInSection';
@@ -35,9 +36,7 @@ export const MembersExplorePage = () => {
               leé sus reseñas y participá en la comunidad.
             </p>
             {!isAuthenticated && (
-              <button onClick={() => openSignup()} className="members-explore__cta">
-                Unirse a la comunidad
-              </button>
+              <Button onClick={() => openSignup()}>Unirse a la comunidad</Button>
             )}
           </header>
         </FadeInSection>

@@ -1,0 +1,41 @@
+// Estilos del selector de segmentos (core/components/SegmentedControl.tsx).
+//
+// No repite el subrayado de la barra de pestañas a propósito: se leería como
+// otro nivel de navegación cuando en realidad filtra la sección actual.
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/mixins' as *;
+
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+
+  &__option {
+    // El alto sale del padding y no del contenido: así todas las pastillas miden
+    // igual, tengan o no tildes o letras con cola (la "g" de "Géneros").
+    min-height: 2.15rem;
+    padding: 0 1rem;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    background-color: transparent;
+    color: $color-text-secondary;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    // Va después de `font: inherit`: ese atajo reescribe el line-height.
+    @include control-centrado;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &--active {
+      background-color: rgba($color-primary, 0.15);
+      border-color: $color-primary;
+      color: $color-primary;
+    }
+  }
+}

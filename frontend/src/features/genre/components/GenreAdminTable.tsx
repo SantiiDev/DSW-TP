@@ -1,10 +1,15 @@
 // Tabla de géneros del panel de administración: muestra el catálogo con cuántos
 // álbumes tiene cada uno y los botones de editar y eliminar.
 //
-// Es presentacional, igual que ArtistAdminTable: no llama a la API ni guarda
-// estado propio; avisa al padre (GenreAdminSection) con los handlers que recibe.
+// Solo define sus columnas: el armado de la tabla (wrapper con scroll, cabecera,
+// filas) lo pone DataTable, el mismo que usan las tablas de artistas y usuarios.
+//
+// Es presentacional: no llama a la API ni guarda estado propio; avisa al padre
+// (GenreAdminSection) con los handlers que recibe.
+import { Button } from '../../../core/components/Button';
+import { DataTable } from '../../../core/components/DataTable';
+import type { DataTableColumn } from '../../../core/components/DataTable';
 import type { Genre } from '../models/Genre';
-import '../styles/_genre.scss';
 
 type GenreAdminTableProps = {
   genres: Genre[];
@@ -20,57 +25,40 @@ export const GenreAdminTable = ({
   onEdit,
   onDelete,
 }: GenreAdminTableProps) => {
-  return (
-    // El wrapper le da scroll horizontal propio a la tabla: tres columnas con
-    // botones no entran en 375px y sin esto rompería el layout de la página.
-    <div className="genre-admin__table-wrapper">
-      <table className="genre-admin__table">
-        <thead>
-          <tr>
-            <th>Género</th>
-            <th>Álbumes</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {genres.map((genre) => {
-            const isBusy = busyGenreId === genre.id;
+  const columns: DataTableColumn<Genre>[] = [
+    {
+      key: 'name',
+      header: 'Género',
+      render: (genre) => <span className="data-table__name-cell">{genre.name}</span>,
+    },
+    {
+      key: 'albums',
+      header: 'Álbumes',
+      render: (genre) => genre.albumsCount,
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (genre) => {
+        const isBusy = busyGenreId === genre.id;
 
-            return (
-              <tr key={genre.id}>
-                <td>
-                  <span className="genre-admin__name-cell">{genre.name}</span>
-                </td>
-                <td>{genre.albumsCount}</td>
-                <td>
-                  <div className="genre-admin__actions">
-                    <button
-                      type="button"
-                      className="genre-admin__btn"
-                      disabled={isBusy}
-                      onClick={() => onEdit(genre)}
-                    >
-                      Editar
-                    </button>
+        return (
+          <div className="data-table__actions">
+            <Button variant="outline" size="sm" disabled={isBusy} onClick={() => onEdit(genre)}>
+              Editar
+            </Button>
 
-                    {/* El botón se muestra siempre, también cuando el género tiene
-                        álbumes: en ese caso el diálogo explica por qué no se puede
-                        borrar, que es más útil que un botón ausente sin motivo. */}
-                    <button
-                      type="button"
-                      className="genre-admin__btn genre-admin__btn--delete"
-                      disabled={isBusy}
-                      onClick={() => onDelete(genre)}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
+            {/* El botón se muestra siempre, también cuando el género tiene
+                álbumes: en ese caso el diálogo explica por qué no se puede
+                borrar, que es más útil que un botón ausente sin motivo. */}
+            <Button variant="danger" size="sm" disabled={isBusy} onClick={() => onDelete(genre)}>
+              Eliminar
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
+  return <DataTable columns={columns} rows={genres} getRowKey={(genre) => genre.id} />;
 };

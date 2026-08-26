@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Music2 } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { Loader } from '../../../core/components/Loader';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { genreService } from '../../genre/services/genreService';
@@ -53,12 +54,10 @@ export const BrowseByGenreSection = () => {
 
   return (
     <section className="explore-section">
-      <div className="explore-section__header">
-        <div className="explore-section__header-left">
-          <Music2 size={22} className="explore-section__header-icon" />
-          <h2 className="explore-section__title">Explorar por Género</h2>
-        </div>
-      </div>
+      <SectionHeader
+        icon={<Music2 size={22} />}
+        title="Explorar por Género"
+      />
 
       {isLoading ? (
         <Loader message="Cargando géneros..." />

@@ -1,11 +1,17 @@
 // Tabla de artistas del panel de administración: muestra el catálogo con su
 // estado de moderación y los botones de editar, eliminar y aprobar/rechazar.
 //
-// Es presentacional, igual que UserAdminTable: no llama a la API ni guarda estado
-// propio; avisa al padre (ArtistAdminSection) con los handlers que recibe.
-import { STATE_LABELS } from '../models/Artist';
+// Solo define sus columnas: el armado de la tabla lo pone DataTable, el mismo
+// que usan las tablas de géneros y usuarios.
+//
+// Es presentacional: no llama a la API ni guarda estado propio; avisa al padre
+// (ArtistAdminSection) con los handlers que recibe.
+import { Badge } from '../../../core/components/Badge';
+import { Button } from '../../../core/components/Button';
+import { DataTable } from '../../../core/components/DataTable';
+import type { DataTableColumn } from '../../../core/components/DataTable';
+import { STATE_LABELS, STATE_TONES } from '../models/Artist';
 import type { Artist } from '../models/Artist';
-import '../styles/_artist.scss';
 
 type ArtistAdminTableProps = {
   artists: Artist[];
@@ -30,93 +36,87 @@ export const ArtistAdminTable = ({
   onApprove,
   onReject,
 }: ArtistAdminTableProps) => {
+  const columns: DataTableColumn<Artist>[] = [
+    {
+      key: 'name',
+      header: 'Artista',
+      render: (artist) => (
+        <span className="data-table__name-cell data-table__name-cell--stacked">
+          {artist.name}
+          {/* Adelanto de la biografía, cortado con puntos suspensivos. */}
+          {artist.biography && <span className="data-table__hint">{artist.biography}</span>}
+        </span>
+      ),
+    },
+    {
+      key: 'albums',
+      header: 'Álbumes',
+      render: (artist) => artist.albumsCount,
+    },
+    {
+      key: 'state',
+      header: 'Estado',
+      render: (artist) => (
+        <Badge tone={STATE_TONES[artist.state]}>{STATE_LABELS[artist.state]}</Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (artist) => {
+        const isBusy = busyArtistId === artist.id;
+        const canEdit = artist.canBeEditedBy(currentUserId, isAdmin);
+
+        return (
+          <div className="data-table__actions">
+            {canEdit && (
+              <Button variant="outline" size="sm" disabled={isBusy} onClick={() => onEdit(artist)}>
+                Editar
+              </Button>
+            )}
+
+            {/* La moderación es exclusiva del ADMIN, y solo tiene sentido sobre
+                un aporte que todavía nadie revisó. */}
+            {isAdmin && artist.isPending && (
+              <>
+                <Button
+                  variant="success"
+                  size="sm"
+                  disabled={isBusy}
+                  onClick={() => onApprove(artist)}
+                >
+                  Aprobar
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  disabled={isBusy}
+                  onClick={() => onReject(artist)}
+                >
+                  Rechazar
+                </Button>
+              </>
+            )}
+
+            {isAdmin && (
+              <Button
+                variant="danger"
+                size="sm"
+                disabled={isBusy}
+                onClick={() => onDelete(artist)}
+              >
+                Eliminar
+              </Button>
+            )}
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
-    // El wrapper le da scroll horizontal propio a la tabla: cuatro columnas no
-    // entran en 375px y sin esto rompería el layout de la página.
-    <div className="artist-admin__table-wrapper">
-      <table className="artist-admin__table">
-        <thead>
-          <tr>
-            <th>Artista</th>
-            <th>Álbumes</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {artists.map((artist) => {
-            const isBusy = busyArtistId === artist.id;
-            const canEdit = artist.canBeEditedBy(currentUserId, isAdmin);
-
-            return (
-              <tr key={artist.id}>
-                <td>
-                  <span className="artist-admin__name-cell">
-                    {artist.name}
-                    {artist.biography && (
-                      <span className="artist-admin__bio">{artist.biography}</span>
-                    )}
-                  </span>
-                </td>
-                <td>{artist.albumsCount}</td>
-                <td>
-                  <span className={`artist-admin__badge artist-admin__badge--${artist.state}`}>
-                    {STATE_LABELS[artist.state]}
-                  </span>
-                </td>
-                <td>
-                  <div className="artist-admin__actions">
-                    {canEdit && (
-                      <button
-                        type="button"
-                        className="artist-admin__btn"
-                        disabled={isBusy}
-                        onClick={() => onEdit(artist)}
-                      >
-                        Editar
-                      </button>
-                    )}
-
-                    {/* La moderación es exclusiva del ADMIN, y solo tiene sentido
-                        sobre un aporte que todavía nadie revisó. */}
-                    {isAdmin && artist.isPending && (
-                      <>
-                        <button
-                          type="button"
-                          className="artist-admin__btn artist-admin__btn--approve"
-                          disabled={isBusy}
-                          onClick={() => onApprove(artist)}
-                        >
-                          Aprobar
-                        </button>
-                        <button
-                          type="button"
-                          className="artist-admin__btn artist-admin__btn--reject"
-                          disabled={isBusy}
-                          onClick={() => onReject(artist)}
-                        >
-                          Rechazar
-                        </button>
-                      </>
-                    )}
-
-                    {isAdmin && (
-                      <button
-                        type="button"
-                        className="artist-admin__btn artist-admin__btn--delete"
-                        disabled={isBusy}
-                        onClick={() => onDelete(artist)}
-                      >
-                        Eliminar
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    // align="top" porque la primera columna puede tener dos líneas (nombre y
+    // biografía) y el resto se leería descolgado si quedara centrado.
+    <DataTable columns={columns} rows={artists} getRowKey={(artist) => artist.id} align="top" />
   );
 };

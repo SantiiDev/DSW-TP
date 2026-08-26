@@ -12,6 +12,9 @@
 // sección.
 import { useState } from 'react';
 import { CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Card } from '../../../core/components/Card';
+import { SegmentedControl } from '../../../core/components/SegmentedControl';
+import type { SegmentOption } from '../../../core/components/SegmentedControl';
 import { ArtistRequestsSection } from '../../artist/components/ArtistRequestsSection';
 
 // Los ids son los mismos valores del enum CONTENT_STATES del backend.
@@ -42,6 +45,12 @@ const REQUEST_FILTERS = [
 
 type RequestFilterId = (typeof REQUEST_FILTERS)[number]['id'];
 
+// Lo que espera el selector de segmentos. El resto de los datos del filtro
+// (ícono y textos del estado vacío) no le hacen falta.
+const FILTER_OPTIONS: SegmentOption<RequestFilterId>[] = REQUEST_FILTERS.map(
+  ({ id, label }) => ({ value: id, label })
+);
+
 export const AdminRequestsPanel = () => {
   const [activeFilter, setActiveFilter] = useState<RequestFilterId>('pending');
 
@@ -50,36 +59,28 @@ export const AdminRequestsPanel = () => {
   const Icon = filter.icon;
 
   return (
-    <section className="admin-panel__block">
-      <header className="admin-panel__block-header">
-        <h2 className="admin-panel__block-title">Solicitudes de usuarios Pro</h2>
-        <p className="admin-panel__block-subtitle">
-          Aportes al catálogo enviados por miembros Pro, a la espera de tu revisión.
-        </p>
-      </header>
+    <Card
+      title="Solicitudes de usuarios Pro"
+      subtitle="Aportes al catálogo enviados por miembros Pro, a la espera de tu revisión."
+    >
+      <SegmentedControl
+        options={FILTER_OPTIONS}
+        value={activeFilter}
+        // Ver la nota en AdminMusicPanel: el setter de useState pasado directo
+        // rompe la deducción del tipo de las opciones.
+        onChange={(filterId) => setActiveFilter(filterId)}
+        ariaLabel="Estado de la solicitud"
+      />
 
-      <div className="admin-panel__segments" role="group" aria-label="Estado de la solicitud">
-        {REQUEST_FILTERS.map(({ id, label }) => (
-          <button
-            key={id}
-            type="button"
-            className={`admin-panel__segment ${
-              activeFilter === id ? 'admin-panel__segment--active' : ''
-            }`}
-            aria-pressed={activeFilter === id}
-            onClick={() => setActiveFilter(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
+      {/* La key remonta la sección al cambiar de filtro: así el aviso de la
+          última decisión ("se aprobó X") no queda colgado sobre otra lista. */}
       <ArtistRequestsSection
+        key={activeFilter}
         state={activeFilter}
         emptyIcon={<Icon size={22} />}
         emptyTitle={filter.title}
         emptyMessage={filter.message}
       />
-    </section>
+    </Card>
   );
 };

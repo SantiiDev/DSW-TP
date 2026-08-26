@@ -45,33 +45,14 @@
     margin: 0;
   }
 
-  &__error {
-    margin: 0;
-    padding: 0.6rem 0.9rem;
-    background-color: rgba($color-error, 0.12);
-    border: 1px solid rgba($color-error, 0.4);
-    border-radius: 8px;
-    color: color.adjust($color-error, $lightness: 15%);
-    font-size: 0.85rem;
-  }
-
   // --- Formulario de alta -------------------------------------------------
 
+  // El fondo, el borde y el padding los pone el componente Card que lo envuelve:
+  // acá queda solo cómo se apilan los campos y el botón.
   &__form {
-    background-color: $color-bg-light;
-    border: 1px solid $color-nav-border;
-    border-radius: 16px;
-    padding: $spacing-lg;
     display: flex;
     flex-direction: column;
     gap: $spacing-md;
-  }
-
-  &__form-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: $color-text;
-    margin: 0;
   }
 
   // Una columna en mobile, dos desde tablet: los cuatro campos del alta entran
@@ -86,54 +67,10 @@
     }
   }
 
-  &__field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-
-  &__label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: $color-text-secondary;
-  }
-
-  &__input {
-    width: 100%;
-    background-color: $color-bg;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    padding: 0.6rem 1rem;
-    color: $color-text;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s ease;
-
-    &:focus {
-      border-color: $color-primary;
-    }
-  }
-
+  // El botón es el Button compartido; lo único propio de esta pantalla es que no
+  // se estire a lo ancho del formulario.
   &__submit-btn {
     align-self: flex-start;
-    padding: 0.65rem $spacing-lg;
-    background-color: $color-primary;
-    color: #000;
-    border: none;
-    border-radius: 30px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-
-    &:hover:not(:disabled) {
-      opacity: 0.9;
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
   }
 
   // --- Listado ------------------------------------------------------------
@@ -175,73 +112,6 @@
     margin: 0;
   }
 
-  // La tabla no entra en pantallas chicas: se le da scroll propio para que no
-  // desborde el ancho de la página.
-  &__table-wrapper {
-    overflow-x: auto;
-    border: 1px solid $color-nav-border;
-    border-radius: 12px;
-    // Misma razón que en __list: permite que el wrapper se achique y muestre su
-    // propio scroll en vez de estirar la página.
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  &__table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    white-space: nowrap;
-
-    th,
-    td {
-      padding: 0.75rem $spacing-md;
-      text-align: left;
-      border-bottom: 1px solid $color-nav-border;
-    }
-
-    th {
-      background-color: $color-bg-light;
-      color: $color-text-secondary;
-      font-weight: 600;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    td {
-      color: $color-text;
-    }
-
-    // La última fila no lleva línea: la cierra el borde del wrapper.
-    tbody tr:last-child td {
-      border-bottom: none;
-    }
-
-    tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.03);
-    }
-  }
-
-  // Avatar + nombre dentro de la celda de usuario.
-  &__user-cell {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-  }
-
-  // Marca la fila del admin logueado.
-  &__you-tag {
-    margin-left: $spacing-sm;
-    padding: 0.1rem 0.5rem;
-    border-radius: 20px;
-    background-color: rgba($color-primary, 0.15);
-    color: $color-primary;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
   // El select y la etiqueta de "antes: X" van juntos en la celda de rol.
   &__role-cell {
     display: flex;
@@ -249,36 +119,8 @@
     gap: $spacing-sm;
   }
 
-  // La caja del desplegable de rol la pone el componente Select (core/components).
-  // Acá queda solo la variante: rol elegido pero todavía sin guardar, en verde
-  // para que se vea de un vistazo qué filas va a tocar el botón de guardar.
-  &__role-select--pending {
-    border-color: $color-primary;
-    color: $color-primary;
-    font-weight: 600;
-  }
-
-  // Estado de la cuenta, como pastilla: verde si está activa, roja si fue dada
-  // de baja. Es el resultado visible de la baja lógica.
-  &__state {
-    display: inline-block;
-    padding: 0.15rem 0.6rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-
-    &--active {
-      background-color: rgba($color-primary, 0.15);
-      color: $color-primary;
-    }
-
-    &--suspended {
-      background-color: rgba($color-error, 0.15);
-      color: color.adjust($color-error, $lightness: 10%);
-    }
-  }
+  // El desplegable de rol y su resaltado los dibuja el componente Select
+  // (prop `highlighted`), así que acá no queda nada de eso.
 
   // Fila de una cuenta suspendida: se atenúa para diferenciarla sin ocultarla.
   // Los controles quedan al 100% para que se puedan seguir usando.
@@ -343,170 +185,6 @@
       & > * {
         flex: none;
       }
-    }
-  }
-
-  &__save-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 0.55rem $spacing-lg;
-    background-color: $color-primary;
-    color: #000;
-    border: none;
-    border-radius: 30px;
-    font-size: 0.88rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-
-    &:hover:not(:disabled) {
-      opacity: 0.9;
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-
-  &__discard-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 0.55rem $spacing-md;
-    background-color: transparent;
-    color: $color-text-secondary;
-    border: 1px solid $color-nav-border;
-    border-radius: 30px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease;
-
-    &:hover:not(:disabled) {
-      border-color: rgba(255, 255, 255, 0.3);
-      color: $color-text;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  // Los dos botones de la baja lógica comparten forma y solo cambian de color:
-  // rojo para suspender, verde para reactivar.
-  &__suspend-btn,
-  &__activate-btn {
-    background-color: transparent;
-    border-radius: 20px;
-    padding: 0.35rem 0.9rem;
-    font: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  &__suspend-btn {
-    color: $color-error;
-    border: 1px solid rgba($color-error, 0.5);
-
-    &:hover:not(:disabled) {
-      background-color: rgba($color-error, 0.12);
-    }
-  }
-
-  &__activate-btn {
-    color: $color-primary;
-    border: 1px solid rgba($color-primary, 0.5);
-
-    &:hover:not(:disabled) {
-      background-color: rgba($color-primary, 0.12);
-    }
-  }
-
-  &__no-action {
-    color: $color-text-secondary;
-  }
-}
-
-// --- Bloques de las pestañas Música y Solicitudes -------------------------
-//
-// Las dos pestañas comparten la misma estructura: un encabezado propio, un
-// selector de segmentos y el contenido de la opción elegida.
-
-.admin-panel {
-  &__block {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-md;
-    background-color: $color-bg-light;
-    border: 1px solid $color-nav-border;
-    border-radius: 16px;
-    padding: $spacing-lg;
-    // Igual que en __list: sin esto el bloque no se achica por debajo del ancho
-    // de su contenido y estira la página en mobile.
-    min-width: 0;
-  }
-
-  &__block-header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  &__block-title {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: $color-text;
-  }
-
-  &__block-subtitle {
-    margin: 0;
-    font-size: 0.88rem;
-    color: $color-text-secondary;
-  }
-
-  // Selector de segmentos: distingue las variantes de una misma pestaña sin
-  // repetir el subrayado de la barra principal, que se leería como otro nivel
-  // de navegación.
-  &__segments {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-sm;
-  }
-
-  &__segment {
-    padding: 0.4rem 1rem;
-    border: 1px solid $color-nav-border;
-    border-radius: 30px;
-    background-color: transparent;
-    color: $color-text-secondary;
-    font: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
-
-    &:hover {
-      color: $color-text;
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    &--active {
-      background-color: rgba($color-primary, 0.15);
-      border-color: $color-primary;
-      color: $color-primary;
     }
   }
 }

@@ -5,6 +5,9 @@
 // Es controlado y no llama a la API: delega el submit al padre (AdminUsersPanel).
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { Button } from '../../../core/components/Button';
+import { Card } from '../../../core/components/Card';
+import { FormField, TextInput } from '../../../core/components/FormField';
 import { Select } from '../../../core/components/Select';
 import { ROLE_LABELS, USER_ROLES } from '../models/User';
 import type { UserRole } from '../models/User';
@@ -22,6 +25,8 @@ const EMPTY_FORM = {
   rol: 'FREE' as UserRole,
 };
 
+const ROLE_OPTIONS = USER_ROLES.map((rol) => ({ value: rol, label: ROLE_LABELS[rol] }));
+
 export const CreateUserForm = ({ isSubmitting, onSubmit }: CreateUserFormProps) => {
   const [form, setForm] = useState(EMPTY_FORM);
 
@@ -34,74 +39,59 @@ export const CreateUserForm = ({ isSubmitting, onSubmit }: CreateUserFormProps) 
   };
 
   return (
-    <form className="admin-users__form" onSubmit={handleSubmit}>
-      <h2 className="admin-users__form-title">Crear usuario</h2>
+    <Card title="Crear usuario">
+      <form className="admin-users__form" onSubmit={handleSubmit}>
+        <div className="admin-users__form-grid">
+          <FormField id="new-user-username" label="Nombre de usuario">
+            <TextInput
+              id="new-user-username"
+              type="text"
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              minLength={3}
+              maxLength={50}
+              required
+            />
+          </FormField>
 
-      <div className="admin-users__form-grid">
-        <div className="admin-users__field">
-          <label htmlFor="new-user-username" className="admin-users__label">
-            Nombre de usuario
-          </label>
-          <input
-            id="new-user-username"
-            type="text"
-            className="admin-users__input"
-            value={form.username}
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
-            minLength={3}
-            maxLength={50}
-            required
-          />
+          <FormField id="new-user-email" label="Correo electrónico">
+            <TextInput
+              id="new-user-email"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+            />
+          </FormField>
+
+          <FormField id="new-user-password" label="Contraseña inicial">
+            <TextInput
+              id="new-user-password"
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              // El mínimo se valida igual en el backend; acá es solo para avisar
+              // antes de gastar una request.
+              minLength={8}
+              required
+            />
+          </FormField>
+
+          <FormField id="new-user-rol" label="Rol">
+            <Select
+              id="new-user-rol"
+              options={ROLE_OPTIONS}
+              value={form.rol}
+              onChange={(rol) => setForm({ ...form, rol })}
+              fullWidth
+            />
+          </FormField>
         </div>
 
-        <div className="admin-users__field">
-          <label htmlFor="new-user-email" className="admin-users__label">
-            Correo electrónico
-          </label>
-          <input
-            id="new-user-email"
-            type="email"
-            className="admin-users__input"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
-        </div>
-
-        <div className="admin-users__field">
-          <label htmlFor="new-user-password" className="admin-users__label">
-            Contraseña inicial
-          </label>
-          <input
-            id="new-user-password"
-            type="password"
-            className="admin-users__input"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            // El mínimo se valida igual en el backend; acá es solo para avisar
-            // antes de gastar una request.
-            minLength={8}
-            required
-          />
-        </div>
-
-        <div className="admin-users__field">
-          <label htmlFor="new-user-rol" className="admin-users__label">
-            Rol
-          </label>
-          <Select
-            id="new-user-rol"
-            options={USER_ROLES.map((rol) => ({ value: rol, label: ROLE_LABELS[rol] }))}
-            value={form.rol}
-            onChange={(rol) => setForm({ ...form, rol })}
-            fullWidth
-          />
-        </div>
-      </div>
-
-      <button type="submit" className="admin-users__submit-btn" disabled={isSubmitting}>
-        {isSubmitting ? 'Creando...' : 'Crear usuario'}
-      </button>
-    </form>
+        <Button type="submit" disabled={isSubmitting} className="admin-users__submit-btn">
+          {isSubmitting ? 'Creando...' : 'Crear usuario'}
+        </Button>
+      </form>
+    </Card>
   );
 };

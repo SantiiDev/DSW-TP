@@ -50,6 +50,16 @@
       border-color: $color-primary;
     }
 
+    // Valor elegido y sin guardar (ver la prop `highlighted`). Va acá, en el
+    // mismo archivo que el estilo base, para que gane siempre: el base fija el
+    // borde con el atajo `border`, y una clase de otra hoja con la misma
+    // especificidad ganaría según el orden de carga.
+    &--highlighted {
+      border-color: $color-primary;
+      color: $color-primary;
+      font-weight: 600;
+    }
+
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
@@ -57,15 +67,27 @@
 
     // Dos tamaños: el chico para tablas y barras de filtros, donde el control
     // convive con texto de 0.85rem; el mediano para los formularios.
+    //
+    // El min-width es lo que hace que el control NO cambie de ancho al elegir
+    // otra opción: sin él la caja se achica con "Pro" y se agranda con "Member",
+    // y la columna entera de la tabla se mueve en cada cambio.
     &--sm {
+      min-width: 8.5rem;
       padding: 0.35rem 0.6rem;
       font-size: 0.85rem;
     }
 
     &--md {
+      min-width: 10rem;
       padding: 0.6rem 1rem;
       font-size: 0.9rem;
     }
+  }
+
+  // Estirado al contenedor, el min-width de arriba no aplica: manda el ancho
+  // disponible (formularios, filtros en columna).
+  &--full &__trigger {
+    min-width: 0;
   }
 
   // El texto de la opción elegida. Si no entra, se corta con puntos suspensivos
@@ -101,6 +123,11 @@
     margin: 0;
     padding: 0.3rem;
     list-style: none;
+    // El ancho lo fija el componente como mínimo (el del botón) y el panel crece
+    // hasta donde haga falta para que cada opción se lea entera. El tope tiene
+    // que coincidir con MAX_PANEL_WIDTH de Select.tsx.
+    width: max-content;
+    max-width: 320px;
     max-height: 260px;
     overflow-y: auto;
     background-color: $color-bg-light;

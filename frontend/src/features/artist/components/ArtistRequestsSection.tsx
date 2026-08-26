@@ -8,10 +8,12 @@
 // Vive en la feature artist para que el panel (AdminRequestsPanel) solo tenga que
 // montarla, y recibe el estado vacío como props para no duplicar los textos que
 // esa pestaña ya define.
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { Alert } from '../../../core/components/Alert';
 import { Loader } from '../../../core/components/Loader';
 import { EmptyState } from '../../../core/components/EmptyState';
+import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { artistService } from '../services/artistService';
 import type { Artist, ContentState } from '../models/Artist';
@@ -38,33 +40,18 @@ export const ArtistRequestsSection = ({
   emptyTitle,
   emptyMessage,
 }: ArtistRequestsSectionProps) => {
-  const [requests, setRequests] = useState<Artist[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data,
+    isLoading,
+    error,
+    reload: loadRequests,
+    setError,
+  } = useFetch(() => artistService.list({ state, contributed: true }), state);
+  const requests = data ?? [];
+
   const [feedback, setFeedback] = useState<string | null>(null);
   // Solicitud con una operación en curso: deshabilita solo sus botones.
   const [busyArtistId, setBusyArtistId] = useState<number | null>(null);
-
-  const loadRequests = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    // Al cambiar de pestaña se limpia el aviso de la decisión anterior: hablaba de
-    // otra lista. En una decisión no molesta, porque el aviso se vuelve a poner
-    // después de recargar.
-    setFeedback(null);
-
-    try {
-      setRequests(await artistService.list({ state, contributed: true }));
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [state]);
-
-  useEffect(() => {
-    void loadRequests();
-  }, [loadRequests]);
 
   /**
    * Resuelve una solicitud.
@@ -93,17 +80,8 @@ export const ArtistRequestsSection = ({
 
   return (
     <div className="artist-requests">
-      {error && (
-        <p className="artist-requests__error" role="alert">
-          {error}
-        </p>
-      )}
-
-      {feedback && (
-        <p className="artist-requests__feedback" role="status">
-          {feedback}
-        </p>
-      )}
+      {error && <Alert tone="error">{error}</Alert>}
+      {feedback && <Alert tone="success">{feedback}</Alert>}
 
       {isLoading ? (
         <Loader message="Cargando solicitudes..." />

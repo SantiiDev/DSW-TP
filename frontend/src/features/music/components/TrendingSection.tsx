@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical que muestra la música en tendencia actual.
-import { Star, TrendingUp, ChevronRight } from 'lucide-react';
+import { Star, TrendingUp } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const TRENDING_ALBUMS = [
@@ -30,15 +31,12 @@ export const TrendingSection = ({ type }: TrendingSectionProps) => {
 
   return (
     <section className="explore-section">
-      <div className="explore-section__header">
-        <div className="explore-section__header-left">
-          <TrendingUp size={22} className="explore-section__header-icon" />
-          <h2 className="explore-section__title">Tendencia Ahora</h2>
-        </div>
-        <button className="explore-section__see-all" onClick={openSignup}>
-          Ver todos <ChevronRight size={16} />
-        </button>
-      </div>
+      <SectionHeader
+        icon={<TrendingUp size={22} />}
+        title="Tendencia Ahora"
+        actionLabel="Ver todos"
+        onAction={openSignup}
+      />
 
       <div className="explore-section__grid">
         {items.map((item) => (

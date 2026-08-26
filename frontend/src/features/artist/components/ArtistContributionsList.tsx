@@ -10,14 +10,16 @@
 // Vive en la feature artist para que el perfil solo tenga que montarla. Cuando
 // existan los CRUD de álbum y canción, la pestaña va a sumar sus propias
 // secciones al lado de esta.
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
+import { Alert } from '../../../core/components/Alert';
+import { Button } from '../../../core/components/Button';
 import { Loader } from '../../../core/components/Loader';
 import { EmptyState } from '../../../core/components/EmptyState';
+import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { artistService } from '../services/artistService';
 import type { ArtistInput } from '../services/artistService';
-import type { Artist } from '../models/Artist';
 import { ArtistCard } from './ArtistCard';
 import { ArtistProposalModal } from './ArtistProposalModal';
 import '../styles/_artist.scss';
@@ -35,31 +37,19 @@ export const ArtistContributionsList = ({
   username,
   isOwnProfile,
 }: ArtistContributionsListProps) => {
-  const [artists, setArtists] = useState<Artist[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data,
+    isLoading,
+    error,
+    reload: loadContributions,
+  } = useFetch(() => artistService.list({ createdBy: userId }), userId);
+  const artists = data ?? [];
+
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Error del envío: va adentro del modal, al lado del formulario que lo produjo.
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const loadContributions = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      setArtists(await artistService.list({ createdBy: userId }));
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    void loadContributions();
-  }, [loadContributions]);
 
   const handleOpenModal = () => {
     setSubmitError(null);
@@ -97,13 +87,7 @@ export const ArtistContributionsList = ({
   const renderBody = () => {
     if (isLoading) return <Loader message="Cargando aportes..." />;
 
-    if (error) {
-      return (
-        <p className="artist-contributions__error" role="alert">
-          {error}
-        </p>
-      );
-    }
+    if (error) return <Alert tone="error">{error}</Alert>;
 
     if (artists.length === 0) {
       return (
@@ -121,13 +105,7 @@ export const ArtistContributionsList = ({
           }
           action={
             isOwnProfile ? (
-              <button
-                type="button"
-                className="artist-contributions__cta"
-                onClick={handleOpenModal}
-              >
-                Proponer un artista
-              </button>
+              <Button onClick={handleOpenModal}>Proponer un artista</Button>
             ) : undefined
           }
         />
@@ -139,11 +117,7 @@ export const ArtistContributionsList = ({
         <div className="artist-contributions__head">
           <h3 className="artist-contributions__title">Artistas ({artists.length})</h3>
 
-          {isOwnProfile && (
-            <button type="button" className="artist-contributions__cta" onClick={handleOpenModal}>
-              Proponer otro artista
-            </button>
-          )}
+          {isOwnProfile && <Button onClick={handleOpenModal}>Proponer otro artista</Button>}
         </div>
 
         <ul className="artist-contributions__grid">
@@ -159,11 +133,7 @@ export const ArtistContributionsList = ({
 
   return (
     <div className="artist-contributions">
-      {feedback && (
-        <p className="artist-contributions__feedback" role="status">
-          {feedback}
-        </p>
-      )}
+      {feedback && <Alert tone="success">{feedback}</Alert>}
 
       {renderBody()}
 

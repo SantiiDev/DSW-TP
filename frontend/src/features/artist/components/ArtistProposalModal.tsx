@@ -8,6 +8,7 @@
 // El overlay es propio de la feature, igual que hace AuthModal en la feature user.
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
+import { Alert } from '../../../core/components/Alert';
 import { ArtistForm } from './ArtistForm';
 import type { ArtistInput } from '../services/artistService';
 import '../styles/_artist.scss';
@@ -75,11 +76,7 @@ export const ArtistProposalModal = ({
           administrador la revise.
         </p>
 
-        {error && (
-          <p className="artist-modal__error" role="alert">
-            {error}
-          </p>
-        )}
+        {error && <Alert tone="error">{error}</Alert>}
 
         <ArtistForm
           isSubmitting={isSubmitting}

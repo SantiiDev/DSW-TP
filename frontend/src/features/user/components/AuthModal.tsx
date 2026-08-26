@@ -3,6 +3,7 @@
 // registrar o iniciar sesión contra el backend. Renderiza condicionalmente el
 // formulario de Iniciar Sesión o el de Registro.
 import { useState } from 'react';
+import { Button } from '../../../core/components/Button';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { useAuth } from '../../../core/context/AuthContext';
 import '../styles/_auth.scss';
@@ -190,13 +191,19 @@ export const AuthModal = () => {
                 </div>
               )}
 
-              <button type="submit" className="auth__submit-btn" disabled={authState.isSubmitting}>
+              <Button
+                type="submit"
+                size="lg"
+                fullWidth
+                className="auth__submit-btn"
+                disabled={authState.isSubmitting}
+              >
                 {authState.isSubmitting
                   ? 'Enviando...'
                   : isLogin
                     ? 'Iniciar Sesión'
                     : 'Crear Cuenta'}
-              </button>
+              </Button>
             </form>
 
             {/* Footer con toggle de vista */}

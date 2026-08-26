@@ -5,6 +5,7 @@
 // del mismo set visual que el resto del sitio.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 .user-profile-page {
   width: 100%;
@@ -42,16 +43,6 @@
     &:hover {
       color: $color-primary;
     }
-  }
-
-  &__error {
-    margin: 0;
-    padding: 0.6rem 0.9rem;
-    background-color: rgba($color-error, 0.12);
-    border: 1px solid rgba($color-error, 0.4);
-    border-radius: 8px;
-    color: color.adjust($color-error, $lightness: 15%);
-    font-size: 0.85rem;
   }
 
   // Contenido + columna lateral. Una sola columna en mobile; desde LG el sidebar
@@ -143,28 +134,6 @@
     }
   }
 
-  // El color del badge distingue el nivel de la cuenta de un vistazo.
-  &__role {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    border-radius: 20px;
-    padding: 0.2rem 0.7rem;
-    background-color: rgba($color-text-secondary, 0.15);
-    color: $color-text-secondary;
-
-    &--pro {
-      background-color: rgba($color-primary, 0.15);
-      color: $color-primary;
-    }
-
-    &--admin {
-      background-color: rgba($color-error, 0.15);
-      color: color.adjust($color-error, $lightness: 12%);
-    }
-  }
-
   &__since,
   &__email {
     margin: 0;
@@ -240,40 +209,13 @@
 
     @media (min-width: $bp-sm) {
       flex-direction: row;
+      // Los dos botones juntos son más angostos que la fila de contadores que
+      // tienen arriba. Sin esto quedan pegados a la izquierda y la columna se ve
+      // desbalanceada; centrados, acompañan a los contadores.
+      justify-content: center;
     }
   }
 
-  &__edit-btn,
-  &__delete-btn {
-    flex: 1;
-    padding: 0.55rem $spacing-lg;
-    border-radius: 30px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: opacity 0.2s ease, background-color 0.2s ease;
-
-    &:hover {
-      opacity: 0.9;
-    }
-  }
-
-  &__edit-btn {
-    background-color: $color-primary;
-    color: #000;
-    border: none;
-  }
-
-  &__delete-btn {
-    background-color: transparent;
-    color: $color-error;
-    border: 1px solid rgba($color-error, 0.5);
-
-    &:hover {
-      background-color: rgba($color-error, 0.1);
-    }
-  }
 }
 
 // --- Pestañas -------------------------------------------------------------
@@ -296,20 +238,6 @@
     color: $color-text;
   }
 
-  &__cta {
-    display: inline-block;
-    padding: 0.5rem $spacing-lg;
-    background-color: $color-primary;
-    color: #000;
-    border-radius: 30px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    text-decoration: none;
-
-    &:hover {
-      opacity: 0.9;
-    }
-  }
 }
 
 .profile-membership {
@@ -336,21 +264,6 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: $color-primary;
-  }
-
-  &__cta {
-    align-self: flex-start;
-    padding: 0.55rem $spacing-lg;
-    background-color: $color-primary;
-    color: #000;
-    border-radius: 30px;
-    font-size: 0.875rem;
-    font-weight: 700;
-    text-decoration: none;
-
-    &:hover {
-      opacity: 0.9;
-    }
   }
 
   &__note {
@@ -524,104 +437,6 @@
   }
 }
 
-.user-profile-card {
-  background-color: $color-bg-light;
-  border: 1px solid $color-nav-border;
-  border-radius: 16px;
-  padding: $spacing-lg;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-
-  // El avatar grande encabeza la tarjeta, con el nombre y el rol debajo.
-  &__header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: $spacing-sm;
-  }
-
-  &__username {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: $color-text;
-    margin: 0;
-    word-break: break-word;
-  }
-
-  &__role {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: $color-primary;
-    background-color: rgba($color-primary, 0.12);
-    border-radius: 20px;
-    padding: 0.2rem 0.7rem;
-  }
-
-  &__details {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-sm;
-    margin: 0;
-  }
-
-  &__detail {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-
-    dt {
-      font-size: 0.8rem;
-      color: $color-text-secondary;
-    }
-
-    dd {
-      font-size: 0.95rem;
-      color: $color-text;
-      margin: 0;
-    }
-  }
-
-  &__actions {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-sm;
-    margin-top: $spacing-sm;
-
-    @media (min-width: $bp-sm) {
-      flex-direction: row;
-    }
-  }
-
-  &__edit-btn,
-  &__delete-btn {
-    flex: 1;
-    padding: 0.6rem $spacing-md;
-    border-radius: 30px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-
-    &:hover {
-      opacity: 0.9;
-    }
-  }
-
-  &__edit-btn {
-    background-color: $color-primary;
-    color: #000;
-    border: none;
-  }
-
-  &__delete-btn {
-    background-color: transparent;
-    color: $color-error;
-    border: 1px solid rgba($color-error, 0.5);
-  }
-}
-
 // El formulario de edición comparte estructura con el de auth: mismo look de
 // campo/label/input/error/submit, con nombres propios para no acoplar features.
 .user-form {
@@ -650,19 +465,6 @@
     max-width: 280px;
   }
 
-  // Aviso de imagen que no cargó. Va en tono de advertencia y no de error: el
-  // formulario se puede guardar igual, solo que se verá el avatar por defecto.
-  &__avatar-warning {
-    margin: 0.4rem 0 0;
-    padding: 0.5rem 0.75rem;
-    background-color: rgba($color-error, 0.1);
-    border: 1px solid rgba($color-error, 0.35);
-    border-radius: 8px;
-    color: color.adjust($color-error, $lightness: 15%);
-    font-size: 0.8rem;
-    line-height: 1.45;
-  }
-
   &__example-btn {
     align-self: flex-start;
     margin-top: 0.4rem;
@@ -681,76 +483,10 @@
     }
   }
 
-  &__field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-
-  &__label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: $color-text-secondary;
-  }
-
-  &__input {
-    width: 100%;
-    background-color: $color-bg;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    padding: 0.6rem 1rem;
-    color: $color-text;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s ease;
-
-    &:focus {
-      border-color: $color-primary;
-    }
-  }
-
-  &__error {
-    margin: 0;
-    padding: 0.6rem 0.9rem;
-    background-color: rgba($color-error, 0.12);
-    border: 1px solid rgba($color-error, 0.4);
-    border-radius: 8px;
-    color: color.adjust($color-error, $lightness: 15%);
-    font-size: 0.85rem;
-    text-align: center;
-  }
-
   &__actions {
     display: flex;
     gap: $spacing-sm;
     margin-top: $spacing-sm;
   }
 
-  &__submit-btn,
-  &__cancel-btn {
-    flex: 1;
-    padding: 0.65rem $spacing-md;
-    border-radius: 30px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-  }
-
-  &__submit-btn {
-    background-color: $color-primary;
-    color: #000;
-    border: none;
-  }
-
-  &__cancel-btn {
-    background-color: transparent;
-    color: $color-text;
-    border: 1px solid $color-nav-border;
-  }
 }

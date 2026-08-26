@@ -8,9 +8,12 @@
 // Es más simple que ArtistAdminSection porque el género no tiene moderación: no
 // hay filtro por estado ni botones de aprobar/rechazar. Tampoco tiene buscador ni
 // paginado: son once géneros y entran todos en pantalla.
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { Alert } from '../../../core/components/Alert';
+import { Card } from '../../../core/components/Card';
 import { Loader } from '../../../core/components/Loader';
 import { ConfirmDialog } from '../../../core/components/Modal';
+import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { genreService } from '../services/genreService';
 import type { GenreInput } from '../services/genreService';
@@ -45,9 +48,15 @@ function buildDeleteMessage(genre: Genre): string {
 }
 
 export const GenreAdminSection = () => {
-  const [genres, setGenres] = useState<Genre[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data,
+    isLoading,
+    error,
+    reload: loadGenres,
+    setError,
+  } = useFetch(() => genreService.list());
+  const genres = data ?? [];
+
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Género que se está editando: si es null, el formulario es de alta.
@@ -60,23 +69,6 @@ export const GenreAdminSection = () => {
   // El formulario está arriba de la tabla: al elegir "Editar" en una fila de
   // abajo hay que traer la vista hasta acá, si no parece que el botón no hizo nada.
   const formRef = useRef<HTMLElement>(null);
-
-  const loadGenres = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      setGenres(await genreService.list());
-    } catch (err) {
-      setError(getErrorMessage(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadGenres();
-  }, [loadGenres]);
 
   /** Carga el género en el formulario y sube la vista hasta él. */
   const handleEdit = (genre: Genre) => {
@@ -152,25 +144,17 @@ export const GenreAdminSection = () => {
 
   return (
     <div className="genre-admin">
-      {error && (
-        <p className="genre-admin__error" role="alert">
-          {error}
-        </p>
-      )}
-
-      {feedback && (
-        <p className="genre-admin__feedback" role="status">
-          {feedback}
-        </p>
-      )}
+      {error && <Alert tone="error">{error}</Alert>}
+      {feedback && <Alert tone="success">{feedback}</Alert>}
 
       {/* El formulario es el mismo para alta y edición. La key lo remonta al
           cambiar de género, así arranca con el valor del que se eligió. */}
-      <section className="genre-admin__form-block" ref={formRef}>
-        <h3 className="genre-admin__form-title">
-          {editingGenre ? `Editando "${editingGenre.name}"` : 'Agregar género'}
-        </h3>
-
+      {/* variant="plain": ver la nota en ArtistAdminSection. */}
+      <Card
+        ref={formRef}
+        variant="plain"
+        title={editingGenre ? `Editando "${editingGenre.name}"` : 'Agregar género'}
+      >
         {editingGenre ? (
           <GenreForm
             key={editingGenre.id}
@@ -183,7 +167,7 @@ export const GenreAdminSection = () => {
         ) : (
           <GenreForm key="new" isSubmitting={isSubmitting} onSubmit={handleCreate} />
         )}
-      </section>
+      </Card>
 
       <div className="genre-admin__toolbar">
         <h3 className="genre-admin__list-title">Géneros del catálogo ({genres.length})</h3>

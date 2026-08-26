@@ -10,6 +10,8 @@
 // panel de administración.
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { Button } from '../../../core/components/Button';
+import { FormField, TextInput } from '../../../core/components/FormField';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { artistService } from '../services/artistService';
 import type { ArtistInput } from '../services/artistService';
@@ -118,14 +120,10 @@ export const ArtistForm = ({
   return (
     <>
       <form className="artist-form" onSubmit={handleSubmit}>
-        <div className="artist-form__field">
-          <label htmlFor="artist-name" className="artist-form__label">
-            Nombre
-          </label>
-          <input
+        <FormField id="artist-name" label="Nombre">
+          <TextInput
             id="artist-name"
             type="text"
-            className="artist-form__input"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             // Los límites se validan igual en el backend; acá son para avisar antes
@@ -133,36 +131,28 @@ export const ArtistForm = ({
             maxLength={150}
             required
           />
-        </div>
+        </FormField>
 
-        <div className="artist-form__field">
-          <label htmlFor="artist-biography" className="artist-form__label">
-            Biografía <span className="artist-form__optional">(opcional)</span>
-          </label>
-          <textarea
+        <FormField id="artist-biography" label="Biografía" hint="(opcional)">
+          <TextInput
+            as="textarea"
             id="artist-biography"
-            className="artist-form__input artist-form__textarea"
             value={form.biography}
             onChange={(e) => setForm({ ...form, biography: e.target.value })}
             maxLength={5000}
             rows={4}
           />
-        </div>
+        </FormField>
 
         <div className="artist-form__actions">
-          <button type="submit" className="artist-form__submit-btn" disabled={isBusy}>
+          <Button type="submit" disabled={isBusy}>
             {isChecking ? 'Revisando...' : isSubmitting ? 'Guardando...' : submitLabel}
-          </button>
+          </Button>
 
           {onCancel && (
-            <button
-              type="button"
-              className="artist-form__cancel-btn"
-              disabled={isBusy}
-              onClick={onCancel}
-            >
+            <Button variant="subtle" disabled={isBusy} onClick={onCancel}>
               Cancelar
-            </button>
+            </Button>
           )}
         </div>
       </form>

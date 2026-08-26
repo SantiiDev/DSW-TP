@@ -3,6 +3,7 @@
 // Usa las variables y tokens del design system del proyecto.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 // Animación específica para la tarjeta de auth
 @keyframes slideUpFade {
@@ -191,17 +192,10 @@
   }
 
   // Botón principal de submit
+  // La caja la pone el componente Button (primary, size lg, fullWidth). Acá van
+  // solo el realce propio del modal y su separación, que no chocan con ninguna
+  // declaración del botón compartido.
   &__submit-btn {
-    width: 100%;
-    padding: 0.75rem $spacing-md;
-    background-color: $color-primary;
-    color: #000;
-    font-size: 1rem;
-    font-weight: 700;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
     margin-top: $spacing-sm;
 
     // Los efectos solo cuando el botón está habilitado: mientras se envía el

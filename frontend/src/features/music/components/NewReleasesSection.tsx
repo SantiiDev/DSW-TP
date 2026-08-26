@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical que muestra los últimos lanzamientos.
-import { Star, Disc3, ChevronRight } from 'lucide-react';
+import { Star, Disc3 } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const NEW_RELEASES = [
@@ -16,15 +17,13 @@ export const NewReleasesSection = () => {
 
   return (
     <section className="explore-section">
-      <div className="explore-section__header">
-        <div className="explore-section__header-left">
-          <Disc3 size={22} className="explore-section__header-icon explore-section__header-icon--spin" />
-          <h2 className="explore-section__title">Nuevos Lanzamientos</h2>
-        </div>
-        <button className="explore-section__see-all" onClick={openSignup}>
-          Ver todos <ChevronRight size={16} />
-        </button>
-      </div>
+      <SectionHeader
+        icon={<Disc3 size={22} />}
+        title="Nuevos Lanzamientos"
+        spinIcon
+        actionLabel="Ver todos"
+        onAction={openSignup}
+      />
 
       <div className="explore-section__grid explore-section__grid--compact">
         {NEW_RELEASES.map((item) => (

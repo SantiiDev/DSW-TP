@@ -1,5 +1,6 @@
 // Sección de la página de exploración musical que lista los álbumes mejor valorados por la comunidad.
-import { Star, Award, ChevronRight } from 'lucide-react';
+import { Star, Award } from 'lucide-react';
+import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 
 const TOP_ALBUMS = [
@@ -28,15 +29,12 @@ export const TopRatedSection = ({ type }: TopRatedSectionProps) => {
 
   return (
     <section className="explore-section">
-      <div className="explore-section__header">
-        <div className="explore-section__header-left">
-          <Award size={22} className="explore-section__header-icon" />
-          <h2 className="explore-section__title">Mejores Calificados</h2>
-        </div>
-        <button className="explore-section__see-all" onClick={openSignup}>
-          Ver todos <ChevronRight size={16} />
-        </button>
-      </div>
+      <SectionHeader
+        icon={<Award size={22} />}
+        title="Mejores Calificados"
+        actionLabel="Ver todos"
+        onAction={openSignup}
+      />
 
       <div className="explore-section__list">
         {items.map((item) => (

@@ -10,6 +10,7 @@
 // comparten el mismo bloque de JSX salvo el orden de los elementos.
 import { useEffect, useState } from 'react';
 import { ArrowUp, Star } from 'lucide-react';
+import { Button } from '../../../core/components/Button';
 import { AlbumCover } from './AlbumCover';
 import type { GenreAlbum } from '../models/Genre';
 import '../styles/_genre.scss';
@@ -168,19 +169,18 @@ export const GenreAlbumList = ({ albums, view }: GenreAlbumListProps) => {
 
           <div className="album-more__actions">
             {hasMore && (
-              <button
-                type="button"
-                className="album-more__btn"
+              <Button
+                variant="outline"
                 onClick={() => setVisibleCount((current) => current + pageSize)}
               >
                 Ver más álbumes
-              </button>
+              </Button>
             )}
 
-            <button type="button" className="album-more__btn album-more__btn--ghost" onClick={scrollToTop}>
+            <Button variant="subtle" onClick={scrollToTop}>
               <ArrowUp size={15} aria-hidden="true" />
               Volver arriba
-            </button>
+            </Button>
           </div>
         </div>
       )}

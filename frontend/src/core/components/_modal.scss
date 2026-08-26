@@ -73,39 +73,4 @@
     }
   }
 
-  &__cancel-btn,
-  &__confirm-btn {
-    padding: 0.6rem $spacing-lg;
-    border-radius: 30px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.2s ease, background-color 0.2s ease;
-  }
-
-  &__cancel-btn {
-    background-color: transparent;
-    color: $color-text;
-    border: 1px solid $color-nav-border;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.05);
-    }
-  }
-
-  &__confirm-btn {
-    background-color: $color-primary;
-    color: #000;
-    border: none;
-
-    &:hover {
-      opacity: 0.9;
-    }
-
-    // Acciones irreversibles (eliminar cuenta, borrar usuario).
-    &--danger {
-      background-color: $color-error;
-      color: $color-text;
-    }
-  }
 }

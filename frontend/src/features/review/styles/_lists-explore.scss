@@ -94,53 +94,6 @@
 
 // ─── Top Lists Section ──────────────────────────────────────
 .top-lists {
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: $spacing-lg;
-    gap: $spacing-md;
-  }
-
-  &__header-left {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-  }
-
-  &__header-icon {
-    color: #feca57;
-    flex-shrink: 0;
-  }
-
-  &__title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: $color-text;
-    margin: 0;
-
-    @media (max-width: $bp-md) {
-      font-size: 1.1rem;
-    }
-  }
-
-  &__see-all {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: $color-primary;
-    font-size: 0.85rem;
-    font-weight: 600;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-    white-space: nowrap;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
 
   &__list {
     display: flex;
@@ -285,53 +238,6 @@
 
 // ─── Trending Lists Section ─────────────────────────────────
 .trending-lists {
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: $spacing-lg;
-    gap: $spacing-md;
-  }
-
-  &__header-left {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-  }
-
-  &__header-icon {
-    color: #ff6b35;
-    flex-shrink: 0;
-  }
-
-  &__title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: $color-text;
-    margin: 0;
-
-    @media (max-width: $bp-md) {
-      font-size: 1.1rem;
-    }
-  }
-
-  &__see-all {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    color: $color-primary;
-    font-size: 0.85rem;
-    font-weight: 600;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-    white-space: nowrap;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
 
   &__feed {
     display: flex;

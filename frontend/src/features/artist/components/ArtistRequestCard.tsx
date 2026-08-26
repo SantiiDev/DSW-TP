@@ -4,7 +4,9 @@
 // Es presentacional: no llama a la API ni guarda estado; avisa al padre
 // (ArtistRequestsSection) con onApprove / onReject.
 import { CheckCircle2, UserRound, XCircle } from 'lucide-react';
-import { STATE_LABELS } from '../models/Artist';
+import { Badge } from '../../../core/components/Badge';
+import { Button } from '../../../core/components/Button';
+import { STATE_LABELS, STATE_TONES } from '../models/Artist';
 import type { Artist } from '../models/Artist';
 import '../styles/_artist.scss';
 
@@ -32,9 +34,7 @@ export const ArtistRequestCard = ({
     <li className="artist-request">
       <div className="artist-request__head">
         <h4 className="artist-request__name">{artist.name}</h4>
-        <span className={`artist-request__badge artist-request__badge--${artist.state}`}>
-          {STATE_LABELS[artist.state]}
-        </span>
+        <Badge tone={STATE_TONES[artist.state]}>{STATE_LABELS[artist.state]}</Badge>
       </div>
 
       <p className="artist-request__author">
@@ -52,27 +52,17 @@ export const ArtistRequestCard = ({
 
       <div className="artist-request__actions">
         {canApprove && (
-          <button
-            type="button"
-            className="artist-request__btn artist-request__btn--approve"
-            disabled={isBusy}
-            onClick={() => onApprove(artist)}
-          >
+          <Button variant="success" disabled={isBusy} onClick={() => onApprove(artist)}>
             <CheckCircle2 size={16} aria-hidden="true" />
             {artist.state === 'pending' ? 'Aprobar' : 'Aprobar igual'}
-          </button>
+          </Button>
         )}
 
         {canReject && (
-          <button
-            type="button"
-            className="artist-request__btn artist-request__btn--reject"
-            disabled={isBusy}
-            onClick={() => onReject(artist)}
-          >
+          <Button variant="danger" disabled={isBusy} onClick={() => onReject(artist)}>
             <XCircle size={16} aria-hidden="true" />
             {artist.state === 'pending' ? 'Rechazar' : 'Dar de baja'}
-          </button>
+          </Button>
         )}
       </div>
     </li>

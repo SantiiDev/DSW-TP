@@ -150,25 +150,4 @@
     margin: 0;
   }
   
-  &__socials {
-    display: flex;
-    gap: $spacing-sm;
-  }
-  
-  &__social-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: $color-bg-light;
-    color: $color-text-secondary;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    
-    &:hover {
-      background-color: $color-primary;
-      color: $color-nav-bg;
-    }
-  }
 }

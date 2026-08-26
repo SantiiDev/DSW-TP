@@ -1,6 +1,7 @@
 // Modelo de un artista dentro del frontend.
 // El resto de la app trabaja SIEMPRE con esta clase; el JSON crudo del backend no
 // sale nunca de la capa de servicios (ver services/artistService.ts).
+import type { BadgeTone } from '../../../core/components/Badge';
 
 /** Estados de moderación del catálogo, igual que el enum ARTIST.state del backend. */
 export const CONTENT_STATES = ['pending', 'approved', 'rejected'] as const;
@@ -11,6 +12,17 @@ export const STATE_LABELS: Record<ContentState, string> = {
   pending: 'Pendiente',
   approved: 'Aprobado',
   rejected: 'Rechazado',
+};
+
+/**
+ * Color de la pastilla de cada estado (ver core/components/Badge).
+ * Se define acá, junto a las etiquetas, para que la ficha, la tabla del panel y
+ * la cola de solicitudes pinten el mismo estado del mismo color.
+ */
+export const STATE_TONES: Record<ContentState, BadgeTone> = {
+  pending: 'warning',
+  approved: 'success',
+  rejected: 'danger',
 };
 
 /** Álbum del artista, tal como viaja dentro de su ficha en la API. */

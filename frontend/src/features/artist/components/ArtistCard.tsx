@@ -3,7 +3,8 @@
 //
 // No navega a ningún lado: la ficha del artista se ve desde el panel de
 // administración, que es donde se lo administra.
-import { STATE_LABELS } from '../models/Artist';
+import { Badge } from '../../../core/components/Badge';
+import { STATE_LABELS, STATE_TONES } from '../models/Artist';
 import type { Artist } from '../models/Artist';
 import '../styles/_artist.scss';
 
@@ -31,9 +32,7 @@ export const ArtistCard = ({ artist, showState = false }: ArtistCardProps) => {
         <span className="artist-card__albums">{artist.albumsLabel}</span>
 
         {showState && (
-          <span className={`artist-card__badge artist-card__badge--${artist.state}`}>
-            {STATE_LABELS[artist.state]}
-          </span>
+          <Badge tone={STATE_TONES[artist.state]}>{STATE_LABELS[artist.state]}</Badge>
         )}
       </div>
     </article>
