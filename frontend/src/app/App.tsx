@@ -1,97 +1,122 @@
-// Componente raíz de la aplicación (App.tsx).
-// Responsable de definir la configuración del enrutador (React Router v6) y establecer 
-// el layout principal que envuelve a todas las páginas. También inyecta contextos globales
-// (como el modal de autenticación) y maneja el restablecimiento del scroll al cambiar de ruta.
-import { Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
-import { Home } from '../features/home/Home';
-import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
-import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
-import { UserProfilePage } from '../features/user/pages/UserProfilePage';
-import { AdminUsersPage } from '../features/user/pages/AdminUsersPage';
-import { ProPage } from '../features/membership/pages/ProPage';
-import { ListsExplorePage } from '../features/review/pages/ListsExplorePage';
-import { AuthProvider } from '../core/context/AuthContext';
-import { AuthModalProvider } from '../core/context/AuthModalContext';
-import { AuthModal } from '../features/user/components/AuthModal';
-import { ProtectedRoute } from '../core/components/ProtectedRoute';
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from './assets/vite.svg'
+import heroImg from './assets/hero.png'
+import './App.css'
 
-// Static Info Pages
-import { TermsPage } from '../features/home/pages/TermsPage';
-import { PrivacyPage } from '../features/home/pages/PrivacyPage';
-import { FaqPage } from '../features/home/pages/FaqPage';
-import { ContactPage } from '../features/home/pages/ContactPage';
-
-export const App = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    // Usamos setTimeout para evitar que la restauración automática de scroll del navegador
-    // sobrescriba nuestro scroll, y para dar tiempo a que el DOM se actualice completamente
-    // después de los remounts causados por el cambio de key.
-    const timeoutId = setTimeout(() => {
-      window.scrollTo(0, 0);
-      document.documentElement.scrollTo(0, 0);
-      document.body.scrollTo(0, 0);
-    }, 0);
-
-    return () => clearTimeout(timeoutId);
-  }, [location.pathname]);
+function App() {
+  const [count, setCount] = useState(0)
 
   return (
-    // AuthProvider envuelve a todo: la sesión la necesitan tanto el modal de
-    // autenticación como el Navbar y las rutas protegidas.
-    <AuthProvider>
-      <AuthModalProvider>
-        <div key={location.pathname} className="fade-in">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/music" element={<MusicExplorePage />} />
-            <Route path="/members" element={<MembersExplorePage />} />
-            <Route path="/lists" element={<ListsExplorePage />} />
-            <Route path="/pro" element={<ProPage />} />
-
-            {/* Static Pages */}
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/faq" element={<FaqPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-
-            {/* Rutas privadas: solo entran si hay sesión (ver ProtectedRoute). */}
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <UserProfilePage />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Perfil público de otro usuario: la misma página, en solo lectura.
-                Pide sesión porque la API exige token en todos sus endpoints. */}
-            <Route
-              path="/users/:id"
-              element={
-                <ProtectedRoute>
-                  <UserProfilePage />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Panel de administración: además de sesión exige rol ADMIN. */}
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute roles={['ADMIN']}>
-                  <AdminUsersPage />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
+    <>
+      <section id="center">
+        <div className="hero">
+          <img src={heroImg} className="base" width="170" height="179" alt="" />
+          <img src={reactLogo} className="framework" alt="React logo" />
+          <img src={viteLogo} className="vite" alt="Vite logo" />
         </div>
-        <AuthModal />
-      </AuthModalProvider>
-    </AuthProvider>
-  );
-};
+        <div>
+          <h1>Get started</h1>
+          <p>
+            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+          </p>
+        </div>
+        <button
+          type="button"
+          className="counter"
+          onClick={() => setCount((count) => count + 1)}
+        >
+          Count is {count}
+        </button>
+      </section>
 
+      <div className="ticks"></div>
+
+      <section id="next-steps">
+        <div id="docs">
+          <svg className="icon" role="presentation" aria-hidden="true">
+            <use href="/icons.svg#documentation-icon"></use>
+          </svg>
+          <h2>Documentation</h2>
+          <p>Your questions, answered</p>
+          <ul>
+            <li>
+              <a href="https://vite.dev/" target="_blank">
+                <img className="logo" src={viteLogo} alt="" />
+                Explore Vite
+              </a>
+            </li>
+            <li>
+              <a href="https://react.dev/" target="_blank">
+                <img className="button-icon" src={reactLogo} alt="" />
+                Learn more
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div id="social">
+          <svg className="icon" role="presentation" aria-hidden="true">
+            <use href="/icons.svg#social-icon"></use>
+          </svg>
+          <h2>Connect with us</h2>
+          <p>Join the Vite community</p>
+          <ul>
+            <li>
+              <a href="https://github.com/vitejs/vite" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#github-icon"></use>
+                </svg>
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a href="https://chat.vite.dev/" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#discord-icon"></use>
+                </svg>
+                Discord
+              </a>
+            </li>
+            <li>
+              <a href="https://x.com/vite_js" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#x-icon"></use>
+                </svg>
+                X.com
+              </a>
+            </li>
+            <li>
+              <a href="https://bsky.app/profile/vite.dev" target="_blank">
+                <svg
+                  className="button-icon"
+                  role="presentation"
+                  aria-hidden="true"
+                >
+                  <use href="/icons.svg#bluesky-icon"></use>
+                </svg>
+                Bluesky
+              </a>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <div className="ticks"></div>
+      <section id="spacer"></section>
+    </>
+  )
+}
+
+export default App
