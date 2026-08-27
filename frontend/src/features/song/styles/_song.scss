@@ -1,0 +1,334 @@
+// Estilos de la feature song: el formulario y la tabla del panel de
+// administración, y las canciones aportadas que se listan en el perfil.
+//
+// El tracklist NO está acá: vive en _album.scss, porque se dibuja dentro de la
+// ficha del álbum y es parte de esa página.
+//
+// Mobile-first: primero los estilos para pantalla chica y después las media
+// queries que amplían. Los colores y espaciados salen de las variables globales.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// --- Formulario de alta y edición ------------------------------------------
+
+// Igual que .album-form: la caja la pone la Card (o el FormModal) que lo envuelve.
+.song-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  // Pista y duración comparten fila desde tablet: los dos son campos numéricos
+  // cortos y ponerlos uno debajo del otro estira el formulario sin necesidad.
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}
+
+// --- Sección del panel de administración -----------------------------------
+
+.song-admin {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__list-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__filter {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // Pie del listado paginado: cuántas filas se ven y el botón para traer más.
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__more-count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Aportes del perfil (pestaña "Aportes") --------------------------------
+
+.song-contributions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  // Una canción por fila: sin portada no hay nada que ganar con una grilla.
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+}
+
+// Mismo caso que .album-contributions en _album.scss: en la pestaña "Aportes"
+// del perfil la lista va debajo del selector de segmentos, y el panel que los
+// contiene no separa a sus hijos.
+.profile-panel .song-contributions {
+  margin-top: $spacing-md;
+}
+
+// --- Card de una canción (aportes del perfil) ------------------------------
+
+.song-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: 0.6rem 0.9rem;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 10px;
+  // Las aprobadas son un enlace a su ficha: hay que apagarle el celeste y el
+  // subrayado que el navegador le pone a un <a>.
+  color: inherit;
+  text-decoration: none;
+
+  &--link {
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+  }
+
+  &__info {
+    // Sin esto, un título largo estira la fila en vez de cortarse.
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__location {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-shrink: 0;
+  }
+
+  &__duration {
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Ficha pública de una canción -------------------------------------------
+//
+// Misma estructura que la ficha de álbum (_album.scss): carátula grande a la
+// izquierda, datos a la derecha y las secciones debajo. Se repiten los valores en
+// vez de compartir las clases para que las dos features sigan siendo
+// independientes: si mañana la ficha de álbum cambia de layout, esta no se rompe.
+
+.song-detail {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media (min-width: $bp-md) {
+    padding: $spacing-xl $spacing-lg;
+  }
+
+  // La portada arriba y los datos abajo en mobile; en fila desde tablet.
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-lg;
+    text-align: center;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: flex-end;
+      text-align: left;
+    }
+
+    // La carátula es el componente AlbumCover, que en tamaño 'lg' ocupa todo el
+    // ancho disponible: acá se le pone un techo para que no crezca sin límite.
+    .album-cover {
+      width: 200px;
+      max-width: 60vw;
+      flex-shrink: 0;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+
+    @media (min-width: $bp-md) {
+      align-items: flex-start;
+    }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: $color-text;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.4rem;
+    }
+  }
+
+  &__artist {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  &__meta {
+    margin: 0;
+    font-size: 0.88rem;
+    color: $color-text-secondary;
+  }
+
+  // El título del álbum dentro de la línea de datos lleva a su ficha.
+  &__album-link {
+    color: $color-text;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+      border-bottom-color: $color-primary;
+    }
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    min-width: 0;
+  }
+
+  &__section-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 0.5rem $spacing-lg;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    color: $color-text;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      border-color: $color-primary;
+      background-color: rgba($color-primary, 0.1);
+    }
+  }
+}

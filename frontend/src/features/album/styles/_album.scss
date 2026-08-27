@@ -1,0 +1,464 @@
+// Estilos de la feature album: el formulario y la tabla del panel de
+// administración, los aportes del perfil y la ficha pública de un álbum con su
+// tracklist.
+//
+// Mobile-first: primero los estilos para pantalla chica y después las media
+// queries que amplían. Los colores y espaciados salen de las variables globales.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// --- Formulario de alta y edición ------------------------------------------
+
+// Igual que .artist-form: la caja la pone la Card (o el FormModal) que lo envuelve.
+.album-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  // Año y portada comparten fila desde tablet: los dos son campos cortos y
+  // ponerlos uno debajo del otro estira el formulario sin necesidad.
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+
+  // El fieldset trae borde y padding propios del navegador: se los saca para que
+  // se vea como un campo más del formulario.
+  &__genres {
+    margin: 0;
+    padding: 0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__genre-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  // Cada género es una pastilla con su casilla adentro, para que se pueda tocar
+  // entero en mobile y no solo el cuadradito.
+  &__genre {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.35rem 0.8rem;
+    background-color: $color-bg;
+    border: 1px solid $color-nav-border;
+    border-radius: 20px;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    // El verde de la marca en la casilla, en vez del azul del sistema.
+    input {
+      accent-color: $color-primary;
+      cursor: pointer;
+    }
+
+    // :has() mira si la casilla de adentro está marcada: es lo que permite
+    // resaltar la pastilla entera sin guardar ese estado en JavaScript.
+    &:has(input:checked) {
+      border-color: $color-primary;
+      color: $color-text;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}
+
+// --- Sección del panel de administración -----------------------------------
+
+.album-admin {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__list-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__filter {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // Pie del listado paginado: cuántas filas se ven y el botón para traer más.
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__more-count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Aportes del perfil (pestaña "Aportes") --------------------------------
+
+.album-contributions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+  }
+}
+
+// En la pestaña "Aportes" del perfil la lista va debajo del selector de
+// segmentos, y el panel que los contiene no separa a sus hijos. Va acotado al
+// panel del perfil para que la lista, en cualquier otro lugar, no arrastre un
+// margen de más.
+.profile-panel .album-contributions {
+  margin-top: $spacing-md;
+}
+
+// --- Card de un álbum (aportes del perfil) ---------------------------------
+
+.album-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  height: 100%;
+  // Sin esto, un título largo estira la columna de la grilla en vez de cortarse.
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: $color-text;
+    // Los títulos largos se cortan con puntos suspensivos.
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__artist,
+  &__meta {
+    margin: 0;
+    max-width: 100%;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Solo las cards de álbumes aprobados navegan: son las únicas que tienen ficha.
+  &--link:hover {
+    transform: translateY(-3px);
+  }
+
+  &--link {
+    transition: transform 0.2s ease;
+  }
+}
+
+// --- Calificación promedio --------------------------------------------------
+
+.album-rating-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: $color-text;
+  white-space: nowrap;
+
+  &__star {
+    color: #f5c518;
+    fill: #f5c518;
+  }
+
+  &__max,
+  &__count {
+    color: $color-text-secondary;
+    font-size: 0.82rem;
+  }
+
+  &--lg {
+    font-size: 1.1rem;
+  }
+
+  // Mientras el álbum o la pista no tengan reseñas se muestra un texto gris, no
+  // un "0 / 5", que se leería como una calificación pésima.
+  &--empty {
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Ficha pública de un álbum ----------------------------------------------
+
+.album-detail {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media (min-width: $bp-md) {
+    padding: $spacing-xl $spacing-lg;
+  }
+
+  // La portada arriba y los datos abajo en mobile; en fila desde tablet.
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-lg;
+    text-align: center;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: flex-end;
+      text-align: left;
+    }
+
+    // La carátula es el componente AlbumCover, que en tamaño 'lg' ocupa todo el
+    // ancho disponible: acá se le pone un techo para que no crezca sin límite.
+    .album-cover {
+      width: 200px;
+      max-width: 60vw;
+      flex-shrink: 0;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+
+    @media (min-width: $bp-md) {
+      align-items: flex-start;
+    }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: $color-text;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.4rem;
+    }
+  }
+
+  &__artist {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  &__meta {
+    margin: 0;
+    font-size: 0.88rem;
+    color: $color-text-secondary;
+  }
+
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    min-width: 0;
+  }
+
+  &__section-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__back {
+    align-self: flex-start;
+    padding: 0.5rem $spacing-lg;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    color: $color-text;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      border-color: $color-primary;
+      background-color: rgba($color-primary, 0.1);
+    }
+  }
+}
+
+// --- Tracklist --------------------------------------------------------------
+
+.tracklist {
+  // El <ol> ya numera solo, pero el número de pista es un dato del álbum (puede
+  // empezar en otro número si falta una pista): se dibuja a mano y se apaga el
+  // contador del navegador.
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  // Cada fila es un enlace a la ficha de la canción, así que hay que apagarle el
+  // celeste y el subrayado que el navegador le pone a un <a>.
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    padding: 0.6rem 0.9rem;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 10px;
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+  }
+
+  // La flechita de "esto lleva a algún lado". Aparece atenuada y se enciende al
+  // pasar por encima, para no competir con el título de la pista.
+  &__chevron {
+    flex-shrink: 0;
+    color: $color-text-secondary;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  &__item:hover &__chevron {
+    color: $color-primary;
+    transform: translateX(2px);
+  }
+
+  &__number {
+    flex-shrink: 0;
+    min-width: 1.6rem;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    color: $color-text-secondary;
+    text-align: right;
+  }
+
+  &__title {
+    // El margen automático empuja la calificación y la duración contra el borde
+    // derecho.
+    margin-right: auto;
+    min-width: 0;
+    font-size: 0.92rem;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__duration {
+    flex-shrink: 0;
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    color: $color-text-secondary;
+  }
+}

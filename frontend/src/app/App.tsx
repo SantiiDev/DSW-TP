@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import { Home } from '../features/home/Home';
 import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
 import { GenreDetailPage } from '../features/genre/pages/GenreDetailPage';
+import { AlbumDetailPage } from '../features/album/pages/AlbumDetailPage';
+import { SongDetailPage } from '../features/song/pages/SongDetailPage';
 import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
 import { UserProfilePage } from '../features/user/pages/UserProfilePage';
 import { AdminPage } from '../features/user/pages/AdminPage';
@@ -52,6 +54,15 @@ export const App = () => {
             {/* Ficha de un género. Es pública, igual que el explorador desde el
                 que se llega: leer géneros no pide token. */}
             <Route path="/genres/:id" element={<GenreDetailPage />} />
+
+            {/* Ficha de un álbum, con su tracklist. También es pública: se llega
+                desde la ficha del género, y la API devuelve acá solo el catálogo
+                ya aprobado. */}
+            <Route path="/albums/:id" element={<AlbumDetailPage />} />
+
+            {/* Ficha de una canción, con sus reseñas. Se llega desde el tracklist
+                del álbum, así que también es pública. */}
+            <Route path="/songs/:id" element={<SongDetailPage />} />
             <Route path="/members" element={<MembersExplorePage />} />
             <Route path="/lists" element={<ListsExplorePage />} />
             <Route path="/pro" element={<ProPage />} />

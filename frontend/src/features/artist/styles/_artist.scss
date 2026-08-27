@@ -309,6 +309,14 @@
   }
 }
 
+// En la pestaña "Aportes" del perfil la lista va debajo del selector de
+// segmentos (Artistas / Álbumes / Canciones), y el panel que los contiene no
+// separa a sus hijos. Va acotado al panel del perfil para que la lista, en
+// cualquier otro lugar, no arrastre un margen de más.
+.profile-panel .artist-contributions {
+  margin-top: $spacing-md;
+}
+
 // --- Modal de propuesta (pestaña "Aportes") --------------------------------
 //
 // Mismo comportamiento visual que el ConfirmDialog de core, pero con un

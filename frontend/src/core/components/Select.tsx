@@ -14,9 +14,15 @@
 //     value={rol}
 //     onChange={(nuevoRol) => setRol(nuevoRol)}
 //   />
-import { useEffect, useId, useRef, useState } from 'react';
+//
+// Con `searchable` suma un buscador arriba de la lista, para las listas largas
+// donde bajar hasta la opción a mano es impracticable (los 263 álbumes del
+// formulario de canción, los 89 artistas del de álbum):
+//
+//   <Select options={albumes} value={id} onChange={setId} searchable />
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, ChevronDown } from 'lucide-react';
+import { Check, ChevronDown, Search } from 'lucide-react';
 import './_select.scss';
 
 /** Una opción del desplegable: el valor que viaja y el texto que se muestra. */
@@ -50,13 +56,22 @@ type SelectProps<T extends string | number> = {
   highlighted?: boolean;
   /** Estira el control al ancho del contenedor (formularios, filtros en columna). */
   fullWidth?: boolean;
+  /**
+   * Suma un campo de búsqueda arriba de la lista, que la filtra a medida que se
+   * escribe. Se activa solo en las listas largas: con cuatro opciones el buscador
+   * es un estorbo.
+   */
+  searchable?: boolean;
+  /** Texto de ayuda del buscador. Solo se usa con `searchable`. */
+  searchPlaceholder?: string;
   /** Clases extra para el botón, por si una feature necesita destacarlo. */
   className?: string;
 };
 
-// Alto máximo del panel (coincide con el max-height del CSS). Se usa para decidir
-// si abrirlo hacia abajo o hacia arriba según el espacio que quede en pantalla.
-const MAX_PANEL_HEIGHT = 260;
+// Alto máximo del panel (la lista más, si lo hay, el buscador). Se usa para
+// decidir si abrirlo hacia abajo o hacia arriba según el espacio que quede en
+// pantalla, así que alcanza con que sea una estimación del alto real.
+const MAX_PANEL_HEIGHT = 300;
 
 // Separación entre el botón y el panel.
 const PANEL_GAP = 4;
@@ -89,6 +104,25 @@ type PanelPosition = {
   bottom?: number;
 };
 
+/**
+ * Normaliza un texto para poder buscarlo: minúsculas y sin acentos, así "Bailá"
+ * se encuentra escribiendo "baila".
+ *
+ * NFD separa cada letra acentuada en letra + acento aparte ("á" pasa a ser "a" +
+ * tilde), y el filtro siguiente borra ese acento suelto.
+ */
+function normalize(text: string): string {
+  return (
+    text
+      .toLowerCase()
+      .normalize('NFD')
+      // \p{Diacritic} son justamente esos acentos sueltos. Se usa la clase
+      // Unicode y no el rango de caracteres literales, que en el editor se ven
+      // como espacios y cualquiera los borraría sin querer.
+      .replace(/\p{Diacritic}/gu, '')
+  );
+}
+
 export function Select<T extends string | number>({
   options,
   value,
@@ -100,6 +134,8 @@ export function Select<T extends string | number>({
   size = 'md',
   highlighted = false,
   fullWidth = false,
+  searchable = false,
+  searchPlaceholder = 'Buscar...',
   className = '',
 }: SelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
@@ -107,15 +143,32 @@ export function Select<T extends string | number>({
   // con las flechas no cambia el valor hasta apretar Enter.
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [position, setPosition] = useState<PanelPosition | null>(null);
+  // Lo que se escribió en el buscador. Se vacía cada vez que se abre el panel:
+  // el filtro de la vez anterior no tiene por qué seguir aplicado.
+  const [query, setQuery] = useState('');
 
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLUListElement>(null);
+  // El panel entero (buscador + lista): es el que decide si un click fue adentro.
+  const panelRef = useRef<HTMLDivElement>(null);
+  // Solo la lista: es sobre la que se calcula qué opción traer a la vista.
+  const listRef = useRef<HTMLUListElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
   // Ids únicos por instancia: puede haber varios Select en la misma pantalla
   // (la tabla de usuarios dibuja uno por fila).
-  const panelId = useId();
+  const listId = useId();
 
-  const selectedIndex = options.findIndex((option) => option.value === value);
-  const selectedLabel = selectedIndex >= 0 ? options[selectedIndex].label : placeholder;
+  const selectedOption = options.find((option) => option.value === value);
+  const selectedLabel = selectedOption ? selectedOption.label : placeholder;
+
+  // Las opciones que se están mostrando. Sin buscador (o con el campo vacío) son
+  // todas, así que el resto del componente trabaja siempre contra esta lista y no
+  // le importa si hay filtro o no.
+  const visibleOptions = useMemo(() => {
+    if (!searchable || query.trim() === '') return options;
+
+    const term = normalize(query.trim());
+    return options.filter((option) => normalize(option.label).includes(term));
+  }, [options, query, searchable]);
 
   /** Calcula dónde dibujar el panel a partir de la posición del botón en pantalla. */
   const updatePosition = () => {
@@ -143,7 +196,9 @@ export function Select<T extends string | number>({
 
   const openPanel = () => {
     if (disabled) return;
+    setQuery('');
     // Arranca marcada la opción actual, para que las flechas sigan desde ahí.
+    const selectedIndex = options.findIndex((option) => option.value === value);
     setHighlightedIndex(selectedIndex >= 0 ? selectedIndex : 0);
     updatePosition();
     setIsOpen(true);
@@ -190,22 +245,65 @@ export function Select<T extends string | number>({
     };
   }, [isOpen]);
 
+  // Con buscador, el foco pasa al campo apenas se abre: se puede escribir sin
+  // tener que hacerle click primero.
+  useEffect(() => {
+    if (isOpen && searchable) searchRef.current?.focus();
+  }, [isOpen, searchable]);
+
   // Mantiene visible la opción marcada al recorrer una lista larga con el teclado.
   useEffect(() => {
     if (!isOpen) return;
-    const option = panelRef.current?.children[highlightedIndex];
+    const option = listRef.current?.children[highlightedIndex];
     option?.scrollIntoView({ block: 'nearest' });
   }, [isOpen, highlightedIndex]);
 
-  /** Teclado sobre el botón: abre, recorre las opciones y confirma o cancela. */
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    // Tab tiene que seguir moviendo el foco: solo se cierra el panel.
-    if (e.key === 'Tab') {
-      closePanel();
-      return;
+  /**
+   * Recorre las opciones con el teclado y confirma o cancela.
+   *
+   * La comparten el botón y el campo de búsqueda: con buscador el foco está en el
+   * campo, así que las flechas y el Enter llegan por ahí y no por el botón.
+   *
+   * @param e evento de teclado.
+   * @returns true si consumió la tecla; con false, quien llama sigue con lo suyo.
+   */
+  const handleListKeys = (e: React.KeyboardEvent): boolean => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex((current) =>
+          visibleOptions.length === 0 ? 0 : (current + 1) % visibleOptions.length
+        );
+        return true;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex((current) =>
+          visibleOptions.length === 0
+            ? 0
+            : (current - 1 + visibleOptions.length) % visibleOptions.length
+        );
+        return true;
+      case 'Home':
+        e.preventDefault();
+        setHighlightedIndex(0);
+        return true;
+      case 'End':
+        e.preventDefault();
+        setHighlightedIndex(Math.max(0, visibleOptions.length - 1));
+        return true;
+      case 'Enter':
+        e.preventDefault();
+        if (visibleOptions[highlightedIndex]) handleSelect(visibleOptions[highlightedIndex]);
+        return true;
+      default:
+        return false;
     }
+  };
 
-    if (e.key === 'Escape') {
+  /** Teclado sobre el botón: abre, recorre las opciones y confirma o cancela. */
+  const handleTriggerKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    // Tab tiene que seguir moviendo el foco: solo se cierra el panel.
+    if (e.key === 'Tab' || e.key === 'Escape') {
       closePanel();
       return;
     }
@@ -218,31 +316,26 @@ export function Select<T extends string | number>({
       return;
     }
 
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setHighlightedIndex((current) => (current + 1) % options.length);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setHighlightedIndex((current) => (current - 1 + options.length) % options.length);
-        break;
-      case 'Home':
-        e.preventDefault();
-        setHighlightedIndex(0);
-        break;
-      case 'End':
-        e.preventDefault();
-        setHighlightedIndex(options.length - 1);
-        break;
-      case 'Enter':
-      case ' ':
-        e.preventDefault();
-        if (options[highlightedIndex]) handleSelect(options[highlightedIndex]);
-        break;
-      default:
-        break;
+    // La barra espaciadora elige la opción marcada, igual que Enter. Con buscador
+    // no llega hasta acá: ahí el espacio es un carácter más de la búsqueda.
+    if (e.key === ' ') {
+      e.preventDefault();
+      if (visibleOptions[highlightedIndex]) handleSelect(visibleOptions[highlightedIndex]);
+      return;
     }
+
+    handleListKeys(e);
+  };
+
+  /** Teclado sobre el buscador: lo mismo, pero Escape vuelve el foco al botón. */
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape' || e.key === 'Tab') {
+      closePanel();
+      if (e.key === 'Escape') triggerRef.current?.focus();
+      return;
+    }
+
+    handleListKeys(e);
   };
 
   const wrapperClass = ['select', fullWidth ? 'select--full' : ''].filter(Boolean).join(' ');
@@ -270,11 +363,11 @@ export function Select<T extends string | number>({
         role="combobox"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-controls={isOpen ? panelId : undefined}
-        aria-activedescendant={isOpen ? `${panelId}-option-${highlightedIndex}` : undefined}
+        aria-controls={isOpen ? listId : undefined}
+        aria-activedescendant={isOpen ? `${listId}-option-${highlightedIndex}` : undefined}
         aria-label={ariaLabel}
         onClick={() => (isOpen ? closePanel() : openPanel())}
-        onKeyDown={handleKeyDown}
+        onKeyDown={handleTriggerKeyDown}
       >
         <span className="select__value">{selectedLabel}</span>
         <ChevronDown className="select__icon" size={16} aria-hidden="true" />
@@ -283,44 +376,69 @@ export function Select<T extends string | number>({
       {isOpen &&
         position &&
         createPortal(
-          <ul
-            id={panelId}
-            ref={panelRef}
-            className="select__panel"
-            role="listbox"
-            style={position}
-          >
-            {options.map((option, index) => {
-              const isSelected = option.value === value;
-              const isHighlighted = index === highlightedIndex;
-
-              return (
-                <li
-                  key={option.value}
-                  id={`${panelId}-option-${index}`}
-                  className={[
-                    'select__option',
-                    isHighlighted ? 'select__option--highlighted' : '',
-                    isSelected ? 'select__option--selected' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  role="option"
-                  aria-selected={isSelected}
-                  // El click se resuelve en mousedown y no en click: el listener
-                  // que cierra al hacer click afuera también corre en mousedown.
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleSelect(option);
+          <div ref={panelRef} className="select__panel" style={position}>
+            {searchable && (
+              <div className="select__search">
+                <Search className="select__search-icon" size={15} aria-hidden="true" />
+                <input
+                  ref={searchRef}
+                  type="text"
+                  className="select__search-input"
+                  placeholder={searchPlaceholder}
+                  aria-label={searchPlaceholder}
+                  aria-controls={listId}
+                  aria-activedescendant={`${listId}-option-${highlightedIndex}`}
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    // El filtro cambia la lista entera: la marca vuelve al primer
+                    // resultado, que si no quedaría apuntando a cualquier lado.
+                    setHighlightedIndex(0);
                   }}
-                  onMouseEnter={() => setHighlightedIndex(index)}
-                >
-                  <span className="select__option-label">{option.label}</span>
-                  {isSelected && <Check size={14} aria-hidden="true" />}
-                </li>
-              );
-            })}
-          </ul>,
+                  onKeyDown={handleSearchKeyDown}
+                />
+              </div>
+            )}
+
+            <ul id={listId} ref={listRef} className="select__list" role="listbox">
+              {visibleOptions.map((option, index) => {
+                const isSelected = option.value === value;
+                const isHighlighted = index === highlightedIndex;
+
+                return (
+                  <li
+                    key={option.value}
+                    id={`${listId}-option-${index}`}
+                    className={[
+                      'select__option',
+                      isHighlighted ? 'select__option--highlighted' : '',
+                      isSelected ? 'select__option--selected' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    role="option"
+                    aria-selected={isSelected}
+                    // El click se resuelve en mousedown y no en click: el listener
+                    // que cierra al hacer click afuera también corre en mousedown.
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelect(option);
+                    }}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                  >
+                    <span className="select__option-label">{option.label}</span>
+                    {isSelected && <Check size={14} aria-hidden="true" />}
+                  </li>
+                );
+              })}
+
+              {/* Con el buscador vacío esto no puede pasar: solo aparece cuando lo
+                  que se escribió no coincide con ninguna opción. */}
+              {visibleOptions.length === 0 && (
+                <li className="select__empty">No hay resultados para "{query.trim()}".</li>
+              )}
+            </ul>
+          </div>,
           document.body
         )}
     </div>

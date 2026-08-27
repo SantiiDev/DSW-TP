@@ -1,0 +1,78 @@
+// Estilos del diálogo con formulario (core/components/FormModal.tsx).
+// Mismo comportamiento visual que el ConfirmDialog de _modal.scss, pero con un
+// formulario adentro en vez de un par de botones.
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/mixins' as *;
+
+.form-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  // Por encima del AuthModal (1000), igual que el diálogo de confirmación.
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md;
+}
+
+.form-modal {
+  width: 100%;
+  max-width: 520px;
+  // En pantallas bajas el formulario no entra entero: el diálogo scrollea solo.
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: $spacing-lg;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__close {
+    @include control-centrado;
+    padding: 0.3rem;
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: $color-text;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+  }
+}

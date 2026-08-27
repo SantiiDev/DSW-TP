@@ -9,6 +9,7 @@
 // Las dos vistas muestran los mismos datos y cambian solo el CSS, así que
 // comparten el mismo bloque de JSX salvo el orden de los elementos.
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowUp, Star } from 'lucide-react';
 import { Button } from '../../../core/components/Button';
 import { AlbumCover } from './AlbumCover';
@@ -138,24 +139,29 @@ export const GenreAlbumList = ({ albums, view }: GenreAlbumListProps) => {
     <>
       <ul className={`album-collection album-collection--${view}`}>
         {visibleAlbums.map((album) => (
-          <li key={album.id} className="album-item">
-            <AlbumCover
-              title={album.title}
-              url={album.urlCover}
-              size={view === 'grid' ? 'lg' : 'sm'}
-            />
+          // Toda la fila (o la tarjeta) es el enlace a la ficha del álbum, que
+          // aporta la feature album. Solo se listan álbumes aprobados, así que
+          // todos tienen ficha.
+          <li key={album.id}>
+            <Link to={`/albums/${album.id}`} className="album-item">
+              <AlbumCover
+                title={album.title}
+                url={album.urlCover}
+                size={view === 'grid' ? 'lg' : 'sm'}
+              />
 
-            <div className="album-item__info">
-              <p className="album-item__title">{album.title}</p>
-              <p className="album-item__artist">{album.artistName}</p>
-              {/* El año solo aparece en la lista: en la grilla las tarjetas ya
-                  quedan altas con la carátula, el título y el artista. */}
-              {view === 'list' && album.releaseYear !== null && (
-                <p className="album-item__year">{album.releaseYear}</p>
-              )}
-            </div>
+              <div className="album-item__info">
+                <p className="album-item__title">{album.title}</p>
+                <p className="album-item__artist">{album.artistName}</p>
+                {/* El año solo aparece en la lista: en la grilla las tarjetas ya
+                    quedan altas con la carátula, el título y el artista. */}
+                {view === 'list' && album.releaseYear !== null && (
+                  <p className="album-item__year">{album.releaseYear}</p>
+                )}
+              </div>
 
-            <AlbumRating album={album} />
+              <AlbumRating album={album} />
+            </Link>
           </li>
         ))}
       </ul>

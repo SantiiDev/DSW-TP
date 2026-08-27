@@ -309,6 +309,13 @@
   margin: 0;
   padding: 0;
 
+  // Cada álbum es un <li> con el enlace a su ficha adentro. El min-width lo
+  // necesita el <li>, que es el hijo directo de la grilla: sin él, un título
+  // largo estira su columna y las cuatro dejan de medir lo mismo.
+  > li {
+    min-width: 0;
+  }
+
   // Vista de lista: una fila por álbum, con la carátula chica a la izquierda y
   // la calificación empujada contra el borde derecho.
   &--list {
@@ -405,6 +412,11 @@
 }
 
 .album-item {
+  // Cada álbum de la lista es un enlace a su ficha (/albums/:id), así que hay que
+  // apagarle el celeste y el subrayado que el navegador le pone a un <a>.
+  color: inherit;
+  text-decoration: none;
+
   &__title {
     margin: 0;
     font-size: 0.92rem;

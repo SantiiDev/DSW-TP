@@ -23,6 +23,8 @@
 @use '../core/components/empty-state';
 @use '../core/components/tabs';
 @use '../core/components/select';
+@use '../core/components/search-bar';
+@use '../core/components/form-modal';
 
 // Features Components
 @use '../features/home/components/hero';
@@ -43,6 +45,12 @@
 
 // Géneros
 @use '../features/genre/styles/genre';
+
+// Álbumes
+@use '../features/album/styles/album';
+
+// Canciones
+@use '../features/song/styles/song';
 
 // Lists Explore
 @use '../features/review/styles/lists-explore';

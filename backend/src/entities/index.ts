@@ -58,8 +58,10 @@ Genre.belongsToMany(Album, {
 
 // --- Catálogo: ALBUMS 0:1 --- albums_song --- 1:N SONG ----------------------
 
-// CASCADE: si se elimina un álbum, su tracklist deja de tener sentido.
-Album.hasMany(Song, { foreignKey: 'id_album', as: 'songs', onDelete: 'CASCADE' });
+// RESTRICT: no se borra un álbum que todavía tiene canciones cargadas. Antes era
+// CASCADE, pero así la baja del álbum se llevaba puesto su tracklist entero sin
+// avisar; ahora primero hay que dar de baja las canciones.
+Album.hasMany(Song, { foreignKey: 'id_album', as: 'songs', onDelete: 'RESTRICT' });
 Song.belongsTo(Album, { foreignKey: 'id_album', as: 'album' });
 
 // --- Reseñas ----------------------------------------------------------------
@@ -67,9 +69,15 @@ Song.belongsTo(Album, { foreignKey: 'id_album', as: 'album' });
 User.hasMany(Review, { foreignKey: 'id_user', as: 'reviews', onDelete: 'CASCADE' });
 Review.belongsTo(User, { foreignKey: 'id_user', as: 'user' });
 
-Album.hasMany(Review, { foreignKey: 'id_album', as: 'reviews', onDelete: 'CASCADE' });
+// RESTRICT: no se borra un álbum que todavía tiene reseñas propias cargadas. Son
+// opiniones escritas por la comunidad, no un dato derivado del álbum: la baja
+// tiene que rechazarse en vez de hacerlas desaparecer en silencio.
+Album.hasMany(Review, { foreignKey: 'id_album', as: 'reviews', onDelete: 'RESTRICT' });
 Review.belongsTo(Album, { foreignKey: 'id_album', as: 'album' });
 
+// CASCADE, a diferencia del álbum: una canción sí se puede dar de baja aunque
+// tenga reseñas, y esas reseñas se pierden con ella. Una reseña de canción
+// califica esa pista y nada más, así que sin la pista no queda nada que reseñar.
 Song.hasMany(Review, { foreignKey: 'id_song', as: 'reviews', onDelete: 'CASCADE' });
 Review.belongsTo(Song, { foreignKey: 'id_song', as: 'song' });
 
