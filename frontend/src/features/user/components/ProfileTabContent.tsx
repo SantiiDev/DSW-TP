@@ -1,12 +1,14 @@
 // Contenido de la pestaña activa del perfil.
 //
-// Las secciones que dependen de features todavía no implementadas (reseñas,
-// álbumes y canciones calificados) muestran su estado vacío definitivo. Cuando
-// esos endpoints existan, se reemplaza el EmptyState por el listado real sin
-// tocar ni la cabecera ni la navegación de pestañas: es lo que ya se hizo con
-// "Aportes", que lista los artistas propuestos por el dueño del perfil.
+// Cada feature aporta su propia lista y esta página solo la monta: así lo hacen
+// "Aportes" (con las de artista, álbum y canción) y "Reseñas" (con la de review).
+//
+// Las secciones que dependen de features todavía no implementadas (álbumes y
+// canciones calificados) muestran su estado vacío definitivo. Cuando esos
+// endpoints existan, se reemplaza el EmptyState por el listado real sin tocar ni
+// la cabecera ni la navegación de pestañas.
 import { useState } from 'react';
-import { Activity, CreditCard, Disc3, Music, Star } from 'lucide-react';
+import { Activity, CreditCard, Disc3, Music } from 'lucide-react';
 import { ButtonLink } from '../../../core/components/Button';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { SegmentedControl } from '../../../core/components/SegmentedControl';
@@ -16,12 +18,15 @@ import type { User } from '../models/User';
 import { AlbumContributionsList } from '../../album/components/AlbumContributionsList';
 import { ArtistContributionsList } from '../../artist/components/ArtistContributionsList';
 import { SongContributionsList } from '../../song/components/SongContributionsList';
+import { UserReviewsList } from '../../review/components/UserReviewsList';
 import type { ProfileTab } from './ProfileTabs';
 
 type ProfileTabContentProps = {
   user: User;
   isOwnProfile: boolean;
   activeTab: ProfileTab;
+  /** Avisa cuando cambian las reseñas, para refrescar los contadores del perfil. */
+  onReviewsChange?: () => void;
 };
 
 /**
@@ -43,7 +48,12 @@ function emptyCopy(isOwnProfile: boolean, own: string, other: string): string {
   return isOwnProfile ? own : other;
 }
 
-export const ProfileTabContent = ({ user, isOwnProfile, activeTab }: ProfileTabContentProps) => {
+export const ProfileTabContent = ({
+  user,
+  isOwnProfile,
+  activeTab,
+  onReviewsChange,
+}: ProfileTabContentProps) => {
   const name = user.username;
 
   // Qué tipo de aporte se está mirando. Va acá arriba y no dentro del case porque
@@ -79,10 +89,14 @@ export const ProfileTabContent = ({ user, isOwnProfile, activeTab }: ProfileTabC
       return (
         <section className="profile-panel">
           <h2 className="profile-panel__title">Reseñas</h2>
-          <EmptyState
-            icon={<Star size={22} />}
-            title={emptyCopy(isOwnProfile, 'No publicaste ninguna reseña.', `${name} no publicó reseñas.`)}
-            message="Acá van a listarse las reseñas, con filtro por cantidad de estrellas."
+
+          {/* La lista la pone la feature review, con su filtro por estrellas y su
+              propio estado de carga y de vacío. */}
+          <UserReviewsList
+            userId={user.id}
+            username={name}
+            isOwnProfile={isOwnProfile}
+            onReviewsChange={onReviewsChange}
           />
         </section>
       );

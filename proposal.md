@@ -50,6 +50,9 @@ Ajustes sobre el DER original:
 * `SUBSCRIPTION` incorpora los atributos `end_date` y `state` (`active | expired | cancelled`), que permiten determinar la membresía vigente de un usuario y distinguir una baja voluntaria de un vencimiento.
 * `ALBUMS.average_rating` es un atributo derivado, recalculado al crear, modificar o eliminar una reseña.
 * `REVIEW` incorpora una restricción de unicidad por usuario e ítem: un usuario publica a lo sumo una reseña por álbum y una por canción, con posibilidad de modificarla o eliminarla.
+* `REVIEW` incorpora el atributo `edited_date`, nulo mientras la reseña no se haya modificado desde su publicación. Permite advertir en la interfaz que el contenido fue editado con posterioridad. Se modela como atributo propio y no mediante las columnas de auditoría del ORM porque el proyecto las tiene deshabilitadas: las fechas persistidas son únicamente las previstas en el DER. Las acciones de moderación no lo modifican, ya que no alteran el contenido escrito por el autor.
+* Se agrega la relación N:M **`REVIEW_LIKES`** entre `USERS` y `REVIEW`, para el "me gusta" sobre una reseña ajena. No se modeló como un contador dentro de `REVIEW` porque un contador no registra *quién* reaccionó, y sin ese dato no se puede impedir que un mismo usuario sume varios "me gusta", ni mostrar el estado del botón, ni permitir retirarlo. Al ser una relación N:M, en el pasaje a tablas se materializa como tabla intermedia con clave primaria compuesta `(id_user, id_review)`, con el mismo tratamiento que `GENRES_ALBUMS`.
+* Se agrega la entidad débil **`REVIEW_COMMENTS`**, dependiente de `REVIEW`, para los comentarios sobre una reseña. A diferencia del "me gusta", el comentario tiene atributos propios (`text_comment`, `comment_date`) además de su autor, por lo que constituye una entidad y no una relación. Su existencia depende de la reseña comentada: al eliminarse la reseña se eliminan sus comentarios en cascada. Se le asigna la clave subrogada `id_comment`, con el mismo criterio aplicado en `SONG`, dado que un mismo usuario puede comentar varias veces la misma reseña y por lo tanto `(id_review, id_user)` no identifica unívocamente una fila.
 
 ## Alcance Funcional
 
@@ -85,7 +88,7 @@ CUU 2 (pago)  →  el usuario pasa a ser PRO
 |Req|Detalle|
 |:-|:-|
 |Listados |1. Ranking global de usuarios más activos. <br>2. Panel de Administración (Dashboard Admin) con métricas de ingresos por membresías y cantidad de usuarios por plan.|
-|CUU/Epic|1. Listas personalizadas: Creación y gestión de agrupaciones de álbumes públicas (ej. "Favoritos del Rock Nacional").|
+|CUU/Epic|1. Listas personalizadas: Creación y gestión de agrupaciones de álbumes públicas (ej. "Favoritos del Rock Nacional").<br>2. **Interacción social sobre las reseñas**: un usuario puede marcar con "me gusta" y comentar las reseñas de otros, y compartir el enlace de cualquiera de ellas. Requiere las dos estructuras agregadas al DER (`REVIEW_LIKES` y `REVIEW_COMMENTS`).|
 |Otros|1. Autocompletado de metadatos al dar de alta un álbum desde el circuito de aporte Pro, reutilizando la data ya descargada por el procedimiento de seed.|
 
 ## Stack tecnológico

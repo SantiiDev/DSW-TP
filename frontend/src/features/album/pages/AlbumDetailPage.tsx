@@ -8,11 +8,11 @@
 // La API, en cambio, es pública y devuelve solo el catálogo aprobado: responde
 // 404 sobre un álbum que todavía no se revisó.
 //
-// Las reseñas todavía no tienen endpoints (es la feature review), así que esa
-// sección muestra su estado vacío definitivo. Cuando existan, se reemplaza el
-// EmptyState por el listado paginado sin tocar el resto de la página.
+// Las reseñas las pone entera la feature review, con su propia sección: acá solo
+// se le dice qué ítem mostrar y se le pasa el `reload` del álbum, para que su
+// calificación promedio se actualice apenas alguien publique, edite o borre una.
 import { useParams } from 'react-router-dom';
-import { Disc3, Star } from 'lucide-react';
+import { Disc3 } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { BackLink } from '../../../core/components/BackLink';
 import { EmptyState } from '../../../core/components/EmptyState';
@@ -21,6 +21,7 @@ import { Loader } from '../../../core/components/Loader';
 import { Navbar } from '../../../core/components/Navbar';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { AlbumCover } from '../../genre/components/AlbumCover';
+import { ReviewsSection } from '../../review/components/ReviewsSection';
 import { albumService } from '../services/albumService';
 import { AlbumRating } from '../components/AlbumRating';
 import { AlbumTracklist } from '../components/AlbumTracklist';
@@ -29,7 +30,12 @@ import '../styles/_album.scss';
 export const AlbumDetailPage = () => {
   const { id } = useParams<{ id: string }>();
 
-  const { data: album, isLoading, error } = useFetch(() => albumService.getById(Number(id)), id);
+  const {
+    data: album,
+    isLoading,
+    error,
+    reload,
+  } = useFetch(() => albumService.getById(Number(id)), id);
 
   return (
     <>
@@ -70,15 +76,10 @@ export const AlbumDetailPage = () => {
             </section>
 
             <section className="album-detail__section">
-              <h2 className="album-detail__section-title">Reseñas</h2>
-
-              {/* Placeholder hasta que exista el CRUD de reseñas: ahí va el
-                  listado paginado de las reseñas de este álbum. */}
-              <EmptyState
-                icon={<Star size={22} />}
-                title="Todavía no hay reseñas de este álbum."
-                message="Cuando la comunidad empiece a calificarlo, las reseñas se van a listar acá de a tandas, con su puntaje y su texto."
-              />
+              {/* onReviewChange vuelve a pedir el álbum: average_rating es una
+                  columna derivada que recalcula el CRUD de reseñas, así que sin
+                  esto la cabecera seguiría mostrando el promedio viejo. */}
+              <ReviewsSection targetKind="album" targetId={album.id} onReviewChange={reload} />
             </section>
 
             {/* Vuelve al lugar del que se vino, sea la ficha de un género, el

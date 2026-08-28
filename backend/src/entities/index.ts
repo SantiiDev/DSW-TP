@@ -11,6 +11,8 @@ import { GenreAlbum } from './genre-album.entity';
 import { Payment } from './payment.entity';
 import { Plan } from './plan.entity';
 import { Review } from './review.entity';
+import { ReviewComment } from './review-comment.entity';
+import { ReviewLike } from './review-like.entity';
 import { Song } from './song.entity';
 import { Subscription } from './subscription.entity';
 import { User } from './user.entity';
@@ -81,6 +83,44 @@ Review.belongsTo(Album, { foreignKey: 'id_album', as: 'album' });
 Song.hasMany(Review, { foreignKey: 'id_song', as: 'reviews', onDelete: 'CASCADE' });
 Review.belongsTo(Song, { foreignKey: 'id_song', as: 'song' });
 
+// --- Interacción con las reseñas: "me gusta" y comentarios -------------------
+//
+// Las dos son un AGREGADO al DER original (ver el encabezado de cada entidad).
+
+// El "me gusta" es una N:M entre usuarios y reseñas, igual que géneros y álbumes.
+// CASCADE en las dos puntas: el "me gusta" no significa nada sin el usuario que lo
+// puso ni sin la reseña que lo recibió, así que no tiene por qué sobrevivir a
+// ninguno de los dos.
+Review.belongsToMany(User, {
+  through: ReviewLike,
+  foreignKey: 'id_review',
+  otherKey: 'id_user',
+  as: 'likedBy',
+});
+User.belongsToMany(Review, {
+  through: ReviewLike,
+  foreignKey: 'id_user',
+  otherKey: 'id_review',
+  as: 'likedReviews',
+});
+
+// Además del N:M se declara el hasMany contra la tabla intermedia, porque el
+// conteo de "me gusta" se hace sobre ella directamente: para saber cuántos tiene
+// una reseña no hace falta traer los usuarios enteros.
+Review.hasMany(ReviewLike, { foreignKey: 'id_review', as: 'likes', onDelete: 'CASCADE' });
+ReviewLike.belongsTo(Review, { foreignKey: 'id_review', as: 'review' });
+ReviewLike.belongsTo(User, { foreignKey: 'id_user', as: 'user' });
+
+// El comentario es una entidad débil de REVIEW: CASCADE porque no existe sin la
+// reseña que comenta.
+Review.hasMany(ReviewComment, { foreignKey: 'id_review', as: 'comments', onDelete: 'CASCADE' });
+ReviewComment.belongsTo(Review, { foreignKey: 'id_review', as: 'review' });
+
+// CASCADE también del lado del autor, igual que con las reseñas: si se borra la
+// cuenta, se van sus comentarios.
+User.hasMany(ReviewComment, { foreignKey: 'id_user', as: 'comments', onDelete: 'CASCADE' });
+ReviewComment.belongsTo(User, { foreignKey: 'id_user', as: 'user' });
+
 // --- Autoría del contenido de catálogo (created_by) -------------------------
 //
 // SET NULL: si se da de baja al usuario que aportó un álbum, el álbum sobrevive
@@ -95,4 +135,17 @@ User.hasMany(Album, { foreignKey: 'created_by', as: 'createdAlbums', onDelete: '
 Song.belongsTo(User, { foreignKey: 'created_by', as: 'creator', onDelete: 'SET NULL' });
 User.hasMany(Song, { foreignKey: 'created_by', as: 'createdSongs', onDelete: 'SET NULL' });
 
-export { Album, Artist, Genre, GenreAlbum, Payment, Plan, Review, Song, Subscription, User };
+export {
+  Album,
+  Artist,
+  Genre,
+  GenreAlbum,
+  Payment,
+  Plan,
+  Review,
+  ReviewComment,
+  ReviewLike,
+  Song,
+  Subscription,
+  User,
+};

@@ -7,12 +7,12 @@
 // La API, en cambio, es pública y devuelve solo el catálogo aprobado: responde
 // 404 sobre una canción que todavía no se revisó.
 //
-// Las reseñas todavía no tienen endpoints (es la feature review), así que esa
-// sección muestra su estado vacío definitivo. Cuando existan, se reemplaza el
-// EmptyState por el listado paginado sin tocar el resto de la página.
+// Las reseñas las pone entera la feature review, con su propia sección: acá solo
+// se le dice qué ítem mostrar y se le pasa el `reload` de la canción, para que su
+// calificación promedio se actualice apenas alguien publique, edite o borre una.
 import { Link, useParams } from 'react-router-dom';
 import { BackLink } from '../../../core/components/BackLink';
-import { Music, Star } from 'lucide-react';
+import { Music } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { Footer } from '../../../core/components/Footer';
@@ -21,13 +21,19 @@ import { Navbar } from '../../../core/components/Navbar';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { AlbumCover } from '../../genre/components/AlbumCover';
 import { AlbumRating } from '../../album/components/AlbumRating';
+import { ReviewsSection } from '../../review/components/ReviewsSection';
 import { songService } from '../services/songService';
 import '../styles/_song.scss';
 
 export const SongDetailPage = () => {
   const { id } = useParams<{ id: string }>();
 
-  const { data: song, isLoading, error } = useFetch(() => songService.getById(Number(id)), id);
+  const {
+    data: song,
+    isLoading,
+    error,
+    reload,
+  } = useFetch(() => songService.getById(Number(id)), id);
 
   return (
     <>
@@ -74,17 +80,11 @@ export const SongDetailPage = () => {
             </header>
 
             <section className="song-detail__section">
-              <h2 className="song-detail__section-title">Reseñas</h2>
-
-              {/* Placeholder hasta que exista el CRUD de reseñas: ahí va el
-                  listado paginado de las reseñas de esta canción. Cada canción se
-                  califica por separado del álbum, por eso tiene su propia
-                  sección y no alcanza con la del disco. */}
-              <EmptyState
-                icon={<Star size={22} />}
-                title="Todavía no hay reseñas de esta canción."
-                message="Cuando la comunidad empiece a calificarla, las reseñas se van a listar acá de a tandas, con su puntaje y su texto."
-              />
+              {/* Cada canción se califica por separado del álbum, por eso tiene
+                  su propia sección y no alcanza con la del disco. Su promedio no
+                  sale de una columna: lo calcula el backend al leer, así que
+                  alcanza con volver a pedir la canción. */}
+              <ReviewsSection targetKind="song" targetId={song.id} onReviewChange={reload} />
             </section>
 
             {/* Vuelve al lugar del que se vino: a una canción se llega desde el
