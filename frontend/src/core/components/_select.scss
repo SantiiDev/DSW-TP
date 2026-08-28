@@ -116,30 +116,84 @@
   //
   // Va montado en el <body> (ver el portal en Select.tsx), así que no hereda
   // nada del bloque: las medidas de posición las pone el componente por style.
+  //
+  // El panel es la caja (con el buscador arriba, si lo hay) y la lista es la que
+  // scrollea: si scrolleara el panel entero, el buscador se iría de pantalla al
+  // bajar por las opciones.
 
   &__panel {
     position: fixed;
     z-index: 60;
-    margin: 0;
     padding: 0.3rem;
-    list-style: none;
     // El ancho lo fija el componente como mínimo (el del botón) y el panel crece
     // hasta donde haga falta para que cada opción se lea entera. El tope tiene
     // que coincidir con MAX_PANEL_WIDTH de Select.tsx.
     width: max-content;
     max-width: 320px;
-    max-height: 260px;
-    overflow-y: auto;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
     border-radius: 10px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
     animation: select-panel-in 0.12s ease-out;
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 260px;
+    overflow-y: auto;
 
     // Barra de scroll al tono del panel: la del sistema es clara y corta el
-    // bloque oscuro cuando hay muchas opciones (el filtro de géneros, por ej).
+    // bloque oscuro cuando hay muchas opciones (los 263 álbumes, por ejemplo).
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  }
+
+  // --- Buscador del panel (solo con la prop `searchable`) ------------------
+
+  &__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.3rem;
+  }
+
+  &__search-icon {
+    position: absolute;
+    left: 0.55rem;
+    color: $color-text-secondary;
+    // Sin esto, hacer click justo sobre la lupa no enfoca el campo.
+    pointer-events: none;
+  }
+
+  &__search-input {
+    width: 100%;
+    // El padding izquierdo deja lugar para la lupa.
+    padding: 0.4rem 0.6rem 0.4rem 1.9rem;
+    background-color: $color-bg;
+    border: 1px solid $color-nav-border;
+    border-radius: 6px;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.85rem;
+    outline: none;
+
+    &::placeholder {
+      color: $color-text-secondary;
+    }
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  // Lo que se muestra cuando la búsqueda no encontró nada.
+  &__empty {
+    padding: 0.6rem;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+    text-align: center;
   }
 
   &__option {

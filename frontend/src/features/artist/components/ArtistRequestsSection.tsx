@@ -7,7 +7,8 @@
 //
 // Vive en la feature artist para que el panel (AdminRequestsPanel) solo tenga que
 // montarla, y recibe el estado vacío como props para no duplicar los textos que
-// esa pestaña ya define.
+// esa pestaña ya define. Las colas de álbum y de canción son sus dos hermanas, en
+// sus propias features.
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Alert } from '../../../core/components/Alert';
@@ -18,7 +19,6 @@ import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { artistService } from '../services/artistService';
 import type { Artist, ContentState } from '../models/Artist';
 import { ArtistRequestCard } from './ArtistRequestCard';
-import '../styles/_artist.scss';
 
 type ArtistRequestsSectionProps = {
   /** Estado de las solicitudes a mostrar; lo elige el selector de la pestaña. */
@@ -79,7 +79,7 @@ export const ArtistRequestsSection = ({
   };
 
   return (
-    <div className="artist-requests">
+    <div className="request-section">
       {error && <Alert tone="error">{error}</Alert>}
       {feedback && <Alert tone="success">{feedback}</Alert>}
 
@@ -89,11 +89,9 @@ export const ArtistRequestsSection = ({
         <EmptyState icon={emptyIcon} title={emptyTitle} message={emptyMessage} />
       ) : (
         <>
-          <h3 className="artist-requests__title">
-            Artistas ({requests.length})
-          </h3>
+          <h3 className="request-section__title">Artistas ({requests.length})</h3>
 
-          <ul className="artist-requests__list">
+          <ul className="request-list">
             {requests.map((artist) => (
               <ArtistRequestCard
                 key={artist.id}

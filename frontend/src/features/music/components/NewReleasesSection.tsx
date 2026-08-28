@@ -1,51 +1,46 @@
-// Sección de la página de exploración musical que muestra los últimos lanzamientos.
-import { Star, Disc3 } from 'lucide-react';
-import { SectionHeader } from '../../../core/components/SectionHeader';
-import { useAuthModal } from '../../../core/context/AuthModalContext';
+// Sección "Nuevos Lanzamientos" del explorador: los álbumes más nuevos del
+// catálogo, del año más reciente para atrás.
+//
+// Es solo de álbumes y no cambia con la pestaña: una canción no tiene fecha de
+// lanzamiento propia (la hereda de su álbum), así que un ranking de canciones por
+// año dejaría cada tracklist entero pegado en bloque.
+//
+// El diseño mostraba una fecha exacta ("25 Ene 2025"); el DER solo guarda el AÑO
+// de lanzamiento, así que la tarjeta muestra el año.
+import { Disc3 } from 'lucide-react';
+import { useFetch } from '../../../core/hooks/useFetch';
+import { albumService } from '../../album/services/albumService';
+import { albumToExploreItem } from '../models/ExploreItem';
+import { ExploreMusicCard } from './ExploreMusicCard';
+import { ExploreSectionShell } from './ExploreSectionShell';
 
-const NEW_RELEASES = [
-  { id: 1, title: 'Hurry Up Tomorrow', artist: 'The Weeknd', releaseDate: '25 Ene 2025', rating: 3.9, cover: 'https://placehold.co/300x300/2c003e/ff6348?text=HUT' },
-  { id: 2, title: 'Eternal Sunshine', artist: 'Ariana Grande', releaseDate: '8 Mar 2025', rating: 3.7, cover: 'https://placehold.co/300x300/0c2461/48dbfb?text=ES' },
-  { id: 3, title: 'Radical Optimism', artist: 'Dua Lipa', releaseDate: '3 May 2025', rating: 3.4, cover: 'https://placehold.co/300x300/6c5b7b/c06c84?text=RO' },
-  { id: 4, title: 'The Great Impersonator', artist: 'Halsey', releaseDate: '25 Oct 2025', rating: 4.0, cover: 'https://placehold.co/300x300/1f4068/e8d21d?text=TGI' },
-  { id: 5, title: 'Short n\' Sweet', artist: 'Sabrina Carpenter', releaseDate: '23 Ago 2025', rating: 3.6, cover: 'https://placehold.co/300x300/2d3436/00cec9?text=SnS' },
-  { id: 6, title: 'Deeper Well', artist: 'Kacey Musgraves', releaseDate: '15 Mar 2025', rating: 3.8, cover: 'https://placehold.co/300x300/1b1b2f/e43f5a?text=DW' },
-];
+/** Cuántas tarjetas trae la sección. */
+const SECTION_SIZE = 6;
 
 export const NewReleasesSection = () => {
-  const { openSignup } = useAuthModal();
+  const { data, isLoading, error } = useFetch(async () => {
+    const albums = await albumService.explore({ sort: 'year', limit: SECTION_SIZE });
+    return albums.map(albumToExploreItem);
+  });
+
+  const items = data ?? [];
 
   return (
-    <section className="explore-section">
-      <SectionHeader
-        icon={<Disc3 size={22} />}
-        title="Nuevos Lanzamientos"
-        spinIcon
-        actionLabel="Ver todos"
-        onAction={openSignup}
-      />
-
+    <ExploreSectionShell
+      icon={<Disc3 size={22} />}
+      title="Nuevos Lanzamientos"
+      spinIcon
+      seeAllTo="/albums?sort=year"
+      isLoading={isLoading}
+      error={error}
+      isEmpty={items.length === 0}
+      emptyMessage="Todavía no hay álbumes con año de lanzamiento cargado."
+    >
       <div className="explore-section__grid explore-section__grid--compact">
-        {NEW_RELEASES.map((item) => (
-          <div key={item.id} className="music-card music-card--new" onClick={openSignup} style={{ cursor: 'pointer' }}>
-            <div className="music-card__cover">
-              <img src={item.cover} alt={item.title} loading="lazy" />
-              <div className="music-card__badge">Nuevo</div>
-              <div className="music-card__overlay">
-                <div className="music-card__rating">
-                  <Star size={14} fill="currentColor" />
-                  <span>{item.rating.toFixed(1)}</span>
-                </div>
-              </div>
-            </div>
-            <div className="music-card__info">
-              <h3 className="music-card__title">{item.title}</h3>
-              <p className="music-card__artist">{item.artist}</p>
-              <p className="music-card__date">{item.releaseDate}</p>
-            </div>
-          </div>
+        {items.map((item) => (
+          <ExploreMusicCard key={item.id} item={item} variant="new" footer="year" />
         ))}
       </div>
-    </section>
+    </ExploreSectionShell>
   );
 };

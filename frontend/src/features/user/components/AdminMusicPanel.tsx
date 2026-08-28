@@ -4,18 +4,18 @@
 // géneros) en vez de sumar cuatro pestañas más arriba: son variantes de la misma
 // tarea, y así la barra principal sigue mostrando las tres áreas del panel.
 //
-// Artistas y géneros ya trabajan contra la API (`/api/artists` y `/api/genres`),
-// en las secciones que aportan sus features. Álbumes y canciones siguen mostrando
-// su estado vacío definitivo hasta que existan sus endpoints; cuando estén, se
-// reemplaza el EmptyState por su sección sin tocar ni el selector ni la pestaña.
+// Las cuatro trabajan contra la API (`/api/artists`, `/api/albums`, `/api/songs`
+// y `/api/genres`), cada una en la sección que aporta su propia feature: acá solo
+// se elige cuál se monta.
 import { useState } from 'react';
 import { Disc3, Mic2, Music, Tags } from 'lucide-react';
 import { Card } from '../../../core/components/Card';
-import { EmptyState } from '../../../core/components/EmptyState';
 import { SegmentedControl } from '../../../core/components/SegmentedControl';
 import type { SegmentOption } from '../../../core/components/SegmentedControl';
+import { AlbumAdminSection } from '../../album/components/AlbumAdminSection';
 import { ArtistAdminSection } from '../../artist/components/ArtistAdminSection';
 import { GenreAdminSection } from '../../genre/components/GenreAdminSection';
+import { SongAdminSection } from '../../song/components/SongAdminSection';
 
 const CATALOG_SECTIONS = [
   { id: 'artists', label: 'Artistas', icon: Mic2 },
@@ -26,32 +26,14 @@ const CATALOG_SECTIONS = [
 
 type CatalogSectionId = (typeof CATALOG_SECTIONS)[number]['id'];
 
-// Lo que espera el selector de segmentos: value + label. El ícono de cada
-// sección solo se usa para el estado vacío, así que no viaja hasta el selector.
+// Lo que espera el selector de segmentos: value + label. El ícono de cada sección
+// no le hace falta.
 const SECTION_OPTIONS: SegmentOption<CatalogSectionId>[] = CATALOG_SECTIONS.map(
   ({ id, label }) => ({ value: id, label })
 );
 
-/** Texto del estado vacío de las entidades que todavía no tienen endpoints. */
-const PENDING_SECTIONS: Record<'albums' | 'songs', { title: string; message: string }> = {
-  albums: {
-    title: 'El listado de álbumes todavía no está conectado.',
-    message:
-      'Acá vas a poder crear álbumes, asignarles artista, año y géneros, y corregir su portada.',
-  },
-  songs: {
-    title: 'El listado de canciones todavía no está conectado.',
-    message:
-      'Acá vas a poder cargar las canciones de cada álbum, con su número de pista y su duración.',
-  },
-};
-
 export const AdminMusicPanel = () => {
   const [activeSection, setActiveSection] = useState<CatalogSectionId>('artists');
-
-  // El `!` es seguro: activeSection solo puede tomar los ids de la propia lista.
-  const section = CATALOG_SECTIONS.find((item) => item.id === activeSection)!;
-  const Icon = section.icon;
 
   return (
     <Card
@@ -70,14 +52,12 @@ export const AdminMusicPanel = () => {
 
       {activeSection === 'artists' ? (
         <ArtistAdminSection />
-      ) : activeSection === 'genres' ? (
-        <GenreAdminSection />
+      ) : activeSection === 'albums' ? (
+        <AlbumAdminSection />
+      ) : activeSection === 'songs' ? (
+        <SongAdminSection />
       ) : (
-        <EmptyState
-          icon={<Icon size={22} />}
-          title={PENDING_SECTIONS[activeSection].title}
-          message={PENDING_SECTIONS[activeSection].message}
-        />
+        <GenreAdminSection />
       )}
     </Card>
   );

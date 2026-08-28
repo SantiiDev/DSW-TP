@@ -1,38 +1,63 @@
-// Sección de la página de inicio que muestra un carrusel o cuadrícula con los álbumes más populares.
-import { useAuthModal } from '../../../core/context/AuthModalContext';
+// Sección de la página de inicio que muestra los álbumes más reseñados del
+// catálogo.
+//
+// Es el mismo criterio que la sección "Más Reseñados" del explorador (/music):
+// ordena por cantidad de reseñas, que es lo que Musicboxd puede medir de verdad
+// (no hay reproducciones en el modelo). Mientras no exista el CRUD de reseñas
+// todas empatan en cero y desempata el orden alfabético.
+//
+// Las tarjetas son GatedLink, igual que en el explorador: la portada y el título
+// se ven sin cuenta —es la vitrina de la página de inicio— pero el click solo
+// entra a la ficha si hay sesión; si no, abre el modal de registro.
+import { Loader } from '../../../core/components/Loader';
+import { GatedLink } from '../../../core/components/GatedLink';
+import { useFetch } from '../../../core/hooks/useFetch';
+import { AlbumCover } from '../../genre/components/AlbumCover';
+import { albumService } from '../../album/services/albumService';
 import './_popular-albums.scss';
 
-// Mock data for the albums
-const MOCK_ALBUMS = [
-  { id: 1, title: 'CONFESSIONS II', artist: 'Madonna', cover: 'https://placehold.co/150x150/111/444?text=Album+1' },
-  { id: 2, title: 'you seem pretty sa...', artist: 'Olivia Rodrigo', cover: 'https://placehold.co/150x150/111/444?text=Album+2' },
-  { id: 3, title: 'Blonde', artist: 'Frank Ocean', cover: 'https://placehold.co/150x150/111/444?text=Album+3' },
-  { id: 4, title: 'The Dark Side of th...', artist: 'Pink Floyd', cover: 'https://placehold.co/150x150/111/444?text=Album+4' },
-  { id: 5, title: 'OK Computer', artist: 'Radiohead', cover: 'https://placehold.co/150x150/111/444?text=Album+5' },
-  { id: 6, title: 'xperiment', artist: 'Ken Carson', cover: 'https://placehold.co/150x150/111/444?text=Album+6' },
-  { id: 7, title: 'In Rainbows', artist: 'Radiohead', cover: 'https://placehold.co/150x150/111/444?text=Album+7' }
-];
+/** Cuántas tarjetas entran en la fila del diseño. */
+const SECTION_SIZE = 7;
 
 export const PopularAlbums = () => {
-  const { openSignup } = useAuthModal();
+  const { data, isLoading, error } = useFetch(() =>
+    albumService.explore({ sort: 'reviews', limit: SECTION_SIZE })
+  );
+
+  const albums = data ?? [];
+
   return (
     <section className="popular-albums">
       <div className="popular-albums__container">
         <h2 className="popular-albums__title">Popular Esta Semana</h2>
 
-        <div className="popular-albums__grid">
-          {MOCK_ALBUMS.map((album) => (
-            <div key={album.id} className="album-card" onClick={openSignup} style={{ cursor: 'pointer' }}>
-              <div className="album-card__cover">
-                <img src={album.cover} alt={album.title} />
-              </div>
-              <div className="album-card__info">
-                <h3 className="album-card__title">{album.title}</h3>
-                <p className="album-card__artist">{album.artist}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {isLoading ? (
+          <Loader message="Cargando álbumes..." />
+        ) : error ? (
+          // En la página de inicio un error no puede ser un cartel rojo enorme:
+          // es una sección decorativa, así que se avisa en una línea y ya.
+          <p className="popular-albums__empty" role="alert">
+            No pudimos cargar los álbumes en este momento.
+          </p>
+        ) : albums.length === 0 ? (
+          <p className="popular-albums__empty">Todavía no hay álbumes en el catálogo.</p>
+        ) : (
+          <div className="popular-albums__grid">
+            {albums.map((album) => (
+              <GatedLink key={album.id} to={`/albums/${album.id}`} className="album-card">
+                <div className="album-card__cover">
+                  {/* AlbumCover dibuja un degradado con la inicial cuando el
+                      álbum no tiene portada cargada. */}
+                  <AlbumCover title={album.title} url={album.urlCover} size="lg" />
+                </div>
+                <div className="album-card__info">
+                  <h3 className="album-card__title">{album.title}</h3>
+                  <p className="album-card__artist">{album.artistName}</p>
+                </div>
+              </GatedLink>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

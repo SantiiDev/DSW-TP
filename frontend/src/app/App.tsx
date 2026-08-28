@@ -7,6 +7,10 @@ import { useEffect } from 'react';
 import { Home } from '../features/home/Home';
 import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
 import { GenreDetailPage } from '../features/genre/pages/GenreDetailPage';
+import { AlbumDetailPage } from '../features/album/pages/AlbumDetailPage';
+import { AlbumsExplorePage } from '../features/album/pages/AlbumsExplorePage';
+import { SongDetailPage } from '../features/song/pages/SongDetailPage';
+import { SongsExplorePage } from '../features/song/pages/SongsExplorePage';
 import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
 import { UserProfilePage } from '../features/user/pages/UserProfilePage';
 import { AdminPage } from '../features/user/pages/AdminPage';
@@ -49,9 +53,62 @@ export const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/music" element={<MusicExplorePage />} />
 
-            {/* Ficha de un género. Es pública, igual que el explorador desde el
-                que se llega: leer géneros no pide token. */}
-            <Route path="/genres/:id" element={<GenreDetailPage />} />
+            {/* --- Catálogo: pide sesión -----------------------------------
+                /music es la vitrina: se ve sin cuenta y muestra el catálogo real,
+                pero entrar a una ficha o a un listado pide estar registrado. Es
+                el mismo corte que hacen las tarjetas del explorador, que sin
+                sesión abren el modal de registro en vez de navegar (ver
+                core/components/GatedLink).
+
+                La API de estas pantallas es pública igual: no se está protegiendo
+                un dato sensible, se pide la cuenta para poder reseñar y seguir
+                gente, que es de lo que se trata Musicboxd. */}
+            <Route
+              path="/genres/:id"
+              element={
+                <ProtectedRoute>
+                  <GenreDetailPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Listados del explorador: es a donde llevan los "Ver todos" de
+                /music y las tarjetas de "Explorar por Década". Qué se lista lo
+                dicen los parámetros de la URL (?sort=, ?year_from=...). */}
+            <Route
+              path="/albums"
+              element={
+                <ProtectedRoute>
+                  <AlbumsExplorePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/songs"
+              element={
+                <ProtectedRoute>
+                  <SongsExplorePage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Fichas de álbum y de canción, con su tracklist y sus reseñas. */}
+            <Route
+              path="/albums/:id"
+              element={
+                <ProtectedRoute>
+                  <AlbumDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/songs/:id"
+              element={
+                <ProtectedRoute>
+                  <SongDetailPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/members" element={<MembersExplorePage />} />
             <Route path="/lists" element={<ListsExplorePage />} />
             <Route path="/pro" element={<ProPage />} />

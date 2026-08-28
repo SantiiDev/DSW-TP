@@ -5,12 +5,17 @@
 // esos endpoints existan, se reemplaza el EmptyState por el listado real sin
 // tocar ni la cabecera ni la navegación de pestañas: es lo que ya se hizo con
 // "Aportes", que lista los artistas propuestos por el dueño del perfil.
+import { useState } from 'react';
 import { Activity, CreditCard, Disc3, Music, Star } from 'lucide-react';
 import { ButtonLink } from '../../../core/components/Button';
 import { EmptyState } from '../../../core/components/EmptyState';
+import { SegmentedControl } from '../../../core/components/SegmentedControl';
+import type { SegmentOption } from '../../../core/components/SegmentedControl';
 import { ROLE_LABELS } from '../models/User';
 import type { User } from '../models/User';
+import { AlbumContributionsList } from '../../album/components/AlbumContributionsList';
 import { ArtistContributionsList } from '../../artist/components/ArtistContributionsList';
+import { SongContributionsList } from '../../song/components/SongContributionsList';
 import type { ProfileTab } from './ProfileTabs';
 
 type ProfileTabContentProps = {
@@ -19,6 +24,20 @@ type ProfileTabContentProps = {
   activeTab: ProfileTab;
 };
 
+/**
+ * Las tres entidades que un usuario Pro puede aportar al catálogo. Se muestra una
+ * por vez, elegida con un selector de segmentos: el mismo criterio que usa la
+ * pestaña "Música" del panel de administración. Apiladas, las tres listas hacían
+ * una pantalla larguísima donde el aporte que se buscaba quedaba abajo de todo.
+ */
+const CONTRIBUTION_KINDS = [
+  { value: 'artists', label: 'Artistas' },
+  { value: 'albums', label: 'Álbumes' },
+  { value: 'songs', label: 'Canciones' },
+] as const satisfies readonly SegmentOption<string>[];
+
+type ContributionKind = (typeof CONTRIBUTION_KINDS)[number]['value'];
+
 /** Textos del vacío según se mire el perfil propio o el de otro. */
 function emptyCopy(isOwnProfile: boolean, own: string, other: string): string {
   return isOwnProfile ? own : other;
@@ -26,6 +45,11 @@ function emptyCopy(isOwnProfile: boolean, own: string, other: string): string {
 
 export const ProfileTabContent = ({ user, isOwnProfile, activeTab }: ProfileTabContentProps) => {
   const name = user.username;
+
+  // Qué tipo de aporte se está mirando. Va acá arriba y no dentro del case porque
+  // los hooks tienen que llamarse siempre, en el mismo orden, en todos los
+  // renders: adentro del switch se saltearía en las otras pestañas.
+  const [contributionKind, setContributionKind] = useState<ContributionKind>('artists');
 
   switch (activeTab) {
     case 'resumen':
@@ -92,14 +116,35 @@ export const ProfileTabContent = ({ user, isOwnProfile, activeTab }: ProfileTabC
         <section className="profile-panel">
           <h2 className="profile-panel__title">Aportes al catálogo</h2>
 
-          {/* Los artistas ya salen de la API, en la lista que aporta la feature
-              artist. Los álbumes y las canciones se suman cuando existan sus
-              endpoints, cada uno con su propia sección debajo de esta. */}
-          <ArtistContributionsList
-            userId={user.id}
-            username={name}
-            isOwnProfile={isOwnProfile}
+          {/* Cada entidad aporta su propia lista desde su feature, y las tres
+              siguen el mismo criterio: en el perfil propio se ven también los
+              pendientes y los rechazados, y en el de otro usuario solo lo ya
+              aprobado.
+
+              OJO, no confundir con las pestañas "Álbumes" y "Canciones" de más
+              arriba: esas son las CALIFICADAS (dependen de las reseñas), no las
+              aportadas al catálogo. */}
+          <SegmentedControl
+            options={CONTRIBUTION_KINDS}
+            value={contributionKind}
+            // Va envuelto y no como `setContributionKind` a secas: el tipo que
+            // espera un setter de useState admite también una función, y con eso
+            // TypeScript no logra deducir cuál es el tipo de las opciones.
+            onChange={(kind) => setContributionKind(kind)}
+            ariaLabel="Tipo de aporte al catálogo"
           />
+
+          {contributionKind === 'artists' ? (
+            <ArtistContributionsList
+              userId={user.id}
+              username={name}
+              isOwnProfile={isOwnProfile}
+            />
+          ) : contributionKind === 'albums' ? (
+            <AlbumContributionsList userId={user.id} username={name} isOwnProfile={isOwnProfile} />
+          ) : (
+            <SongContributionsList userId={user.id} username={name} isOwnProfile={isOwnProfile} />
+          )}
         </section>
       );
 

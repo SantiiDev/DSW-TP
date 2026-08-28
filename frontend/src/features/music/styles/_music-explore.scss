@@ -111,13 +111,6 @@
       grid-template-columns: repeat(2, 1fr);
     }
 
-    &--3col {
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-
-      @media (max-width: $bp-sm) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
   }
 
   // ── List Layout ────────────────────
@@ -239,7 +232,10 @@
   display: flex;
   align-items: center;
   gap: $spacing-md;
-  padding: $spacing-md;
+  // Bastante más aire a la derecha que a la izquierda: la columna de la derecha
+  // (calificación y reseñas) quedaba pegada al borde de la fila y se leía como
+  // cortada.
+  padding: $spacing-md $spacing-xl $spacing-md $spacing-lg;
   background-color: $color-bg-light;
   transition: background-color 0.2s ease;
   cursor: pointer;
@@ -293,12 +289,18 @@
     margin: 2px 0 0;
   }
 
+  // Columna de la derecha: la calificación arriba y las reseñas abajo. El ancho
+  // mínimo la mantiene como una columna alineada entre filas, en vez de que cada
+  // texto termine en un lugar distinto según lo largo que sea.
   &__stats {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    justify-content: center;
     gap: 2px;
     flex-shrink: 0;
+    min-width: 120px;
+    text-align: right;
   }
 
   &__rating {
@@ -311,20 +313,38 @@
   }
 
   &__reviews {
-    color: color.adjust($color-text-secondary, $lightness: -10%);
-    font-size: 0.75rem;
+    // Sin oscurecer: el gris apagado sobre el fondo negro se leía como un texto
+    // a medio dibujar.
+    color: $color-text-secondary;
+    font-size: 0.78rem;
     margin: 0;
+    // "Sin reseñas" tiene que entrar en una línea: cortado en dos se lee como un
+    // error de maquetado.
+    white-space: nowrap;
   }
 }
 
 // ─── Genre Cards ────────────────────────────────────────────
+// Es flex y no grid a propósito. Los géneros son once y en una grilla nunca
+// llenan la última fila, que quedaba con un hueco a la derecha. Con flex, las
+// tarjetas de esa última fila crecen y se reparten el ancho sobrante, así que la
+// sección siempre cierra pareja.
 .genre-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: $spacing-sm;
 
+  // 170px es el ancho al que una tarjeta pasa a la fila siguiente; de ahí para
+  // arriba crece para llenar lo que sobre.
+  > * {
+    flex: 1 1 170px;
+  }
+
   @media (max-width: $bp-sm) {
-    grid-template-columns: repeat(2, 1fr);
+    // Dos por fila: la mitad del ancho menos su parte del hueco.
+    > * {
+      flex: 1 1 calc(50% - #{$spacing-sm} / 2);
+    }
   }
 }
 
@@ -390,21 +410,43 @@
 }
 
 .decade-card {
+  // Se lee como un botón y no como un bloque de texto: borde con el verde de la
+  // marca, una barra de acento a la izquierda y el conteo en una pastilla. El
+  // fondo y las tipografías siguen siendo los del resto del sitio.
+  position: relative;
   display: flex;
   align-items: center;
   gap: $spacing-md;
   padding: $spacing-md $spacing-lg;
   background-color: $color-bg-light;
-  border: 1px solid $color-nav-border;
+  border: 1px solid rgba($color-primary, 0.3);
   border-radius: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  overflow: hidden;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
   text-align: left;
 
+  // La barra de acento del borde izquierdo. Va como pseudo-elemento y no como
+  // border-left para que no le coma ancho al contenido ni pelee con el radio.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background-color: rgba($color-primary, 0.55);
+    transition: background-color 0.2s ease;
+  }
+
   &:hover {
-    background-color: color.adjust($color-bg-light, $lightness: 3%);
-    border-color: rgba($color-primary, 0.4);
+    background-color: color.adjust($color-bg-light, $lightness: 4%);
+    border-color: $color-primary;
     transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+
+    &::before {
+      background-color: $color-primary;
+    }
   }
 
   &__emoji {
@@ -429,10 +471,118 @@
     font-size: 0.8rem;
   }
 
+  // El conteo como pastilla: es el dato que dice si vale la pena entrar, y suelto
+  // en gris se perdía contra el resto del texto.
   &__count {
-    color: color.adjust($color-text-secondary, $lightness: -5%);
-    font-size: 0.78rem;
     flex-shrink: 0;
+    padding: 0.25rem 0.6rem;
+    background-color: rgba($color-primary, 0.12);
+    border-radius: 20px;
+    color: $color-primary;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
   }
 }
 
+
+// ─── Estado vacío de una sección ────────────────────────────
+//
+// Cuando la consulta salió bien pero el catálogo no tiene nada que mostrar en ese
+// criterio. Es una línea de texto y no un EmptyState entero: adentro de una
+// sección del explorador, la caja grande rompe el ritmo de la página.
+.explore-section__empty {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: 0.9rem;
+}
+
+// ─── Listado completo (/albums y /songs) ────────────────────
+//
+// Es a donde llevan los "Ver todos" y las tarjetas de década. Reusa la grilla y
+// las tarjetas de las secciones: lo único propio es la cabecera y el pie con el
+// botón "Ver más".
+.explore-listing {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-height: calc(100vh - #{$navbar-height});
+
+  @media (min-width: $bp-md) {
+    padding: $spacing-xl $spacing-lg;
+  }
+
+  // Las tres líneas del encabezado van centradas, igual que las de la ficha de
+  // un género.
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    text-align: center;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: $color-text;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.6rem;
+    }
+  }
+
+  &__subtitle {
+    margin: 0;
+    max-width: 60ch;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // En escritorio la grilla va fija en cinco columnas. La tanda que trae "Ver
+  // más" es de 25, así que quedan cinco filas exactas y la última nunca deja un
+  // hueco a la derecha (ver PAGE_SIZE en ExploreListing.tsx: los dos números
+  // tienen que seguir siendo múltiplos).
+  .explore-section__grid {
+    @media (min-width: $bp-lg) {
+      // minmax(0, 1fr) y no 1fr a secas: `1fr` es `minmax(auto, 1fr)`, y con esa
+      // base un título largo empuja su columna y las cinco dejan de medir lo
+      // mismo. El 0 las obliga a repartirse el ancho en partes iguales.
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  // Pie del listado paginado: cuántos resultados se ven y el botón que trae la
+  // tanda siguiente. Mismo patrón que el "Ver más" de la ficha de género.
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+}

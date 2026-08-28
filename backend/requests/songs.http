@@ -1,0 +1,395 @@
+### ---------------------------------------------------------------------------
+### CRUD de canciones — /api/songs
+###
+### Cómo usarlo: con la extensión "REST Client" de VS Code
+### (humao.rest-client), aparece un "Send Request" arriba de cada bloque ###.
+###
+### Antes de empezar: levantar la API con `npm run dev` y tener la base cargada
+### con `npm run seed`.
+###
+### El orden importa. Correr PRIMERO el login y el alta del álbum de prueba (la
+### sección 2), y la sección 7 al final, que borra todo lo que crearon estas
+### pruebas y deja la base como estaba.
+### ---------------------------------------------------------------------------
+
+@host = http://localhost:3000/api
+
+# Artista al que se le carga el álbum de prueba ("Nirvana" en el seed).
+@idArtista = 13
+
+
+### ===========================================================================
+### 1. AUTENTICACIÓN
+### ===========================================================================
+
+### 1.1 Login como ADMIN. Guarda el token en la variable `admin`.
+# @name admin
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@musicboxd.com",
+  "password": "Admin1234!"
+}
+
+###
+@tokenAdmin = {{admin.response.body.token}}
+
+
+### 1.2 Login de un usuario FREE, para probar que NO puede escribir el catálogo.
+### (Si no existe, crealo con el registro de requests/genres.http.)
+# @name freeLogin
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "tester.free@musicboxd.com",
+  "password": "Test1234!"
+}
+
+###
+@tokenFree = {{freeLogin.response.body.token}}
+
+
+### ===========================================================================
+### 2. ÁLBUM DE PRUEBA
+###
+### Las canciones cuelgan de un álbum, así que primero hace falta uno propio: no
+### se tocan los del seed.
+### ===========================================================================
+
+### 2.1 Alta del álbum al que van las pistas de prueba. Espera 201.
+# @name album
+POST {{host}}/albums
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "title": "Album Para Pistas",
+  "id_artist": {{idArtista}}
+}
+
+###
+@idAlbum = {{album.response.body.id_album}}
+
+
+### ===========================================================================
+### 3. ALTA — PRO o ADMIN
+###
+### `id_album` es OBLIGATORIO (ver 3.4): la API no acepta canciones sueltas.
+###
+### `number_track`, en cambio, es OPCIONAL: si no viene, el service le asigna la
+### pista siguiente a la última del álbum, así se puede cargar un tracklist en
+### orden sin ir contando a mano.
+### ===========================================================================
+
+### 3.1 Primera pista, sin número. Espera 201 con number_track = 1.
+# @name pista1
+POST {{host}}/songs
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "song_title": "Pista Uno",
+  "duration": 180,
+  "id_album": {{idAlbum}}
+}
+
+###
+@idPista1 = {{pista1.response.body.id_song}}
+
+
+### 3.2 Segunda pista, tampoco con número. Espera 201 con number_track = 2.
+# @name pista2
+POST {{host}}/songs
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "song_title": "Pista Dos",
+  "id_album": {{idAlbum}}
+}
+
+###
+@idPista2 = {{pista2.response.body.id_song}}
+
+
+### 3.3 Número de pista ya ocupado en ese álbum. Espera 409 con el nombre de la
+### canción que lo está ocupando.
+###
+### La regla la sostiene el índice UNIQUE (id_album, number_track) de la base,
+### pero el error de MySQL nombra columnas y no dice qué canción está en el
+### medio: por eso el service lo chequea antes.
+POST {{host}}/songs
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "song_title": "Pista Repetida",
+  "number_track": 1,
+  "id_album": {{idAlbum}}
+}
+
+
+### 3.4 Canción SUELTA, sin álbum. Espera 400.
+###
+### La FK de SONG hacia ALBUMS admite NULL en el DER, pero la API NO deja cargar
+### ninguna así: ARTIST cuelga de ALBUMS y no de SONG, así que una canción sin
+### álbum queda sin artista y sin ninguna pantalla desde la que llegar a ella (el
+### tracklist se dibuja dentro de la ficha del álbum).
+POST {{host}}/songs
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "song_title": "Cancion Suelta"
+}
+
+
+### 3.5 Lo mismo mandando el álbum en null. Espera 400.
+POST {{host}}/songs
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "song_title": "Cancion Suelta",
+  "id_album": null
+}
+
+
+### 3.6 Álbum que no existe. Espera 400.
+POST {{host}}/songs
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "song_title": "Pista Fantasma",
+  "id_album": 999999
+}
+
+
+### 3.7 Título vacío. Espera 400.
+POST {{host}}/songs
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "song_title": "   ",
+  "id_album": {{idAlbum}}
+}
+
+
+### 3.8 Número de pista cero. Espera 400: la pista arranca en 1.
+POST {{host}}/songs
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "song_title": "Pista Fantasma",
+  "number_track": 0,
+  "id_album": {{idAlbum}}
+}
+
+
+### 3.9 Duración negativa. Espera 400 (la duración va en segundos).
+POST {{host}}/songs
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "song_title": "Pista Fantasma",
+  "duration": -5,
+  "id_album": {{idAlbum}}
+}
+
+
+### 3.10 Sin token. Espera 401.
+POST {{host}}/songs
+Content-Type: application/json
+
+{
+  "song_title": "Pista Sin Token"
+}
+
+
+### 3.11 Con un usuario FREE. Espera 403.
+POST {{host}}/songs
+Authorization: Bearer {{tokenFree}}
+Content-Type: application/json
+
+{
+  "song_title": "Pista Sin Permisos"
+}
+
+
+### ===========================================================================
+### 4. LECTURA
+###
+### El listado pide token (lo usan el panel y la pestaña "Aportes"), pero la
+### ficha es PÚBLICA, igual que la de álbum: se llega a ella desde el tracklist
+### de /albums/:id, que es una página abierta. Por eso devuelve solo canciones
+### aprobadas.
+### ===========================================================================
+
+### 4.1 Tracklist de un álbum, ordenado por número de pista. Espera 200.
+GET {{host}}/songs?id_album={{idAlbum}}
+Authorization: Bearer {{tokenAdmin}}
+
+
+### 4.2 Búsqueda parcial por título (ignora mayúsculas).
+GET {{host}}/songs?title=pista
+Authorization: Bearer {{tokenAdmin}}
+
+
+### 4.3 Solo lo aportado por usuarios y todavía sin revisar. Es lo que muestra
+### la cola de solicitudes del panel.
+GET {{host}}/songs?contributed=true&state=pending
+Authorization: Bearer {{tokenAdmin}}
+
+
+### 4.4 Ficha de una canción, con su álbum (título, año, portada) y el artista
+### de ese álbum. Es la consulta que dibuja la página /songs/:id.
+GET {{host}}/songs/{{idPista1}}
+
+
+### 4.5 Listado sin token. Espera 401: la lectura pública es solo la ficha.
+GET {{host}}/songs
+
+
+### 4.6 Id que no existe. Espera 404.
+GET {{host}}/songs/999999
+
+
+### 4.7 La ficha del álbum trae el tracklist completo, con la calificación
+### promedio de cada pista. Es la consulta que dibuja la página /albums/:id.
+GET {{host}}/albums/{{idAlbum}}
+
+
+### ===========================================================================
+### 5. EDICIÓN — la que la cargó, o ADMIN
+### ===========================================================================
+
+### 5.1 Mover la canción a otra pista libre. Espera 200.
+PATCH {{host}}/songs/{{idPista2}}
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "number_track": 5
+}
+
+
+### 5.2 Moverla a una pista ocupada. Espera 409.
+PATCH {{host}}/songs/{{idPista2}}
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "number_track": 1
+}
+
+
+### 5.3 Sacarle el álbum. Espera 400: se puede mudar la canción a otro álbum,
+### pero no dejarla sin ninguno (mismo motivo que 3.4).
+PATCH {{host}}/songs/{{idPista2}}
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "id_album": null
+}
+
+
+### 5.4 Volver a asignarle el álbum. Espera 200.
+PATCH {{host}}/songs/{{idPista2}}
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "id_album": {{idAlbum}}
+}
+
+
+### 5.5 Cuerpo vacío. Espera 400: hay que mandar al menos un campo.
+PATCH {{host}}/songs/{{idPista2}}
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{}
+
+
+### 5.6 Con un usuario FREE. Espera 403.
+PATCH {{host}}/songs/{{idPista1}}
+Authorization: Bearer {{tokenFree}}
+Content-Type: application/json
+
+{
+  "song_title": "Sin Permisos"
+}
+
+
+### ===========================================================================
+### 6. MODERACIÓN — solo ADMIN
+### ===========================================================================
+
+### 6.1 Rechazar una pista. Espera 200 con state = "rejected".
+PATCH {{host}}/songs/{{idPista1}}/reject
+Authorization: Bearer {{tokenAdmin}}
+
+
+### 6.2 Su propia ficha pública responde 404, y la del álbum deja de listarla:
+### el tracklist público muestra solo las pistas aprobadas.
+GET {{host}}/songs/{{idPista1}}
+
+###
+GET {{host}}/albums/{{idAlbum}}
+
+
+### 6.3 Aprobarla de nuevo. Espera 200 con state = "approved".
+PATCH {{host}}/songs/{{idPista1}}/approve
+Authorization: Bearer {{tokenAdmin}}
+
+
+### 6.4 Moderar con un usuario FREE. Espera 403.
+PATCH {{host}}/songs/{{idPista1}}/approve
+Authorization: Bearer {{tokenFree}}
+
+
+### ===========================================================================
+### 7. BAJA — solo ADMIN
+###
+### A diferencia del álbum, la baja de una canción NO se bloquea: la FK de REVIEW
+### hacia SONG es CASCADE, así que sus reseñas se van con ella (ver
+### entities/index.ts). Una reseña de canción califica esa pista y nada más.
+### ===========================================================================
+
+### 7.1 Con un usuario FREE. Espera 403.
+DELETE {{host}}/songs/{{idPista1}}
+Authorization: Bearer {{tokenFree}}
+
+
+### 7.2 Borrar el álbum antes que sus canciones. Espera 409: primero hay que
+### vaciar el tracklist.
+DELETE {{host}}/albums/{{idAlbum}}
+Authorization: Bearer {{tokenAdmin}}
+
+
+### 7.3 Borrar las dos canciones de prueba. Espera 204 sin cuerpo en cada una.
+DELETE {{host}}/songs/{{idPista1}}
+Authorization: Bearer {{tokenAdmin}}
+
+###
+DELETE {{host}}/songs/{{idPista2}}
+Authorization: Bearer {{tokenAdmin}}
+
+
+### 7.4 Ahora sí, borrar el álbum de prueba. Espera 204.
+DELETE {{host}}/albums/{{idAlbum}}
+Authorization: Bearer {{tokenAdmin}}
+
+
+### 7.5 Confirmar que ya no están. Espera 404 en las dos.
+GET {{host}}/songs/{{idPista1}}
+
+###
+GET {{host}}/albums/{{idAlbum}}

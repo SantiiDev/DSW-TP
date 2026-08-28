@@ -182,95 +182,10 @@
 }
 
 // --- Cola de solicitudes (pestaña "Solicitudes" del panel) ------------------
-
-.artist-requests {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-  min-width: 0;
-
-  &__title {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
-    color: $color-text;
-  }
-
-  // Una propuesta por fila en mobile; desde tablet entran de a dos, que es donde
-  // el panel ya tiene ancho de sobra.
-  &__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: $spacing-md;
-
-    @media (min-width: $bp-md) {
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    }
-  }
-}
-
-.artist-request {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-md;
-  background-color: $color-bg;
-  border: 1px solid $color-nav-border;
-  border-radius: 12px;
-
-  &__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: $spacing-sm;
-  }
-
-  &__name {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
-    color: $color-text;
-  }
-
-  &__author {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-    font-size: 0.8rem;
-    color: $color-text-secondary;
-  }
-
-  // La biografía propuesta puede ser larga: se corta a cuatro líneas para que
-  // todas las tarjetas de la grilla queden parejas.
-  &__bio {
-    margin: 0;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: $color-text-secondary;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-
-    &--empty {
-      font-style: italic;
-    }
-  }
-
-  &__actions {
-    margin-top: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: $spacing-sm;
-    padding-top: $spacing-sm;
-  }
-
-}
+//
+// La tarjeta de una solicitud y la grilla que las acomoda ahora las dibuja
+// RequestCard (core/components), que comparten las tres entidades aportables:
+// artista, álbum y canción. Acá no queda nada propio de la feature.
 
 // --- Aportes del perfil (pestaña "Aportes") --------------------------------
 
@@ -307,6 +222,14 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
   }
+}
+
+// En la pestaña "Aportes" del perfil la lista va debajo del selector de
+// segmentos (Artistas / Álbumes / Canciones), y el panel que los contiene no
+// separa a sus hijos. Va acotado al panel del perfil para que la lista, en
+// cualquier otro lugar, no arrastre un margen de más.
+.profile-panel .artist-contributions {
+  margin-top: $spacing-md;
 }
 
 // --- Modal de propuesta (pestaña "Aportes") --------------------------------

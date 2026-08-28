@@ -1,14 +1,18 @@
 // Tarjeta de una propuesta de artista dentro de la cola de solicitudes: quién la
 // mandó, qué propuso y los botones para resolverla.
 //
+// El marco lo pone RequestCard (core/components), el mismo que usan las
+// solicitudes de álbum y de canción; acá va solo el detalle propio del artista,
+// que es su biografía.
+//
 // Es presentacional: no llama a la API ni guarda estado; avisa al padre
 // (ArtistRequestsSection) con onApprove / onReject.
-import { CheckCircle2, UserRound, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { Badge } from '../../../core/components/Badge';
 import { Button } from '../../../core/components/Button';
+import { RequestCard } from '../../../core/components/RequestCard';
 import { STATE_LABELS, STATE_TONES } from '../models/Artist';
 import type { Artist } from '../models/Artist';
-import '../styles/_artist.scss';
 
 type ArtistRequestCardProps = {
   artist: Artist;
@@ -31,40 +35,35 @@ export const ArtistRequestCard = ({
   const canReject = artist.state !== 'rejected';
 
   return (
-    <li className="artist-request">
-      <div className="artist-request__head">
-        <h4 className="artist-request__name">{artist.name}</h4>
-        <Badge tone={STATE_TONES[artist.state]}>{STATE_LABELS[artist.state]}</Badge>
-      </div>
+    <RequestCard
+      title={artist.name}
+      badge={<Badge tone={STATE_TONES[artist.state]}>{STATE_LABELS[artist.state]}</Badge>}
+      author={artist.creatorName}
+      actions={
+        <>
+          {canApprove && (
+            <Button variant="success" disabled={isBusy} onClick={() => onApprove(artist)}>
+              <CheckCircle2 size={16} aria-hidden="true" />
+              {artist.state === 'pending' ? 'Aprobar' : 'Aprobar igual'}
+            </Button>
+          )}
 
-      <p className="artist-request__author">
-        <UserRound size={14} aria-hidden="true" />
-        Propuesto por {artist.creatorName}
-      </p>
-
+          {canReject && (
+            <Button variant="danger" disabled={isBusy} onClick={() => onReject(artist)}>
+              <XCircle size={16} aria-hidden="true" />
+              {artist.state === 'pending' ? 'Rechazar' : 'Dar de baja'}
+            </Button>
+          )}
+        </>
+      }
+    >
       {artist.biography ? (
-        <p className="artist-request__bio">{artist.biography}</p>
+        <p className="request-card__detail">{artist.biography}</p>
       ) : (
-        <p className="artist-request__bio artist-request__bio--empty">
+        <p className="request-card__detail request-card__detail--empty">
           El aporte no incluye una biografía.
         </p>
       )}
-
-      <div className="artist-request__actions">
-        {canApprove && (
-          <Button variant="success" disabled={isBusy} onClick={() => onApprove(artist)}>
-            <CheckCircle2 size={16} aria-hidden="true" />
-            {artist.state === 'pending' ? 'Aprobar' : 'Aprobar igual'}
-          </Button>
-        )}
-
-        {canReject && (
-          <Button variant="danger" disabled={isBusy} onClick={() => onReject(artist)}>
-            <XCircle size={16} aria-hidden="true" />
-            {artist.state === 'pending' ? 'Rechazar' : 'Dar de baja'}
-          </Button>
-        )}
-      </div>
-    </li>
+    </RequestCard>
   );
 };

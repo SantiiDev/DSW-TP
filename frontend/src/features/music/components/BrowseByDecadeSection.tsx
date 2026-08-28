@@ -1,40 +1,58 @@
-// Sección de la página de exploración musical para buscar música filtrada por décadas.
+// Sección "Explorar por Década" del explorador: cuántos álbumes del catálogo hay
+// en cada década, y el acceso al listado de cada una.
+//
+// Los conteos salen de `GET /api/albums/decades`, que los arma a partir de los
+// años de lanzamiento. Las décadas sin ningún álbum no se dibujan: llevarían a un
+// listado vacío.
+//
+// Es solo de álbumes y no cambia con la pestaña, por el mismo motivo que "Nuevos
+// Lanzamientos": la canción no tiene año propio.
 import { Calendar } from 'lucide-react';
-import { SectionHeader } from '../../../core/components/SectionHeader';
-import { useAuthModal } from '../../../core/context/AuthModalContext';
+import { GatedLink } from '../../../core/components/GatedLink';
+import { useFetch } from '../../../core/hooks/useFetch';
+import { albumService } from '../../album/services/albumService';
+import { ExploreSectionShell } from './ExploreSectionShell';
 
-const DECADES = [
-  { id: 1, decade: '2020s', years: '2020 – Presente', albumCount: 8432, emoji: '🔥' },
-  { id: 2, decade: '2010s', years: '2010 – 2019', albumCount: 15621, emoji: '💫' },
-  { id: 3, decade: '2000s', years: '2000 – 2009', albumCount: 12453, emoji: '💿' },
-  { id: 4, decade: '1990s', years: '1990 – 1999', albumCount: 11234, emoji: '📀' },
-  { id: 5, decade: '1980s', years: '1980 – 1989', albumCount: 9876, emoji: '🎸' },
-  { id: 6, decade: '1970s', years: '1970 – 1979', albumCount: 8765, emoji: '🎵' },
-  { id: 7, decade: '1960s', years: '1960 – 1969', albumCount: 6543, emoji: '✌️' },
-  { id: 8, decade: 'Pre-1960', years: 'Antes de 1960', albumCount: 4321, emoji: '🎺' },
-];
+// Un emoji por década, en el mismo orden en que las devuelve la API (de la más
+// nueva a la más vieja). Es decoración, no un dato del negocio, así que vive acá
+// y no en el backend.
+const DECADE_EMOJIS = ['🔥', '💫', '💿', '📀', '🎸', '🎵', '✌️', '🎺'];
 
 export const BrowseByDecadeSection = () => {
-  const { openSignup } = useAuthModal();
-  return (
-    <section className="explore-section">
-      <SectionHeader
-        icon={<Calendar size={22} />}
-        title="Explorar por Década"
-      />
+  const { data, isLoading, error } = useFetch(() => albumService.decades());
 
+  // Las vacías no se muestran: la tarjeta llevaría a un listado sin resultados.
+  const decades = (data ?? []).filter((decade) => decade.hasAlbums);
+
+  return (
+    <ExploreSectionShell
+      icon={<Calendar size={22} />}
+      title="Explorar por Década"
+      isLoading={isLoading}
+      error={error}
+      isEmpty={decades.length === 0}
+      emptyMessage="Todavía no hay álbumes con año de lanzamiento cargado."
+    >
       <div className="decade-grid">
-        {DECADES.map((item) => (
-          <button key={item.id} className="decade-card" onClick={openSignup}>
-            <span className="decade-card__emoji">{item.emoji}</span>
+        {decades.map((decade, index) => (
+          <GatedLink
+            key={decade.label}
+            // El listado recibe el rango tal cual: son los mismos parámetros que
+            // entiende la API.
+            to={`/albums?year_from=${decade.from}&year_to=${decade.to}&sort=year`}
+            className="decade-card"
+          >
+            <span className="decade-card__emoji" aria-hidden="true">
+              {DECADE_EMOJIS[index % DECADE_EMOJIS.length]}
+            </span>
             <div className="decade-card__info">
-              <span className="decade-card__decade">{item.decade}</span>
-              <span className="decade-card__years">{item.years}</span>
+              <span className="decade-card__decade">{decade.label}</span>
+              <span className="decade-card__years">{decade.yearsLabel}</span>
             </div>
-            <span className="decade-card__count">{item.albumCount.toLocaleString()} álbumes</span>
-          </button>
+            <span className="decade-card__count">{decade.countLabel}</span>
+          </GatedLink>
         ))}
       </div>
-    </section>
+    </ExploreSectionShell>
   );
 };

@@ -1,0 +1,44 @@
+// Estilos de la barra de búsqueda reutilizable (core/components/SearchBar.tsx).
+// Los botones son el componente Button, que trae los suyos: acá va solo el campo.
+@use '../../styles/abstracts/variable' as *;
+
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+
+  &__field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    // Crece para ocupar el ancho libre, pero no baja de 220px: más angosto que
+    // eso no entra un título completo.
+    flex: 1 1 220px;
+  }
+
+  &__icon {
+    position: absolute;
+    left: 0.75rem;
+    color: $color-text-secondary;
+    // Sin esto, hacer click justo sobre la lupa no enfoca el campo.
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 30px;
+    // El padding izquierdo deja lugar para la lupa.
+    padding: 0.6rem 1rem 0.6rem 2.4rem;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+}
