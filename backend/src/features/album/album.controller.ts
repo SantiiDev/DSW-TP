@@ -5,7 +5,13 @@
 // al middleware de manejo de errores.
 import { Request, Response } from 'express';
 import { albumService } from './album.service';
-import { AlbumIdParam, CreateAlbumInput, ListAlbumsQuery, UpdateAlbumInput } from './album.schema';
+import {
+  AlbumIdParam,
+  CreateAlbumInput,
+  ExploreAlbumsQuery,
+  ListAlbumsQuery,
+  UpdateAlbumInput,
+} from './album.schema';
 
 export const albumController = {
   async create(req: Request, res: Response): Promise<void> {
@@ -22,9 +28,23 @@ export const albumController = {
     res.status(200).json(albums);
   },
 
+  async explore(req: Request, res: Response): Promise<void> {
+    const filters = req.validated.query as ExploreAlbumsQuery;
+    // Ruta pública: acá NO hay req.user, y el service devuelve siempre el
+    // catálogo aprobado.
+    const albums = await albumService.explore(filters);
+    res.status(200).json(albums);
+  },
+
+  async decades(_req: Request, res: Response): Promise<void> {
+    // Ruta pública: no recibe ningún parámetro ni mira quién pregunta.
+    const decades = await albumService.decades();
+    res.status(200).json(decades);
+  },
+
   async getById(req: Request, res: Response): Promise<void> {
     const { id } = req.validated.params as AlbumIdParam;
-    // Es la única ruta pública de la feature, así que acá NO hay req.user.
+    // Ruta pública, igual que explore: acá tampoco hay req.user.
     const album = await albumService.getPublicById(id);
     res.status(200).json(album);
   },

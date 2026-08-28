@@ -1,8 +1,13 @@
 // Servicio del CRUD de álbumes: centraliza las llamadas HTTP de /api/albums y
 // mapea la respuesta cruda del backend al modelo Album.
 import { httpClient } from '../../../core/services/httpClient';
-import { Album, AlbumArtist, AlbumCreator, AlbumGenre, AlbumSong } from '../models/Album';
-import type { AlbumApiResponse, ContentState } from '../models/Album';
+import { Album, AlbumArtist, AlbumCreator, AlbumGenre, AlbumSong, Decade } from '../models/Album';
+import type {
+  AlbumApiResponse,
+  AlbumSort,
+  ContentState,
+  DecadeApiResponse,
+} from '../models/Album';
 
 /** Campos que acepta el alta y la edición de un álbum. */
 export type AlbumInput = {
@@ -94,7 +99,66 @@ function buildQuery(filters: AlbumFilters): string {
   return query === '' ? '' : `?${query}`;
 }
 
+/**
+ * Filtros del explorador público. No tiene `state` ni `createdBy`: siempre
+ * devuelve el catálogo aprobado, sin importar quién pregunte.
+ */
+export type AlbumExploreFilters = {
+  /** Criterio de orden. Es lo que distingue una sección de /music de otra. */
+  sort?: AlbumSort;
+  /** Tope de filas. Las secciones piden 5 o 6; el listado pide una tanda. */
+  limit?: number;
+  /** Desde qué fila arranca. Junto con el tope es el paginado del listado. */
+  offset?: number;
+  /** Rango de años, los dos incluidos. Es lo que arma una década. */
+  yearFrom?: number;
+  yearTo?: number;
+  /** Solo los álbumes de un género. */
+  idGenre?: number;
+};
+
+/**
+ * Arma el query string del explorador salteando los filtros vacíos.
+ * @param filters orden, tope, rango de años y género.
+ */
+function buildExploreQuery(filters: AlbumExploreFilters): string {
+  const params = new URLSearchParams();
+  if (filters.sort) params.set('sort', filters.sort);
+  if (filters.limit !== undefined) params.set('limit', String(filters.limit));
+  if (filters.offset !== undefined) params.set('offset', String(filters.offset));
+  // La API usa los nombres del DER, así que acá se traduce el camelCase del front.
+  if (filters.yearFrom !== undefined) params.set('year_from', String(filters.yearFrom));
+  if (filters.yearTo !== undefined) params.set('year_to', String(filters.yearTo));
+  if (filters.idGenre !== undefined) params.set('id_genre', String(filters.idGenre));
+
+  const query = params.toString();
+  return query === '' ? '' : `?${query}`;
+}
+
 export const albumService = {
+  /**
+   * Listado del explorador: el catálogo aprobado, ordenado por el criterio que se
+   * pida y acotado a un tope de filas.
+   *
+   * No pide sesión, a diferencia de `list()`: es lo que alimenta las secciones de
+   * /music y la página de listado, que se ven sin iniciar sesión.
+   */
+  async explore(filters: AlbumExploreFilters = {}): Promise<Album[]> {
+    const data = await httpClient.get<AlbumApiResponse[]>(
+      `/albums/explore${buildExploreQuery(filters)}`
+    );
+    return data.map(toAlbum);
+  },
+
+  /**
+   * Cuántos álbumes del catálogo tiene cada década. Es lo que dibuja "Explorar
+   * por Década"; tampoco pide sesión.
+   */
+  async decades(): Promise<Decade[]> {
+    const data = await httpClient.get<DecadeApiResponse[]>('/albums/decades');
+    return data.map((row) => new Decade(row.label, row.from, row.to, row.count));
+  },
+
   /** Lista el catálogo de álbumes, opcionalmente filtrado. */
   async list(filters: AlbumFilters = {}): Promise<Album[]> {
     const data = await httpClient.get<AlbumApiResponse[]>(`/albums${buildQuery(filters)}`);

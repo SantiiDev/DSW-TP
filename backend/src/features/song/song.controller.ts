@@ -5,7 +5,13 @@
 // al middleware de manejo de errores.
 import { Request, Response } from 'express';
 import { songService } from './song.service';
-import { CreateSongInput, ListSongsQuery, SongIdParam, UpdateSongInput } from './song.schema';
+import {
+  CreateSongInput,
+  ExploreSongsQuery,
+  ListSongsQuery,
+  SongIdParam,
+  UpdateSongInput,
+} from './song.schema';
 
 export const songController = {
   async create(req: Request, res: Response): Promise<void> {
@@ -22,9 +28,17 @@ export const songController = {
     res.status(200).json(songs);
   },
 
+  async explore(req: Request, res: Response): Promise<void> {
+    const filters = req.validated.query as ExploreSongsQuery;
+    // Ruta pública: acá NO hay req.user, y el service devuelve siempre el
+    // catálogo aprobado.
+    const songs = await songService.explore(filters);
+    res.status(200).json(songs);
+  },
+
   async getById(req: Request, res: Response): Promise<void> {
     const { id } = req.validated.params as SongIdParam;
-    // Es la única ruta pública de la feature, así que acá NO hay req.user.
+    // Ruta pública, igual que explore: acá tampoco hay req.user.
     const song = await songService.getPublicById(id);
     res.status(200).json(song);
   },

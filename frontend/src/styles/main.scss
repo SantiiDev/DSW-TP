@@ -25,6 +25,9 @@
 @use '../core/components/select';
 @use '../core/components/search-bar';
 @use '../core/components/form-modal';
+@use '../core/components/request-card';
+@use '../core/components/gated-link';
+@use '../core/components/back-link';
 
 // Features Components
 @use '../features/home/components/hero';

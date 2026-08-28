@@ -29,6 +29,58 @@ export const STATE_TONES: Record<ContentState, BadgeTone> = {
   rejected: 'danger',
 };
 
+/**
+ * Cómo se ordena el explorador. Son los mismos valores que acepta la API en
+ * `GET /albums/explore?sort=` (ver ALBUM_SORTS en album.schema.ts del backend).
+ */
+export type AlbumSort = 'rating' | 'reviews' | 'recent' | 'year' | 'title';
+
+/** Una década del explorador, tal como viaja en la API. */
+export type DecadeApiResponse = {
+  label: string;
+  from: number;
+  to: number;
+  count: number;
+};
+
+/**
+ * Una década del catálogo, con cuántos álbumes tiene.
+ *
+ * Es una vista de solo lectura: la arma el backend a partir de los años de
+ * lanzamiento y sirve para dibujar "Explorar por Década" y para saber con qué
+ * rango pedirle los álbumes al listado.
+ */
+export class Decade {
+  constructor(
+    public readonly label: string,
+    public readonly from: number,
+    public readonly to: number,
+    public readonly count: number
+  ) {}
+
+  /** ¿Tiene algo para mostrar? Las décadas vacías no se dibujan. */
+  get hasAlbums(): boolean {
+    return this.count > 0;
+  }
+
+  /** Cantidad de álbumes en texto ("1 álbum" / "41 álbumes"). */
+  get countLabel(): string {
+    return this.count === 1 ? '1 álbum' : `${this.count} álbumes`;
+  }
+
+  /**
+   * El rango en texto, como lo muestra la tarjeta ("1990 – 1999").
+   *
+   * La década más nueva llega hasta el tope que admite la entidad (2100), que no
+   * es un año real de nada: ahí se dice "Presente".
+   */
+  get yearsLabel(): string {
+    if (this.to >= 2100) return `${this.from} – Presente`;
+    if (this.from <= 1900) return `Antes de ${this.to + 1}`;
+    return `${this.from} – ${this.to}`;
+  }
+}
+
 /** Artista del álbum, tal como viaja dentro de su ficha en la API. */
 export type AlbumArtistApiResponse = {
   id_artist: number;

@@ -1,0 +1,112 @@
+// Estilos de la tarjeta de solicitud (core/components/RequestCard.tsx).
+//
+// Reemplaza al bloque `.artist-request` que estaba en _artist.scss: las tres
+// entidades aportables usan la misma tarjeta, así que vive una sola vez acá.
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/breakpoints' as *;
+
+// Envoltorio de una cola de solicitudes: el aviso de la última decisión, el
+// título con el conteo y la grilla de tarjetas. Lo comparten las tres secciones
+// (artista, álbum y canción), que solo se diferencian en contra qué endpoint
+// piden.
+.request-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+}
+
+// Una solicitud por fila en mobile; desde tablet entran de a dos, que es donde el
+// panel ya tiene ancho de sobra.
+.request-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-md;
+
+  @media (min-width: $bp-md) {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+.request-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background-color: $color-bg;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+  // Sin esto, un título largo estira la columna de la grilla en vez de cortarse.
+  min-width: 0;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    min-width: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  // Cada línea del detalle propio de la entidad. Se corta a cuatro líneas para
+  // que todas las tarjetas de la grilla queden parejas: la biografía de un
+  // artista puede ser larguísima.
+  &__detail {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    // Para cuando el aporte no incluyó ese dato ("no trae biografía").
+    &--empty {
+      font-style: italic;
+    }
+  }
+
+  &__actions {
+    // Empuja los botones contra el borde de abajo: así quedan alineados entre
+    // tarjetas de distinto alto.
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    padding-top: $spacing-sm;
+  }
+}

@@ -146,7 +146,64 @@ export const listAlbumsQuerySchema = z.object({
     .optional(),
 });
 
+/**
+ * Cómo se ordena el explorador. Cada valor corresponde a una sección de /music:
+ *
+ *   rating   los mejor calificados (columna average_rating, que mantiene el CRUD
+ *            de reseñas).
+ *   reviews  los más reseñados.
+ *   recent   los últimos agregados al catálogo.
+ *   year     los lanzamientos más nuevos.
+ *   title    alfabético; es el orden por defecto de un listado sin criterio.
+ */
+export const ALBUM_SORTS = ['rating', 'reviews', 'recent', 'year', 'title'] as const;
+export type AlbumSort = (typeof ALBUM_SORTS)[number];
+
+// Techo de cuántos álbumes puede pedir una sola request al explorador. Las
+// secciones de /music piden entre 5 y 6; el listado completo pagina de a tandas.
+const MAX_EXPLORE_LIMIT = 100;
+
+/**
+ * Filtros del explorador público (GET /api/albums/explore).
+ *
+ * Va aparte del listado normal porque son dos consultas distintas: esta no
+ * recibe `state` ni `created_by` (siempre devuelve el catálogo aprobado, sin
+ * importar quién pregunte) y sí recibe orden, tope y rango de años, que es lo que
+ * necesitan las secciones de /music y la página de listado.
+ */
+export const exploreAlbumsQuerySchema = z.object({
+  sort: z
+    .enum(ALBUM_SORTS, { message: `El orden debe ser uno de: ${ALBUM_SORTS.join(', ')}.` })
+    .optional(),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1, 'El tope tiene que ser mayor a cero.')
+    .max(MAX_EXPLORE_LIMIT, `El tope no puede ser mayor a ${MAX_EXPLORE_LIMIT}.`)
+    .optional(),
+  // Desde qué fila arranca. Junto con el tope arma el paginado del listado: la
+  // primera tanda va sin offset y la siguiente con el total ya mostrado. No hace
+  // falta devolver un total: el botón "Ver más" se muestra mientras la última
+  // tanda haya vuelto completa.
+  offset: z.coerce
+    .number()
+    .int()
+    .min(0, 'El desde no puede ser negativo.')
+    .optional(),
+  // Rango de años, los dos incluidos. Es lo que arma una década: 1990 a 1999.
+  year_from: releaseYearSchema.optional(),
+  year_to: releaseYearSchema.optional(),
+  // Solo los álbumes de un género. Lo usa el listado cuando se llega desde la
+  // ficha de un género.
+  id_genre: z.coerce
+    .number()
+    .int()
+    .positive('El id del género debe ser un número positivo.')
+    .optional(),
+});
+
 export type AlbumIdParam = z.infer<typeof albumIdParamSchema>;
+export type ExploreAlbumsQuery = z.infer<typeof exploreAlbumsQuerySchema>;
 export type CreateAlbumInput = z.infer<typeof createAlbumSchema>;
 export type UpdateAlbumInput = z.infer<typeof updateAlbumSchema>;
 export type ListAlbumsQuery = z.infer<typeof listAlbumsQuerySchema>;

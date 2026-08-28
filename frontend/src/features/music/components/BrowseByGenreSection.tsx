@@ -7,9 +7,13 @@
 // Los datos salen de la API (`/api/genres`), que en las lecturas es pública: esta
 // página se ve sin iniciar sesión y la grilla es de lo primero que mira alguien
 // que todavía no tiene cuenta.
+//
+// Las tarjetas, en cambio, son GatedLink: la ficha del género pide sesión, así
+// que a un visitante sin cuenta el click le abre el modal de registro en vez de
+// mandarlo a una pantalla de la que lo van a rebotar.
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Music2 } from 'lucide-react';
+import { GatedLink } from '../../../core/components/GatedLink';
 import { SectionHeader } from '../../../core/components/SectionHeader';
 import { Loader } from '../../../core/components/Loader';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
@@ -70,7 +74,7 @@ export const BrowseByGenreSection = () => {
       ) : (
         <div className="genre-grid">
           {genres.map((genre, index) => (
-            <Link
+            <GatedLink
               key={genre.id}
               to={`/genres/${genre.id}`}
               className="genre-card"
@@ -84,7 +88,7 @@ export const BrowseByGenreSection = () => {
                   ? '1 álbum'
                   : `${genre.publicAlbumsCount} álbumes`}
               </span>
-            </Link>
+            </GatedLink>
           ))}
         </div>
       )}

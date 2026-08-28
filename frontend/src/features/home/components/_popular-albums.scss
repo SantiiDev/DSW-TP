@@ -30,10 +30,23 @@
       justify-content: space-between;
     }
   }
+
+  // Estado de error o de catálogo vacío. En la portada del sitio esto no puede
+  // ser un cartel rojo grande: es una sección de vitrina, no una operación que el
+  // usuario haya pedido.
+  &__empty {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.9rem;
+  }
 }
 
 .album-card {
+  // Ancho fijo y no elástico: es una fila de siete tarjetas parejas, no una
+  // grilla. flex-shrink en 0 para que no se aplasten al achicar la ventana; si
+  // no entran, el wrap las baja de fila.
   width: 155px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;

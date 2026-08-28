@@ -18,7 +18,12 @@ import {
   AlbumSongReview,
   AlbumWithRelations,
 } from './album.repository';
-import { CreateAlbumInput, ListAlbumsQuery, UpdateAlbumInput } from './album.schema';
+import {
+  CreateAlbumInput,
+  ExploreAlbumsQuery,
+  ListAlbumsQuery,
+  UpdateAlbumInput,
+} from './album.schema';
 
 /**
  * Vista pública de un álbum en el listado.
@@ -62,6 +67,38 @@ type PublicAlbumSong = {
 type PublicAlbumDetail = PublicAlbum & {
   songs: PublicAlbumSong[];
 };
+
+/** Una década del explorador, con cuántos álbumes del catálogo caen adentro. */
+type PublicDecade = {
+  /** Nombre para mostrar ("1990s", "Antes de 1960"). */
+  label: string;
+  /** Los dos extremos, incluidos: es lo que se manda como year_from / year_to. */
+  from: number;
+  to: number;
+  count: number;
+};
+
+/**
+ * Las décadas que ofrece el explorador, de la más nueva a la más vieja.
+ *
+ * Son fijas y no salen de los datos a propósito: la grilla de /music tiene que
+ * verse igual siempre, y un catálogo sin álbumes de los 70 no debería reordenar
+ * la pantalla. Las que quedan en cero las esconde el frontend.
+ *
+ * La primera llega hasta 2100 (el máximo que admite la entidad) para que un
+ * lanzamiento futuro no se quede sin década, y la última junta todo lo anterior a
+ * 1960 en un solo grupo, que es como lo muestra el diseño.
+ */
+const DECADES: { label: string; from: number; to: number }[] = [
+  { label: '2020s', from: 2020, to: 2100 },
+  { label: '2010s', from: 2010, to: 2019 },
+  { label: '2000s', from: 2000, to: 2009 },
+  { label: '1990s', from: 1990, to: 1999 },
+  { label: '1980s', from: 1980, to: 1989 },
+  { label: '1970s', from: 1970, to: 1979 },
+  { label: '1960s', from: 1960, to: 1969 },
+  { label: 'Antes de 1960', from: 1900, to: 1959 },
+];
 
 /**
  * Qué se le contesta a alguien que intenta cargar un álbum repetido, según en qué
@@ -343,6 +380,50 @@ export const albumService = {
     });
 
     return albums.map(toPublicAlbum);
+  },
+
+  /**
+   * Listado del explorador público (/music y la página de listado de álbumes).
+   *
+   * No pide token y devuelve SIEMPRE el catálogo aprobado, así que no recibe el
+   * actor: es la misma respuesta para un visitante sin cuenta que para un ADMIN.
+   * Lo que sí recibe es el orden, el tope de filas y el rango de años, que es lo
+   * que distingue a una sección de otra.
+   *
+   * @param filters orden, tope, rango de años y género ya validados.
+   */
+  async explore(filters: ExploreAlbumsQuery): Promise<PublicAlbum[]> {
+    const albums = await albumRepository.findForExplore({
+      sort: filters.sort,
+      limit: filters.limit,
+      offset: filters.offset,
+      yearFrom: filters.year_from ?? undefined,
+      yearTo: filters.year_to ?? undefined,
+      idGenre: filters.id_genre,
+    });
+
+    return albums.map(toPublicAlbum);
+  },
+
+  /**
+   * Cuántos álbumes del catálogo aprobado tiene cada década.
+   *
+   * Es lo que dibuja "Explorar por Década" en /music. Devuelve las ocho décadas
+   * siempre, con su conteo: si alguna quedó en cero, es el frontend el que decide
+   * no mostrarla.
+   *
+   * Los álbumes sin año no entran en ninguna: no se sabe a cuál pertenecen.
+   */
+  async decades(): Promise<PublicDecade[]> {
+    const rows = await albumRepository.findApprovedReleaseYears();
+    const years = rows
+      .map((row) => row.release_year)
+      .filter((year): year is number => year !== null);
+
+    return DECADES.map((decade) => ({
+      ...decade,
+      count: years.filter((year) => year >= decade.from && year <= decade.to).length,
+    }));
   },
 
   /**

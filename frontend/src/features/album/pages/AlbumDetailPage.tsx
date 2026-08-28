@@ -1,16 +1,20 @@
 // Ficha pública de un álbum: su portada y sus datos, el tracklist con la
 // calificación de cada canción, y las reseñas del álbum.
 //
-// Es a donde llevan las tarjetas de álbum de la ficha de un género (/genres/:id).
-// Es una página pública, igual que esa: leer el catálogo aprobado no pide token,
-// y por eso la API responde 404 sobre un álbum que todavía no está aprobado.
+// Es a donde llevan las tarjetas de álbum de la ficha de un género, las del
+// explorador (/music) y las del listado. La ruta pide sesión (ver App.tsx): la
+// vitrina pública es /music, y para entrar a una ficha hace falta cuenta.
+//
+// La API, en cambio, es pública y devuelve solo el catálogo aprobado: responde
+// 404 sobre un álbum que todavía no se revisó.
 //
 // Las reseñas todavía no tienen endpoints (es la feature review), así que esa
 // sección muestra su estado vacío definitivo. Cuando existan, se reemplaza el
 // EmptyState por el listado paginado sin tocar el resto de la página.
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Disc3, Star } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
+import { BackLink } from '../../../core/components/BackLink';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { Footer } from '../../../core/components/Footer';
 import { Loader } from '../../../core/components/Loader';
@@ -77,11 +81,9 @@ export const AlbumDetailPage = () => {
               />
             </section>
 
-            {/* Se vuelve al género y no al álbum anterior: la ficha se abre desde
-                la página de un género, que es el listado del que vino. */}
-            <Link to="/music" className="album-detail__back">
-              Volver a explorar música
-            </Link>
+            {/* Vuelve al lugar del que se vino, sea la ficha de un género, el
+                explorador o un listado por década (ver BackLink). */}
+            <BackLink fallbackTo="/music" />
           </>
         ) : (
           <EmptyState

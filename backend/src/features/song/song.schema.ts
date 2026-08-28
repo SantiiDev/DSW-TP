@@ -155,7 +155,68 @@ export const listSongsQuerySchema = z.object({
     .optional(),
 });
 
+/**
+ * Cómo se ordena el explorador. Son los mismos criterios que los del álbum
+ * (ver ALBUM_SORTS), menos `year`: la canción no tiene año propio, lo hereda de
+ * su álbum, y ordenar por él dejaría el tracklist entero pegado en bloque.
+ *
+ *   rating   las mejor calificadas.
+ *   reviews  las más reseñadas.
+ *   recent   las últimas agregadas al catálogo.
+ *   title    alfabético; es el orden por defecto de un listado sin criterio.
+ */
+export const SONG_SORTS = ['rating', 'reviews', 'recent', 'title'] as const;
+export type SongSort = (typeof SONG_SORTS)[number];
+
+// Techo de cuántas canciones puede pedir una sola request al explorador. Las
+// secciones de /music piden entre 5 y 6; el listado completo pagina de a tandas.
+const MAX_EXPLORE_LIMIT = 100;
+
+// Los mismos límites que valida la entidad Album para su año de lanzamiento.
+const MIN_RELEASE_YEAR = 1900;
+const MAX_RELEASE_YEAR = 2100;
+
+// El rango de años filtra por el año del ÁLBUM de la canción, que es el único
+// que existe: SONG no tiene fecha propia en el DER.
+const albumYearSchema = z.coerce
+  .number()
+  .int('El año tiene que ser un número entero.')
+  .min(MIN_RELEASE_YEAR, `El año debe ser posterior a ${MIN_RELEASE_YEAR}.`)
+  .max(MAX_RELEASE_YEAR, 'El año no es válido.');
+
+/**
+ * Filtros del explorador público (GET /api/songs/explore).
+ *
+ * Va aparte del listado normal porque son dos consultas distintas: esta no
+ * recibe `state` ni `created_by` (siempre devuelve el catálogo aprobado, sin
+ * importar quién pregunte) y sí recibe orden, tope y rango de años.
+ */
+export const exploreSongsQuerySchema = z.object({
+  sort: z
+    .enum(SONG_SORTS, { message: `El orden debe ser uno de: ${SONG_SORTS.join(', ')}.` })
+    .optional(),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1, 'El tope tiene que ser mayor a cero.')
+    .max(MAX_EXPLORE_LIMIT, `El tope no puede ser mayor a ${MAX_EXPLORE_LIMIT}.`)
+    .optional(),
+  // Desde qué fila arranca. Junto con el tope arma el paginado del listado: la
+  // primera tanda va sin offset y la siguiente con el total ya mostrado. No hace
+  // falta devolver un total: el botón "Ver más" se muestra mientras la última
+  // tanda haya vuelto completa.
+  offset: z.coerce
+    .number()
+    .int()
+    .min(0, 'El desde no puede ser negativo.')
+    .optional(),
+  // Rango de años, los dos incluidos. Es lo que arma una década: 1990 a 1999.
+  year_from: albumYearSchema.optional(),
+  year_to: albumYearSchema.optional(),
+});
+
 export type SongIdParam = z.infer<typeof songIdParamSchema>;
+export type ExploreSongsQuery = z.infer<typeof exploreSongsQuerySchema>;
 export type CreateSongInput = z.infer<typeof createSongSchema>;
 export type UpdateSongInput = z.infer<typeof updateSongSchema>;
 export type ListSongsQuery = z.infer<typeof listSongsQuerySchema>;

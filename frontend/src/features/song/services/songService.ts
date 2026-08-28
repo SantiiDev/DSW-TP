@@ -2,7 +2,7 @@
 // mapea la respuesta cruda del backend al modelo Song.
 import { httpClient } from '../../../core/services/httpClient';
 import { Song, SongAlbum, SongArtist, SongCreator } from '../models/Song';
-import type { ContentState, SongApiResponse } from '../models/Song';
+import type { ContentState, SongApiResponse, SongSort } from '../models/Song';
 
 /** Campos que acepta el alta y la edición de una canción. */
 export type SongInput = {
@@ -91,7 +91,54 @@ function buildQuery(filters: SongFilters): string {
   return query === '' ? '' : `?${query}`;
 }
 
+/**
+ * Filtros del explorador público. No tiene `state` ni `createdBy`: siempre
+ * devuelve el catálogo aprobado, sin importar quién pregunte.
+ */
+export type SongExploreFilters = {
+  /** Criterio de orden. Es lo que distingue una sección de /music de otra. */
+  sort?: SongSort;
+  /** Tope de filas. Las secciones piden 5 o 6; el listado pide una tanda. */
+  limit?: number;
+  /** Desde qué fila arranca. Junto con el tope es el paginado del listado. */
+  offset?: number;
+  /** Rango de años del ÁLBUM, los dos incluidos. Es lo que arma una década. */
+  yearFrom?: number;
+  yearTo?: number;
+};
+
+/**
+ * Arma el query string del explorador salteando los filtros vacíos.
+ * @param filters orden, tope y rango de años.
+ */
+function buildExploreQuery(filters: SongExploreFilters): string {
+  const params = new URLSearchParams();
+  if (filters.sort) params.set('sort', filters.sort);
+  if (filters.limit !== undefined) params.set('limit', String(filters.limit));
+  if (filters.offset !== undefined) params.set('offset', String(filters.offset));
+  // La API usa los nombres del DER, así que acá se traduce el camelCase del front.
+  if (filters.yearFrom !== undefined) params.set('year_from', String(filters.yearFrom));
+  if (filters.yearTo !== undefined) params.set('year_to', String(filters.yearTo));
+
+  const query = params.toString();
+  return query === '' ? '' : `?${query}`;
+}
+
 export const songService = {
+  /**
+   * Listado del explorador: el catálogo aprobado, ordenado por el criterio que se
+   * pida y acotado a un tope de filas.
+   *
+   * No pide sesión, a diferencia de `list()`: es lo que alimenta las secciones de
+   * /music y la página de listado, que se ven sin iniciar sesión.
+   */
+  async explore(filters: SongExploreFilters = {}): Promise<Song[]> {
+    const data = await httpClient.get<SongApiResponse[]>(
+      `/songs/explore${buildExploreQuery(filters)}`
+    );
+    return data.map(toSong);
+  },
+
   /** Lista las canciones del catálogo, opcionalmente filtradas. */
   async list(filters: SongFilters = {}): Promise<Song[]> {
     const data = await httpClient.get<SongApiResponse[]>(`/songs${buildQuery(filters)}`);

@@ -1,8 +1,9 @@
 // Acceso a datos de la feature song: consultas a la tabla song para el CRUD del
 // tracklist. Es la única capa que habla con Sequelize.
-import { Op } from 'sequelize';
+import { literal, Op, Order, OrderItem } from 'sequelize';
 import { Album, Artist, Review, Song, User } from '../../entities';
 import { ContentState } from '../../shared/types/enums';
+import { SongSort } from './song.schema';
 
 /** Artista del álbum de la canción, para poder ubicarla en una sola línea. */
 export type SongArtist = {
@@ -156,7 +157,104 @@ function buildWhere(filters: SongFilters) {
   };
 }
 
+/** Opciones del explorador público. Ver exploreSongsQuerySchema. */
+type ExploreOptions = {
+  sort?: SongSort;
+  limit?: number;
+  offset?: number;
+  yearFrom?: number;
+  yearTo?: number;
+};
+
+/**
+ * Traduce el orden pedido a la cláusula ORDER BY de Sequelize.
+ *
+ * Los dos criterios que miran reseñas usan una subconsulta correlacionada, porque
+ * SONG no guarda ni el promedio ni la cantidad (a diferencia de ALBUMS, que sí
+ * tiene la columna derivada average_rating) y el include que trae las reseñas va
+ * con `separate: true`, en una consulta aparte.
+ *
+ * El desempate siempre es por título, para que dos consultas iguales devuelvan
+ * las filas en el mismo orden: hoy, sin reseñas cargadas, TODAS las canciones
+ * empatan y sin esto el orden lo elegiría MySQL.
+ *
+ * @param sort criterio elegido; sin él, alfabético.
+ */
+function buildExploreOrder(sort: SongSort = 'title'): Order {
+  const byTitle: OrderItem = ['song_title', 'ASC'];
+
+  switch (sort) {
+    case 'rating':
+      // Solo las publicadas: las ocultas y las borradas dejaron de contar.
+      return [
+        [
+          literal(
+            "(SELECT AVG(`r`.`rating`) FROM `review` `r` " +
+              "WHERE `r`.`id_song` = `Song`.`id_song` AND `r`.`state` = 'published')"
+          ),
+          'DESC',
+        ],
+        byTitle,
+      ];
+    case 'reviews':
+      return [
+        [
+          literal(
+            "(SELECT COUNT(*) FROM `review` `r` " +
+              "WHERE `r`.`id_song` = `Song`.`id_song` AND `r`.`state` = 'published')"
+          ),
+          'DESC',
+        ],
+        byTitle,
+      ];
+    // El id autoincremental alcanza para saber qué se cargó último: SONG no tiene
+    // una columna de fecha de alta en el DER.
+    case 'recent':
+      return [['id_song', 'DESC'], byTitle];
+    case 'title':
+      return [byTitle];
+  }
+}
+
 export const songRepository = {
+  /**
+   * Listado del explorador público: solo canciones aprobadas, ordenadas por el
+   * criterio pedido y acotadas a un tope de filas.
+   *
+   * El rango de años filtra por el año del ÁLBUM, que es el único que hay. Va
+   * como `where` dentro del include del álbum (y no en el where principal)
+   * porque release_year es una columna de ALBUMS.
+   *
+   * @param options orden, tope y rango de años.
+   */
+  findForExplore: async (options: ExploreOptions = {}): Promise<SongWithRelations[]> => {
+    const hasYearRange = options.yearFrom !== undefined || options.yearTo !== undefined;
+
+    const yearRange = {
+      ...(options.yearFrom !== undefined ? { [Op.gte]: options.yearFrom } : {}),
+      ...(options.yearTo !== undefined ? { [Op.lte]: options.yearTo } : {}),
+    };
+
+    // required: true convierte el LEFT JOIN en INNER: con un rango de años piedo,
+    // una canción cuyo álbum no entra en el rango tiene que quedar afuera.
+    const albumFilterInclude = hasYearRange
+      ? { ...albumInclude, where: { release_year: yearRange }, required: true }
+      : albumInclude;
+
+    const songs = await Song.findAll({
+      // Lo pendiente y lo rechazado no forman parte del catálogo público, y este
+      // endpoint no pide token: no hay forma de saber si quien pregunta es el
+      // autor.
+      where: { state: 'approved' as ContentState },
+      include: [albumFilterInclude, reviewsInclude],
+      order: buildExploreOrder(options.sort),
+      ...(options.limit !== undefined ? { limit: options.limit } : {}),
+      ...(options.offset !== undefined ? { offset: options.offset } : {}),
+    });
+
+    return songs as SongWithRelations[];
+  },
+
   findAll: async (filters: SongFilters = {}): Promise<SongWithRelations[]> => {
     const songs = await Song.findAll({
       where: buildWhere(filters),

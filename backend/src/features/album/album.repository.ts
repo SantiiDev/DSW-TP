@@ -1,8 +1,9 @@
 // Acceso a datos de la feature album: consultas a la tabla albums para el CRUD
 // del catálogo. Es la única capa que habla con Sequelize.
-import { IncludeOptions, Op } from 'sequelize';
+import { IncludeOptions, literal, Op, Order, OrderItem } from 'sequelize';
 import { Album, Artist, Genre, GenreAlbum, Review, Song, User } from '../../entities';
 import { ContentState } from '../../shared/types/enums';
+import { AlbumSort } from './album.schema';
 
 /** Artista del álbum, reducido a lo que se muestra debajo del título. */
 export type AlbumArtist = {
@@ -193,7 +194,105 @@ function buildWhere(filters: AlbumFilters) {
   };
 }
 
+/** Opciones del explorador público. Ver exploreAlbumsQuerySchema. */
+type ExploreOptions = {
+  sort?: AlbumSort;
+  limit?: number;
+  offset?: number;
+  yearFrom?: number;
+  yearTo?: number;
+  idGenre?: number;
+};
+
+/**
+ * Traduce el orden pedido a la cláusula ORDER BY de Sequelize.
+ *
+ * Los dos que cuentan reseñas usan una subconsulta correlacionada: la cantidad de
+ * reseñas no es una columna de ALBUMS, y el include que las trae va con
+ * `separate: true` (una consulta aparte), así que no se puede ordenar por él. La
+ * subconsulta la resuelve MySQL fila por fila dentro del mismo SELECT.
+ *
+ * El desempate siempre es por título, para que dos consultas iguales devuelvan
+ * las filas en el mismo orden (hoy, sin reseñas cargadas, TODOS los álbumes
+ * empatan en 0 y sin esto el orden lo elegiría MySQL).
+ *
+ * @param sort criterio elegido; sin él, alfabético.
+ */
+function buildOrder(sort: AlbumSort = 'title'): Order {
+  const byTitle: OrderItem = ['title', 'ASC'];
+
+  switch (sort) {
+    case 'rating':
+      return [['average_rating', 'DESC'], byTitle];
+    case 'reviews':
+      return [
+        [
+          literal('(SELECT COUNT(*) FROM `review` WHERE `review`.`id_album` = `Album`.`id_album`)'),
+          'DESC',
+        ],
+        byTitle,
+      ];
+    // El id autoincremental alcanza para saber qué se cargó último: ALBUMS no
+    // tiene una columna de fecha de alta en el DER.
+    case 'recent':
+      return [['id_album', 'DESC'], byTitle];
+    case 'year':
+      // NULLS LAST no existe en MySQL: el IS NULL primero manda los álbumes sin
+      // año al final, que es donde tienen que estar en "Nuevos Lanzamientos".
+      return [[literal('`Album`.`release_year` IS NULL'), 'ASC'], ['release_year', 'DESC'], byTitle];
+    case 'title':
+      return [byTitle];
+  }
+}
+
+/**
+ * Arma el where del explorador: siempre el catálogo aprobado, más el rango de
+ * años si se pidió uno.
+ * @param options filtros del explorador.
+ */
+function buildExploreWhere(options: ExploreOptions) {
+  const hasYearRange = options.yearFrom !== undefined || options.yearTo !== undefined;
+
+  const yearRange = {
+    ...(options.yearFrom !== undefined ? { [Op.gte]: options.yearFrom } : {}),
+    ...(options.yearTo !== undefined ? { [Op.lte]: options.yearTo } : {}),
+  };
+
+  return {
+    // Lo pendiente y lo rechazado no forman parte del catálogo público, y este
+    // endpoint no pide token: no hay forma de saber si quien pregunta es el autor.
+    state: 'approved' as ContentState,
+    // Los álbumes sin año quedan afuera de una década a propósito: no se sabe a
+    // cuál pertenecen.
+    ...(hasYearRange ? { release_year: yearRange } : {}),
+  };
+}
+
 export const albumRepository = {
+  /**
+   * Listado del explorador público: solo álbumes aprobados, ordenados por el
+   * criterio pedido y acotados a un tope de filas.
+   * @param options orden, tope, rango de años y género.
+   */
+  findForExplore: async (options: ExploreOptions = {}): Promise<AlbumWithRelations[]> => {
+    // El filtro por género va como include con `required: true` (INNER JOIN) en
+    // vez de en el where, porque el género vive en la tabla intermedia.
+    const genresFilterInclude =
+      options.idGenre === undefined
+        ? genresInclude
+        : { ...genresInclude, where: { id_genre: options.idGenre }, required: true };
+
+    const albums = await Album.findAll({
+      where: buildExploreWhere(options),
+      include: [artistInclude, genresFilterInclude, songIdsInclude, reviewIdsInclude],
+      order: buildOrder(options.sort),
+      ...(options.limit !== undefined ? { limit: options.limit } : {}),
+      ...(options.offset !== undefined ? { offset: options.offset } : {}),
+    });
+
+    return albums as AlbumWithRelations[];
+  },
+
   findAll: async (filters: AlbumFilters = {}): Promise<AlbumWithRelations[]> => {
     const albums = await Album.findAll({
       where: buildWhere(filters),
@@ -218,6 +317,19 @@ export const albumRepository = {
 
     return album as AlbumWithRelations | null;
   },
+
+  // Años de lanzamiento de todo el catálogo aprobado, sin includes ni ninguna
+  // otra columna: es lo único que necesita el conteo por década.
+  //
+  // Se agrupan en el service y no con un GROUP BY porque son un par de cientos de
+  // números: traerlos y contarlos en JavaScript sale igual de barato que armar la
+  // subconsulta, y se lee mucho mejor.
+  findApprovedReleaseYears: (): Promise<{ release_year: number | null }[]> =>
+    Album.findAll({
+      attributes: ['release_year'],
+      where: { state: 'approved' },
+      raw: true,
+    }) as unknown as Promise<{ release_year: number | null }[]>,
 
   // Títulos de los álbumes de un artista, sin includes: es lo único que necesita
   // la comparación contra un álbum repetido. Se acota al artista a propósito, que

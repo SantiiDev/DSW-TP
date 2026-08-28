@@ -1,15 +1,18 @@
 // Ficha pública de una canción: su carátula (la del álbum), sus datos, su
 // calificación promedio y sus reseñas.
 //
-// Es a donde lleva cada fila del tracklist de /albums/:id. Es una página pública,
-// igual que esa: leer el catálogo aprobado no pide token, y por eso la API
-// responde 404 sobre una canción que todavía no está aprobada.
+// Es a donde llevan las filas del tracklist de un álbum, las tarjetas del
+// explorador (/music) y las del listado. La ruta pide sesión (ver App.tsx).
+//
+// La API, en cambio, es pública y devuelve solo el catálogo aprobado: responde
+// 404 sobre una canción que todavía no se revisó.
 //
 // Las reseñas todavía no tienen endpoints (es la feature review), así que esa
 // sección muestra su estado vacío definitivo. Cuando existan, se reemplaza el
 // EmptyState por el listado paginado sin tocar el resto de la página.
 import { Link, useParams } from 'react-router-dom';
-import { Disc3, Music, Star } from 'lucide-react';
+import { BackLink } from '../../../core/components/BackLink';
+import { Music, Star } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { Footer } from '../../../core/components/Footer';
@@ -84,13 +87,11 @@ export const SongDetailPage = () => {
               />
             </section>
 
-            {/* Se vuelve al álbum, que es el listado del que vino. */}
-            {song.album && (
-              <Link to={`/albums/${song.album.id}`} className="song-detail__back">
-                <Disc3 size={15} aria-hidden="true" />
-                Volver a {song.album.title}
-              </Link>
-            )}
+            {/* Vuelve al lugar del que se vino: a una canción se llega desde el
+                tracklist de su álbum, desde el explorador o desde un listado, y
+                mandar siempre al álbum estaba mal en casi todos los casos. Si no
+                hay historial, el álbum es el destino que más sentido tiene. */}
+            <BackLink fallbackTo={song.album ? `/albums/${song.album.id}` : '/music'} />
           </>
         ) : (
           <EmptyState

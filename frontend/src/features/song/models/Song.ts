@@ -29,6 +29,15 @@ export const STATE_TONES: Record<ContentState, BadgeTone> = {
   rejected: 'danger',
 };
 
+/**
+ * Cómo se ordena el explorador. Son los mismos valores que acepta la API en
+ * `GET /songs/explore?sort=` (ver SONG_SORTS en song.schema.ts del backend).
+ *
+ * No incluye `year` como el de álbum: la canción no tiene año propio, lo hereda
+ * de su álbum, y ordenar por él dejaría cada tracklist pegado en bloque.
+ */
+export type SongSort = 'rating' | 'reviews' | 'recent' | 'title';
+
 /** Artista del álbum de la canción, tal como viaja en la API. */
 export type SongArtistApiResponse = {
   id_artist: number;

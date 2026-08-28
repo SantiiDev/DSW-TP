@@ -1,0 +1,28 @@
+// Estilos del botón "Volver" (core/components/BackLink.tsx).
+//
+// Mismo aspecto que tenían los enlaces fijos que reemplaza (la pastilla con
+// borde de las fichas de álbum, canción y género), para que las páginas no
+// cambien de look.
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/mixins' as *;
+
+.back-link {
+  @include control-centrado;
+  align-self: flex-start;
+  gap: 6px;
+  padding: 0.5rem $spacing-lg;
+  background-color: transparent;
+  border: 1px solid $color-nav-border;
+  border-radius: 30px;
+  color: $color-text;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    border-color: $color-primary;
+    background-color: rgba($color-primary, 0.1);
+  }
+}

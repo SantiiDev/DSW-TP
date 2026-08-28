@@ -2,6 +2,7 @@
 //
 //   POST   /api/songs             alta de una canción, PRO o ADMIN
 //   GET    /api/songs             listado del catálogo, cualquiera logueado
+//   GET    /api/songs/explore     listado del explorador ordenado, PÚBLICO
 //   GET    /api/songs/:id         ficha de una canción, PÚBLICO
 //   PATCH  /api/songs/:id         edita los datos, la que la cargó o ADMIN
 //   DELETE /api/songs/:id         elimina la canción, solo ADMIN
@@ -13,9 +14,10 @@
 // genérico: vive en el service. Lo mismo con el filtro por estado del listado,
 // que solo un ADMIN puede elegir.
 //
-// La ficha es la única lectura pública, por el mismo motivo que la de álbum: se
-// llega a ella desde el tracklist de /albums/:id, que es una página abierta. Por
-// eso el service devuelve solo canciones aprobadas ahí.
+// Hay DOS lecturas públicas, por el mismo motivo que en la feature album: las dos
+// alimentan páginas abiertas a cualquiera. A la ficha se llega desde el tracklist
+// de /albums/:id; el explorador es lo que dibuja las secciones de /music y la
+// página de listado de canciones. Las dos devuelven solo contenido aprobado.
 import { Router } from 'express';
 import { requireAuth } from '../../shared/middlewares/require-auth';
 import { requireRole } from '../../shared/middlewares/require-role';
@@ -23,6 +25,7 @@ import { validate } from '../../shared/middlewares/validate';
 import { songController } from './song.controller';
 import {
   createSongSchema,
+  exploreSongsQuerySchema,
   listSongsQuerySchema,
   songIdParamSchema,
   updateSongSchema,
@@ -39,6 +42,10 @@ songRouter.post(
 );
 
 songRouter.get('/', requireAuth, validate({ query: listSongsQuerySchema }), songController.list);
+
+// Va ANTES que /:id: Express prueba las rutas en orden, y si esta quedara
+// después, "explore" entraría como si fuera un id y la validación lo rechazaría.
+songRouter.get('/explore', validate({ query: exploreSongsQuerySchema }), songController.explore);
 
 songRouter.get('/:id', validate({ params: songIdParamSchema }), songController.getById);
 

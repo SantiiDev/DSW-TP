@@ -17,7 +17,12 @@ import {
   SongReview,
   SongWithRelations,
 } from './song.repository';
-import { CreateSongInput, ListSongsQuery, UpdateSongInput } from './song.schema';
+import {
+  CreateSongInput,
+  ExploreSongsQuery,
+  ListSongsQuery,
+  UpdateSongInput,
+} from './song.schema';
 
 /**
  * Vista pública de una canción: es lo que sale en todas las respuestas de la API.
@@ -250,6 +255,28 @@ export const songService = {
       idAlbum: filters.id_album,
       contributed: filters.contributed,
       createdBy: filters.created_by,
+    });
+
+    return songs.map(toPublicSong);
+  },
+
+  /**
+   * Listado del explorador público (/music y la página de listado de canciones).
+   *
+   * No pide token y devuelve SIEMPRE el catálogo aprobado, así que no recibe el
+   * actor: es la misma respuesta para un visitante sin cuenta que para un ADMIN.
+   * Lo que sí recibe es el orden, el tope de filas y el rango de años, que es lo
+   * que distingue a una sección de otra.
+   *
+   * @param filters orden, tope y rango de años ya validados.
+   */
+  async explore(filters: ExploreSongsQuery): Promise<PublicSong[]> {
+    const songs = await songRepository.findForExplore({
+      sort: filters.sort,
+      limit: filters.limit,
+      offset: filters.offset,
+      yearFrom: filters.year_from,
+      yearTo: filters.year_to,
     });
 
     return songs.map(toPublicSong);

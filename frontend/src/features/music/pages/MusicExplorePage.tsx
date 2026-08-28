@@ -61,20 +61,29 @@ export const MusicExplorePage = () => {
           </FadeInSection>
 
           <FadeInSection delay={200}>
-            <NewReleasesSection />
-          </FadeInSection>
-
-          <FadeInSection delay={200}>
             <PopularThisWeekSection type={activeTab} />
           </FadeInSection>
 
-          <FadeInSection delay={200}>
-            <BrowseByGenreSection />
-          </FadeInSection>
+          {/* Estas tres secciones son SOLO de álbumes y no aparecen en la pestaña
+              de canciones: el año de lanzamiento y el género son datos del álbum,
+              no de la pista (ver el DER). Un "Nuevos Lanzamientos" de canciones
+              dejaría cada tracklist pegado en bloque, y "Explorar por Género" y
+              "Explorar por Década" cuentan y listan álbumes. */}
+          {activeTab === 'albums' && (
+            <>
+              <FadeInSection delay={200}>
+                <NewReleasesSection />
+              </FadeInSection>
 
-          <FadeInSection delay={200}>
-            <BrowseByDecadeSection />
-          </FadeInSection>
+              <FadeInSection delay={200}>
+                <BrowseByGenreSection />
+              </FadeInSection>
+
+              <FadeInSection delay={200}>
+                <BrowseByDecadeSection />
+              </FadeInSection>
+            </>
+          )}
         </div>
       </main>
       <FadeInSection delay={300}>
