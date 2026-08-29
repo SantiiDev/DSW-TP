@@ -1,0 +1,507 @@
+// Estilos de la feature review: las estrellas (de lectura y de selección), el
+// formulario, la tarjeta de una reseña y la sección que se enchufa en las fichas.
+//
+// Mobile-first: primero los estilos para pantalla chica y después las media
+// queries que amplían. Los colores y espaciados salen de las variables globales.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// Color de las estrellas. Es el amarillo de una calificación, no el verde de la
+// marca: se usa en las dos versiones (lectura y selección), así que va una vez.
+$star-color: #f5c518;
+
+// --- Estrellas de solo lectura ----------------------------------------------
+//
+// Cada estrella son dos íconos superpuestos: el de contorno abajo y el relleno
+// arriba, recortado con un ancho en porcentaje. Es lo que permite dibujar medias
+// estrellas sin tener un tercer ícono.
+
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  &__star {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    line-height: 0;
+  }
+
+  &__outline {
+    color: $color-nav-border;
+  }
+
+  // El recorte: overflow hidden sobre un ancho variable deja ver solo la parte
+  // pintada de la estrella de abajo.
+  &__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    line-height: 0;
+  }
+
+  &__solid {
+    color: $star-color;
+    fill: $star-color;
+  }
+
+  &__value {
+    margin-left: $spacing-sm;
+    color: $color-text;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+}
+
+// --- Selector de calificación -----------------------------------------------
+
+.star-input {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  &__stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__star {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 0;
+  }
+
+  &__outline {
+    color: $color-nav-border;
+  }
+
+  &__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    line-height: 0;
+    // La transición hace que la vista previa acompañe al mouse en vez de saltar.
+    transition: width 0.1s ease;
+  }
+
+  &__solid {
+    color: $star-color;
+    fill: $star-color;
+  }
+
+  // Las dos mitades clickeables, invisibles, encima del dibujo. Son botones de
+  // verdad (no divs) para que se puedan tabular y activar con el teclado.
+  &__half {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    &--left {
+      left: 0;
+    }
+
+    &--right {
+      right: 0;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    // El foco tiene que verse: es la única pista de dónde está parado alguien que
+    // navega con el teclado, porque el botón en sí es transparente.
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  &__value {
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+  }
+}
+
+// --- Formulario --------------------------------------------------------------
+
+// Igual que .album-form: la caja la pone el FormModal que lo envuelve.
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__counter {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.75rem;
+    text-align: right;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    // Desde tablet los botones entran uno al lado del otro, alineados a la
+    // derecha como en el resto de los formularios del sitio.
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+  }
+}
+
+// --- Tarjeta de una reseña ---------------------------------------------------
+
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 8px;
+
+  // Una reseña oculta solo la ven su autor y un ADMIN: se atenúa para que se note
+  // de un vistazo que no es lo que ve el resto de la comunidad.
+  &--hidden {
+    opacity: 0.6;
+    border-style: dashed;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+  }
+
+  // Empuja las estrellas al extremo derecho de la cabecera.
+  &__meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__author {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin: 0;
+    color: $color-text;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  &__date {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+  }
+
+  // Marca de "Editado", al lado de la fecha. Va en cursiva y más apagada: es un
+  // dato al margen, no parte de lo que escribió el autor.
+  &__edited {
+    margin-left: 4px;
+    font-style: italic;
+    opacity: 0.75;
+    cursor: help;
+  }
+
+  // El ítem reseñado. Solo aparece fuera de la ficha del ítem, donde hace falta
+  // decir de qué se está hablando.
+  &__target {
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-sm;
+    background-color: $color-bg;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: $color-nav-border;
+    }
+  }
+
+  &__target-title {
+    color: $color-text;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  &__target-subtitle {
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+  }
+
+  &__text {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    // Respeta los saltos de línea que escribió el usuario sin dejar que una
+    // palabra larguísima (o una URL) rompa el ancho de la tarjeta.
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+
+    // Una calificación sin texto es lo más común: el aviso va en cursiva y más
+    // apagado para que no se confunda con una reseña de verdad.
+    &--empty {
+      font-style: italic;
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+  }
+
+  // Corta la reseña larga. Es un botón y no un link porque no navega: solo
+  // despliega el texto que ya está en la página.
+  &__read-more {
+    align-self: flex-start;
+    padding: 0;
+    background: none;
+    border: none;
+    color: $color-primary;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // La franja de abajo: las reacciones a la izquierda y la gestión a la derecha.
+  &__footer {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $color-nav-border;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__reactions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  // Me gusta, comentar y compartir. Se ven iguales entre sí y distintos de los
+  // botones de gestión, que son acciones sobre la reseña y no reacciones a ella.
+  &__reaction {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      color: $color-text;
+    }
+
+    // Corazón dado o hilo abierto.
+    &--active {
+      color: $color-primary;
+    }
+
+    // Sin sesión el contador se sigue viendo (es un dato público), pero el botón
+    // no se puede apretar.
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}
+
+// --- Hilo de comentarios -----------------------------------------------------
+
+.review-comments {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 1px solid $color-nav-border;
+
+  &__loading,
+  &__empty {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-sm;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: $spacing-sm;
+    margin: 0;
+  }
+
+  &__author {
+    color: $color-text;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  &__date {
+    color: $color-text-secondary;
+    font-size: 0.75rem;
+  }
+
+  &__text {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  &__delete {
+    padding: 4px;
+    background: none;
+    border: none;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-error;
+    }
+  }
+
+  // El campo y el botón de enviar, en una sola línea.
+  &__form {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: flex-start;
+
+    // El input se estira y el botón se queda con su ancho.
+    .form-field__control {
+      flex: 1;
+    }
+  }
+}
+
+// --- Listado de reseñas de un usuario (pestaña del perfil) -------------------
+
+.user-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}
+
+// --- Listado -----------------------------------------------------------------
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__more {
+    display: flex;
+    justify-content: center;
+    padding-top: $spacing-sm;
+  }
+}
+
+// --- Sección completa --------------------------------------------------------
+
+.reviews-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    // Desde tablet el título y los controles comparten fila.
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    color: $color-text;
+    font-size: 1.3rem;
+  }
+
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  // Aviso al autor de una reseña que un moderador ocultó.
+  &__notice {
+    margin: 0;
+    padding: $spacing-sm $spacing-md;
+    background-color: rgba($star-color, 0.1);
+    border-left: 3px solid $star-color;
+    border-radius: 4px;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+  }
+}

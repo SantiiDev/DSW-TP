@@ -11,6 +11,11 @@
 // DESVÍO: la FK a SONG pasa a llamarse `id_song`, porque la PK de SONG es ahora
 // la clave subrogada id_song (ver song.entity.ts).
 //
+// AGREGADO: `edited_date`, para poder avisar que una reseña se modificó después
+// de publicarse. No alcanzaba con las columnas createdAt/updatedAt de Sequelize
+// porque el proyecto las tiene apagadas (ver `timestamps: false` en
+// shared/db/sequelize.ts): las fechas del modelo son las del DER y nada más.
+//
 // Regla de negocio: una reseña es de un álbum O de una canción, nunca de las dos
 // ni de ninguna. Se valida a nivel de modelo para que la base no pueda quedar
 // inconsistente aunque el error venga de un service mal escrito.
@@ -29,6 +34,7 @@ export class Review extends Model<InferAttributes<Review>, InferCreationAttribut
   declare rating: number;
   declare text_review: CreationOptional<string | null>;
   declare review_date: CreationOptional<Date>;
+  declare edited_date: CreationOptional<Date | null>;
   declare state: CreationOptional<ReviewState>;
   declare id_user: number;
   declare id_album: CreationOptional<number | null>;
@@ -64,6 +70,17 @@ Review.init(
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
+    },
+    edited_date: {
+      // NULL mientras la reseña siga tal como se publicó. Se llena recién cuando
+      // su autor le cambia la calificación o el texto, que es lo que habilita el
+      // "Editado" de la tarjeta.
+      //
+      // La moderación NO la toca: ocultar o restaurar una reseña no cambia lo que
+      // el autor escribió, así que no corresponde marcarla como editada.
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null,
     },
     state: {
       type: DataTypes.ENUM(...REVIEW_STATES),

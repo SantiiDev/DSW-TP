@@ -3,15 +3,21 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Link2, Sparkles } from 'lucide-react';
-import { EMPTY_DISTRIBUTION, RatingHistogram } from './RatingHistogram';
+import { UserRatingHistogram } from '../../review/components/UserRatingHistogram';
+import type { ReviewStats } from '../../review/models/Review';
 import type { User } from '../models/User';
 
 type ProfileSidebarProps = {
   user: User;
   isOwnProfile: boolean;
+  /**
+   * Estadísticas de las reseñas del usuario, o null mientras se están pidiendo.
+   * Las trae UserProfilePage una sola vez y las comparte con la cabecera.
+   */
+  stats: ReviewStats | null;
 };
 
-export const ProfileSidebar = ({ user, isOwnProfile }: ProfileSidebarProps) => {
+export const ProfileSidebar = ({ user, isOwnProfile, stats }: ProfileSidebarProps) => {
   const [copied, setCopied] = useState(false);
 
   // URL pública del perfil. Se arma con el origen actual para que sirva igual en
@@ -49,7 +55,10 @@ export const ProfileSidebar = ({ user, isOwnProfile }: ProfileSidebarProps) => {
 
       <div className="profile-sidebar__card">
         <h2 className="profile-sidebar__card-title">Calificaciones</h2>
-        <RatingHistogram distribution={EMPTY_DISTRIBUTION} />
+        {/* Son las notas que PUSO el usuario, de 0,5 a 5 estrellas: no cómo lo
+            califican a él. Los datos salen de la feature review, que es la dueña
+            de la tabla REVIEW. */}
+        <UserRatingHistogram stats={stats} />
       </div>
 
       <div className="profile-sidebar__card">

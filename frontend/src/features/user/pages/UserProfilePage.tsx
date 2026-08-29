@@ -23,7 +23,10 @@ import type { ProfileTab } from '../components/ProfileTabs';
 import { ProfileTabContent } from '../components/ProfileTabContent';
 import { ProfileSidebar } from '../components/ProfileSidebar';
 import { UserForm } from '../components/UserForm';
+import { reviewService } from '../../review/services/reviewService';
+import type { ReviewStats } from '../../review/models/Review';
 import { EMPTY_PROFILE_STATS } from '../models/ProfileStats';
+import type { ProfileStats } from '../models/ProfileStats';
 import type { User } from '../models/User';
 import { userService } from '../services/userService';
 import type { UpdateUserInput } from '../services/userService';
@@ -43,6 +46,11 @@ export const UserProfilePage = () => {
   const [activeTab, setActiveTab] = useState<ProfileTab>('resumen');
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Estadísticas de las reseñas del perfil. Se piden UNA vez acá y se reparten:
+  // la cabecera las usa para sus contadores y la columna lateral para el
+  // histograma de calificaciones. null mientras no llegaron.
+  const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
 
   const profileId = id ? Number(id) : authState.user?.id;
   const isOwnProfile = profileId !== undefined && profileId === authState.user?.id;
@@ -73,6 +81,26 @@ export const UserProfilePage = () => {
 
     void loadUser(profileId);
   }, [profileId, isOwnProfile, authState.user, loadUser]);
+
+  // Trae las estadísticas de reseñas del perfil que se está mirando.
+  // Se declara con useCallback porque también se llama a mano cuando el usuario
+  // borra una reseña desde la pestaña "Reseñas".
+  const loadReviewStats = useCallback(async () => {
+    if (profileId === undefined) return;
+
+    try {
+      setReviewStats(await reviewService.stats(profileId));
+    } catch {
+      // Que fallen las estadísticas no puede tirar abajo el perfil entero: se
+      // dejan en null y los contadores y el histograma quedan en cero.
+      setReviewStats(null);
+    }
+  }, [profileId]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadReviewStats();
+  }, [loadReviewStats]);
 
   // Al pasar del perfil propio al de otro, la pestaña activa puede dejar de
   // existir (Membresía y Aportes no siempre están). En ese caso se vuelve a la
@@ -149,11 +177,22 @@ export const UserProfilePage = () => {
       );
     }
 
+    // Los contadores que salen de las reseñas ya son reales. "Siguiendo" y
+    // "Seguidores" siguen en cero porque la tabla FOLLOW todavía no existe.
+    const stats: ProfileStats =
+      reviewStats === null
+        ? EMPTY_PROFILE_STATS
+        : {
+            ...EMPTY_PROFILE_STATS,
+            reviews: reviewStats.total,
+            listened: reviewStats.listened,
+          };
+
     return (
       <>
         <ProfileHeader
           user={viewedUser}
-          stats={EMPTY_PROFILE_STATS}
+          stats={stats}
           isOwnProfile={isOwnProfile}
           onEdit={handleStartEdit}
           onDelete={() => setIsDeleteDialogOpen(true)}
@@ -172,10 +211,16 @@ export const UserProfilePage = () => {
               user={viewedUser}
               isOwnProfile={isOwnProfile}
               activeTab={activeTab}
+              // Al borrar una reseña hay que rehacer los contadores y el histograma.
+              onReviewsChange={loadReviewStats}
             />
           </div>
 
-          <ProfileSidebar user={viewedUser} isOwnProfile={isOwnProfile} />
+          <ProfileSidebar
+            user={viewedUser}
+            isOwnProfile={isOwnProfile}
+            stats={reviewStats}
+          />
         </div>
       </>
     );
