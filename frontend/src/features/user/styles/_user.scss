@@ -240,42 +240,6 @@
 
 }
 
-.profile-membership {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-
-  &__current {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    padding: $spacing-md;
-    background-color: $color-bg;
-    border: 1px solid $color-nav-border;
-    border-radius: 12px;
-  }
-
-  &__label {
-    font-size: 0.8rem;
-    color: $color-text-secondary;
-  }
-
-  &__plan {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: $color-primary;
-  }
-
-  &__note {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    margin: 0;
-    font-size: 0.825rem;
-    color: $color-text-secondary;
-  }
-}
-
 // --- Columna lateral ------------------------------------------------------
 
 .profile-sidebar {

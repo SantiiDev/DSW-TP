@@ -1,0 +1,77 @@
+// Estilos de la barra de contadores (core/components/StatsBar.tsx).
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/breakpoints' as *;
+
+.stats-bar {
+  // Las columnas se reparten el ancho en partes iguales y NUNCA bajan de línea:
+  // con flex-wrap, en un celular angosto la tercera columna se caía sola y la
+  // barra dejaba de leerse como una sola fila.
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  width: 100%;
+  margin: 0;
+  padding: 0.75rem 0;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid $color-nav-border;
+  border-radius: 14px;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0 $spacing-sm;
+    min-width: 0;
+    text-align: center;
+
+    // La línea divisoria va entre columnas, así que la lleva cada una menos la
+    // primera.
+    & + & {
+      border-left: 1px solid $color-nav-border;
+    }
+  }
+
+  // El número va apenas más grande que su etiqueta, no al doble: la barra vive
+  // dentro de la cabecera, al lado del título del álbum, y compitiendo con él en
+  // tamaño se leía como si el dato importante fuera el promedio.
+  &__value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: $color-text;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.2rem;
+    }
+
+    // La estrella de una calificación promedio va en dorado y no en el verde de
+    // la marca: es el mismo amarillo que usan las estrellas de las reseñas.
+    svg {
+      align-self: center;
+      color: #f5c518;
+      fill: #f5c518;
+    }
+  }
+
+  &__unit {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-secondary;
+
+    @media (min-width: $bp-sm) {
+      font-size: 0.75rem;
+    }
+  }
+}

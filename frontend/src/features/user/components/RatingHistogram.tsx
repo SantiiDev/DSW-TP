@@ -1,17 +1,14 @@
 // Distribución de las calificaciones que puso un usuario, de 0,5 a 5 estrellas.
 //
 // REVIEW.rating es DECIMAL(2,1) y admite medias estrellas, así que son 10
-// barras. Mientras no exista el endpoint de reseñas llegan todas en cero y se
-// dibuja la grilla vacía, igual que en la referencia.
+// barras. Los datos salen de GET /reviews/stats; si el usuario todavía no
+// reseñó nada llegan todas en cero y se dibuja la grilla vacía.
 import { Star } from 'lucide-react';
 
 type RatingHistogramProps = {
   /** Cantidad de reseñas por cada media estrella, de 0,5 a 5. Diez posiciones. */
   distribution: number[];
 };
-
-/** Diez posiciones en cero: el estado mientras no hay reseñas que contar. */
-export const EMPTY_DISTRIBUTION: number[] = Array(10).fill(0);
 
 export const RatingHistogram = ({ distribution }: RatingHistogramProps) => {
   // La barra más alta define la escala; con todo en cero se evita dividir por 0.

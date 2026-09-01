@@ -8,16 +8,16 @@
 // endpoints existan, se reemplaza el EmptyState por el listado real sin tocar ni
 // la cabecera ni la navegación de pestañas.
 import { useState } from 'react';
-import { Activity, CreditCard, Disc3, Music } from 'lucide-react';
+import { Activity, Disc3, Music } from 'lucide-react';
 import { ButtonLink } from '../../../core/components/Button';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { SegmentedControl } from '../../../core/components/SegmentedControl';
 import type { SegmentOption } from '../../../core/components/SegmentedControl';
-import { ROLE_LABELS } from '../models/User';
 import type { User } from '../models/User';
 import { AlbumContributionsList } from '../../album/components/AlbumContributionsList';
 import { ArtistContributionsList } from '../../artist/components/ArtistContributionsList';
 import { SongContributionsList } from '../../song/components/SongContributionsList';
+import { MembershipPanel } from '../../membership/components/MembershipPanel';
 import { UserReviewsList } from '../../review/components/UserReviewsList';
 import type { ProfileTab } from './ProfileTabs';
 
@@ -163,30 +163,8 @@ export const ProfileTabContent = ({
       );
 
     case 'membership':
-      return (
-        <section className="profile-panel">
-          <h2 className="profile-panel__title">Membresía</h2>
-
-          {/* Este dato sí existe hoy: el rol viene con el usuario. Lo que falta
-              es el detalle de la suscripción y los pagos (CUU 2). */}
-          <div className="profile-membership">
-            <div className="profile-membership__current">
-              <span className="profile-membership__label">Tu plan actual</span>
-              <span className="profile-membership__plan">{ROLE_LABELS[user.rol]}</span>
-            </div>
-
-            {user.rol === 'FREE' ? (
-              <ButtonLink to="/pro" size="sm">
-                Mejorar mi plan
-              </ButtonLink>
-            ) : (
-              <p className="profile-membership__note">
-                <CreditCard size={16} aria-hidden="true" />
-                El historial de pagos y la gestión de la suscripción se suman con la pasarela.
-              </p>
-            )}
-          </div>
-        </section>
-      );
+      // La pestaña solo está visible en el perfil propio (ver ProfileTabs), y el
+      // panel pide sus datos a las rutas "mine" de la API.
+      return <MembershipPanel />;
   }
 };

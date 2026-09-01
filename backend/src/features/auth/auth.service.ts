@@ -127,6 +127,37 @@ export const authService = {
   },
 
   /**
+   * Emite un token nuevo con el rol actualizado del usuario.
+   *
+   * Existe por una razón puntual: el rol viaja DENTRO del token y requireRole lo
+   * lee de ahí, no de la base. Cuando un usuario paga y pasa a PRO, su token
+   * sigue diciendo FREE hasta que vence, así que el backend le rechazaría con 403
+   * justo las rutas que acaba de comprar. Pedir un token nuevo es lo que cierra
+   * ese circuito sin obligarlo a cerrar sesión y volver a entrar.
+   *
+   * No es una "renovación" de la sesión en el sentido de estirar su vencimiento
+   * indefinidamente: se emite contra un token que todavía es válido, y el nuevo
+   * dura lo mismo que cualquier otro (JWT_EXPIRES_IN).
+   *
+   * @param id_user id que viene dentro del token verificado.
+   * @returns el usuario y su token recién emitido.
+   */
+  async refresh(id_user: number): Promise<AuthResult> {
+    const user = await authRepository.findById(id_user);
+
+    if (!user) throw new NotFoundError('El usuario');
+
+    // Mismo chequeo que getProfile: una cuenta suspendida no puede seguir
+    // operando aunque su token siga siendo válido.
+    if (user.state === 'suspended') throw suspendedAccountError();
+
+    return {
+      user: toPublicUser(user),
+      token: signToken({ id_user: user.id_user, rol: user.rol }),
+    };
+  },
+
+  /**
    * Devuelve los datos del usuario dueño de un token.
    *
    * El frontend lo usa al arrancar, cuando recupera el token del storage: así se

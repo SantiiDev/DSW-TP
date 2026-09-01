@@ -14,7 +14,9 @@ import { SongsExplorePage } from '../features/song/pages/SongsExplorePage';
 import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
 import { UserProfilePage } from '../features/user/pages/UserProfilePage';
 import { AdminPage } from '../features/user/pages/AdminPage';
+import { ProCheckoutPage } from '../features/membership/pages/ProCheckoutPage';
 import { ProPage } from '../features/membership/pages/ProPage';
+import { ProReturnPage } from '../features/membership/pages/ProReturnPage';
 import { ListsExplorePage } from '../features/review/pages/ListsExplorePage';
 import { AuthProvider } from '../core/context/AuthContext';
 import { AuthModalProvider } from '../core/context/AuthModalContext';
@@ -118,6 +120,28 @@ export const App = () => {
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/faq" element={<FaqPage />} />
             <Route path="/contact" element={<ContactPage />} />
+
+            {/* Resumen de la contratación, antes de salir hacia MercadoPago.
+                Es privada porque contratar exige tener cuenta. */}
+            <Route
+              path="/pro/checkout"
+              element={
+                <ProtectedRoute>
+                  <ProCheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Vuelta de MercadoPago. Es privada porque la confirmación del pago
+                necesita el token: la API tiene que saber quién volvió. */}
+            <Route
+              path="/pro/return"
+              element={
+                <ProtectedRoute>
+                  <ProReturnPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Rutas privadas: solo entran si hay sesión (ver ProtectedRoute). */}
             <Route

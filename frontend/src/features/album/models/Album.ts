@@ -287,6 +287,24 @@ export class Album {
   }
 
   /**
+   * Cuánto dura el disco entero, en texto ("1 h 12 min").
+   *
+   * Se suma el tracklist, así que solo lo tiene la ficha: en el listado, que no
+   * trae las pistas, da null y la cabecera simplemente no muestra el dato. Las
+   * pistas sin duración cargada suman cero, y si ninguna la tiene se devuelve
+   * null en vez de "0 min", que se leería como un álbum vacío.
+   */
+  get runtimeLabel(): string | null {
+    const seconds = this.songs.reduce((total, song) => total + (song.duration ?? 0), 0);
+    if (seconds === 0) return null;
+
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.round((seconds % 3600) / 60);
+
+    return hours === 0 ? `${minutes} min` : `${hours} h ${minutes} min`;
+  }
+
+  /**
    * ¿Se puede eliminar? Solo si no tiene canciones ni reseñas colgadas.
    *
    * Es solo para no mostrar un botón que va a fallar: quien corta de verdad es la

@@ -1,5 +1,5 @@
 // Tracklist de la ficha de un álbum: una fila por pista, con su número, su
-// título, su duración y su propia calificación promedio.
+// título, el artista, su duración y su propia calificación promedio.
 //
 // Cada canción se califica por separado del álbum (por eso REVIEW apunta a un
 // álbum O a una canción), así que la estrella de la fila NO es la del álbum. Por
@@ -17,9 +17,15 @@ import '../styles/_album.scss';
 
 type AlbumTracklistProps = {
   songs: AlbumSong[];
+  /**
+   * Artista del álbum. Se repite debajo de cada título porque una pista no tiene
+   * artista propio: es el del disco, y verlo en la fila es lo que hace que el
+   * tracklist se lea igual que en cualquier reproductor.
+   */
+  artistName: string;
 };
 
-export const AlbumTracklist = ({ songs }: AlbumTracklistProps) => {
+export const AlbumTracklist = ({ songs, artistName }: AlbumTracklistProps) => {
   if (songs.length === 0) {
     return (
       <EmptyState
@@ -31,17 +37,22 @@ export const AlbumTracklist = ({ songs }: AlbumTracklistProps) => {
   }
 
   return (
+    // El <ol> ya numera solo, pero el número de pista es un dato del álbum (puede
+    // empezar en otro número si falta una pista), así que se dibuja a mano.
     <ol className="tracklist">
       {songs.map((song) => (
-        <li key={song.id}>
-          <Link to={`/songs/${song.id}`} className="tracklist__item">
+        <li key={song.id} className="tracklist__item">
+          <Link to={`/songs/${song.id}`} className="tracklist__row">
             <span className="tracklist__number">{song.numberTrack}</span>
 
-            <span className="tracklist__title">{song.title}</span>
-
-            <AlbumRating value={song.averageRating} count={song.reviewsCount} />
+            <span className="tracklist__main">
+              <span className="tracklist__title">{song.title}</span>
+              <span className="tracklist__artist">{artistName}</span>
+            </span>
 
             <span className="tracklist__duration">{song.durationLabel}</span>
+
+            <AlbumRating value={song.averageRating} count={song.reviewsCount} />
 
             <ChevronRight className="tracklist__chevron" size={16} aria-hidden="true" />
           </Link>

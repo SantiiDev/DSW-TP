@@ -113,6 +113,14 @@ type AuthContextProps = {
   updateProfile: (input: UpdateUserInput) => Promise<boolean>;
   /** Elimina la cuenta del usuario logueado y cierra la sesión. Devuelve true si salió bien. */
   deleteAccount: () => Promise<boolean>;
+  /**
+   * Pide un token nuevo con el rol actualizado y lo guarda.
+   *
+   * Se llama después de un cambio de membresía (pagar o dar de baja): el rol
+   * viaja dentro del token, así que sin esto el usuario seguiría siendo FREE para
+   * el backend aunque la base ya diga PRO. Devuelve true si salió bien.
+   */
+  refreshSession: () => Promise<boolean>;
 };
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -219,9 +227,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Cambia el token por uno con el rol al día. No usa runAuthRequest porque no
+  // es un inicio de sesión: el usuario ya está adentro y no hay que mostrarle
+  // ningún estado de "enviando". Si falla no se lo desloguea: sigue con el token
+  // viejo, que todavía es válido, solo que con el rol anterior.
+  const refreshSession = async (): Promise<boolean> => {
+    try {
+      const session = await authService.refresh();
+      tokenStorage.save(session.token);
+      dispatch({ type: 'AUTH_SUCCEEDED', payload: session });
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ state, login, register, logout, clearError, updateProfile, deleteAccount }}
+      value={{
+        state,
+        login,
+        register,
+        logout,
+        clearError,
+        updateProfile,
+        deleteAccount,
+        refreshSession,
+      }}
     >
       {children}
     </AuthContext.Provider>

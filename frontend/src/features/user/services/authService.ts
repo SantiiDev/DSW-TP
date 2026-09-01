@@ -67,6 +67,18 @@ export const authService = {
   },
 
   /**
+   * Pide un token nuevo con el rol actualizado del usuario.
+   *
+   * Hace falta después de pagar: el rol viaja DENTRO del token, así que el que
+   * está guardado sigue diciendo FREE aunque el usuario ya sea PRO en la base, y
+   * el backend le rechazaría las rutas que acaba de comprar.
+   */
+  async refresh(): Promise<AuthSession> {
+    const data = await httpClient.post<AuthApiResponse>('/auth/refresh');
+    return toSession(data);
+  },
+
+  /**
    * Devuelve el usuario dueño del token que el httpClient manda automáticamente.
    * Se usa al abrir la app para saber si la sesión guardada sigue siendo válida.
    */

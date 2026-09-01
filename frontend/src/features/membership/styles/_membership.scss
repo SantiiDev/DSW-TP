@@ -1105,3 +1105,396 @@ $pro-section-max: calc(1150px + #{$spacing-md} * 2);
   border-color: $color-nav-border;
   color: $color-text-secondary;
 }
+
+// Variante de error del aviso: el mismo bloque, pintado con el color de error.
+.pro-pricing__card-note--error {
+  color: $color-error;
+}
+
+// ─── Pantalla de vuelta de MercadoPago (/pro/return) ────────
+//
+// Tres caras posibles (activada, en proceso, fallida) que comparten la caja y se
+// diferencian solo por el color del ícono y del borde.
+.pro-return {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - #{$navbar-height});
+  padding: $spacing-lg $spacing-md;
+}
+
+.pro-return__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  max-width: 520px;
+  padding: $spacing-xl $spacing-lg;
+  text-align: center;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+}
+
+// El ícono es lo primero que se mira, así que es lo que lleva el color del
+// resultado. El borde lo acompaña en un tono apenas marcado.
+.pro-return__panel--ok {
+  border-color: rgba($pro-green, 0.4);
+  color: $pro-green;
+}
+
+.pro-return__panel--pending {
+  border-color: rgba(#e0a53f, 0.4);
+  color: #e0a53f;
+}
+
+.pro-return__panel--error {
+  border-color: rgba($color-error, 0.4);
+  color: $color-error;
+}
+
+// El texto vuelve al color normal: el color del resultado es solo para el ícono.
+.pro-return__title {
+  margin: 0;
+  font-size: 1.6rem;
+  color: $color-text;
+}
+
+.pro-return__message {
+  margin: 0;
+  color: $color-text;
+}
+
+.pro-return__hint {
+  margin: 0;
+  font-size: 0.88rem;
+  color: $color-text-secondary;
+}
+
+.pro-return__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  justify-content: center;
+  margin-top: $spacing-sm;
+}
+
+.pro-return__link {
+  color: $color-text-secondary;
+  font-size: 0.88rem;
+
+  &:hover {
+    color: $color-text;
+  }
+}
+
+// ─── Panel de membresía del perfil ──────────────────────────
+.membership-card {
+  padding: $spacing-lg;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+}
+
+.membership-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: $spacing-md;
+}
+
+.membership-card__label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $color-text-secondary;
+}
+
+.membership-card__plan {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $pro-green;
+}
+
+// Los datos de la membresía en columnas que se acomodan solas: en mobile entra
+// una sola y en pantallas grandes las tres de una fila.
+.membership-card__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: $spacing-md;
+  margin: 0 0 $spacing-md;
+
+  dt {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 2px 0 0;
+    font-weight: 600;
+    color: $color-text;
+  }
+}
+
+.membership-card__notice {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: 0 0 $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  font-size: 0.88rem;
+  color: #e0a53f;
+  background-color: rgba(#e0a53f, 0.12);
+  border-radius: 8px;
+}
+
+.membership-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.membership-payments {
+  width: 100%;
+  margin-top: $spacing-md;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+
+  th,
+  td {
+    padding: $spacing-sm;
+    text-align: left;
+    border-bottom: 1px solid $color-nav-border;
+  }
+
+  th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-secondary;
+  }
+
+  td {
+    color: $color-text;
+  }
+}
+
+.membership-payments__empty {
+  margin-top: $spacing-md;
+  color: $color-text-secondary;
+}
+
+// ─── Resumen de la contratación (/pro/checkout) ─────────────
+//
+// Dos columnas en escritorio (qué incluye | cuánto sale) que se apilan en mobile,
+// con el resumen arriba: en una pantalla chica lo primero que se quiere ver es el
+// precio y el botón, no la lista de beneficios.
+.checkout {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-md $spacing-xl;
+}
+
+.checkout__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: $spacing-md;
+  padding: 0;
+  font-size: 0.9rem;
+  color: $color-text-secondary;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $color-text;
+  }
+}
+
+.checkout__title {
+  margin: 0 0 4px;
+  font-size: 1.8rem;
+  color: $color-text;
+}
+
+.checkout__subtitle {
+  margin: 0 0 $spacing-lg;
+  color: $color-text-secondary;
+}
+
+.checkout__grid {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: $spacing-md;
+
+  @media (min-width: $bp-lg) {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    align-items: start;
+    gap: $spacing-lg;
+  }
+}
+
+.checkout__panel,
+.checkout__summary {
+  padding: $spacing-lg;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+}
+
+// El resumen es lo que se confirma, así que se distingue del resto con el verde
+// de Pro en el borde.
+.checkout__summary {
+  border-color: rgba($pro-green, 0.35);
+
+  @media (min-width: $bp-lg) {
+    position: sticky;
+    top: calc(#{$navbar-height} + #{$spacing-md});
+  }
+}
+
+.checkout__panel-title {
+  margin: 0 0 $spacing-md;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $color-text-secondary;
+}
+
+.checkout__included {
+  margin: 0 0 $spacing-lg;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 10px 0;
+    color: $color-text;
+    border-bottom: 1px solid rgba($color-nav-border, 0.6);
+
+    svg {
+      flex-shrink: 0;
+      color: $pro-green;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.checkout__period {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background-color: rgba($pro-green, 0.08);
+  border-radius: 8px;
+
+  svg {
+    flex-shrink: 0;
+    color: $pro-green;
+  }
+}
+
+.checkout__period-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $color-text-secondary;
+}
+
+.checkout__period-value {
+  display: block;
+  font-weight: 600;
+  color: $color-text;
+}
+
+.checkout__disclaimer {
+  margin: $spacing-md 0 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: $color-text-secondary;
+
+  strong {
+    color: $color-text;
+  }
+}
+
+.checkout__line {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  padding: 6px 0;
+  color: $color-text;
+}
+
+.checkout__line--muted {
+  font-size: 0.88rem;
+  color: $color-text-secondary;
+}
+
+.checkout__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: $spacing-sm;
+  margin: $spacing-md 0;
+  padding-top: $spacing-md;
+  border-top: 1px solid $color-nav-border;
+  color: $color-text;
+
+  strong {
+    font-size: 1.4rem;
+    color: $pro-green;
+  }
+}
+
+.checkout__secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: $spacing-sm 0 0;
+  font-size: 0.8rem;
+  color: $color-text-secondary;
+}
+
+.checkout__steps {
+  margin: $spacing-md 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: $color-text-secondary;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+
+    svg {
+      flex-shrink: 0;
+      color: $pro-green;
+    }
+  }
+}
+
+.checkout__help {
+  display: block;
+  margin-top: $spacing-md;
+  font-size: 0.82rem;
+  text-align: center;
+  color: $color-text-secondary;
+
+  &:hover {
+    color: $color-text;
+  }
+}

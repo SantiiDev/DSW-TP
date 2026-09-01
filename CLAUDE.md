@@ -55,7 +55,12 @@ No modificar ni reescribir código de la feature de otro integrante sin que se p
   La conexión requiere SSL: configurar `dialectOptions.ssl` con el CA que provee el servicio.
 - Validación de entrada: **Zod**, aplicada mediante un middleware antes del controller.
 - Autenticación: JWT propio + bcrypt para el hash de contraseñas.
-- Pasarela de pago: MercadoPago Checkout Pro (sandbox) con webhook.
+- Pasarela de pago: MercadoPago Checkout Pro (sandbox) con webhook. Se le habla con
+  `fetch` (viene con Node), sin el SDK: son dos llamadas y así se ve qué se manda.
+  La membresía es mensual con **renovación manual**, no débito automático: el cobro
+  recurrente es otro producto de MercadoPago (`preapproval`) y necesitaría una
+  columna en el DER para el id de la suscripción externa. Ver la sección
+  "Membresías y pasarela de pago" del README del backend.
 
 ### Regla común
 

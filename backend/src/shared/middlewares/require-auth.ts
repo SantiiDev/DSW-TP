@@ -26,7 +26,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
     req.user = verifyToken(token);
     next();
   } catch {
-    // Se agrupan todos los motivos de falla (vencido, firma inválida, texto
+    // Se agrupan todos los motivos de fcdalla (vencido, firma inválida, texto
     // cualquiera) en un mismo 401: al cliente le alcanza con saber que tiene que
     // volver a iniciar sesión, y detallar el motivo solo le sirve a un atacante.
     next(new UnauthorizedError('Tu sesión expiró o no es válida. Iniciá sesión de nuevo.'));

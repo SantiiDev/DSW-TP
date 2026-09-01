@@ -219,8 +219,7 @@
     margin: 2px 0 0;
   }
 
-  &__reviews,
-  &__date {
+  &__reviews {
     color: color.adjust($color-text-secondary, $lightness: -15%);
     font-size: 0.72rem;
     margin: 2px 0 0;

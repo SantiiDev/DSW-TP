@@ -1,13 +1,25 @@
 // Estilos de la feature song: el formulario y la tabla del panel de
-// administración, y las canciones aportadas que se listan en el perfil.
+// administración, las canciones aportadas que se listan en el perfil y la ficha
+// pública de una canción.
 //
-// El tracklist NO está acá: vive en _album.scss, porque se dibuja dentro de la
-// ficha del álbum y es parte de esa página.
+// OJO con los dos tracklists, que se parecen pero no son el mismo: el del ÁLBUM
+// (.tracklist) vive en _album.scss porque es parte de esa página, y el que está
+// acá (.song-tracklist) es el índice del disco que acompaña a la ficha de una
+// canción, en su columna lateral.
 //
 // Mobile-first: primero los estilos para pantalla chica y después las media
 // queries que amplían. Los colores y espaciados salen de las variables globales.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+
+// Ancho de la caja de contenido de la ficha, igual que en la de álbum. La
+// cabecera lo aplica sobre un hijo SIN padding, así que ahí alcanza con
+// $detail-width; el cuerpo, que además lleva padding lateral, tiene que sumárselo
+// porque con `box-sizing: border-box` ese padding entra dentro del max-width y su
+// contenido quedaba más adentro que la carátula.
+$detail-width: 1150px;
+$detail-width-sm: calc(#{$detail-width} + #{$spacing-md} * 2);
+$detail-width-md: calc(#{$detail-width} + #{$spacing-lg} * 2);
 
 // --- Formulario de alta y edición ------------------------------------------
 
@@ -197,45 +209,85 @@
   }
 }
 
-// --- Ficha pública de una canción -------------------------------------------
+// --- Cabecera de la ficha de una canción ------------------------------------
 //
-// Misma estructura que la ficha de álbum (_album.scss): carátula grande a la
-// izquierda, datos a la derecha y las secciones debajo. Se repiten los valores en
-// vez de compartir las clases para que las dos features sigan siendo
-// independientes: si mañana la ficha de álbum cambia de layout, esta no se rompe.
+// Misma idea que la de álbum (_album.scss): va a ancho completo, con la carátula
+// del disco ampliada y desenfocada de fondo. Cambia el reparto: acá la portada va
+// al costado y no arriba, porque el dato importante de una canción no es la
+// imagen (que ni siquiera es propia, es la del álbum) sino dónde está ubicada.
+//
+// Se repiten los valores en vez de compartir las clases con la ficha de álbum
+// para que las dos features sigan siendo independientes: si mañana la ficha de
+// álbum cambia de layout, esta no se rompe.
 
-.song-detail {
-  max-width: 1000px;
-  margin: 0 auto;
+.song-hero {
+  position: relative;
+  // El desenfoque del fondo se sale de la caja: sin esto aparecería una franja
+  // borrosa encima del navbar y debajo de la cabecera.
+  overflow: hidden;
   padding: $spacing-lg $spacing-md;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-lg;
+  // El espacio de más arriba es para el botón "Volver", que va flotando sobre
+  // la cabecera (ver .song-detail__topbar).
+  padding-top: calc(#{$spacing-lg} + 2.5rem);
+  border-bottom: 1px solid $color-nav-border;
 
   @media (min-width: $bp-md) {
     padding: $spacing-xl $spacing-lg;
+    padding-top: calc(#{$spacing-xl} + 1.5rem);
   }
 
-  // La portada arriba y los datos abajo en mobile; en fila desde tablet.
-  &__header {
+  &__backdrop {
+    position: absolute;
+    inset: -60px;
+    background-position: center;
+    background-size: cover;
+    filter: blur(45px) saturate(1.3);
+    opacity: 0.4;
+  }
+
+  // Velo oscuro sobre el fondo: la carátula puede ser clarísima y sin esto el
+  // título quedaría ilegible.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba($color-bg, 0.6) 0%, rgba($color-bg, 0.97) 100%);
+  }
+
+  // El contenido va por encima de las dos capas de fondo, que son position
+  // absolute sin z-index.
+  &__content {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: $spacing-lg;
+    width: 100%;
+    // Mismo ancho que el cuerpo, para que la carátula arranque justo arriba de
+    // la ficha técnica y no desplazada hacia adentro.
+    max-width: $detail-width;
+    margin: 0 auto;
     text-align: center;
 
+    // Desde tablet la carátula se va al costado y los datos se alinean a la
+    // izquierda, como en la referencia.
     @media (min-width: $bp-md) {
       flex-direction: row;
-      align-items: flex-end;
+      align-items: center;
       text-align: left;
     }
+  }
 
-    // La carátula es el componente AlbumCover, que en tamaño 'lg' ocupa todo el
-    // ancho disponible: acá se le pone un techo para que no crezca sin límite.
-    .album-cover {
+  &__cover {
+    width: 150px;
+    flex-shrink: 0;
+    // La carátula se despega del fondo con una sombra: sin ella, sobre su propia
+    // imagen desenfocada, se pierden los bordes.
+    filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.55));
+
+    @media (min-width: $bp-md) {
       width: 200px;
-      max-width: 60vw;
-      flex-shrink: 0;
     }
   }
 
@@ -244,7 +296,9 @@
     flex-direction: column;
     align-items: center;
     gap: 0.35rem;
+    // Sin esto, un título largo estira la fila en vez de cortarse.
     min-width: 0;
+    width: 100%;
 
     @media (min-width: $bp-md) {
       align-items: flex-start;
@@ -253,10 +307,10 @@
 
   &__eyebrow {
     margin: 0;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     color: $color-primary;
   }
 
@@ -266,28 +320,23 @@
     font-weight: 800;
     line-height: 1.1;
     color: $color-text;
+    overflow-wrap: anywhere;
 
     @media (min-width: $bp-md) {
-      font-size: 2.4rem;
+      font-size: 2.6rem;
     }
   }
 
-  &__artist {
+  &__location {
     margin: 0;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: $color-text;
-  }
-
-  &__meta {
-    margin: 0;
-    font-size: 0.88rem;
+    font-size: 0.95rem;
     color: $color-text-secondary;
   }
 
-  // El título del álbum dentro de la línea de datos lleva a su ficha.
+  // El título del álbum dentro de la línea de ubicación lleva a su ficha.
   &__album-link {
     color: $color-text;
+    font-weight: 600;
     text-decoration: none;
     border-bottom: 1px solid transparent;
     transition: border-color 0.2s ease, color 0.2s ease;
@@ -298,37 +347,340 @@
     }
   }
 
-  &__section {
+  &__artist {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  // La barra de contadores cierra la cabecera, separada del resto de los datos.
+  .stats-bar {
+    margin-top: $spacing-md;
+    max-width: 460px;
+  }
+}
+
+// --- Ficha pública de una canción -------------------------------------------
+
+.song-detail {
+  // Ancla al botón "Volver", que va posicionado sobre la cabecera.
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  // La cabecera va a ancho completo, así que la caja de lectura la ponen el
+  // cuerpo y los estados de carga, no la página.
+  min-width: 0;
+
+  // Botón "Volver": arriba a la izquierda del todo, flotando sobre la cabecera,
+  // igual que en la ficha de álbum. Antes iba en una franja propia entre el
+  // navbar y la cabecera, y esa franja se veía como una banda gris cortando la
+  // pantalla en dos.
+  &__topbar {
+    position: absolute;
+    top: $spacing-md;
+    left: $spacing-md;
+    // Por encima de las dos capas de fondo de la cabecera (la portada
+    // desenfocada y el velo oscuro), que no llevan z-index.
+    z-index: 2;
+
+    @media (min-width: $bp-md) {
+      left: $spacing-lg;
+    }
+  }
+
+  // Contenido + columna lateral, igual que el perfil: una sola columna en mobile
+  // y desde LG el tracklist del álbum se va a la derecha con ancho fijo.
+  &__body {
+    width: 100%;
+    max-width: $detail-width-sm;
+    margin: 0 auto;
+    padding: $spacing-lg $spacing-md $spacing-xl;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    min-width: 0;
+
+    @media (min-width: $bp-md) {
+      max-width: $detail-width-md;
+      padding: $spacing-xl $spacing-lg;
+    }
+
+    @media (min-width: $bp-lg) {
+      // Solo se parte en dos si hay columna lateral: una canción suelta (sin
+      // álbum) no tiene tracklist que mostrar, y sin este :has quedaría una
+      // columna vacía de 320px al costado.
+      &:has(.song-detail__aside) {
+        grid-template-columns: minmax(0, 1fr) 320px;
+        align-items: start;
+      }
+    }
+  }
+
+  &__main {
     display: flex;
     flex-direction: column;
-    gap: $spacing-md;
+    gap: $spacing-xl;
     min-width: 0;
   }
 
-  &__section-title {
+  &__aside {
+    min-width: 0;
+  }
+
+  // Carga, error y "no existe": comparten la caja de lectura porque sin la
+  // cabecera no hay nada que centre el contenido.
+  &__state {
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: $spacing-xl $spacing-md;
+  }
+}
+
+// --- Ficha técnica ----------------------------------------------------------
+
+.song-info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__title {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-weight: 700;
     color: $color-text;
   }
 
-  &__back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    align-self: flex-start;
-    padding: 0.5rem $spacing-lg;
+  // Los datos van en dos columnas desde tablet: son pares cortos y uno debajo
+  // del otro dejaban una lista larguísima al lado del tracklist.
+  &__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+    margin: 0;
+    padding: $spacing-lg;
+    background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 30px;
+    border-radius: 16px;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-secondary;
+  }
+
+  // El <dd> trae sangría propia del navegador: hay que sacarla para que quede
+  // alineado con su etiqueta.
+  &__value {
+    margin: 0;
+    font-size: 0.95rem;
     color: $color-text;
+    overflow-wrap: anywhere;
+  }
+
+  &__link {
+    color: $color-text;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+      border-bottom-color: $color-primary;
+    }
+  }
+}
+
+// --- Tracklist del álbum (columna lateral) ----------------------------------
+
+.song-tracklist {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__see-all {
+    flex-shrink: 0;
     font-size: 0.85rem;
     font-weight: 600;
+    color: $color-primary;
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &__note {
+    margin: 0;
+    font-size: 0.88rem;
+    color: $color-text-secondary;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 16px;
+    // Un disco de veinticinco pistas no puede empujar la página entera: la lista
+    // scrollea dentro de su propia caja.
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  // La línea divisoria va entre pistas, así que la lleva cada una menos la
+  // primera.
+  &__item + &__item {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0.5rem $spacing-md;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+
+  // El <a> se ilumina al pasar por encima; la pista actual no, porque no lleva
+  // a ningún lado.
+  a.song-tracklist__row:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  // La pista que se está viendo: fondo verde tenue y una barra al costado, para
+  // que se ubique de un vistazo sin leer todos los títulos.
+  &__row--current {
+    background-color: rgba($color-primary, 0.12);
+    box-shadow: inset 3px 0 0 $color-primary;
+
+    .song-tracklist__name {
+      color: $color-primary;
+      font-weight: 700;
+    }
+  }
+
+  &__number {
+    flex-shrink: 0;
+    min-width: 1.3rem;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: $color-text-secondary;
+    text-align: right;
+  }
+
+  &__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.88rem;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__duration {
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Anterior / siguiente ---------------------------------------------------
+
+.track-nav {
+  display: flex;
+  gap: $spacing-md;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex: 1 1 0;
+    // Sin esto, un título largo estira la fila en vez de cortarse.
+    min-width: 0;
+    padding: 0.7rem $spacing-md;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 12px;
+    color: inherit;
     text-decoration: none;
     transition: border-color 0.2s ease, background-color 0.2s ease;
 
     &:hover {
       border-color: $color-primary;
-      background-color: rgba($color-primary, 0.1);
+      background-color: rgba($color-primary, 0.08);
     }
+
+    svg {
+      flex-shrink: 0;
+      color: $color-text-secondary;
+    }
+  }
+
+  // En la última pista sobra el enlace de "siguiente" y en la primera el de
+  // "anterior": el que queda se va a su lado, no al centro.
+  &__item--next {
+    margin-left: auto;
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-secondary;
+  }
+
+  &__name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

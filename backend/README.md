@@ -538,6 +538,98 @@ inválido; **403** si el usuario está logueado pero su rol no alcanza.
 - El frontend replica estos permisos con `ProtectedRoute`, pero eso es solo para la
   navegación: **la validación real es la del backend**.
 
+## Membresías y pasarela de pago
+
+El CUU de upgrade a `PRO`. Tres features trabajan juntas: `plan` (qué se vende),
+`subscription` (quién lo tiene y hasta cuándo) y `payment` (cómo se cobró).
+
+### El circuito, de punta a punta
+
+```
+1. El usuario aprieta "Pasarme a Pro"
+   -> POST /api/payments/checkout  crea la preference en MercadoPago
+                                   y devuelve el link. NO guarda nada todavía.
+2. Paga en MercadoPago.
+3. MercadoPago avisa, por DOS caminos que terminan en la misma función:
+     - POST /api/payments/webhook   aviso servidor a servidor (URL pública)
+     - POST /api/payments/confirm   lo llama la pantalla /pro/return del frontend
+4. confirmPayment() le PREGUNTA a MercadoPago cómo terminó el pago y, si está
+   aprobado, en UNA transacción:
+     cancela la suscripción anterior -> crea la nueva por un mes
+     -> sube users.rol a 'PRO' -> registra el pago
+5. El frontend pide POST /api/auth/refresh para tener un token con el rol nuevo.
+```
+
+### Las cuatro decisiones que hay que poder explicar
+
+- **Nunca se le cree a quien avisa.** Ni el webhook ni la pantalla de retorno
+  dicen si un pago se aprobó: solo dicen qué id mirar. El estado se consulta
+  contra MercadoPago con nuestro access token. Si no fuera así, cualquiera se
+  haría `PRO` mandando un POST inventado al webhook, que es una ruta pública.
+- **El circuito es idempotente.** Los dos avisos pueden llegar, en cualquier
+  orden. Antes de activar nada se busca el pago por su `id_gateway`; y si dos
+  entraran a la vez, el índice único `payments_id_gateway_unique` haría fallar al
+  segundo. La membresía no se puede duplicar.
+- **El webhook siempre responde 200, incluso cuando falla.** MercadoPago
+  reintenta durante días todo lo que no sea 2xx, así que un error se registra en
+  el log del servidor y se le contesta 200 igual. Es la única ruta del sistema
+  con `try/catch` y sin `validate()`.
+- **Solo se persiste el pago aprobado.** `payments.id_subscription` es NOT NULL y
+  `subscription.state` no tiene un valor `pending`, así que un pago rechazado
+  obligaría a crear una suscripción que nunca estuvo vigente. Un rechazo no deja
+  fila: el usuario lo ve en la pantalla de retorno y puede reintentar.
+
+### Renovación manual, no débito automático
+
+La membresía dura **un mes** (`subscription.end_date`) y **no se renueva sola**.
+Se usa Checkout Pro, que es para pagos únicos; el cobro recurrente en MercadoPago
+es otro producto (`preapproval`) y habría que guardar el id de la suscripción
+externa, columna que el DER no tiene. Sin ese dato, dar de baja cancelaría la
+membresía en nuestra base mientras MercadoPago le sigue cobrando al usuario.
+
+El vencimiento se aplica de forma **perezosa**: cada lectura de la membresía
+(`subscriptionService.getActive`) chequea si venció, y si venció la pasa a
+`expired` y baja el rol a `FREE`. No hace falta ningún proceso corriendo en el
+tiempo.
+
+### El rol vive dentro del token
+
+`requireRole` lee el rol del JWT, no de la base. Entonces, después de pagar, el
+token guardado sigue diciendo `FREE` y el backend rechazaría las rutas que el
+usuario acaba de comprar. Por eso existe `POST /api/auth/refresh`: relee el
+usuario y emite un token nuevo. El frontend lo llama al confirmar un pago y al
+dar de baja una membresía.
+
+### Endpoints
+
+| Método | Ruta | Acceso |
+|:-|:-|:-|
+| GET | `/api/plans` | público |
+| GET | `/api/plans/:id` | público |
+| POST · PATCH · DELETE | `/api/plans` · `/api/plans/:id` | ADMIN |
+| GET | `/api/subscriptions/mine` | logueado |
+| PATCH | `/api/subscriptions/mine/cancel` | logueado |
+| GET | `/api/subscriptions` | ADMIN |
+| POST | `/api/payments/checkout` | logueado |
+| POST | `/api/payments/confirm` | logueado |
+| POST | `/api/payments/webhook` | **público** (lo llama MercadoPago) |
+| GET | `/api/payments/mine` | logueado |
+
+### Configurar MercadoPago para probarlo
+
+1. En [Tus integraciones](https://www.mercadopago.com.ar/developers/panel), crear
+   una aplicación de tipo **Checkout Pro** y copiar su access token a
+   `MERCADOPAGO_ACCESS_TOKEN`.
+2. Crear **dos usuarios de prueba**: uno vendedor (dueño de la aplicación) y uno
+   comprador. MercadoPago no deja comprarse a uno mismo.
+3. `MERCADOPAGO_NOTIFICATION_URL` se deja **vacía** en desarrollo: a `localhost`
+   no le llega ningún webhook, y la confirmación la resuelve la pantalla de
+   retorno. Para probar el webhook de verdad hay que exponer el backend (por
+   ejemplo con ngrok) y poner ahí `https://<host>/api/payments/webhook`.
+
+`auto_return` solo se le manda a MercadoPago si la URL de retorno es pública:
+con un `localhost` rechaza la preference entera.
+
 ## Modelo de datos
 
 Diez tablas, según el pasaje a tablas del DER:

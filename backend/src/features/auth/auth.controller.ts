@@ -22,6 +22,12 @@ export const authController = {
     res.status(200).json(result);
   },
 
+  async refresh(req: Request, res: Response): Promise<void> {
+    const result = await authService.refresh(req.user!.id_user);
+    // 200: no se crea nada, se emite un token nuevo para el mismo usuario.
+    res.status(200).json(result);
+  },
+
   async me(req: Request, res: Response): Promise<void> {
     // req.user siempre está: la ruta pasa antes por requireAuth, que corta con
     // 401 si el token falta o no es válido.

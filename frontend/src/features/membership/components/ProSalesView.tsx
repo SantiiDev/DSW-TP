@@ -4,9 +4,12 @@
 // El botón de contratación cambia según haya sesión o no: a un visitante lo
 // invita a crear su cuenta, y a un usuario Free ya no le ofrece registrarse
 // —que no tendría sentido— sino pasar al plan pago.
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { FadeInSection } from '../../../core/components/FadeInSection';
+import { useFetch } from '../../../core/hooks/useFetch';
+import { membershipService } from '../services/membershipService';
+import { PRO_PLAN_NAME } from '../models/Membership';
 import { ProBenefits } from './ProBenefits';
 import { ProComparison } from './ProComparison';
 import { ProFaq } from './ProFaq';
@@ -29,20 +32,31 @@ type ProSalesViewProps = {
 
 export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
   const { openSignup } = useAuthModal();
+  const navigate = useNavigate();
 
-  // La pasarela de pago (MercadoPago) todavía no está conectada. En vez de dejar
-  // un botón que no hace nada, al usuario logueado se le muestra un aviso claro.
-  const [showCheckoutNote, setShowCheckoutNote] = useState(false);
+  // Los precios salen de la API y no del código: son un dato de negocio que un
+  // ADMIN puede cambiar desde el panel, y tenerlos escritos acá haría que la
+  // página mostrara uno y el checkout cobrara otro.
+  const { data: plans, isLoading } = useFetch(() => membershipService.listPlans());
 
-  // Un visitante primero necesita una cuenta; el que ya entró la tiene, y lo
-  // único que le falta es el pago.
+  const freePlan = plans?.find((plan) => !plan.isPaid) ?? null;
+  const proPlan = plans?.find((plan) => plan.name === PRO_PLAN_NAME) ?? null;
+
+  // Un visitante primero necesita una cuenta; el que ya entró la tiene, y lo que
+  // le falta es pagar. Esta página NO cobra: lleva al resumen de la contratación
+  // (/pro/checkout), que es donde el usuario ve qué está por comprar antes de
+  // que lo saquemos del sitio hacia MercadoPago.
   const handleUpgradeClick = () => {
-    if (isAuthenticated) {
-      setShowCheckoutNote(true);
+    if (!isAuthenticated) {
+      openSignup();
       return;
     }
-    openSignup();
+    navigate('/pro/checkout');
   };
+
+  // El botón queda inhabilitado mientras no se sepa cuánto sale el plan: sin el
+  // plan cargado no hay nada que contratar.
+  const isUpgradeDisabled = isAuthenticated && (isLoading || !proPlan);
 
   const upgradeLabel = isAuthenticated ? 'Pasarme a Pro' : 'Obtener Pro';
 
@@ -66,7 +80,8 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
               Potenciá tu experiencia<br />en Musicboxd con <span className="pro-hero__title-accent">Pro</span>
             </h1>
             <p className="pro-hero__subtitle">
-              Planes desde $4.99 / mes. Cancelá cuando quieras.
+              {proPlan ? `${proPlan.priceLabel} por mes.` : 'Membresía mensual.'} Cancelá cuando
+              quieras.
             </p>
             <div className="pro-hero__actions">
               <a href="#pricing" className="pro-hero__cta pro-hero__cta--primary">
@@ -93,7 +108,9 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
                 Musicboxd Free
               </h3>
               <div className="pro-pricing__card-price">
-                <span className="pro-pricing__card-amount">$0</span>
+                <span className="pro-pricing__card-amount">
+                  {freePlan ? freePlan.priceLabel : '—'}
+                </span>
                 <span className="pro-pricing__card-period"> / mes</span>
               </div>
               <p className="pro-pricing__card-tagline">Todo lo esencial, y...</p>
@@ -126,7 +143,9 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
                 Musicboxd Pro
               </h3>
               <div className="pro-pricing__card-price">
-                <span className="pro-pricing__card-amount">$4.99</span>
+                <span className="pro-pricing__card-amount">
+                  {proPlan ? proPlan.priceLabel : '—'}
+                </span>
                 <span className="pro-pricing__card-period"> / mes</span>
               </div>
               <p className="pro-pricing__card-tagline">Todo lo de Free, y...</p>
@@ -141,17 +160,16 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
                 type="button"
                 className="pro-pricing__card-btn pro-pricing__card-btn--primary"
                 onClick={handleUpgradeClick}
+                disabled={isUpgradeDisabled}
               >
                 <Crown size={16} />
                 {upgradeLabel}
               </button>
 
-              {showCheckoutNote && (
-                <p className="pro-pricing__card-note" role="status">
-                  Estamos terminando de conectar el pago con MercadoPago. Muy pronto vas a poder
-                  activar tu membresía Pro desde acá.
-                </p>
-              )}
+              <p className="pro-pricing__card-note">
+                Es un pago por un mes. No se renueva solo: cuando venza, lo activás de nuevo
+                desde tu perfil.
+              </p>
             </div>
           </div>
         </section>

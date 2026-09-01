@@ -79,6 +79,26 @@ export const env = {
     password: optional('SEED_ADMIN_PASSWORD', 'Admin1234!'),
   },
 
+  // Pasarela de pago (MercadoPago Checkout Pro, en sandbox).
+  //
+  // El access token NO es obligatorio para arrancar: el resto del sistema anda
+  // sin él, y frenar el servidor entero porque falta la credencial de una sola
+  // feature dejaría a todo el equipo sin poder trabajar. La falta se chequea
+  // recién al intentar cobrar, con un mensaje que explica qué cargar.
+  mercadopago: {
+    accessToken: optional('MERCADOPAGO_ACCESS_TOKEN', ''),
+    baseUrl: optional('MERCADOPAGO_API_BASE_URL', 'https://api.mercadopago.com'),
+    // Moneda de los precios. Los planes están en pesos argentinos.
+    currency: optional('MERCADOPAGO_CURRENCY', 'ARS'),
+    // A dónde vuelve el usuario después de pagar. Es una URL del FRONTEND, no de
+    // la API: la pantalla de retorno es una página de React.
+    backUrl: optional('MERCADOPAGO_BACK_URL', 'http://localhost:5173/pro/return'),
+    // A dónde avisa MercadoPago cuando cambia el estado de un pago. Tiene que ser
+    // una URL pública: localhost no le llega. Se deja vacía en desarrollo, y ahí
+    // la confirmación la resuelve la pantalla de retorno (ver payment.service).
+    notificationUrl: optional('MERCADOPAGO_NOTIFICATION_URL', ''),
+  },
+
   // Autenticación. El secreto es obligatorio: sin él la API firmaría los tokens
   // con una clave vacía y cualquiera podría fabricarse uno de ADMIN. Preferimos
   // que el servidor no arranque a que arranque inseguro.
