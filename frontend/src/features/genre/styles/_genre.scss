@@ -10,6 +10,7 @@
 // queries que amplían. Los colores y espaciados salen de las variables globales.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 // --- Formulario de alta y edición ------------------------------------------
 
@@ -86,17 +87,20 @@
 // --- Ficha pública de un género --------------------------------------------
 
 .genre-detail {
-  // Más ancha que antes: ahora convive la lista de álbumes con la columna de
-  // filtros al costado.
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: $spacing-lg $spacing-md;
+  // El mismo ancho que el navbar y que el resto de las pantallas (ver el mixin).
+  // Antes eran 1200px con el padding adentro, así que la lista de álbumes no
+  // arrancaba donde arranca el logo.
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-lg;
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
 
   @media (min-width: $bp-md) {
-    padding: $spacing-xl $spacing-lg;
+    @include page-container($spacing-lg);
+    padding-top: $spacing-xl;
+    padding-bottom: $spacing-xl;
   }
 
   // Las tres líneas del encabezado (la etiqueta "Género", el nombre y el conteo)
@@ -208,23 +212,6 @@
     &--active {
       background-color: rgba(255, 255, 255, 0.1);
       color: $color-text;
-    }
-  }
-
-  &__back {
-    align-self: flex-start;
-    padding: 0.5rem $spacing-lg;
-    border: 1px solid $color-nav-border;
-    border-radius: 30px;
-    color: $color-text;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
-
-    &:hover {
-      border-color: $color-primary;
-      background-color: rgba($color-primary, 0.1);
     }
   }
 }

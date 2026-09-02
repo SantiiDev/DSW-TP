@@ -3,6 +3,7 @@
 // Layout de dos columnas con efecto sticky/parallax en desktop
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 // ─── Page Layout ────────────────────────────────────────────
 .lists-explore {
@@ -12,7 +13,7 @@
   &__header {
     padding: $spacing-xl $spacing-md $spacing-lg;
     text-align: center;
-    max-width: calc(1150px + 2rem);
+    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
     margin: 0 auto;
     position: relative;
 
@@ -59,7 +60,7 @@
   // Layout de dos columnas con efecto parallax
   &__content {
     width: 100%;
-    max-width: calc(1150px + 2rem);
+    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
     margin: 0 auto;
     padding: $spacing-xl $spacing-md 0;
     display: flex;

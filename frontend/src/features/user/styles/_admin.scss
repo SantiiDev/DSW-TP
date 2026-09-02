@@ -7,12 +7,13 @@
 // .admin-panel son los bloques de las pestañas Música y Solicitudes.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 .admin-users {
-  width: 100%;
-  max-width: 1150px;
-  margin: 0 auto;
-  padding: $spacing-lg $spacing-md;
+  // Mismo ancho que el navbar y que el resto de las pantallas (ver el mixin).
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-lg;
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;

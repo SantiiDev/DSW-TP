@@ -4,18 +4,13 @@
 // usuario Free le explica qué ganaría) y la del socio (a un usuario Pro le
 // recuerda qué tiene habilitado). Por eso el encabezado es una prop y el estado
 // "activo" se puede prender con `isActive`.
-import { Ban, BarChart3, Check, ListMusic, Palette, PlusCircle, Shield, Zap } from 'lucide-react';
+import { Ban, BarChart3, Check, ListMusic, Palette, PlusCircle, Shield } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 type ProBenefit = {
   icon: LucideIcon;
   title: string;
   description: string;
-  /**
-   * true para los beneficios que solo tienen sentido en el pitch de venta.
-   * En la vista del socio se ocultan: no son algo que ya tenga "activo".
-   */
-  onlyWhenSelling?: boolean;
 };
 
 const PRO_BENEFITS: ProBenefit[] = [
@@ -49,12 +44,6 @@ const PRO_BENEFITS: ProBenefit[] = [
     title: 'Badge Pro en tu perfil',
     description: 'Destacá en la comunidad con una insignia verificada en tu perfil y en todas tus reseñas.',
   },
-  {
-    icon: Zap,
-    title: 'Acceso anticipado',
-    description: 'Probá nuevas funciones antes que nadie y ayudanos a definir el futuro de Musicboxd.',
-    onlyWhenSelling: true,
-  },
 ];
 
 type ProBenefitsProps = {
@@ -64,16 +53,11 @@ type ProBenefitsProps = {
 };
 
 export const ProBenefits = ({ heading, isActive = false }: ProBenefitsProps) => {
-  // En la vista del socio se listan solo los beneficios que ya tiene habilitados.
-  const benefits = isActive
-    ? PRO_BENEFITS.filter((benefit) => !benefit.onlyWhenSelling)
-    : PRO_BENEFITS;
-
   return (
     <section id="features" className="pro-features">
       <h2 className="pro-features__heading">{heading}</h2>
       <div className="pro-features__grid">
-        {benefits.map(({ icon: Icon, title, description }) => (
+        {PRO_BENEFITS.map(({ icon: Icon, title, description }) => (
           <div key={title} className="pro-feature-card">
             <div className="pro-feature-card__top">
               {isActive && (

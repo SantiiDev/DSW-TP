@@ -16,7 +16,7 @@
 
   &__container {
     width: 100%;
-    max-width: 1150px;
+    max-width: $content-width;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;

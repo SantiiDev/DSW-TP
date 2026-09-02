@@ -8,13 +8,10 @@
 @use '../../../styles/abstracts/mixins' as *;
 
 .user-profile-page {
-  width: 100%;
-  max-width: 1150px;
-  margin: 0 auto;
-  padding: $spacing-lg $spacing-md;
-  // El layout de App.tsx envuelve las páginas en un contenedor flex, y un item
-  // de flex no baja del ancho de su contenido salvo que se le diga.
-  min-width: 0;
+  // Mismo ancho que el navbar y que el resto de las pantallas (ver el mixin).
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-lg;
 
   &__container {
     width: 100%;
@@ -24,29 +21,13 @@
     min-width: 0;
   }
 
-  // Botón para volver a la pantalla anterior.
-  &__back-btn {
-    align-self: flex-start;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    background: none;
-    border: none;
-    padding: 0;
-    font: inherit;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: $color-text-secondary;
-    cursor: pointer;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: $color-primary;
-    }
-  }
-
   // Contenido + columna lateral. Una sola columna en mobile; desde LG el sidebar
   // se va a la derecha con ancho fijo.
+  //
+  // Las dos columnas terminan a la misma altura: sin `align-items`, la grilla
+  // estira cada una hasta el alto de la fila, que es el de la más alta. Con
+  // `start` la caja de contenido quedaba más corta que la pila de tarjetas del
+  // costado y el bloque se veía desparejo.
   &__body {
     display: grid;
     grid-template-columns: 1fr;
@@ -55,12 +36,19 @@
 
     @media (min-width: $bp-lg) {
       grid-template-columns: minmax(0, 1fr) 320px;
-      align-items: start;
     }
   }
 
+  // Estirar la columna no alcanza: lo que se ve es el panel de adentro, así que
+  // es el panel el que tiene que ocupar todo el alto.
   &__main {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
+
+    > .profile-panel {
+      flex: 1 1 auto;
+    }
   }
 }
 

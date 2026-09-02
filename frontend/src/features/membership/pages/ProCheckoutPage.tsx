@@ -9,9 +9,8 @@
 // /api/payments/checkout) y redirige. El cobro pasa allá, y la vuelta la atiende
 // /pro/return.
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
-  ArrowLeft,
   BarChart3,
   CalendarDays,
   Check,
@@ -22,6 +21,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
+import { BackLink } from '../../../core/components/BackLink';
 import { Button } from '../../../core/components/Button';
 import { Footer } from '../../../core/components/Footer';
 import { Loader } from '../../../core/components/Loader';
@@ -48,7 +48,6 @@ function formatDate(date: Date): string {
 }
 
 export const ProCheckoutPage = () => {
-  const navigate = useNavigate();
   const { state: authState } = useAuth();
 
   const { data: plans, isLoading, error } = useFetch(() => membershipService.listPlans());
@@ -85,10 +84,9 @@ export const ProCheckoutPage = () => {
     <>
       <Navbar />
       <main className="checkout">
-        <button type="button" className="checkout__back" onClick={() => navigate('/pro')}>
-          <ArrowLeft size={16} aria-hidden="true" />
-          Volver a los planes
-        </button>
+        {/* El "Volver" compartido de core/components, igual que en el resto del
+            sitio. Sin historial propio cae en /pro, que es de donde se llega. */}
+        <BackLink fallbackTo="/pro" label="Volver a los planes" />
 
         <h1 className="checkout__title">Confirmá tu membresía</h1>
         <p className="checkout__subtitle">

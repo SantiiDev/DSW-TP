@@ -8,8 +8,9 @@
 // además el backend, que es donde vale la restricción.
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, UserX } from 'lucide-react';
+import { UserX } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
+import { BackLink } from '../../../core/components/BackLink';
 import { useAuth } from '../../../core/context/AuthContext';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
@@ -133,13 +134,6 @@ export const UserProfilePage = () => {
     if (succeeded) navigate('/');
   };
 
-  // -1 vuelve a la página anterior del historial. Si se entró con la URL escrita
-  // a mano no hay historial propio, así que se cae a la home.
-  const handleGoBack = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate('/');
-  };
-
   const renderContent = () => {
     if (isLoading) return <Loader message="Cargando perfil..." />;
 
@@ -231,10 +225,10 @@ export const UserProfilePage = () => {
       <Navbar />
       <main className="user-profile-page">
         <div className="user-profile-page__container">
-          <button type="button" className="user-profile-page__back-btn" onClick={handleGoBack}>
-            <ArrowLeft size={18} aria-hidden="true" />
-            Volver
-          </button>
+          {/* El mismo botón que usan las fichas de álbum y canción y los
+              listados: vive en core/components para que "Volver" se vea y se
+              comporte igual en todo el sitio. */}
+          <BackLink fallbackTo="/" />
 
           {renderContent()}
         </div>

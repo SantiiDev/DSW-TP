@@ -11,15 +11,7 @@
 // queries que amplían. Los colores y espaciados salen de las variables globales.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
-
-// Ancho de la caja de contenido de la ficha, igual que en la de álbum. La
-// cabecera lo aplica sobre un hijo SIN padding, así que ahí alcanza con
-// $detail-width; el cuerpo, que además lleva padding lateral, tiene que sumárselo
-// porque con `box-sizing: border-box` ese padding entra dentro del max-width y su
-// contenido quedaba más adentro que la carátula.
-$detail-width: 1150px;
-$detail-width-sm: calc(#{$detail-width} + #{$spacing-md} * 2);
-$detail-width-md: calc(#{$detail-width} + #{$spacing-lg} * 2);
+@use '../../../styles/abstracts/mixins' as *;
 
 // --- Formulario de alta y edición ------------------------------------------
 
@@ -266,7 +258,7 @@ $detail-width-md: calc(#{$detail-width} + #{$spacing-lg} * 2);
     width: 100%;
     // Mismo ancho que el cuerpo, para que la carátula arranque justo arriba de
     // la ficha técnica y no desplazada hacia adentro.
-    max-width: $detail-width;
+    max-width: $content-width;
     margin: 0 auto;
     text-align: center;
 
@@ -393,7 +385,7 @@ $detail-width-md: calc(#{$detail-width} + #{$spacing-lg} * 2);
   // y desde LG el tracklist del álbum se va a la derecha con ancho fijo.
   &__body {
     width: 100%;
-    max-width: $detail-width-sm;
+    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
     margin: 0 auto;
     padding: $spacing-lg $spacing-md $spacing-xl;
     display: grid;
@@ -402,7 +394,7 @@ $detail-width-md: calc(#{$detail-width} + #{$spacing-lg} * 2);
     min-width: 0;
 
     @media (min-width: $bp-md) {
-      max-width: $detail-width-md;
+      max-width: calc(#{$content-width} + #{$spacing-lg} * 2);
       padding: $spacing-xl $spacing-lg;
     }
 

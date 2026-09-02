@@ -22,3 +22,8 @@ $spacing-sm: 0.5rem;
 $spacing-md: 1rem;
 $spacing-lg: 2rem;
 $spacing-xl: 3rem;
+
+// Ancho del contenido de una página: el mismo que usa el contenedor del navbar.
+// Es lo que hace que el borde izquierdo de cualquier sección caiga justo debajo
+// del logo. Para aplicarlo hay un mixin, `page-container` (ver _mixins).
+$content-width: 1150px;

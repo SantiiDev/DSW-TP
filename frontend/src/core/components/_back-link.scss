@@ -1,28 +1,29 @@
 // Estilos del botón "Volver" (core/components/BackLink.tsx).
 //
-// Mismo aspecto que tenían los enlaces fijos que reemplaza (la pastilla con
-// borde de las fichas de álbum, canción y género), para que las páginas no
-// cambien de look.
+// Es texto con una flecha, sin recuadro: volver es una salida secundaria y una
+// pastilla con borde le daba el peso de una acción principal, compitiendo con el
+// título de la pantalla. Es el mismo aspecto que tenía el botón propio del
+// perfil, que ahora también usa este componente.
 @use '../../styles/abstracts/variable' as *;
 @use '../../styles/abstracts/mixins' as *;
 
 .back-link {
-  @include control-centrado;
   align-self: flex-start;
-  gap: 6px;
-  padding: 0.5rem $spacing-lg;
-  background-color: transparent;
-  border: 1px solid $color-nav-border;
-  border-radius: 30px;
-  color: $color-text;
+  gap: 0.4rem;
+  padding: 0;
+  background: none;
+  border: none;
+  color: $color-text-secondary;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  transition: color 0.2s ease;
+  // Va DESPUÉS de `font: inherit`: ese atajo reescribe el line-height y, puesto
+  // antes, dejaría el centrado del mixin sin efecto.
+  @include control-centrado;
 
   &:hover {
-    border-color: $color-primary;
-    background-color: rgba($color-primary, 0.1);
+    color: $color-primary;
   }
 }

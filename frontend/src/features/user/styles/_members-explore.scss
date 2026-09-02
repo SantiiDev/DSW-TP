@@ -2,6 +2,7 @@
 // Estilos para la página de exploración de miembros (/members)
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 // ─── Page Layout ────────────────────────────────────────────
 .members-explore {
@@ -11,7 +12,7 @@
   &__header {
     padding: $spacing-xl $spacing-md $spacing-lg;
     text-align: center;
-    max-width: calc(1150px + 2rem);
+    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
     margin: 0 auto;
     position: relative;
 
@@ -57,7 +58,7 @@
 
   &__content {
     width: 100%;
-    max-width: calc(1150px + 2rem);
+    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
     margin: 0 auto;
     padding: 0 $spacing-md;
   }

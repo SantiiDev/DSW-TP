@@ -7,9 +7,10 @@
 //
 // Es una página pública, igual que el explorador: leer géneros no pide token.
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Disc3, LayoutGrid, List } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
+import { BackLink } from '../../../core/components/BackLink';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
 import { Loader } from '../../../core/components/Loader';
@@ -100,6 +101,12 @@ export const GenreDetailPage = () => {
           <Alert tone="error">{error}</Alert>
         ) : genre ? (
           <>
+            {/* El mismo botón que las fichas de álbum y canción: arriba a la
+                izquierda y desde core/components, para que "Volver" se vea y se
+                comporte igual en todo el sitio. Antes era un enlace fijo al pie
+                de la página, con otro estilo. */}
+            <BackLink fallbackTo="/music" />
+
             <header className="genre-detail__header">
               <p className="genre-detail__eyebrow">Género</p>
               <h1 className="genre-detail__title">{genre.name}</h1>
@@ -182,9 +189,6 @@ export const GenreDetailPage = () => {
               />
             </div>
 
-            <Link to="/music" className="genre-detail__back">
-              Volver a explorar música
-            </Link>
           </>
         ) : null}
       </main>

@@ -11,7 +11,7 @@ $pro-gradient: linear-gradient(135deg, $pro-green 0%, #0fd85b 50%, #06d6a0 100%)
 // Ancho de todas las secciones de /pro. Sale del navbar, que centra su contenido
 // en 1150px: sumándole su padding lateral ($spacing-md a cada lado) los bordes de
 // cada sección quedan alineados con los del navbar en cualquier resolución.
-$pro-section-max: calc(1150px + #{$spacing-md} * 2);
+$pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
 
 // ─── Page wrapper ───────────────────────────────────────────
 .pro-page {
@@ -1292,25 +1292,15 @@ $pro-section-max: calc(1150px + #{$spacing-md} * 2);
 // con el resumen arriba: en una pantalla chica lo primero que se quiere ver es el
 // precio y el botón, no la lista de beneficios.
 .checkout {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: $spacing-lg $spacing-md $spacing-xl;
-}
+  // Mismo ancho que el navbar y que el resto de las pantallas (ver el mixin).
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-xl;
 
-.checkout__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: $spacing-md;
-  padding: 0;
-  font-size: 0.9rem;
-  color: $color-text-secondary;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  &:hover {
-    color: $color-text;
+  // El "Volver" es el componente compartido (core/components/BackLink); acá solo
+  // se lo separa del título.
+  .back-link {
+    margin-bottom: $spacing-md;
   }
 }
 
@@ -1330,10 +1320,12 @@ $pro-section-max: calc(1150px + #{$spacing-md} * 2);
   flex-direction: column-reverse;
   gap: $spacing-md;
 
+  // Las dos tarjetas terminan a la misma altura: sin `align-items`, la grilla
+  // estira cada columna hasta el alto de la fila. Con `start`, el resumen (que
+  // es más corto) quedaba flotando y el bloque se veía desparejo.
   @media (min-width: $bp-lg) {
     display: grid;
     grid-template-columns: 1fr 340px;
-    align-items: start;
     gap: $spacing-lg;
   }
 }
@@ -1348,13 +1340,11 @@ $pro-section-max: calc(1150px + #{$spacing-md} * 2);
 
 // El resumen es lo que se confirma, así que se distingue del resto con el verde
 // de Pro en el borde.
+//
+// No es sticky: ahora ocupa todo el alto de su columna, así que no tiene margen
+// para acompañar el scroll. Tampoco hace falta, la pantalla entra entera.
 .checkout__summary {
   border-color: rgba($pro-green, 0.35);
-
-  @media (min-width: $bp-lg) {
-    position: sticky;
-    top: calc(#{$navbar-height} + #{$spacing-md});
-  }
 }
 
 .checkout__panel-title {

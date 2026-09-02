@@ -1,4 +1,6 @@
 // Mixins compartidos por los estilos del sitio.
+@use 'variable' as *;
+
 
 // Centra el contenido de un control (su texto, o su texto más un ícono) dentro
 // de la caja que le da el padding.
@@ -16,4 +18,28 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
+}
+
+// Caja de contenido de una página, alineada con el navbar.
+//
+// El detalle que se escapa: con `box-sizing: border-box` (lo pone el reset), el
+// padding entra DENTRO del max-width, así que un `max-width: 1150px` con padding
+// deja el contenido en 1086px y desalineado respecto del navbar, cuyo contenedor
+// no tiene padding propio. Por eso el ancho se calcula sumándole el padding.
+//
+//   .genre-detail { @include page-container; }
+//   .album-detail__body { @include page-container($spacing-lg); }
+//
+// @param $padding-x espacio a los costados. Solo toca el padding horizontal: el
+//   vertical lo sigue definiendo cada página.
+@mixin page-container($padding-x: $spacing-md) {
+  width: 100%;
+  max-width: calc(#{$content-width} + #{$padding-x} * 2);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $padding-x;
+  padding-right: $padding-x;
+  // Un item de flex no baja del ancho de su contenido salvo que se le diga, y
+  // las páginas viven dentro del layout flex de App.tsx.
+  min-width: 0;
 }
