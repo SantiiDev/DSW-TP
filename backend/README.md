@@ -302,7 +302,8 @@ src/
     config/env.ts    Lectura y validación de variables de entorno
     db/sequelize.ts  Instancia única de conexión
     errors/          Clases de error de negocio (AppError y derivadas)
-    middlewares/     validate, require-auth, require-role, error-handler, not-found
+    middlewares/     validate, require-auth, optional-auth, require-role,
+                     error-handler, not-found
     types/           Enumerados del dominio + extensión global de Request
 
   seed/              Carga inicial de datos + data/*.json descargados
@@ -523,6 +524,28 @@ const id_user = req.user!.id_user;
 Los códigos son los esperables: **401** si falta el token, está vencido o es
 inválido; **403** si el usuario está logueado pero su rol no alcanza.
 
+### Rutas públicas que mejoran con sesión: `optionalAuth`
+
+Hay un tercer caso además de "pública" y "protegida": la ruta que cualquiera puede
+llamar, pero cuya respuesta es mejor si además hay sesión.
+
+```ts
+// Detalle de una reseña: lo abre cualquiera, pero si hay token se aprovecha.
+reviewRouter.get('/:id', optionalAuth, validate({ params: ... }), reviewController.getById);
+```
+
+`optionalAuth` es igual a `requireAuth` salvo en una cosa: **nunca corta**. Sin
+header sigue de largo y el controller recibe `req.user` en `undefined`; con un
+token válido lo deja seteado; y con uno vencido lo trata como si no hubiera
+venido ninguno, en vez de responder 401 en una ruta que es pública.
+
+El detalle de una reseña es el caso que lo justifica. Es el destino del botón
+"Compartir", así que lo tiene que poder abrir alguien sin cuenta; pero hay dos
+cosas que solo se saben con el token: si el que mira ya le dio "me gusta" (para
+dibujar el corazón lleno) y si es su autor o un `ADMIN` (para poder ver una
+reseña que un moderador ocultó, en vez de comerse un 404 al intentar editarla
+desde su propio perfil).
+
 ### Decisiones de esta parte
 
 - **El rol nunca sale de la request.** Todo registro público entra como `FREE`,
@@ -537,6 +560,58 @@ inválido; **403** si el usuario está logueado pero su rol no alcanza.
   vacía cualquiera podría fabricarse un token de `ADMIN`.
 - El frontend replica estos permisos con `ProtectedRoute`, pero eso es solo para la
   navegación: **la validación real es la del backend**.
+
+## Reseñas
+
+El CUU de publicar y gestionar una reseña. Reseñar es lo que hace **cualquier
+usuario registrado**, incluido un `FREE`: es la diferencia con los CRUD de
+catálogo, donde el alta exige `PRO`.
+
+### Endpoints
+
+| Método | Ruta | Acceso |
+|:-|:-|:-|
+| GET | `/api/reviews` | logueado |
+| GET | `/api/reviews/mine` | logueado |
+| GET | `/api/reviews/stats` | público |
+| GET | `/api/reviews/:id` | **público**, con `optionalAuth` |
+| POST | `/api/reviews` | logueado |
+| PATCH · DELETE | `/api/reviews/:id` | su autor (la baja, también un ADMIN) |
+| PATCH | `/api/reviews/:id/hide` · `/restore` | ADMIN |
+| POST | `/api/reviews/:id/like` | logueado |
+| GET · POST | `/api/reviews/:id/comments` | público · logueado |
+| DELETE | `/api/reviews/:id/comments/:idComment` | su autor o ADMIN |
+
+### Filtros del listado
+
+`GET /api/reviews` acepta `id_album`, `id_song`, `target`, `id_user`, `state`,
+`min_rating`, `limit` y `offset`. Con esos filtros, una sola consulta alimenta
+cuatro pantallas:
+
+| Para qué | Query |
+|:-|:-|
+| Reseñas de un álbum | `?id_album=5` |
+| Reseñas de un usuario, de 4 estrellas para arriba | `?id_user=2&min_rating=4` |
+| Álbumes que calificó un usuario | `?id_user=2&target=album` |
+| Canciones que calificó | `?id_user=2&target=song` |
+
+`target` (`album` \| `song`) no se pisa con `id_album` / `id_song`: aquellos
+apuntan a **un** ítem y este a **todo un tipo**. En la tabla, a qué apunta una
+reseña se guarda como cuál de los dos ids quedó en NULL, así que "todas las de
+álbum" se traduce a `id_album IS NOT NULL`.
+
+Solo un `ADMIN` puede pedir un `state` distinto de `published`: para cualquier
+otro, el listado es siempre lo publicado, sin importar qué haya pedido.
+
+### Dos decisiones que hay que poder explicar
+
+- **La baja de una reseña es FÍSICA**, a diferencia de la de un usuario. El
+  índice único por usuario e ítem no distingue estados, así que una fila
+  "borrada" le impediría al autor volver a reseñar lo mismo. Para retirar de
+  circulación sin borrar está `hide`, que además es reversible.
+- **Un ADMIN no puede EDITAR una reseña ajena**, aunque sí ocultarla o borrarla:
+  cambiarle el texto a otro sería ponerle palabras en la boca y dejarlas firmadas
+  con su nombre.
 
 ## Membresías y pasarela de pago
 

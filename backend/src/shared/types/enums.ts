@@ -28,6 +28,14 @@ export const REVIEW_STATES = ['published', 'hidden', 'deleted'] as const;
 export type ReviewState = (typeof REVIEW_STATES)[number];
 
 /**
+ * A qué tipo de ítem apunta una reseña. No es una columna: en la tabla eso se
+ * guarda como cuál de los dos ids quedó cargado (id_album o id_song, nunca los
+ * dos). Es la forma de pedir "todas las reseñas de álbum" sin decir de cuál.
+ */
+export const REVIEW_TARGETS = ['album', 'song'] as const;
+export type ReviewTargetKind = (typeof REVIEW_TARGETS)[number];
+
+/**
  * Estado de una suscripción (SUBSCRIPTION.state).
  * - active:    es la membresía vigente del usuario.
  * - expired:   se cumplió su end_date sin renovarse.

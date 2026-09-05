@@ -10,7 +10,7 @@ import {
   Song,
   User,
 } from '../../entities';
-import { ContentState, ReviewState } from '../../shared/types/enums';
+import { ContentState, ReviewState, ReviewTargetKind } from '../../shared/types/enums';
 
 /** Autor de la reseña, reducido a lo que se muestra en su tarjeta. */
 export type ReviewUser = {
@@ -108,6 +108,8 @@ export type ReviewTargetIds = {
 type ReviewFilters = {
   idAlbum?: number;
   idSong?: number;
+  /** Deja solo las reseñas de álbum, o solo las de canción, sin importar cuál. */
+  targetKind?: ReviewTargetKind;
   idUser?: number;
   state?: ReviewState;
   /** Deja solo las reseñas de esta calificación para arriba. */
@@ -203,6 +205,10 @@ function buildWhere(filters: ReviewFilters) {
   return {
     ...(filters.idAlbum !== undefined ? { id_album: filters.idAlbum } : {}),
     ...(filters.idSong !== undefined ? { id_song: filters.idSong } : {}),
+    // "Todas las de álbum" es "las que tienen id_album cargado": en la tabla, a
+    // qué apunta una reseña se guarda como cuál de los dos ids quedó en NULL.
+    ...(filters.targetKind === 'album' ? { id_album: { [Op.ne]: null } } : {}),
+    ...(filters.targetKind === 'song' ? { id_song: { [Op.ne]: null } } : {}),
     ...(filters.idUser !== undefined ? { id_user: filters.idUser } : {}),
     ...(filters.state ? { state: filters.state } : {}),
     // "De 4 estrellas para arriba" es el filtro del listado de reseñas del perfil.

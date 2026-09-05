@@ -1,14 +1,15 @@
 // Contenido de la pestaña activa del perfil.
 //
 // Cada feature aporta su propia lista y esta página solo la monta: así lo hacen
-// "Aportes" (con las de artista, álbum y canción) y "Reseñas" (con la de review).
+// "Aportes" (con las de artista, álbum y canción), "Reseñas" y las dos pestañas
+// de calificados (las tres, con las de review).
 //
-// Las secciones que dependen de features todavía no implementadas (álbumes y
-// canciones calificados) muestran su estado vacío definitivo. Cuando esos
-// endpoints existan, se reemplaza el EmptyState por el listado real sin tocar ni
-// la cabecera ni la navegación de pestañas.
+// La única que todavía muestra su vacío definitivo es "Resumen": la actividad
+// reciente depende de un feed que no está implementado. Cuando exista, se
+// reemplaza el EmptyState por el listado real sin tocar ni la cabecera ni la
+// navegación de pestañas.
 import { useState } from 'react';
-import { Activity, Disc3, Music } from 'lucide-react';
+import { Activity } from 'lucide-react';
 import { ButtonLink } from '../../../core/components/Button';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { SegmentedControl } from '../../../core/components/SegmentedControl';
@@ -18,6 +19,7 @@ import { AlbumContributionsList } from '../../album/components/AlbumContribution
 import { ArtistContributionsList } from '../../artist/components/ArtistContributionsList';
 import { SongContributionsList } from '../../song/components/SongContributionsList';
 import { MembershipPanel } from '../../membership/components/MembershipPanel';
+import { RatedItemsList } from '../../review/components/RatedItemsList';
 import { UserReviewsList } from '../../review/components/UserReviewsList';
 import type { ProfileTab } from './ProfileTabs';
 
@@ -101,14 +103,18 @@ export const ProfileTabContent = ({
         </section>
       );
 
+    // Las dos pestañas siguientes salen de las reseñas: lo que un usuario
+    // calificó son sus reseñas miradas del lado del ítem. La grilla la pone la
+    // feature review, con su propio paginado y sus estados de carga y de vacío.
     case 'albums':
       return (
         <section className="profile-panel">
           <h2 className="profile-panel__title">Álbumes calificados</h2>
-          <EmptyState
-            icon={<Disc3 size={22} />}
-            title={emptyCopy(isOwnProfile, 'No calificaste ningún álbum.', `${name} no calificó álbumes.`)}
-            message="Los álbumes que reciban una calificación se van a mostrar en esta grilla."
+          <RatedItemsList
+            userId={user.id}
+            username={name}
+            kind="album"
+            isOwnProfile={isOwnProfile}
           />
         </section>
       );
@@ -117,10 +123,11 @@ export const ProfileTabContent = ({
       return (
         <section className="profile-panel">
           <h2 className="profile-panel__title">Canciones calificadas</h2>
-          <EmptyState
-            icon={<Music size={22} />}
-            title={emptyCopy(isOwnProfile, 'No calificaste ninguna canción.', `${name} no calificó canciones.`)}
-            message="Cada canción de un álbum se puede calificar por separado."
+          <RatedItemsList
+            userId={user.id}
+            username={name}
+            kind="song"
+            isOwnProfile={isOwnProfile}
           />
         </section>
       );

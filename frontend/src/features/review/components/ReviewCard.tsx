@@ -1,6 +1,10 @@
 // Una reseña de la comunidad: quién la escribió, qué le puso, qué dijo, y las
 // tres formas de reaccionar (me gusta, comentar y compartir).
 //
+// La reseña en sí es un enlace a su página (/reviews/:id), donde se lee entera
+// con su hilo de comentarios. La franja de abajo queda afuera de ese enlace
+// porque son botones, y un botón adentro de un enlace no es HTML válido.
+//
 // Los botones de gestión (editar, ocultar, eliminar) salen según quién esté
 // mirando: el autor ve editar y borrar, un ADMIN ve ocultar y borrar. Es solo para
 // no mostrar botones que van a fallar; quien corta de verdad es la API.
@@ -47,8 +51,6 @@ export const ReviewCard = ({
   onToggleVisibility,
   onToggleLike,
 }: ReviewCardProps) => {
-  // Si la reseña está desplegada entera o cortada con "Leer más".
-  const [isExpanded, setIsExpanded] = useState(false);
   // Si el hilo de comentarios está abierto.
   const [showComments, setShowComments] = useState(false);
   // Contador local: cambia al comentar o borrar sin volver a pedir la reseña.
@@ -62,6 +64,8 @@ export const ReviewCard = ({
   const handleShare = async () => {
     // La URL se arma con el origen actual para que sirva igual en desarrollo y en
     // producción, sin hardcodear el dominio (mismo criterio que ProfileSidebar).
+    // Apunta a la página de la reseña, que es pública: quien la reciba la puede
+    // abrir aunque no tenga cuenta.
     const url = `${window.location.origin}${review.sharePath}`;
 
     try {
@@ -76,70 +80,66 @@ export const ReviewCard = ({
   };
 
   return (
-    // El id es el ancla a la que apunta el botón de compartir.
-    <article
-      id={`review-${review.id}`}
-      className={`review-card${review.isHidden ? ' review-card--hidden' : ''}`}
-    >
-      <header className="review-card__header">
-        <Avatar url={review.author?.avatarUrl ?? null} username={review.authorName} size="md" />
+    <article className={`review-card${review.isHidden ? ' review-card--hidden' : ''}`}>
+      {/* Toda la reseña es un enlace a su página, como en cualquier muro: se
+          aprieta en cualquier lado y se abre entera, con sus comentarios.
 
-        <div className="review-card__meta">
-          <p className="review-card__author">
-            {review.authorName}
-            {/* La pastilla solo la ven el autor y un ADMIN: para el resto, una
-                reseña oculta directamente no aparece en el listado. */}
-            {review.isHidden && <Badge tone="warning">Oculta</Badge>}
+          El enlace envuelve solo esta parte y no la tarjeta completa a
+          propósito: abajo hay botones, y un <button> adentro de un <a> es HTML
+          inválido (y el click terminaría navegando en vez de dar "me gusta").
+          Por lo mismo el ítem reseñado dejó de ser un enlace aparte: se llega a
+          su ficha desde la página de la reseña. */}
+      <Link to={review.sharePath} className="review-card__link">
+        <header className="review-card__header">
+          <Avatar url={review.author?.avatarUrl ?? null} username={review.authorName} size="md" />
+
+          <div className="review-card__meta">
+            <p className="review-card__author">
+              {review.authorName}
+              {/* La pastilla solo la ven el autor y un ADMIN: para el resto, una
+                  reseña oculta directamente no aparece en el listado. */}
+              {review.isHidden && <Badge tone="warning">Oculta</Badge>}
+            </p>
+            <p className="review-card__date">
+              {review.dateLabel}
+              {/* Aviso de que lo que se está leyendo no es exactamente lo que se
+                  publicó. El title da la fecha exacta sin sumar texto a la UI. */}
+              {review.isEdited && (
+                <span className="review-card__edited" title={`Editada el ${review.editedLabel}`}>
+                  · Editado
+                </span>
+              )}
+            </p>
+          </div>
+
+          <StarRating value={review.rating} size={16} showValue />
+        </header>
+
+        {/* En el listado del perfil hace falta decir qué se reseñó. En la ficha
+            del ítem, no: ahí ya se sabe. */}
+        {!hideTarget && (
+          <span className="review-card__target">
+            <span className="review-card__target-title">{review.targetTitle}</span>
+            <span className="review-card__target-subtitle">{review.targetSubtitle}</span>
+          </span>
+        )}
+
+        {review.hasText ? (
+          <>
+            <p className="review-card__text">{review.excerpt}</p>
+
+            {/* Pista de que hay más para leer. Es un <span> y no un enlace
+                aparte porque toda la tarjeta ya lleva al mismo lado. */}
+            {review.isLong && <span className="review-card__read-more">Leer más...</span>}
+          </>
+        ) : (
+          // Una calificación sin texto es válida y es lo más común: se dice, en
+          // vez de dejar un hueco que parezca un error de carga.
+          <p className="review-card__text review-card__text--empty">
+            Calificó sin escribir una reseña.
           </p>
-          <p className="review-card__date">
-            {review.dateLabel}
-            {/* Aviso de que lo que se está leyendo no es exactamente lo que se
-                publicó. El title da la fecha exacta sin sumar texto a la UI. */}
-            {review.isEdited && (
-              <span className="review-card__edited" title={`Editada el ${review.editedLabel}`}>
-                · Editado
-              </span>
-            )}
-          </p>
-        </div>
-
-        <StarRating value={review.rating} size={16} showValue />
-      </header>
-
-      {/* En el listado del perfil hace falta decir qué se reseñó, con link a la
-          ficha del ítem. En la ficha del ítem, no. */}
-      {!hideTarget && (
-        <Link to={review.targetLink} className="review-card__target">
-          <span className="review-card__target-title">{review.targetTitle}</span>
-          <span className="review-card__target-subtitle">{review.targetSubtitle}</span>
-        </Link>
-      )}
-
-      {review.hasText ? (
-        <>
-          <p className="review-card__text">
-            {isExpanded ? review.text : review.excerpt}
-          </p>
-
-          {/* Solo aparece si la reseña realmente se cortó. Deja volver a plegarla
-              para no dejar el listado estirado después de leer una. */}
-          {review.isLong && (
-            <button
-              type="button"
-              className="review-card__read-more"
-              onClick={() => setIsExpanded((current) => !current)}
-            >
-              {isExpanded ? 'Leer menos' : 'Leer más...'}
-            </button>
-          )}
-        </>
-      ) : (
-        // Una calificación sin texto es válida y es lo más común: se dice, en vez
-        // de dejar un hueco que parezca un error de carga.
-        <p className="review-card__text review-card__text--empty">
-          Calificó sin escribir una reseña.
-        </p>
-      )}
+        )}
+      </Link>
 
       <footer className="review-card__footer">
         <div className="review-card__reactions">

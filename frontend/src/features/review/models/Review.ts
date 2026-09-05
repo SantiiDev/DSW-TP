@@ -240,14 +240,17 @@ export class Review {
   }
 
   /**
-   * Ruta a la que apunta el botón de compartir: la ficha del ítem, con la reseña
-   * marcada con un ancla.
+   * Ruta de la página de esta reseña. Es a donde apuntan el botón de compartir y
+   * el "Leer más..." de su tarjeta.
    *
-   * No hay una página por reseña, así que el link lleva al álbum o a la canción y
-   * el ancla deja el navegador parado sobre la tarjeta correcta.
+   * Antes era la ficha del ítem con un ancla (`/albums/5#review-123`), pero ese
+   * enlace no servía: la ficha carga las reseñas de a cinco, así que si la
+   * compartida no estaba en la primera tanda, el ancla no existía cuando el
+   * navegador saltaba y el que abría el link caía arriba del álbum sin entender
+   * qué le habían compartido.
    */
   get sharePath(): string {
-    return `${this.targetLink}#review-${this.id}`;
+    return `/reviews/${this.id}`;
   }
 
   /** Nombre del autor, o un texto de reemplazo si la reseña quedó sin uno. */
@@ -297,6 +300,17 @@ export class Review {
   /** Si es de un álbum o de una pista. Decide el link y el subtítulo de la tarjeta. */
   get targetKind(): ReviewTargetKind {
     return this.album !== null ? 'album' : 'song';
+  }
+
+  /**
+   * Id del ítem reseñado, sea el álbum o la canción. Junto con targetKind arma el
+   * filtro con el que se piden las otras reseñas del mismo ítem.
+   *
+   * Devuelve 0 si la reseña quedó sin ítem, que en la práctica no pasa: las dos
+   * FK no pueden ser NULL a la vez (lo valida la entidad a nivel de fila).
+   */
+  get targetId(): number {
+    return this.album?.id ?? this.song?.id ?? 0;
   }
 
   /** Título del ítem reseñado. */

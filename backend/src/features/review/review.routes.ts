@@ -25,10 +25,15 @@
 //
 // El listado pide token por el mismo motivo que el de álbumes: necesita saber
 // quién pregunta para decidir qué estados mostrar. Solo un ADMIN ve las reseñas
-// ocultas; para el resto el listado es siempre lo publicado. El detalle, en
-// cambio, es público como la ficha de un álbum, y por eso devuelve 404 sobre una
-// reseña oculta.
+// ocultas; para el resto el listado es siempre lo publicado.
+//
+// El detalle, en cambio, es público como la ficha de un álbum: es el destino del
+// enlace de "compartir" y lo tiene que poder abrir alguien sin cuenta. Va con
+// optionalAuth, que usa el token si viene pero no lo exige, porque la respuesta
+// mejora con sesión: el corazón se dibuja lleno si ya lo diste, y una reseña
+// oculta la siguen viendo su autor y un ADMIN (para el resto, 404).
 import { Router } from 'express';
+import { optionalAuth } from '../../shared/middlewares/optional-auth';
 import { requireAuth } from '../../shared/middlewares/require-auth';
 import { requireRole } from '../../shared/middlewares/require-role';
 import { validate } from '../../shared/middlewares/validate';
@@ -78,7 +83,16 @@ reviewRouter.get(
   reviewController.stats
 );
 
-reviewRouter.get('/:id', validate({ params: reviewIdParamSchema }), reviewController.getById);
+// Público, pero con optionalAuth: es el destino del enlace de "compartir", así
+// que lo tiene que poder abrir cualquiera, y a la vez la respuesta cambia si
+// además hay sesión (el corazón lleno, y ver la propia reseña aunque la hayan
+// ocultado).
+reviewRouter.get(
+  '/:id',
+  optionalAuth,
+  validate({ params: reviewIdParamSchema }),
+  reviewController.getById
+);
 
 reviewRouter.patch(
   '/:id',

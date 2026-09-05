@@ -1,7 +1,7 @@
 // Schemas de Zod para validar la entrada de los endpoints del CRUD de reseñas.
 // Los usa el middleware validate() en review.routes.ts, antes del controller.
 import { z } from 'zod';
-import { REVIEW_STATES } from '../../shared/types/enums';
+import { REVIEW_STATES, REVIEW_TARGETS } from '../../shared/types/enums';
 
 // Escala de calificación de Musicboxd: de media estrella a cinco. Son los mismos
 // límites que valida la entidad (ver review.entity.ts); se repiten acá para que el
@@ -100,6 +100,16 @@ export const updateReviewSchema = z
 export const listReviewsQuerySchema = z.object({
   id_album: targetIdSchema.optional(),
   id_song: targetIdSchema.optional(),
+  // Deja solo las reseñas de álbum, o solo las de canción, sin decir de cuál.
+  //
+  // Es lo que necesitan las pestañas "Álbumes" y "Canciones" del perfil, que
+  // muestran lo que ese usuario calificó. No se pisa con los dos filtros de
+  // arriba: aquellos apuntan a UN ítem puntual y este a todo un tipo.
+  target: z
+    .enum(REVIEW_TARGETS, {
+      message: `El tipo de ítem debe ser uno de: ${REVIEW_TARGETS.join(', ')}.`,
+    })
+    .optional(),
   // Deja solo las reseñas de un usuario. Es lo que necesita el listado del perfil.
   id_user: z.coerce
     .number()

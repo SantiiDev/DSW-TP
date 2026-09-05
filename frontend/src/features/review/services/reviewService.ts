@@ -35,6 +35,12 @@ export type ReviewInput = {
 /** Filtros del listado. Sin ninguno, trae las reseñas más recientes del sitio. */
 export type ReviewFilters = {
   target?: ReviewTarget;
+  /**
+   * Deja solo las reseñas de álbum, o solo las de canción, sin decir de cuál. Es
+   * lo que consumen las pestañas "Álbumes" y "Canciones" del perfil. No se usa
+   * junto con `target`, que apunta a un ítem puntual.
+   */
+  targetKind?: ReviewTargetKind;
   /** Solo las reseñas de un usuario. Es lo que consume el listado del perfil. */
   userId?: number;
   /** Solo un ADMIN puede pedir un estado distinto de 'published'. */
@@ -131,6 +137,7 @@ function buildQuery(filters: ReviewFilters): string {
     params.set(key, String(value));
   }
 
+  if (filters.targetKind) params.set('target', filters.targetKind);
   if (filters.userId !== undefined) params.set('id_user', String(filters.userId));
   if (filters.state) params.set('state', filters.state);
   if (filters.minRating !== undefined) params.set('min_rating', String(filters.minRating));
@@ -159,7 +166,14 @@ export const reviewService = {
     return data === null ? null : toReview(data);
   },
 
-  /** Trae una reseña puntual. Es la única lectura pública de la feature. */
+  /**
+   * Trae una reseña puntual: es lo que muestra su página de detalle.
+   *
+   * La lectura es pública, así que también funciona sin sesión (es el destino del
+   * enlace de "compartir"). Si hay token, el backend lo aprovecha: devuelve el
+   * "me gusta" propio ya marcado, y deja ver la reseña aunque esté oculta cuando
+   * el que mira es su autor o un ADMIN.
+   */
   async getById(id: number): Promise<Review> {
     const data = await httpClient.get<ReviewApiResponse>(`/reviews/${id}`);
     return toReview(data);

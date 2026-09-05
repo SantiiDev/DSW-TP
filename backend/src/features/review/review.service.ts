@@ -414,11 +414,12 @@ export const reviewService = {
   /**
    * Lista reseñas, filtradas y paginadas.
    *
-   * Alimenta tres pantallas con la misma consulta: las reseñas de un álbum, las de
-   * una canción y las de un usuario (esta última, con el filtro por estrellas, es
-   * el listado del perfil).
+   * Alimenta cuatro pantallas con la misma consulta: las reseñas de un álbum, las
+   * de una canción, las de un usuario (esta última, con el filtro por estrellas,
+   * es el listado del perfil) y las de un usuario acotadas a un tipo de ítem, que
+   * son las pestañas "Álbumes" y "Canciones" calificados.
    *
-   * @param filters ítem, autor, estado, calificación mínima y paginado.
+   * @param filters ítem, tipo de ítem, autor, estado, calificación mínima y paginado.
    * @param actor usuario autenticado; define qué estados puede ver.
    */
   async list(filters: ListReviewsQuery, actor: TokenPayload): Promise<PublicReview[]> {
@@ -430,6 +431,7 @@ export const reviewService = {
     const reviews = await reviewRepository.findAll({
       idAlbum: filters.id_album,
       idSong: filters.id_song,
+      targetKind: filters.target,
       idUser: filters.id_user,
       state,
       minRating: filters.min_rating,
@@ -441,16 +443,34 @@ export const reviewService = {
   },
 
   /**
-   * Detalle de una reseña puntual.
+   * Detalle de una reseña puntual: lo que muestra su página propia, que es a
+   * donde apunta el enlace de "compartir".
    *
-   * Es el único endpoint de esta feature que no pide token, igual que la ficha de
-   * un álbum: por eso devuelve solo lo publicado y responde 404 sobre una reseña
-   * oculta. Sin token no hay forma de saber si quien pregunta es un moderador.
+   * No pide token, igual que la ficha de un álbum, pero lo aprovecha si viene
+   * (ver optionalAuth en la ruta). El actor decide dos cosas:
+   *
+   * - Si puede ver una reseña que no está publicada. Una oculta la siguen viendo
+   *   su autor y un ADMIN, con el mismo criterio que getMine: si un moderador la
+   *   ocultó, el autor tiene que poder enterarse en vez de encontrarse un 404.
+   *   Además, sin esto el botón "Editar" del perfil llevaría a una pantalla rota.
+   * - Si el corazón va lleno o vacío.
+   *
+   * @param id_review reseña a mostrar.
+   * @param actor usuario autenticado, o null si el enlace lo abrió un visitante.
    */
-  async getById(id_review: number): Promise<PublicReview> {
-    const review = await findInteractable(id_review);
-    // Sin token no hay actor, así que el corazón viaja siempre vacío.
-    return toPublicReview(review, null);
+  async getById(id_review: number, actor: TokenPayload | null): Promise<PublicReview> {
+    const review = await findExisting(id_review);
+
+    const isAuthor = actor !== null && review.id_user === actor.id_user;
+    const isAdmin = actor?.rol === 'ADMIN';
+
+    // Para cualquier otro, una reseña que no está publicada directamente no
+    // existe: es el mismo 404 que devuelve la ficha de un álbum sin aprobar.
+    if (review.state !== 'published' && !isAuthor && !isAdmin) {
+      throw new NotFoundError('La reseña');
+    }
+
+    return toPublicReview(review, actor?.id_user ?? null);
   },
 
   /**

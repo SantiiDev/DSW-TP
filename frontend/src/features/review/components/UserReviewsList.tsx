@@ -4,16 +4,16 @@
 // lista y el perfil solo la monta, que es el mismo criterio con el que la pestaña
 // "Aportes" arma las de artistas, álbumes y canciones.
 //
-// A diferencia de ReviewsSection no tiene formulario: desde el perfil se leen y se
-// gestionan las reseñas ya publicadas, pero se escriben desde la ficha del ítem,
-// que es donde uno está cuando quiere calificar algo.
+// A diferencia de ReviewsSection acá no se PUBLICA: una reseña nueva se escribe
+// desde la ficha del ítem, que es donde uno está cuando quiere calificar algo.
+// Editar y borrar las ya publicadas, en cambio, sí se hace desde acá.
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { Select } from '../../../core/components/Select';
 import type { SelectOption } from '../../../core/components/Select';
 import { useAuth } from '../../../core/context/AuthContext';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
+import { ReviewEditModal } from './ReviewEditModal';
 import { ReviewList } from './ReviewList';
 import { reviewService } from '../services/reviewService';
 import type { Review } from '../models/Review';
@@ -49,8 +49,6 @@ export const UserReviewsList = ({
 }: UserReviewsListProps) => {
   const { state: authState } = useAuth();
   const currentUser = authState.user;
-  const navigate = useNavigate();
-
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -58,6 +56,8 @@ export const UserReviewsList = ({
   const [hasMore, setHasMore] = useState(false);
   const [minRating, setMinRating] = useState(0);
   const [toDelete, setToDelete] = useState<Review | null>(null);
+  // La reseña que se está editando, o null si el diálogo está cerrado.
+  const [editing, setEditing] = useState<Review | null>(null);
 
   const loadFirstPage = useCallback(async () => {
     setIsLoading(true);
@@ -184,13 +184,25 @@ export const UserReviewsList = ({
         currentUserId={currentUser?.id ?? null}
         isAdmin={currentUser?.isAdmin ?? false}
         onLoadMore={handleLoadMore}
-        // Desde el perfil no se edita en el lugar: se navega a la ficha del ítem,
-        // que es donde vive el formulario con la calificación. El ancla deja la
-        // página parada sobre la reseña.
-        onEdit={(review) => navigate(review.sharePath)}
+        // Se edita acá mismo, con el mismo diálogo que la ficha del ítem y la
+        // página de la reseña: mandar a otra pantalla para cambiar una nota era
+        // un rodeo, ahora que el formulario vive en un componente compartido.
+        onEdit={setEditing}
         onDelete={setToDelete}
         onToggleVisibility={handleToggleVisibility}
         onToggleLike={handleToggleLike}
+      />
+
+      <ReviewEditModal
+        isOpen={editing !== null}
+        review={editing}
+        onClose={() => setEditing(null)}
+        // Se reemplaza solo esa reseña y se avisa al perfil, porque cambió su
+        // calificación y con ella el histograma.
+        onSaved={(updated) => {
+          replaceReview(updated);
+          onReviewsChange?.();
+        }}
       />
 
       <ConfirmDialog

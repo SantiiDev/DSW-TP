@@ -32,10 +32,16 @@ const BASE_SECTIONS: Section[] = [
 const DISCOGRAPHY_SECTION: Section = { id: 'discografia', label: 'Más del artista' };
 
 /**
- * Alto de lo que queda fijo arriba (el navbar y esta misma barra), en píxeles.
- * Una sección se considera alcanzada cuando su borde superior pasa esa línea.
+ * Alto de lo que queda fijo arriba (el navbar y esta misma barra), en píxeles,
+ * más unos pocos de tolerancia. Una sección se considera alcanzada cuando su
+ * borde superior pasa esa línea.
+ *
+ * Los 142 son el mismo `scroll-margin-top` que _album.scss le da a las secciones
+ * (navbar + 78). La tolerancia es necesaria: al hacer click, el scroll deja la
+ * sección apoyada JUSTO en esa línea, así que comparando contra el valor exacto
+ * la pestaña no se encendía por menos de un píxel de redondeo.
  */
-const TOP_OFFSET = 140;
+const TOP_OFFSET = 150;
 
 /** Las secciones que tiene esta ficha. @param showDiscography si hay artista. */
 function sectionsFor(showDiscography: boolean): Section[] {
