@@ -9,16 +9,14 @@
 // carga, y lo que hace falta es agregarlos a los que ya están.
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../../../core/components/Button';
-import { FormModal } from '../../../core/components/FormModal';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { Select } from '../../../core/components/Select';
 import type { SelectOption } from '../../../core/components/Select';
 import { useAuth } from '../../../core/context/AuthContext';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
-import { ReviewForm } from './ReviewForm';
+import { ReviewEditModal } from './ReviewEditModal';
 import { ReviewList } from './ReviewList';
 import { reviewService } from '../services/reviewService';
-import type { ReviewInput } from '../services/reviewService';
 import type { Review, ReviewTargetKind } from '../models/Review';
 import '../styles/_review.scss';
 
@@ -68,8 +66,6 @@ export const ReviewsSection = ({ targetKind, targetId, onReviewChange }: Reviews
   const [isFormOpen, setIsFormOpen] = useState(false);
   // La reseña que se está editando, o null si se está escribiendo una nueva.
   const [editing, setEditing] = useState<Review | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [toDelete, setToDelete] = useState<Review | null>(null);
 
@@ -158,26 +154,7 @@ export const ReviewsSection = ({ targetKind, targetId, onReviewChange }: Reviews
 
   const handleOpenForm = (review: Review | null) => {
     setEditing(review);
-    setFormError(null);
     setIsFormOpen(true);
-  };
-
-  const handleSubmit = async (input: ReviewInput) => {
-    setIsSubmitting(true);
-    setFormError(null);
-
-    try {
-      if (editing) await reviewService.update(editing.id, input);
-      else await reviewService.create(target, input);
-
-      setIsFormOpen(false);
-      await refresh();
-    } catch (err) {
-      // El error se muestra dentro del modal para no perder lo escrito.
-      setFormError(getErrorMessage(err));
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   const handleConfirmDelete = async () => {
@@ -282,29 +259,16 @@ export const ReviewsSection = ({ targetKind, targetId, onReviewChange }: Reviews
         onToggleLike={handleToggleLike}
       />
 
-      <FormModal
+      <ReviewEditModal
         isOpen={isFormOpen}
-        title={editing ? 'Editar mi reseña' : 'Escribir una reseña'}
-        hint={
-          editing
-            ? 'Los cambios reemplazan lo que habías publicado.'
-            : `Tu calificación entra en el promedio de ${itemLabel} apenas la publiques.`
-        }
-        error={formError}
-        isBusy={isSubmitting}
+        review={editing}
+        target={target}
+        itemLabel={itemLabel}
         onClose={() => setIsFormOpen(false)}
-      >
-        {/* La key fuerza a rearmar el formulario al pasar de "escribir" a
-            "editar": si no, conservaría el estado de la vez anterior. */}
-        <ReviewForm
-          key={editing?.id ?? 'nueva'}
-          initialRating={editing?.rating ?? 0}
-          initialText={editing?.text ?? ''}
-          isSubmitting={isSubmitting}
-          onSubmit={handleSubmit}
-          onCancel={() => setIsFormOpen(false)}
-        />
-      </FormModal>
+        // Después de publicar o editar hay que rehacer el listado y avisarle a la
+        // ficha, porque el promedio del álbum cambió.
+        onSaved={() => void refresh()}
+      />
 
       <ConfirmDialog
         isOpen={toDelete !== null}

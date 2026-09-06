@@ -18,6 +18,7 @@ import { ProCheckoutPage } from '../features/membership/pages/ProCheckoutPage';
 import { ProPage } from '../features/membership/pages/ProPage';
 import { ProReturnPage } from '../features/membership/pages/ProReturnPage';
 import { ListsExplorePage } from '../features/review/pages/ListsExplorePage';
+import { ReviewDetailPage } from '../features/review/pages/ReviewDetailPage';
 import { AuthProvider } from '../core/context/AuthContext';
 import { AuthModalProvider } from '../core/context/AuthModalContext';
 import { AuthModal } from '../features/user/components/AuthModal';
@@ -113,6 +114,16 @@ export const App = () => {
             />
             <Route path="/members" element={<MembersExplorePage />} />
             <Route path="/lists" element={<ListsExplorePage />} />
+
+            {/* Página de una reseña: el detalle del listado de reseñas del
+                perfil, y el destino del botón "Compartir".
+
+                Es de las pocas rutas públicas, y a propósito: un enlace
+                compartido lo tiene que poder abrir alguien que todavía no tiene
+                cuenta. La API del detalle también es pública. Adentro, lo que
+                lleva al catálogo va con GatedLink, así que quien llega sin sesión
+                lee la reseña y desde ahí se registra. */}
+            <Route path="/reviews/:id" element={<ReviewDetailPage />} />
             <Route path="/pro" element={<ProPage />} />
 
             {/* Static Pages */}

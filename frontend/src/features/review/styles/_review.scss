@@ -1,10 +1,12 @@
 // Estilos de la feature review: las estrellas (de lectura y de selección), el
-// formulario, la tarjeta de una reseña y la sección que se enchufa en las fichas.
+// formulario, la tarjeta de una reseña, la sección que se enchufa en las fichas,
+// la página de una reseña y la grilla de ítems calificados del perfil.
 //
 // Mobile-first: primero los estilos para pantalla chica y después las media
 // queries que amplían. Los colores y espaciados salen de las variables globales.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 // Color de las estrellas. Es el amarillo de una calificación, no el verde de la
 // marca: se usa en las dos versiones (lectura y selección), así que va una vez.
@@ -183,6 +185,22 @@ $star-color: #f5c518;
     border-style: dashed;
   }
 
+  // El borde se enciende al pasar por encima de la parte clickeable, que es la
+  // señal de que la reseña se puede abrir. Va en la tarjeta y no en el enlace
+  // para que se pinte el marco entero.
+  &:has(.review-card__link:hover) {
+    border-color: $color-primary;
+  }
+
+  // La parte de la tarjeta que es un enlace a la página de la reseña: todo menos
+  // la franja de botones de abajo.
+  &__link {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    text-decoration: none;
+  }
+
   &__header {
     display: flex;
     align-items: center;
@@ -222,19 +240,14 @@ $star-color: #f5c518;
   }
 
   // El ítem reseñado. Solo aparece fuera de la ficha del ítem, donde hace falta
-  // decir de qué se está hablando.
+  // decir de qué se está hablando. Ya no es un enlace propio: la tarjeta entera
+  // lleva a la reseña, y desde ahí se entra a la ficha del álbum o la canción.
   &__target {
     display: flex;
     flex-direction: column;
     padding: $spacing-sm;
     background-color: $color-bg;
     border-radius: 6px;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: $color-nav-border;
-    }
   }
 
   &__target-title {
@@ -267,21 +280,12 @@ $star-color: #f5c518;
     }
   }
 
-  // Corta la reseña larga. Es un botón y no un link porque no navega: solo
-  // despliega el texto que ya está en la página.
+  // Pista de que la reseña sigue. No es un enlace propio: lo es la tarjeta.
   &__read-more {
     align-self: flex-start;
-    padding: 0;
-    background: none;
-    border: none;
     color: $color-primary;
     font-size: 0.85rem;
     font-weight: 600;
-    cursor: pointer;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 
   // La franja de abajo: las reacciones a la izquierda y la gestión a la derecha.
@@ -349,9 +353,20 @@ $star-color: #f5c518;
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
-  margin-top: $spacing-sm;
-  padding-top: $spacing-sm;
-  border-top: 1px solid $color-nav-border;
+
+  // Dentro de una tarjeta del listado: separado del cuerpo de la reseña por una
+  // línea, porque comparte caja con ella.
+  &--compact {
+    margin-top: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $color-nav-border;
+  }
+
+  // En la página de la reseña el hilo es una sección propia y ya tiene su
+  // encabezado: no necesita línea, y respira más.
+  &--page {
+    gap: $spacing-md;
+  }
 
   &__loading,
   &__empty {
@@ -363,7 +378,7 @@ $star-color: #f5c518;
   &__list {
     display: flex;
     flex-direction: column;
-    gap: $spacing-sm;
+    gap: $spacing-md;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -375,9 +390,15 @@ $star-color: #f5c518;
     gap: $spacing-sm;
   }
 
+  // El globo del comentario. El color va como un blanco muy transparente y no
+  // como una variable fija porque el hilo se muestra sobre dos fondos distintos
+  // (la tarjeta del listado y la página): así se despega de los dos.
   &__body {
     flex: 1;
     min-width: 0;
+    padding: $spacing-sm $spacing-md;
+    background-color: rgba($color-text, 0.06);
+    border-radius: 12px;
   }
 
   &__meta {
@@ -430,6 +451,12 @@ $star-color: #f5c518;
     .form-field__control {
       flex: 1;
     }
+  }
+
+  // En la página hay lugar: el campo ocupa el ancho y el botón va debajo.
+  &--page &__form {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
@@ -503,5 +530,549 @@ $star-color: #f5c518;
     border-radius: 4px;
     color: $color-text-secondary;
     font-size: 0.85rem;
+  }
+}
+
+// --- Página de una reseña (/reviews/:id) -------------------------------------
+//
+// Dos columnas desde LG, igual que la ficha de álbum: a la izquierda lo que se
+// lee de corrido (la reseña y su hilo) y a la derecha lo que se consulta de
+// reojo (las acciones y las otras reseñas).
+
+.review-detail {
+  padding-bottom: $spacing-xl;
+
+  // La barra de "Volver" y los estados de carga sí van alineados con el navbar.
+  &__topbar,
+  &__state {
+    @include page-container;
+    padding-top: $spacing-md;
+  }
+
+  // --- Cabecera con la portada de fondo ---
+  //
+  // El truco es el mismo de cualquier ficha de disco: la portada, agrandada y
+  // difuminada, hace de telón, y encima va un degradado hacia el fondo de la
+  // página para que el texto se lea y el borde de abajo no se note.
+  //
+  // La cabecera ocupa TODO el ancho de la pantalla, así que no vive adentro del
+  // contenedor de la página: lo aplica su contenido. No se usa el truco de
+  // márgenes negativos con 100vw porque en Windows el ancho de la barra de
+  // scroll entra en esa medida y deja la página con scroll horizontal, y taparlo
+  // con overflow-x rompería el sticky de la columna lateral.
+
+  &__hero {
+    position: relative;
+    width: 100%;
+    padding-block: $spacing-lg;
+    // Recorta el desenfoque del fondo, que se pasa de los bordes.
+    overflow: hidden;
+  }
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: cover;
+    // El desenfoque agranda los bordes: el scale evita que se vea el marco
+    // transparente que deja el blur alrededor.
+    filter: blur(28px) saturate(1.2);
+    transform: scale(1.15);
+    opacity: 0.45;
+
+    // El degradado que apaga la imagen hacia abajo y hacia los costados. Va en
+    // un ::after para no tener que repetir la imagen en dos capas.
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba($color-bg, 0.5) 0%,
+        rgba($color-bg, 0.75) 60%,
+        $color-bg 100%
+      );
+    }
+  }
+
+  &__hero-content {
+    @include page-container;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+
+    // Desde tablet la carátula y los datos comparten fila, con el texto apoyado
+    // abajo, como en la ficha del álbum.
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: flex-end;
+      gap: $spacing-lg;
+    }
+  }
+
+  // Caja de ancho fijo para la carátula. Hace falta porque la versión grande del
+  // componente compartido es `width: 100%`: está pensada para una celda de
+  // grilla, y suelta en esta fila se comía el ancho entero y dejaba el título
+  // partido en una columna de una letra.
+  &__cover {
+    width: 140px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    // La sombra es lo que despega la portada del telón de fondo.
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+
+    @media (min-width: $bp-md) {
+      width: 220px;
+    }
+  }
+
+  &__item-info {
+    // Se queda con el resto de la fila. El min-width deja que el texto se
+    // encoja: sin él, un título largo no baja del ancho de su palabra más larga.
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__item-link {
+    text-decoration: none;
+
+    &:hover .review-detail__item-title {
+      color: $color-primary;
+    }
+  }
+
+  &__item-title {
+    margin: 0;
+    color: $color-text;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+    transition: color 0.2s ease;
+
+    @media (min-width: $bp-md) {
+      font-size: 3rem;
+    }
+  }
+
+  // "Álbum" o "Canción · Pista 5". Los puntos que separan los datos los pone el
+  // CSS, así el JSX no tiene que intercalar separadores a mano.
+  &__item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm;
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+
+    span + span::before {
+      content: '•';
+      margin-right: $spacing-sm;
+    }
+  }
+
+  &__item-subtitle {
+    margin: 0;
+    color: $color-text;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  &__body {
+    @include page-container;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    padding-top: $spacing-lg;
+
+    @media (min-width: $bp-lg) {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    // Sin esto, un texto largo sin espacios estiraría la columna y rompería el
+    // ancho de la página entera.
+    min-width: 0;
+
+    @media (min-width: $bp-lg) {
+      flex: 1;
+    }
+  }
+
+  &__aside {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+
+    @media (min-width: $bp-lg) {
+      width: 300px;
+      flex-shrink: 0;
+      // Queda a la vista mientras se lee una reseña larga, en vez de obligar a
+      // volver hasta arriba para reaccionar.
+      position: sticky;
+      top: calc(#{$navbar-height} + #{$spacing-md});
+    }
+  }
+
+  // La reseña no va en una tarjeta: es el contenido principal de la página, así
+  // que se apoya directo sobre el fondo, como el cuerpo de un artículo.
+  &__review {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  // El avatar arriba a la izquierda y, al lado, la firma completa: quién,
+  // cuánto le puso y cuándo.
+  &__author {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-md;
+  }
+
+  &__avatar {
+    flex-shrink: 0;
+  }
+
+  &__author-meta {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__author-name {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 1rem;
+
+    // El nombre del autor, que además lleva a su perfil. El <strong> es el
+    // mismo nombre cuando la reseña quedó sin autor y no hay a dónde ir.
+    a,
+    strong {
+      color: $color-text;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: $color-primary;
+    }
+  }
+
+  &__date {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+  }
+
+  // Acá el texto va entero: para eso se entra a la página. Va más grande y con
+  // más aire entre renglones que en la tarjeta, porque son párrafos largos.
+  &__text {
+    margin: 0;
+    color: $color-text;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+
+    &--empty {
+      color: $color-text-secondary;
+      font-style: italic;
+      font-size: 0.95rem;
+      opacity: 0.8;
+    }
+  }
+
+  &__comments {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    padding-top: $spacing-lg;
+    border-top: 1px solid $color-nav-border;
+  }
+
+  &__section-title {
+    margin: 0;
+    color: $color-text;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  // Lo que ve un visitante sin cuenta en lugar de las otras reseñas, que exigen
+  // token. El enlace compartido es la puerta de entrada de gente sin cuenta.
+  &__signup {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: 8px;
+  }
+
+  &__signup-text {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}
+
+// --- Panel de acciones de la página de una reseña ----------------------------
+
+// Una sola tarjeta con las acciones como filas apiladas, separadas por una
+// línea. El overflow recorta las esquinas de la primera y la última fila, así el
+// fondo del hover no se sale del redondeo de la tarjeta.
+.review-actions {
+  display: flex;
+  flex-direction: column;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: 12px;
+  overflow: hidden;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    width: 100%;
+    margin: 0;
+    padding: $spacing-md;
+    background: none;
+    border: none;
+    // La línea que separa una fila de la siguiente. En la primera no va: la
+    // tapa el borde de la tarjeta.
+    border-top: 1px solid $color-nav-border;
+    color: $color-text;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:first-child {
+      border-top: none;
+    }
+
+    &:hover {
+      background-color: $color-nav-border;
+    }
+
+    // El corazón ya dado.
+    &--active {
+      color: $color-primary;
+    }
+
+    // El conteo de "me gusta" no es un botón: no se ilumina ni cambia el cursor.
+    &--count {
+      color: $color-text-secondary;
+      font-weight: 400;
+      cursor: default;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    &--danger {
+      color: $color-error;
+    }
+  }
+
+  // Encabezado del bloque de gestión: separa las acciones sobre la reseña de las
+  // formas de reaccionar a ella.
+  &__title {
+    margin: 0;
+    padding: $spacing-md $spacing-md $spacing-sm;
+    border-top: 1px solid $color-nav-border;
+    color: $color-text-secondary;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    // La fila que le sigue no repite la línea: ya la puso este título.
+    + .review-actions__row {
+      border-top: none;
+    }
+  }
+}
+
+// --- Columnas de "más reseñas" -----------------------------------------------
+
+.related-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__title {
+    margin: 0;
+    color: $color-text;
+    font-size: 1rem;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+}
+
+// Tarjeta reducida de una reseña. Es toda un enlace: acá no se gestiona nada.
+.review-summary {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  background-color: $color-bg;
+  border: 1px solid $color-nav-border;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__target {
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    color: $color-text;
+    font-weight: 600;
+    font-size: 0.85rem;
+    // Un título largo se corta en una línea en vez de estirar la columna.
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__subtitle {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.75rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__text {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__author {
+    color: $color-text;
+    font-size: 0.75rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__stats {
+    display: flex;
+    gap: $spacing-sm;
+    flex-shrink: 0;
+  }
+
+  &__stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: $color-text-secondary;
+    font-size: 0.75rem;
+  }
+}
+
+// --- Grilla de ítems calificados (pestañas del perfil) -----------------------
+
+.rated-items {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__grid {
+    display: grid;
+    // Las tarjetas se acomodan solas: entran las que quepan sin bajar de 140px.
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: $spacing-md;
+  }
+
+  &__more {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.rated-item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  text-decoration: none;
+
+  &:hover .rated-item__title {
+    color: $color-primary;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    color: $color-text;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    transition: color 0.2s ease;
+    overflow-wrap: anywhere;
+  }
+
+  &__subtitle {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

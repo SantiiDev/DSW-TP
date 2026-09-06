@@ -20,6 +20,14 @@ type ReviewCommentsProps = {
   reviewId: number;
   currentUserId: number | null;
   isAdmin: boolean;
+  /**
+   * Cómo se dibuja el hilo:
+   * - 'compact' (por defecto): dentro de una tarjeta del listado, con el campo y
+   *   el botón en una sola fila.
+   * - 'page': en la página de la reseña, donde hay lugar para un campo ancho con
+   *   el botón debajo.
+   */
+  variant?: 'compact' | 'page';
   /** Avisa cuántos quedaron, para que la tarjeta actualice su contador. */
   onCountChange: (count: number) => void;
 };
@@ -31,6 +39,7 @@ export const ReviewComments = ({
   reviewId,
   currentUserId,
   isAdmin,
+  variant = 'compact',
   onCountChange,
 }: ReviewCommentsProps) => {
   const [comments, setComments] = useState<ReviewComment[]>([]);
@@ -105,7 +114,7 @@ export const ReviewComments = ({
   };
 
   return (
-    <div className="review-comments">
+    <div className={`review-comments review-comments--${variant}`}>
       {error && <Alert tone="error">{error}</Alert>}
 
       {isLoading ? (
@@ -158,7 +167,15 @@ export const ReviewComments = ({
             onChange={(e) => setText(e.target.value)}
             aria-label="Escribí un comentario"
           />
-          <Button type="submit" variant="primary" size="sm" disabled={text.trim() === '' || isSubmitting}>
+          <Button
+            type="submit"
+            variant="primary"
+            // En la página el botón ocupa el ancho, debajo del campo; en una
+            // tarjeta del listado va chico y al lado.
+            size={variant === 'page' ? 'md' : 'sm'}
+            fullWidth={variant === 'page'}
+            disabled={text.trim() === '' || isSubmitting}
+          >
             {isSubmitting ? 'Enviando...' : 'Comentar'}
           </Button>
         </form>

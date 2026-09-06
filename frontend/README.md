@@ -128,6 +128,20 @@ que el usuario no va a poder usar. La validación que importa es la del backend
 (`requireAuth` y `requireRole`), porque el estado del navegador se puede editar pero
 la firma de un token no se puede falsificar.
 
+### La excepción: `/reviews/:id`
+
+Casi todo el catálogo pide sesión, pero la página de una reseña es **pública**, y a
+propósito: es el destino del botón "Compartir", así que el enlace lo tiene que poder
+abrir alguien que todavía no tiene cuenta (la API de ese detalle también es pública).
+
+Adentro, lo que lleva al catálogo va con `GatedLink`, el mismo componente que usan
+las tarjetas del explorador: con sesión navega, y sin sesión abre el modal de
+registro. Así un enlace compartido se lee entero y desde ahí se entra al sitio, en
+vez de rebotar contra una pantalla de login.
+
+Las columnas de "más reseñas" son la única parte que no se muestra sin sesión: el
+listado de reseñas sí exige token. En su lugar va la invitación a registrarse.
+
 ### Pantallas que cambian según la sesión
 
 No todo se resuelve bloqueando una ruta: hay pantallas públicas cuyo contenido tiene

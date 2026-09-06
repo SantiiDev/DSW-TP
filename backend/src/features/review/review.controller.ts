@@ -42,8 +42,10 @@ export const reviewController = {
 
   async getById(req: Request, res: Response): Promise<void> {
     const { id } = req.validated.params as ReviewIdParam;
-    // Ruta pública: acá NO hay req.user, y el service devuelve solo lo publicado.
-    const review = await reviewService.getById(id);
+    // Ruta pública con optionalAuth: req.user viene si el que abrió el enlace
+    // tiene sesión, y undefined si no. El service decide con eso si puede ver una
+    // reseña oculta y si el corazón va lleno.
+    const review = await reviewService.getById(id, req.user ?? null);
     res.status(200).json(review);
   },
 
