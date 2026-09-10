@@ -10,6 +10,10 @@
 * [Repositorio del proyecto (monorepo: frontend + backend)](https://github.com/SantiiDev/DSW-TP)
   * [frontend app](https://github.com/SantiiDev/DSW-TP/tree/main/frontend)
   * [backend app](https://github.com/SantiiDev/DSW-TP/tree/main/backend)
+  * [documentación del TP](https://github.com/SantiiDev/DSW-TP/tree/main/docs)
+
+Los pull requests del desarrollo están listados en la sección
+[Pull requests](#pull-requests), al final de este documento.
 
 ## Tema
 ### Descripción
@@ -97,8 +101,31 @@ CUU 2 (pago)  →  el usuario pasa a ser PRO
 |:-|:-|
 |Frontend|Vite + React + TypeScript, React Router, Context API + useReducer, SASS (arquitectura 7-1)|
 |Backend|Node.js + Express + TypeScript, arquitectura en capas (routes → controller → service → repository)|
-|Persistencia|MySQL gestionado en Aiven (servicio cloud externo), ORM Sequelize v6|
+|Persistencia|MySQL 8 como servicio externo a la aplicación (no embebido), ORM Sequelize v6. Se trabaja contra una instancia local, acordado con la cátedra; el pasaje a un servicio cloud gestionado no requiere cambios de código, solo del `.env`|
 |Validación|Zod|
 |Autenticación|JWT propio + bcrypt, con 3 niveles de acceso (FREE, PRO, ADMIN)|
 |Pagos|MercadoPago Checkout Pro (sandbox) con webhook de confirmación|
 |Testing|Vitest + React Testing Library (frontend), Vitest + Supertest (backend), Playwright (E2E)|
+
+## Pull requests
+
+Pull requests del desarrollo, todos contra `develop` salvo donde se aclara.
+Cada uno sale de un issue y lo revisa y mergea Santino Gallo. El estado de cada
+issue y las correcciones de bugs están en
+[`docs/tracking.md`](docs/tracking.md).
+
+|PR|Rama|Contenido|Fecha|
+|:-:|:-|:-|:-:|
+|[#1](https://github.com/SantiiDev/DSW-TP/pull/1)|`feature/10-catalog-seed`|Seed del catálogo desde Deezer, en dos etapas|13/08|
+|[#2](https://github.com/SantiiDev/DSW-TP/pull/2)|`feature/1-user-crud`|CRUD de usuario y autenticación con JWT y roles|13/08|
+|[#3](https://github.com/SantiiDev/DSW-TP/pull/3)|`feature/1-user-crud`|Panel de administración y ajustes visuales del CRUD|14/08|
+|[#4](https://github.com/SantiiDev/DSW-TP/pull/4)|`feature/1-user-crud`|Interfaz del perfil de usuario|18/08|
+|[#6](https://github.com/SantiiDev/DSW-TP/pull/6)|`feature/1-user-crud` → `main`|Baja lógica de usuarios en vez de borrado físico|21/08|
+|[#7](https://github.com/SantiiDev/DSW-TP/pull/7)|`feature/4-artist-crud`|CRUD de artista, incluido el circuito de propuestas|22/08|
+|[#8](https://github.com/SantiiDev/DSW-TP/pull/8)|`feature/7-genre-crud`|CRUD de género: lecturas públicas, escritura solo ADMIN|22/08|
+|[#9](https://github.com/SantiiDev/DSW-TP/pull/9)|`fix/genre-detail-improvements`|Ficha de género: tarjetas de álbum, filtros y paginado|25/08|
+|[#10](https://github.com/SantiiDev/DSW-TP/pull/10)|`feature/5-album-crud`|CRUD de álbum y canción, colas de solicitudes y explorador conectado a datos reales|28/08|
+|[#11](https://github.com/SantiiDev/DSW-TP/pull/11)|`feature/8-review-crud`|CRUD de reseña con interacción social (likes y comentarios)|28/08|
+
+El PR #5 que aparece en el historial del repositorio pertenece al repositorio
+original `utnfrrodsw/tp`, anterior al fork, y no es trabajo del grupo.

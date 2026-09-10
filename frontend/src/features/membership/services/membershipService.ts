@@ -22,6 +22,20 @@ export type Membership = {
   history: Subscription[];
 };
 
+/**
+ * Lo que manda el formulario del panel de administración para dar de alta o
+ * editar un plan.
+ *
+ * El monto va como número porque es lo que espera la API; convertir el texto del
+ * campo es responsabilidad del formulario. La descripción es opcional y el string
+ * vacío viaja como null, que es como el backend guarda "sin descripción".
+ */
+export type PlanInput = {
+  name: string;
+  amount: number;
+  description: string | null;
+};
+
 /** Pasa un plan del JSON de la API al modelo. */
 function toPlan(data: PlanApiResponse): Plan {
   return new Plan(data.id_plan, data.name, data.amount, data.description, data.subscribers);
@@ -60,6 +74,26 @@ export const membershipService = {
   async listPlans(): Promise<Plan[]> {
     const data = await httpClient.get<PlanApiResponse[]>('/plans');
     return data.map(toPlan);
+  },
+
+  /** Da de alta un plan de membresía. El backend lo restringe a ADMIN. */
+  async createPlan(input: PlanInput): Promise<Plan> {
+    const data = await httpClient.post<PlanApiResponse>('/plans', input);
+    return toPlan(data);
+  },
+
+  /** Edita nombre, monto y descripción de un plan. El backend lo restringe a ADMIN. */
+  async updatePlan(id: number, input: PlanInput): Promise<Plan> {
+    const data = await httpClient.patch<PlanApiResponse>(`/plans/${id}`, input);
+    return toPlan(data);
+  },
+
+  /**
+   * Elimina un plan. El backend lo restringe a ADMIN y responde 409 si el plan
+   * todavía tiene suscripciones asociadas.
+   */
+  async removePlan(id: number): Promise<void> {
+    await httpClient.delete<null>(`/plans/${id}`);
   },
 
   /** Mi membresía vigente y mi historial de suscripciones. */

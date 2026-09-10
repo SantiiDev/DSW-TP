@@ -1488,3 +1488,95 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     color: $color-text;
   }
 }
+
+// ─── ABM de planes en el panel de administración ────────────
+//
+// Es la pestaña "Planes" de /admin (ver components/PlanAdminSection). Vive en
+// este parcial y no en _admin.scss por la misma razón que el ABM de géneros vive
+// en _genre.scss: los estilos acompañan a la feature dueña del componente.
+//
+// La caja de cada bloque la ponen Card y DataTable; acá van solo el ritmo
+// vertical de la sección y las dos celdas que necesitan algo propio.
+
+.plan-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  // Mobile-first: los campos van uno abajo del otro y recién en MD el nombre y
+  // el monto comparten la fila, que es donde entran los dos sin apretarse.
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+
+      // El nombre se lleva el espacio sobrante: un monto nunca pasa de unos
+      // pocos caracteres y no gana nada con ser más ancho.
+      > *:first-child {
+        flex: 2 1 0;
+      }
+
+      > *:last-child {
+        flex: 1 1 0;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}
+
+.plan-admin {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__list-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // El nombre y la pastilla de "Pago" / "Gratuito" van juntos en la misma celda.
+  &__name-cell {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  // La descripción es el campo más largo de la fila. Sin un tope se lleva todo el
+  // ancho de la tabla y deja las demás columnas apretadas contra el borde.
+  &__description-cell {
+    display: inline-block;
+    max-width: 32ch;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__no-description {
+    font-style: italic;
+    opacity: 0.7;
+  }
+}
