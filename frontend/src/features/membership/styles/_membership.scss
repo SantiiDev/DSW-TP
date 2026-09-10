@@ -42,7 +42,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   // Cada álbum se posiciona manualmente en el fondo
   &__bg-album {
     position: absolute;
-    border-radius: 12px;
+    border-radius: $radius;
     object-fit: cover;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
     opacity: 0.55;
@@ -178,7 +178,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     align-items: center;
     gap: 8px;
     padding: 0.8rem 1.8rem;
-    border-radius: 30px;
+    border-radius: $radius;
     font-weight: 700;
     font-size: 1rem;
     text-decoration: none;
@@ -231,7 +231,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   &__card {
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 20px;
+    border-radius: $radius;
     padding: $spacing-xl $spacing-lg;
     display: flex;
     flex-direction: column;
@@ -358,7 +358,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   &__card-btn {
     margin-top: auto;
     padding: 0.8rem 1.5rem;
-    border-radius: 12px;
+    border-radius: $radius;
     font-weight: 700;
     font-size: 0.95rem;
     cursor: pointer;
@@ -434,7 +434,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
 .pro-feature-card {
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 16px;
+  border-radius: $radius;
   padding: $spacing-xl $spacing-lg;
   display: flex;
   flex-direction: column;
@@ -507,7 +507,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   }
 
   &__table-wrap {
-    border-radius: 16px;
+    border-radius: $radius;
     overflow: hidden;
     border: 1px solid $color-nav-border;
   }
@@ -625,7 +625,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   &__item {
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 12px;
+    border-radius: $radius;
     overflow: hidden;
     transition: border-color 0.3s ease;
 
@@ -696,7 +696,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     margin: 0 auto;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 20px;
+    border-radius: $radius;
     padding: 4rem $spacing-lg;
     text-align: center;
     display: flex;
@@ -735,7 +735,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     align-items: center;
     gap: 8px;
     padding: 0.85rem 2.2rem;
-    border-radius: 30px;
+    border-radius: $radius;
     font-weight: 700;
     font-size: 1.05rem;
     background-color: $pro-green;
@@ -804,7 +804,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     align-items: center;
     gap: 6px;
     padding: 0.3rem 0.9rem;
-    border-radius: 20px;
+    border-radius: $radius;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -850,7 +850,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     margin-top: $spacing-sm;
     padding: $spacing-md;
     border: 1px solid $color-nav-border;
-    border-radius: 16px;
+    border-radius: $radius;
     background-color: $color-bg-light;
 
     @media (min-width: $bp-sm) {
@@ -893,7 +893,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     align-items: center;
     gap: 8px;
     padding: 0.6rem 1.4rem;
-    border-radius: 30px;
+    border-radius: $radius;
     border: 1px solid $color-nav-border;
     color: $color-text;
     text-decoration: none;
@@ -928,7 +928,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
 
   &__panel {
     border: 1px solid $color-nav-border;
-    border-radius: 16px;
+    border-radius: $radius;
     background-color: $color-bg-light;
     padding: $spacing-md;
   }
@@ -936,7 +936,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   &__panel-cta {
     @include control-centrado;
     padding: 0.6rem 1.4rem;
-    border-radius: 30px;
+    border-radius: $radius;
     background-color: $pro-green;
     color: #000;
     font-weight: 700;
@@ -963,7 +963,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
 
   &__card {
     border: 1px solid $color-nav-border;
-    border-radius: 16px;
+    border-radius: $radius;
     background-color: $color-bg-light;
     padding: $spacing-md;
     display: flex;
@@ -1022,7 +1022,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   gap: $spacing-sm;
   padding: $spacing-md;
   border: 1px solid $color-nav-border;
-  border-radius: 16px;
+  border-radius: $radius;
   background-color: $color-bg-light;
   text-decoration: none;
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
@@ -1039,7 +1039,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     justify-content: center;
     width: 44px;
     height: 44px;
-    border-radius: 12px;
+    border-radius: $radius;
     background-color: rgba($pro-green, 0.12);
     color: $pro-green;
   }
@@ -1077,7 +1077,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   gap: 4px;
   align-self: flex-start;
   padding: 0.15rem 0.55rem;
-  border-radius: 20px;
+  border-radius: $radius;
   font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1133,7 +1133,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   text-align: center;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 12px;
+  border-radius: $radius;
 }
 
 // El ícono es lo primero que se mira, así que es lo que lleva el color del
@@ -1193,7 +1193,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   padding: $spacing-lg;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 12px;
+  border-radius: $radius;
 }
 
 .membership-card__header {
@@ -1247,7 +1247,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   font-size: 0.88rem;
   color: #e0a53f;
   background-color: rgba(#e0a53f, 0.12);
-  border-radius: 8px;
+  border-radius: $radius;
 }
 
 .membership-card__actions {
@@ -1335,7 +1335,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   padding: $spacing-lg;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 12px;
+  border-radius: $radius;
 }
 
 // El resumen es lo que se confirma, así que se distingue del resto con el verde
@@ -1385,7 +1385,7 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   gap: $spacing-sm;
   padding: $spacing-md;
   background-color: rgba($pro-green, 0.08);
-  border-radius: 8px;
+  border-radius: $radius;
 
   svg {
     flex-shrink: 0;

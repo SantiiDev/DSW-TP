@@ -148,7 +148,7 @@
   padding: 0.6rem 0.9rem;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 10px;
+  border-radius: $radius;
   // Las aprobadas son un enlace a su ficha: hay que apagarle el celeste y el
   // subrayado que el navegador le pone a un <a>.
   color: inherit;
@@ -194,6 +194,15 @@
     flex-shrink: 0;
   }
 
+  // Editar y eliminar el propio aporte, en la pestaña "Aportes" del perfil. La
+  // card es una fila, así que van al final de esa misma fila, después del estado.
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
   &__duration {
     font-size: 0.82rem;
     font-variant-numeric: tabular-nums;
@@ -221,29 +230,45 @@
   // El espacio de más arriba es para el botón "Volver", que va flotando sobre
   // la cabecera (ver .song-detail__topbar).
   padding-top: calc(#{$spacing-lg} + 2.5rem);
-  border-bottom: 1px solid $color-nav-border;
+  // Sin línea abajo: el degradado ya cierra en el color exacto de la página, y
+  // el borde se veía como un corte justo donde la cabecera se funde con el
+  // cuerpo. Es el mismo cierre que la cabecera de una reseña.
 
   @media (min-width: $bp-md) {
     padding: $spacing-xl $spacing-lg;
     padding-top: calc(#{$spacing-xl} + 1.5rem);
   }
 
+  // La carátula del álbum otra vez, agrandada y desenfocada. Mismos valores que
+  // la cabecera de una reseña (.review-detail__hero) y que la del álbum: con un
+  // desenfoque más suave y algo más de opacidad, el color del disco se reconoce
+  // en vez de quedar en un gris parejo.
   &__backdrop {
     position: absolute;
-    inset: -60px;
+    inset: 0;
     background-position: center;
     background-size: cover;
-    filter: blur(45px) saturate(1.3);
-    opacity: 0.4;
+    filter: blur(28px) saturate(1.2);
+    transform: scale(1.15);
+    opacity: 0.45;
   }
 
   // Velo oscuro sobre el fondo: la carátula puede ser clarísima y sin esto el
-  // título quedaría ilegible.
+  // título quedaría ilegible. Va en un ::after y no en el backdrop para que el
+  // degradado no se desenfoque junto con la imagen ni se ague con su opacidad.
+  //
+  // El punto del 60% es lo que hace que el color se vea arriba y la cabecera
+  // igual termine en el fondo exacto de la página, sin corte contra el cuerpo.
   &::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba($color-bg, 0.6) 0%, rgba($color-bg, 0.97) 100%);
+    background: linear-gradient(
+      to bottom,
+      rgba($color-bg, 0.5) 0%,
+      rgba($color-bg, 0.75) 60%,
+      $color-bg 100%
+    );
   }
 
   // El contenido va por encima de las dos capas de fondo, que son position
@@ -455,7 +480,7 @@
     padding: $spacing-lg;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 16px;
+    border-radius: $radius;
 
     @media (min-width: $bp-sm) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -545,7 +570,7 @@
     padding: 0;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 16px;
+    border-radius: $radius;
     // Un disco de veinticinco pistas no puede empujar la página entera: la lista
     // scrollea dentro de su propia caja.
     max-height: 420px;
@@ -629,7 +654,7 @@
     padding: 0.7rem $spacing-md;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 12px;
+    border-radius: $radius;
     color: inherit;
     text-decoration: none;
     transition: border-color 0.2s ease, background-color 0.2s ease;

@@ -217,6 +217,26 @@ function assertOwnerOrAdmin(artist: ArtistWithRelations, actor: TokenPayload): v
 }
 
 /**
+ * Corta con 403 si el actor no puede eliminar ese artista.
+ *
+ * Un ADMIN puede con cualquiera; el que lo cargó, solo con su propio aporte
+ * mientras siga pendiente de revisión (ver el remove() del service).
+ */
+function assertCanDelete(artist: ArtistWithRelations, actor: TokenPayload): void {
+  if (actor.rol === 'ADMIN') return;
+
+  if (artist.created_by !== actor.id_user) {
+    throw new ForbiddenError('Solo podés eliminar los artistas que cargaste vos.');
+  }
+
+  if (artist.state !== 'pending') {
+    throw new ForbiddenError(
+      'Solo podés eliminar un aporte que siga pendiente de revisión. Si ya se resolvió, pedile la baja a un administrador.'
+    );
+  }
+}
+
+/**
  * Cambia el estado de moderación de un artista. La usan approve y reject, que son
  * la misma operación con distinto estado final.
  * @param id_artist artista a moderar.
@@ -345,17 +365,20 @@ export const artistService = {
   },
 
   /**
-   * Elimina un artista del catálogo. Solo un ADMIN, ni siquiera el PRO que lo
-   * cargó: para sacar de circulación un aporte propio está el rechazo.
+   * Elimina un artista del catálogo.
+   *
+   * Un ADMIN puede borrar cualquiera. El que lo cargó, en cambio, solo mientras
+   * su aporte siga PENDIENTE: hasta que un ADMIN no lo aprueba, la propuesta no
+   * la ve nadie más, así que darla de baja no le saca nada a la comunidad.
+   * Aprobado ya es catálogo público (puede tener álbumes y reseñas colgando) y
+   * rechazado es una decisión de moderación: ninguno de los dos se borra solo.
+   *
    * @param id_artist artista a eliminar.
    * @param actor usuario autenticado que hace la request.
    */
   async remove(id_artist: number, actor: TokenPayload): Promise<void> {
-    if (actor.rol !== 'ADMIN') {
-      throw new ForbiddenError('Solo un administrador puede eliminar un artista del catálogo.');
-    }
-
     const artist = await findExisting(id_artist);
+    assertCanDelete(artist, actor);
 
     // La garantía real la da la base: la FK de ALBUMS es RESTRICT y rechaza el
     // borrado de un artista que todavía tiene álbumes. Se chequea igual antes de

@@ -49,7 +49,7 @@
     display: flex;
     align-items: center;
     background-color: $color-bg-light;
-    border-radius: 20px;
+    border-radius: $radius;
     padding: 0.4rem 0.8rem;
     width: 100%;
     max-width: 250px;
@@ -97,7 +97,7 @@
     font-weight: 500;
     transition: all 0.2s ease;
     padding: 0.4rem 0.8rem;
-    border-radius: 6px;
+    border-radius: $radius;
 
     &:hover {
       color: $color-text;
@@ -125,7 +125,7 @@
   &__btn {
     @include control-centrado;
     padding: 0.5rem 1rem;
-    border-radius: 20px;
+    border-radius: $radius;
     font-weight: 600;
     font-size: 0.9rem;
     transition: opacity 0.2s ease;
@@ -169,7 +169,7 @@
     gap: $spacing-sm;
     background: none;
     border: 1px solid transparent;
-    border-radius: 30px;
+    border-radius: $radius;
     padding: 0.25rem 0.5rem 0.25rem 0.25rem;
     font: inherit;
     font-size: 0.9rem;
@@ -202,7 +202,7 @@
     min-width: 220px;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 12px;
+    border-radius: $radius;
     padding: $spacing-sm;
     display: flex;
     flex-direction: column;
@@ -246,7 +246,7 @@
     padding: 0.55rem 0.6rem;
     background: none;
     border: none;
-    border-radius: 8px;
+    border-radius: $radius;
     font: inherit;
     font-size: 0.875rem;
     font-weight: 500;

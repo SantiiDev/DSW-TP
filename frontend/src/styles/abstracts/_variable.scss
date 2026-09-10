@@ -17,6 +17,16 @@ $font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvet
 // alto mínimo del contenido de cada página (ver `main` en base/_reset.scss).
 $navbar-height: 64px;
 
+// Curvatura de las esquinas. Es una sola para todo el sitio: los botones, las
+// tarjetas, los paneles, los modales y los campos de un formulario comparten la
+// misma esquina apenas marcada. Antes cada archivo elegía la suya (16px, 12px,
+// 8px...) y una tarjeta bien redondeada al lado de un botón casi recto se veía
+// despareja.
+//
+// Las excepciones son las cosas que tienen que ser redondas de verdad (el avatar,
+// la X de cerrar un modal, el spinner): esas siguen con `border-radius: 50%`.
+$radius: 4px;
+
 // Spacing
 $spacing-sm: 0.5rem;
 $spacing-md: 1rem;

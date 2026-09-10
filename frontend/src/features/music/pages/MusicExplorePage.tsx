@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
 import { FadeInSection } from '../../../core/components/FadeInSection';
+import { ViewSwitcher } from '../../../core/components/ViewSwitcher';
+import type { ViewOption } from '../../../core/components/ViewSwitcher';
 import { TrendingSection } from '../components/TrendingSection';
 import { TopRatedSection } from '../components/TopRatedSection';
 import { NewReleasesSection } from '../components/NewReleasesSection';
@@ -12,6 +14,11 @@ import { BrowseByDecadeSection } from '../components/BrowseByDecadeSection';
 import '../styles/_music-explore.scss';
 
 type Tab = 'albums' | 'canciones';
+
+const TAB_OPTIONS: readonly ViewOption<Tab>[] = [
+  { value: 'albums', label: 'Álbumes' },
+  { value: 'canciones', label: 'Canciones' },
+];
 
 export const MusicExplorePage = () => {
   const [activeTab, setActiveTab] = useState<Tab>('albums');
@@ -34,18 +41,12 @@ export const MusicExplorePage = () => {
 
             {/* Tab Switcher */}
             <div className="music-explore__tabs">
-              <button
-                className={`music-explore__tab ${activeTab === 'albums' ? 'music-explore__tab--active' : ''}`}
-                onClick={() => handleTabChange('albums')}
-              >
-                Álbumes
-              </button>
-              <button
-                className={`music-explore__tab ${activeTab === 'canciones' ? 'music-explore__tab--active' : ''}`}
-                onClick={() => handleTabChange('canciones')}
-              >
-                Canciones
-              </button>
+              <ViewSwitcher
+                options={TAB_OPTIONS}
+                value={activeTab}
+                onChange={handleTabChange}
+                ariaLabel="Tipo de música"
+              />
             </div>
           </header>
         </FadeInSection>

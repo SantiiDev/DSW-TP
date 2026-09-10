@@ -15,7 +15,7 @@
     padding: $spacing-lg;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 16px;
+    border-radius: $radius;
   }
 
   // Tarjeta anidada: sin marco propio, porque el marco ya lo puso la de afuera.

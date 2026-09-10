@@ -1,0 +1,102 @@
+// Estilos del conmutador de vista (core/components/ViewSwitcher.tsx).
+//
+// La caja de fondo con la opción activa en verde: es el mismo control que antes
+// estaba escrito solo para la página de música, y ahora lo comparten /music,
+// /reviews y las dos pestañas del panel de administración.
+//
+// La pastilla verde es UN solo elemento (&__thumb) que se desliza hasta la opción
+// elegida, en vez de un fondo que se prende y se apaga en cada botón: el cambio
+// de sección se ve como un movimiento y no como un salto.
+//
+// Es una grilla y no una fila flex justamente por eso: con `grid-auto-columns:
+// 1fr` todas las celdas miden lo mismo (el ancho de la opción más larga), así que
+// la pastilla se corre con un `translateX` de un 100% por posición y no hace
+// falta medir nada en JavaScript. El componente solo pasa cuántas opciones hay y
+// cuál está elegida, en dos variables CSS.
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/mixins' as *;
+
+// Cuánto tarda el deslizamiento. La curva arranca rápido y frena al llegar, que
+// es lo que hace que se lea como un movimiento y no como un cambio de posición.
+$switcher-slide: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+// El aire entre la pastilla y el borde de la caja.
+$switcher-padding: 4px;
+
+.view-switcher {
+  position: relative;
+  display: grid;
+  // max-content y no un ancho automático: con el ancho "de lo que entre" las
+  // columnas 1fr se quedan cada una con lo suyo y quedan de anchos distintos.
+  // Con max-content se reparten en partes iguales, que es lo que hace que la
+  // pastilla (que mide una celda) caiga siempre justo sobre la opción.
+  width: max-content;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background-color: $color-bg-light;
+  border-radius: $radius;
+  padding: $switcher-padding;
+
+  // Dentro de una tarjeta, la caja va del color del fondo de la sección y no del
+  // de la tarjeta: con el color por defecto los dos tonos son el mismo y el
+  // control se pierde contra el panel que lo contiene.
+  &--sunken {
+    background-color: $color-bg;
+  }
+
+  &__thumb {
+    position: absolute;
+    top: $switcher-padding;
+    bottom: $switcher-padding;
+    left: $switcher-padding;
+    // Un porcentaje en un elemento absoluto se mide contra la caja de padding,
+    // así que hay que descontar el padding de los dos lados para que la pastilla
+    // mida exactamente una celda de la grilla.
+    width: calc((100% - #{$switcher-padding} * 2) / var(--switcher-count));
+    // Y como mide una celda, correrla una posición es correrla su propio ancho.
+    transform: translateX(calc(var(--switcher-index) * 100%));
+    background-color: $color-primary;
+    border-radius: $radius;
+    transition: transform $switcher-slide;
+
+    // Para quien pidió menos animaciones en su sistema, la pastilla aparece
+    // directamente en su lugar.
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &__option {
+    // Por encima de la pastilla, que es absoluta y no lleva z-index.
+    position: relative;
+    z-index: 1;
+    padding: 0.6rem 1.8rem;
+    border-radius: $radius;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    // Va después de `font: inherit`: ese atajo reescribe el line-height.
+    @include control-centrado;
+    color: $color-text-secondary;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    // Solo el color: el fondo ahora lo pone la pastilla que se desliza.
+    transition: color 0.25s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    // El texto de la elegida va en negro, que es lo que se lee sobre el verde.
+    // Tarda un poco menos que el deslizamiento para que el color cambie mientras
+    // la pastilla todavía está llegando, y no después.
+    &--active {
+      color: #000;
+
+      &:hover {
+        color: #000;
+      }
+    }
+  }
+}

@@ -69,7 +69,7 @@
   &__empty {
     margin: 0;
     padding: 0.6rem 0.9rem;
-    border-radius: 8px;
+    border-radius: $radius;
     font-size: 0.9rem;
   }
 
@@ -190,7 +190,7 @@
     padding: 4px;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 10px;
+    border-radius: $radius;
   }
 
   &__view-btn {
@@ -200,7 +200,7 @@
     padding: 0.35rem 0.5rem;
     background-color: transparent;
     border: none;
-    border-radius: 7px;
+    border-radius: $radius;
     color: $color-text-secondary;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -220,7 +220,7 @@
 
 .album-cover {
   flex-shrink: 0;
-  border-radius: 6px;
+  border-radius: $radius;
   // Las portadas de Deezer son cuadradas, pero un álbum cargado a mano podría
   // traer otra proporción: cover la recorta en vez de deformarla.
   object-fit: cover;
@@ -236,7 +236,7 @@
     // La carátula manda el alto de la tarjeta en la grilla: cuadrada siempre,
     // así todas las filas quedan parejas sin importar la imagen.
     aspect-ratio: 1 / 1;
-    border-radius: 10px;
+    border-radius: $radius;
   }
 
   // Reserva cuando el álbum no tiene portada o la imagen no cargó.
@@ -317,7 +317,7 @@
       padding: 0.6rem 0.8rem;
       background-color: $color-bg-light;
       border: 1px solid $color-nav-border;
-      border-radius: 10px;
+      border-radius: $radius;
       transition: border-color 0.2s ease, background-color 0.2s ease;
 
       &:hover {
@@ -441,7 +441,7 @@
   padding: $spacing-md;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 12px;
+  border-radius: $radius;
   // En mobile va arriba de los resultados; desde escritorio pasa al costado
   // (ver .genre-detail__body).
   order: 1;
@@ -488,7 +488,7 @@
     padding: 0.4rem 0.5rem;
     background-color: transparent;
     border: 1px solid $color-nav-border;
-    border-radius: 20px;
+    border-radius: $radius;
     color: $color-text-secondary;
     font: inherit;
     font-size: 0.8rem;

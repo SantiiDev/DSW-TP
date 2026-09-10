@@ -121,6 +121,26 @@ function assertOwnerOrAdmin(song: SongWithRelations, actor: TokenPayload): void 
 }
 
 /**
+ * Corta con 403 si el actor no puede eliminar esa canción.
+ *
+ * Un ADMIN puede con cualquiera; el que la cargó, solo con su propio aporte
+ * mientras siga pendiente de revisión (ver el remove() del service).
+ */
+function assertCanDelete(song: SongWithRelations, actor: TokenPayload): void {
+  if (actor.rol === 'ADMIN') return;
+
+  if (song.created_by !== actor.id_user) {
+    throw new ForbiddenError('Solo podés eliminar las canciones que cargaste vos.');
+  }
+
+  if (song.state !== 'pending') {
+    throw new ForbiddenError(
+      'Solo podés eliminar un aporte que siga pendiente de revisión. Si ya se resolvió, pedile la baja a un administrador.'
+    );
+  }
+}
+
+/**
  * Corta con 400 si el álbum elegido no existe.
  *
  * Sin este chequeo el alta terminaría en un error de base de datos por la FK, con
@@ -341,8 +361,11 @@ export const songService = {
   },
 
   /**
-   * Elimina una canción del catálogo. Solo un ADMIN, ni siquiera el PRO que la
-   * cargó: para sacar de circulación un aporte propio está el rechazo.
+   * Elimina una canción del catálogo.
+   *
+   * Un ADMIN puede borrar cualquiera. Quien la cargó, en cambio, solo mientras
+   * su aporte siga PENDIENTE: hasta que un ADMIN no lo aprueba, la propuesta no
+   * la ve nadie más, así que darla de baja no le saca nada a la comunidad.
    *
    * A diferencia del álbum, acá no hay nada que bloquee la baja: la FK de REVIEW
    * hacia SONG es CASCADE, así que las reseñas de esa pista se van con ella. Una
@@ -352,11 +375,9 @@ export const songService = {
    * @param actor usuario autenticado que hace la request.
    */
   async remove(id_song: number, actor: TokenPayload): Promise<void> {
-    if (actor.rol !== 'ADMIN') {
-      throw new ForbiddenError('Solo un administrador puede eliminar una canción del catálogo.');
-    }
-
     const song = await findExisting(id_song);
+    assertCanDelete(song, actor);
+
     await songRepository.delete(song);
   },
 

@@ -18,8 +18,8 @@ import { useSearchParams } from 'react-router-dom';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
 import { FadeInSection } from '../../../core/components/FadeInSection';
-import { SegmentedControl } from '../../../core/components/SegmentedControl';
-import type { SegmentOption } from '../../../core/components/SegmentedControl';
+import { ViewSwitcher } from '../../../core/components/ViewSwitcher';
+import type { ViewOption } from '../../../core/components/ViewSwitcher';
 import { useAuth } from '../../../core/context/AuthContext';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { followService } from '../../user/services/followService';
@@ -28,7 +28,7 @@ import { ReviewFeed, SUGGESTIONS_SECTION_ID } from '../components/ReviewFeed';
 import type { FeedScope } from '../components/ReviewFeed';
 import '../styles/_reviews-explore.scss';
 
-const SCOPE_OPTIONS: readonly SegmentOption<FeedScope>[] = [
+const SCOPE_OPTIONS: readonly ViewOption<FeedScope>[] = [
   { value: 'community', label: 'Comunidad' },
   { value: 'friends', label: 'Amigos' },
 ];
@@ -116,7 +116,7 @@ export const ReviewsExplorePage = () => {
         </FadeInSection>
 
         <div className="reviews-explore__toggle">
-          <SegmentedControl
+          <ViewSwitcher
             options={SCOPE_OPTIONS}
             value={scope}
             onChange={handleScopeChange}
@@ -131,9 +131,10 @@ export const ReviewsExplorePage = () => {
         <div className="reviews-explore__content">
           <div className="reviews-explore__main">
             <ReviewFeed
-              // La key remonta el feed al cambiar de modo: arranca de cero en vez
-              // de mostrar por un instante las reseñas del modo anterior.
-              key={scope}
+              // A propósito SIN key: con una, cambiar de modo desmontaba el feed
+              // entero, la columna quedaba en el alto del cargador y la página
+              // pegaba un salto. El feed ya se rehace solo cuando cambia `scope`,
+              // y mientras tanto deja lo anterior a la vista.
               scope={scope}
               followingCount={followingCount}
               followVersion={followVersion}

@@ -41,7 +41,7 @@
     // El borde va transparente y no ausente: si apareciera recién en el foco,
     // el campo se movería un píxel al enfocarlo.
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: $radius;
     padding: 0.6rem 1rem;
     color: $color-text;
     font: inherit;

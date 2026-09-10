@@ -75,7 +75,7 @@
     font-weight: 700;
     font-size: 1.15rem;
     padding: 0.8rem 2rem;
-    border-radius: 30px;
+    border-radius: $radius;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     pointer-events: auto;
 
@@ -88,7 +88,7 @@
 
 .floating-album {
   position: absolute;
-  border-radius: 8px;
+  border-radius: $radius;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   object-fit: cover;
   opacity: 0.45;

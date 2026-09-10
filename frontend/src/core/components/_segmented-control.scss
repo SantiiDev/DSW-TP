@@ -16,7 +16,7 @@
     min-height: 2.15rem;
     padding: 0 1rem;
     border: 1px solid $color-nav-border;
-    border-radius: 30px;
+    border-radius: $radius;
     background-color: transparent;
     color: $color-text-secondary;
     font: inherit;

@@ -15,10 +15,12 @@ import { Alert } from '../../../core/components/Alert';
 import { Button } from '../../../core/components/Button';
 import { Loader } from '../../../core/components/Loader';
 import { EmptyState } from '../../../core/components/EmptyState';
+import { ConfirmDialog } from '../../../core/components/Modal';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { albumService } from '../services/albumService';
 import type { AlbumInput } from '../services/albumService';
+import type { Album } from '../models/Album';
 import { AlbumCard } from './AlbumCard';
 import { AlbumProposalModal } from './AlbumProposalModal';
 import '../styles/_album.scss';
@@ -49,10 +51,29 @@ export const AlbumContributionsList = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Error del envío: va adentro del modal, al lado del formulario que lo produjo.
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Aporte que se está editando: si es null, el modal es de propuesta nueva.
+  const [editing, setEditing] = useState<Album | null>(null);
+  // Aporte elegido para eliminar, a la espera de que confirmen el diálogo.
+  const [toDelete, setToDelete] = useState<Album | null>(null);
+  // Aporte con una operación en curso: deshabilita solo sus botones.
+  const [busyAlbumId, setBusyAlbumId] = useState<number | null>(null);
+  // Error de una baja: va afuera del modal, arriba de la lista.
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const handleOpenModal = () => {
+    setEditing(null);
     setSubmitError(null);
     setFeedback(null);
+    setActionError(null);
+    setIsModalOpen(true);
+  };
+
+  /** Abre el mismo modal, pero con los datos del aporte que se quiere corregir. */
+  const handleEdit = (album: Album) => {
+    setEditing(album);
+    setSubmitError(null);
+    setFeedback(null);
+    setActionError(null);
     setIsModalOpen(true);
   };
 
@@ -83,6 +104,53 @@ export const AlbumContributionsList = ({
       return false;
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  /**
+   * Guarda los cambios de una propuesta propia.
+   * @param input datos corregidos en el modal.
+   * @returns true si se guardó; si falla, el modal queda abierto con el error.
+   */
+  const handleUpdate = async (input: AlbumInput): Promise<boolean> => {
+    if (!editing) return false;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const updated = await albumService.update(editing.id, input);
+      setIsModalOpen(false);
+      setEditing(null);
+      await loadContributions();
+      setFeedback(`Se guardaron los cambios de "${updated.title}".`);
+      return true;
+    } catch (err) {
+      setSubmitError(getErrorMessage(err));
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  /** Da de baja la propuesta ya confirmada en el diálogo. */
+  const handleConfirmDelete = async () => {
+    if (!toDelete) return;
+
+    const { id, title } = toDelete;
+    setToDelete(null);
+    setBusyAlbumId(id);
+    setFeedback(null);
+    setActionError(null);
+
+    try {
+      await albumService.remove(id);
+      await loadContributions();
+      setFeedback(`Se eliminó tu propuesta "${title}".`);
+    } catch (err) {
+      setActionError(getErrorMessage(err));
+    } finally {
+      setBusyAlbumId(null);
     }
   };
 
@@ -121,10 +189,20 @@ export const AlbumContributionsList = ({
           {isOwnProfile && <Button onClick={handleOpenModal}>Proponer otro álbum</Button>}
         </div>
 
+        {/* Sobre sus propios aportes el autor puede: corregir mientras no estén
+            aprobados (un aprobado ya es catálogo y lo edita un ADMIN), y dar de
+            baja solo los que siguen pendientes, que es lo que la API permite.
+            Un rechazo es una decisión de moderación y no se borra solo. */}
         <ul className="album-contributions__grid">
           {albums.map((album) => (
             <li key={album.id}>
-              <AlbumCard album={album} showState={isOwnProfile} />
+              <AlbumCard
+                album={album}
+                showState={isOwnProfile}
+                isBusy={busyAlbumId === album.id}
+                onEdit={isOwnProfile && !album.isApproved ? handleEdit : undefined}
+                onDelete={isOwnProfile && album.isPending ? setToDelete : undefined}
+              />
             </li>
           ))}
         </ul>
@@ -135,17 +213,37 @@ export const AlbumContributionsList = ({
   return (
     <div className="album-contributions">
       {feedback && <Alert tone="success">{feedback}</Alert>}
+      {actionError && <Alert tone="error">{actionError}</Alert>}
 
       {renderBody()}
 
       {isOwnProfile && (
-        <AlbumProposalModal
-          isOpen={isModalOpen}
-          isSubmitting={isSubmitting}
-          error={submitError}
-          onSubmit={handlePropose}
-          onClose={() => setIsModalOpen(false)}
-        />
+        <>
+          {/* El mismo modal sirve para proponer y para corregir: lo que cambia
+              son los textos, los valores iniciales y a qué handler se manda. */}
+          <AlbumProposalModal
+            isOpen={isModalOpen}
+            album={editing}
+            isSubmitting={isSubmitting}
+            error={submitError}
+            onSubmit={editing ? handleUpdate : handlePropose}
+            onClose={() => setIsModalOpen(false)}
+          />
+
+          <ConfirmDialog
+            isOpen={toDelete !== null}
+            title="Eliminar la propuesta"
+            message={
+              toDelete
+                ? `¿Seguro que querés eliminar tu propuesta "${toDelete.title}"? Todavía no la revisó nadie, así que se borra sin dejar rastro.`
+                : ''
+            }
+            confirmLabel="Eliminar"
+            isDestructive
+            onConfirm={handleConfirmDelete}
+            onCancel={() => setToDelete(null)}
+          />
+        </>
       )}
     </div>
   );

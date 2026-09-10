@@ -45,7 +45,7 @@
   padding: $spacing-md;
   background-color: $color-bg;
   border: 1px solid $color-nav-border;
-  border-radius: 12px;
+  border-radius: $radius;
   // Sin esto, un título largo estira la columna de la grilla en vez de cortarse.
   min-width: 0;
 

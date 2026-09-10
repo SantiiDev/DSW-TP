@@ -77,7 +77,7 @@
     margin-top: $spacing-lg;
     background-color: $color-bg-light;
     padding: $spacing-lg;
-    border-radius: 12px;
+    border-radius: $radius;
     border: 1px solid $color-nav-border;
 
     .form-group {
@@ -94,7 +94,7 @@
       input, textarea {
         background-color: $color-bg;
         border: 1px solid $color-nav-border;
-        border-radius: 8px;
+        border-radius: $radius;
         padding: 12px;
         color: $color-text;
         font-family: inherit;
@@ -116,7 +116,7 @@
       color: #000;
       font-weight: 700;
       padding: 12px 24px;
-      border-radius: 30px;
+      border-radius: $radius;
       border: none;
       align-self: flex-start;
       cursor: pointer;
@@ -139,7 +139,7 @@
   &__faq-item {
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 12px;
+    border-radius: $radius;
     overflow: hidden;
 
     &.active .static-page__faq-answer {

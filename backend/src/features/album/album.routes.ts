@@ -6,7 +6,7 @@
 //   GET    /api/albums/decades     cuántos álbumes tiene cada década, PÚBLICO
 //   GET    /api/albums/:id         ficha del álbum con su tracklist, PÚBLICO
 //   PATCH  /api/albums/:id         edita los datos, el que lo cargó o ADMIN
-//   DELETE /api/albums/:id         elimina el álbum, solo ADMIN
+//   DELETE /api/albums/:id         elimina el álbum, ADMIN o el autor si sigue pendiente
 //   PATCH  /api/albums/:id/approve aprueba un aporte pendiente, solo ADMIN
 //   PATCH  /api/albums/:id/reject  rechaza un aporte pendiente, solo ADMIN
 //
@@ -81,10 +81,13 @@ albumRouter.patch(
   albumController.update
 );
 
+// El rol se filtra acá (un FREE nunca es dueño de un álbum) y el service decide
+// el resto: un ADMIN puede borrar cualquiera, y el que lo cargó solo su propio
+// aporte mientras siga pendiente de revisión.
 albumRouter.delete(
   '/:id',
   requireAuth,
-  requireRole('ADMIN'),
+  requireRole('PRO', 'ADMIN'),
   validate({ params: albumIdParamSchema }),
   albumController.remove
 );

@@ -235,6 +235,26 @@ function assertOwnerOrAdmin(album: AlbumWithRelations, actor: TokenPayload): voi
 }
 
 /**
+ * Corta con 403 si el actor no puede eliminar ese álbum.
+ *
+ * Un ADMIN puede con cualquiera; el que lo cargó, solo con su propio aporte
+ * mientras siga pendiente de revisión (ver el remove() del service).
+ */
+function assertCanDelete(album: AlbumWithRelations, actor: TokenPayload): void {
+  if (actor.rol === 'ADMIN') return;
+
+  if (album.created_by !== actor.id_user) {
+    throw new ForbiddenError('Solo podés eliminar los álbumes que cargaste vos.');
+  }
+
+  if (album.state !== 'pending') {
+    throw new ForbiddenError(
+      'Solo podés eliminar un aporte que siga pendiente de revisión. Si ya se resolvió, pedile la baja a un administrador.'
+    );
+  }
+}
+
+/**
  * Corta con 400 si el artista elegido no existe.
  *
  * La FK de ALBUMS es NOT NULL, así que sin este chequeo el alta terminaría en un
@@ -488,17 +508,18 @@ export const albumService = {
   },
 
   /**
-   * Elimina un álbum del catálogo. Solo un ADMIN, ni siquiera el PRO que lo
-   * cargó: para sacar de circulación un aporte propio está el rechazo.
+   * Elimina un álbum del catálogo.
+   *
+   * Un ADMIN puede borrar cualquiera. El que lo cargó, en cambio, solo mientras
+   * su aporte siga PENDIENTE: hasta que un ADMIN no lo aprueba, la propuesta no
+   * la ve nadie más, así que darla de baja no le saca nada a la comunidad.
+   *
    * @param id_album álbum a eliminar.
    * @param actor usuario autenticado que hace la request.
    */
   async remove(id_album: number, actor: TokenPayload): Promise<void> {
-    if (actor.rol !== 'ADMIN') {
-      throw new ForbiddenError('Solo un administrador puede eliminar un álbum del catálogo.');
-    }
-
     const album = await findExisting(id_album);
+    assertCanDelete(album, actor);
 
     // La garantía real la da la base: las FK de SONG y de REVIEW hacia ALBUMS son
     // RESTRICT y rechazan el borrado de un álbum que todavía tiene canciones o

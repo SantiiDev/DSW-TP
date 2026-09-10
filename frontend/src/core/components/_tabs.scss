@@ -18,11 +18,36 @@
   min-width: 0;
 
   &__list {
+    // Ancla del subrayado, que va posicionado sobre la pestaña activa.
+    position: relative;
     display: flex;
     list-style: none;
     margin: 0;
     padding: 0;
     gap: $spacing-sm;
+  }
+
+  // Subrayado de la pestaña activa: uno solo para toda la barra, que se desliza
+  // de una a otra. Las dos medidas las pone el componente en variables CSS (ver
+  // Tabs.tsx); acá se decide que quede un poco más angosto que la pestaña, para
+  // que acompañe al texto y no al padding.
+  &__underline {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    height: 2px;
+    width: calc(var(--tab-width, 0) * 1px - #{$spacing-sm} * 2);
+    transform: translateX(calc(var(--tab-left, 0) * 1px + #{$spacing-sm}));
+    background-color: $color-primary;
+    border-radius: 2px;
+    // La misma curva y el mismo tiempo que la pastilla del conmutador de vista:
+    // los dos controles cambian de sección y se mueven igual.
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+      width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   &__tab {
@@ -44,20 +69,10 @@
       color: $color-text;
     }
 
-    // Subrayado de la pestaña activa, pegado al borde inferior de la barra.
+    // El subrayado ya no lo dibuja la pestaña activa: es un elemento aparte que
+    // se desliza (ver &__underline). Acá queda solo el color del texto.
     &--active {
       color: $color-text;
-
-      &::after {
-        content: '';
-        position: absolute;
-        left: $spacing-sm;
-        right: $spacing-sm;
-        bottom: -1px;
-        height: 2px;
-        background-color: $color-primary;
-        border-radius: 2px;
-      }
     }
   }
 }

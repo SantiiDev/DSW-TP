@@ -16,10 +16,12 @@ import { Alert } from '../../../core/components/Alert';
 import { Button } from '../../../core/components/Button';
 import { Loader } from '../../../core/components/Loader';
 import { EmptyState } from '../../../core/components/EmptyState';
+import { ConfirmDialog } from '../../../core/components/Modal';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { artistService } from '../services/artistService';
 import type { ArtistInput } from '../services/artistService';
+import type { Artist } from '../models/Artist';
 import { ArtistCard } from './ArtistCard';
 import { ArtistProposalModal } from './ArtistProposalModal';
 import '../styles/_artist.scss';
@@ -50,10 +52,29 @@ export const ArtistContributionsList = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Error del envío: va adentro del modal, al lado del formulario que lo produjo.
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Aporte que se está editando: si es null, el modal es de propuesta nueva.
+  const [editing, setEditing] = useState<Artist | null>(null);
+  // Aporte elegido para eliminar, a la espera de que confirmen el diálogo.
+  const [toDelete, setToDelete] = useState<Artist | null>(null);
+  // Aporte con una operación en curso: deshabilita solo sus botones.
+  const [busyArtistId, setBusyArtistId] = useState<number | null>(null);
+  // Error de una baja: va afuera del modal, arriba de la lista.
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const handleOpenModal = () => {
+    setEditing(null);
     setSubmitError(null);
     setFeedback(null);
+    setActionError(null);
+    setIsModalOpen(true);
+  };
+
+  /** Abre el mismo modal, pero con los datos del aporte que se quiere corregir. */
+  const handleEdit = (artist: Artist) => {
+    setEditing(artist);
+    setSubmitError(null);
+    setFeedback(null);
+    setActionError(null);
     setIsModalOpen(true);
   };
 
@@ -80,6 +101,53 @@ export const ArtistContributionsList = ({
       return false;
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  /**
+   * Guarda los cambios de una propuesta propia.
+   * @param input nombre y biografía corregidos en el modal.
+   * @returns true si se guardó; si falla, el modal queda abierto con el error.
+   */
+  const handleUpdate = async (input: ArtistInput): Promise<boolean> => {
+    if (!editing) return false;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const updated = await artistService.update(editing.id, input);
+      setIsModalOpen(false);
+      setEditing(null);
+      await loadContributions();
+      setFeedback(`Se guardaron los cambios de "${updated.name}".`);
+      return true;
+    } catch (err) {
+      setSubmitError(getErrorMessage(err));
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  /** Da de baja la propuesta ya confirmada en el diálogo. */
+  const handleConfirmDelete = async () => {
+    if (!toDelete) return;
+
+    const { id, name } = toDelete;
+    setToDelete(null);
+    setBusyArtistId(id);
+    setFeedback(null);
+    setActionError(null);
+
+    try {
+      await artistService.remove(id);
+      await loadContributions();
+      setFeedback(`Se eliminó tu propuesta "${name}".`);
+    } catch (err) {
+      setActionError(getErrorMessage(err));
+    } finally {
+      setBusyArtistId(null);
     }
   };
 
@@ -120,10 +188,20 @@ export const ArtistContributionsList = ({
           {isOwnProfile && <Button onClick={handleOpenModal}>Proponer otro artista</Button>}
         </div>
 
+        {/* Sobre sus propios aportes el autor puede: corregir mientras no estén
+            aprobados (un aprobado ya es catálogo y lo edita un ADMIN), y dar de
+            baja solo los que siguen pendientes, que es lo que la API permite.
+            Un rechazo es una decisión de moderación y no se borra solo. */}
         <ul className="artist-contributions__grid">
           {artists.map((artist) => (
             <li key={artist.id}>
-              <ArtistCard artist={artist} showState={isOwnProfile} />
+              <ArtistCard
+                artist={artist}
+                showState={isOwnProfile}
+                isBusy={busyArtistId === artist.id}
+                onEdit={isOwnProfile && !artist.isApproved ? handleEdit : undefined}
+                onDelete={isOwnProfile && artist.isPending ? setToDelete : undefined}
+              />
             </li>
           ))}
         </ul>
@@ -134,17 +212,37 @@ export const ArtistContributionsList = ({
   return (
     <div className="artist-contributions">
       {feedback && <Alert tone="success">{feedback}</Alert>}
+      {actionError && <Alert tone="error">{actionError}</Alert>}
 
       {renderBody()}
 
       {isOwnProfile && (
-        <ArtistProposalModal
-          isOpen={isModalOpen}
-          isSubmitting={isSubmitting}
-          error={submitError}
-          onSubmit={handlePropose}
-          onClose={() => setIsModalOpen(false)}
-        />
+        <>
+          {/* El mismo modal sirve para proponer y para corregir: lo que cambia
+              son los textos, los valores iniciales y a qué handler se manda. */}
+          <ArtistProposalModal
+            isOpen={isModalOpen}
+            artist={editing}
+            isSubmitting={isSubmitting}
+            error={submitError}
+            onSubmit={editing ? handleUpdate : handlePropose}
+            onClose={() => setIsModalOpen(false)}
+          />
+
+          <ConfirmDialog
+            isOpen={toDelete !== null}
+            title="Eliminar la propuesta"
+            message={
+              toDelete
+                ? `¿Seguro que querés eliminar tu propuesta "${toDelete.name}"? Todavía no la revisó nadie, así que se borra sin dejar rastro.`
+                : ''
+            }
+            confirmLabel="Eliminar"
+            isDestructive
+            onConfirm={handleConfirmDelete}
+            onCancel={() => setToDelete(null)}
+          />
+        </>
       )}
     </div>
   );

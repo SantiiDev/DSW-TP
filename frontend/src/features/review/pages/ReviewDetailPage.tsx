@@ -109,9 +109,13 @@ export const ReviewDetailPage = () => {
   };
 
   const renderContent = () => {
+    // Mientras no hay cabecera, "Volver" va en el flujo normal arriba del aviso:
+    // flotando quedaría encima del texto (ver el bloque del final, donde sí va
+    // sobre la cabecera).
     if (isLoading) {
       return (
         <div className="review-detail__state">
+          <BackLink fallbackTo="/music" />
           <Loader message="Cargando la reseña..." />
         </div>
       );
@@ -120,6 +124,7 @@ export const ReviewDetailPage = () => {
     if (error) {
       return (
         <div className="review-detail__state">
+          <BackLink fallbackTo="/music" />
           <Alert tone="error">{error}</Alert>
         </div>
       );
@@ -128,6 +133,7 @@ export const ReviewDetailPage = () => {
     if (!review) {
       return (
         <div className="review-detail__state">
+          <BackLink fallbackTo="/music" />
           <EmptyState
             icon={<MessageSquareOff size={22} aria-hidden="true" />}
             title="No encontramos esa reseña."
@@ -139,6 +145,14 @@ export const ReviewDetailPage = () => {
 
     return (
       <>
+        {/* Vuelve al lugar del que se vino. Va flotando arriba a la izquierda,
+            sobre la cabecera, igual que en la ficha del álbum y en la de la
+            canción: en una franja propia entre el navbar y la cabecera se veía
+            como una banda cortando la pantalla en dos. */}
+        <div className="review-detail__topbar">
+          <BackLink fallbackTo="/music" />
+        </div>
+
         {/* Cabecera del ítem reseñado: es la respuesta a "¿de qué es esta
             reseña?", que es lo primero que se pregunta quien abre un enlace
             compartido. Con GatedLink, sin cuenta lleva al registro en vez de a
@@ -335,15 +349,11 @@ export const ReviewDetailPage = () => {
       {/* La cabecera va a lo ancho de la pantalla, así que el contenedor que
           alinea el contenido con el navbar no envuelve toda la página: lo aplica
           cada bloque por su cuenta (ver page-container en los estilos). */}
-      <main className="review-detail">
-        <div className="review-detail__topbar">
-          {/* Vuelve al lugar del que se vino. El fallback es /music porque a esta
-              página se puede llegar desde un enlace pegado, sin historial. */}
-          <BackLink fallbackTo="/music" />
-        </div>
-
-        {renderContent()}
-      </main>
+      {/* El "Volver" lo pone cada rama de renderContent: sobre la cabecera cuando
+          la reseña cargó, y en el flujo normal cuando lo que hay es un aviso. El
+          fallback es /music porque a esta página se puede llegar desde un enlace
+          pegado, sin historial. */}
+      <main className="review-detail">{renderContent()}</main>
 
       <Footer />
     </>

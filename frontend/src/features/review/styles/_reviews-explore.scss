@@ -65,22 +65,28 @@
 
     // En mobile el toggle ocupa todo el ancho y sus dos pastillas se reparten la
     // mitad cada una: son la acción principal de la pantalla y con el ancho justo
-    // del texto quedan chicas para el dedo.
-    .segmented {
+    // del texto quedan chicas para el dedo. Solo hay que estirarlo: el reparto en
+    // partes iguales ya lo hace su grilla (ver _view-switcher.scss), y con eso la
+    // pastilla que se desliza sigue midiendo exactamente una celda.
+    .view-switcher {
       width: 100%;
     }
 
-    .segmented__option {
-      flex: 1;
+    .view-switcher__option {
+      // El padding horizontal del control es generoso para dos pastillas
+      // sueltas; repartiéndose el ancho de la pantalla ya no hace falta.
+      padding-left: $spacing-sm;
+      padding-right: $spacing-sm;
     }
 
     @media (min-width: $bp-sm) {
-      .segmented {
-        width: auto;
+      .view-switcher {
+        width: max-content;
       }
 
-      .segmented__option {
-        flex: initial;
+      .view-switcher__option {
+        padding-left: 1.8rem;
+        padding-right: 1.8rem;
       }
     }
   }

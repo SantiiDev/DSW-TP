@@ -7,7 +7,7 @@
 // Pagina por tandas acumulando, con el mismo patrón que UserReviewsList, y por
 // eso NO usa useFetch: ese hook reemplaza los datos en cada carga y acá hay que
 // sumar la tanda nueva a lo que ya se mostró.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../../core/components/Button';
 import { ConfirmDialog } from '../../../core/components/Modal';
@@ -15,6 +15,7 @@ import { useAuth } from '../../../core/context/AuthContext';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { scrollToSection } from '../../../core/utils/scrollToSection';
+import { ReviewEditModal } from './ReviewEditModal';
 import { ReviewList } from './ReviewList';
 import { reviewService } from '../services/reviewService';
 import type { Review } from '../models/Review';
@@ -57,25 +58,45 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  // true mientras se trae la primera tanda de OTRO modo, con algo ya en pantalla.
+  // Va aparte de isLoading porque se dibuja distinto: ver loadFirstPage.
+  const [isSwitching, setIsSwitching] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [toDelete, setToDelete] = useState<Review | null>(null);
+  // La reseña que se está editando, o null si el diálogo está cerrado.
+  const [editing, setEditing] = useState<Review | null>(null);
 
   // El feed de amigos necesita sesión: la API responde 401 sin token. Se corta
   // acá para cubrir el caso de alguien que pega ?scope=friends en la barra de
   // direcciones sin estar logueado.
   const isFriendsBlocked = scope === 'friends' && !isAuthenticated;
 
+  // Si el feed ya mostró una tanda alguna vez. Es un ref y no un estado porque
+  // solo decide CÓMO se dibuja la carga siguiente; cambiarlo no tiene que
+  // provocar un dibujado de más.
+  const hasLoadedOnce = useRef(false);
+
   const loadFirstPage = useCallback(async () => {
     if (isFriendsBlocked) {
       setReviews([]);
       setHasMore(false);
       setIsLoading(false);
+      hasLoadedOnce.current = true;
       return;
     }
 
-    setIsLoading(true);
+    // La primera carga tapa la columna con el cargador, porque no hay nada que
+    // mostrar. Al cambiar de modo no: sacar las reseñas para poner el cargador
+    // desploma el alto de la página y se ve como un tirón. Se dejan las de
+    // antes atenuadas hasta que llega la tanda nueva.
+    if (hasLoadedOnce.current) {
+      setIsSwitching(true);
+    } else {
+      setIsLoading(true);
+    }
+
     setError(null);
 
     try {
@@ -90,7 +111,9 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
+      hasLoadedOnce.current = true;
       setIsLoading(false);
+      setIsSwitching(false);
     }
     // followVersion no se usa adentro, pero está en las dependencias a propósito:
     // es lo que hace que seguir a alguien recargue el feed.
@@ -219,7 +242,7 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
   const empty = buildEmptyState();
 
   return (
-    <div className="review-feed">
+    <div className={`review-feed ${isSwitching ? 'review-feed--switching' : ''}`}>
       <ReviewList
         reviews={reviews}
         isLoading={isLoading}
@@ -232,12 +255,23 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
         currentUserId={currentUser?.id ?? null}
         isAdmin={currentUser?.isAdmin ?? false}
         onLoadMore={handleLoadMore}
-        // Desde el feed no se edita en el lugar: se navega a la ficha del ítem,
-        // que es donde vive el formulario. Es el mismo criterio que en el perfil.
-        onEdit={(review) => navigate(review.sharePath)}
+        // Se edita en el mismo feed, sin salir de la lista: antes el lápiz
+        // navegaba a la página de la reseña y había que volver a buscar dónde
+        // se había quedado leyendo. Es el mismo criterio que en el perfil.
+        onEdit={setEditing}
         onDelete={setToDelete}
         onToggleVisibility={handleToggleVisibility}
         onToggleLike={handleToggleLike}
+      />
+
+      {/* Editar la propia reseña sin salir del feed. Al guardar, la tarjeta se
+          reemplaza en el lugar: recargar el feed volvería a la primera tanda y
+          perdería lo que ya se trajo con "Ver más". */}
+      <ReviewEditModal
+        isOpen={editing !== null}
+        review={editing}
+        onClose={() => setEditing(null)}
+        onSaved={replaceReview}
       />
 
       <ConfirmDialog

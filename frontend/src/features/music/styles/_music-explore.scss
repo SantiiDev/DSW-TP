@@ -55,38 +55,10 @@
     }
   }
 
+  // La caja del conmutador la estila core/components/_view-switcher.scss: acá
+  // queda solo dónde se ubica dentro de la cabecera.
   &__tabs {
     display: inline-flex;
-    background-color: $color-bg-light;
-    border-radius: 12px;
-    padding: 4px;
-    gap: 2px;
-  }
-
-  &__tab {
-    @include control-centrado;
-    padding: 0.6rem 1.8rem;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: $color-text-secondary;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: all 0.25s ease;
-
-    &:hover {
-      color: $color-text;
-    }
-
-    &--active {
-      background-color: $color-primary;
-      color: #000;
-
-      &:hover {
-        color: #000;
-      }
-    }
   }
 
   &__content {
@@ -119,7 +91,7 @@
     flex-direction: column;
     gap: 2px;
     background-color: rgba($color-bg-light, 0.5);
-    border-radius: 16px;
+    border-radius: $radius;
     overflow: hidden;
   }
 }
@@ -140,7 +112,7 @@
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-    border-radius: 10px;
+    border-radius: $radius;
     overflow: hidden;
     background-color: #222;
 
@@ -181,7 +153,7 @@
     font-size: 0.7rem;
     font-weight: 700;
     padding: 3px 8px;
-    border-radius: 6px;
+    border-radius: $radius;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     z-index: 2;
@@ -255,7 +227,7 @@
   &__cover {
     width: 56px;
     height: 56px;
-    border-radius: 8px;
+    border-radius: $radius;
     overflow: hidden;
     flex-shrink: 0;
     background-color: #222;
@@ -353,7 +325,7 @@
   flex-direction: column;
   justify-content: flex-end;
   padding: $spacing-md;
-  border-radius: 14px;
+  border-radius: $radius;
   min-height: 110px;
   cursor: pointer;
   border: none;
@@ -366,7 +338,7 @@
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.15);
-    border-radius: 14px;
+    border-radius: $radius;
     transition: background 0.2s ease;
   }
 
@@ -419,7 +391,7 @@
   padding: $spacing-md $spacing-lg;
   background-color: $color-bg-light;
   border: 1px solid rgba($color-primary, 0.3);
-  border-radius: 14px;
+  border-radius: $radius;
   cursor: pointer;
   overflow: hidden;
   transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease,
@@ -476,7 +448,7 @@
     flex-shrink: 0;
     padding: 0.25rem 0.6rem;
     background-color: rgba($color-primary, 0.12);
-    border-radius: 20px;
+    border-radius: $radius;
     color: $color-primary;
     font-size: 0.75rem;
     font-weight: 600;

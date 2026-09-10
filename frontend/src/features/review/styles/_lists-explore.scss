@@ -101,7 +101,7 @@
     flex-direction: column;
     gap: 2px;
     background-color: rgba($color-bg-light, 0.5);
-    border-radius: 16px;
+    border-radius: $radius;
     overflow: hidden;
   }
 }
@@ -212,7 +212,7 @@
   padding: 0.45rem 0.9rem;
   background-color: rgba($color-bg-light, 0.8);
   border: 1px solid $color-nav-border;
-  border-radius: 20px;
+  border-radius: $radius;
   color: $color-text;
   font-size: 0.82rem;
   font-weight: 500;
@@ -251,7 +251,7 @@
 .trending-list-card {
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 16px;
+  border-radius: $radius;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;

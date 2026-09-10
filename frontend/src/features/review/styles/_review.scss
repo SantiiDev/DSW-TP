@@ -176,7 +176,7 @@ $star-color: #f5c518;
   padding: $spacing-md;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 8px;
+  border-radius: $radius;
 
   // Una reseña oculta solo la ven su autor y un ADMIN: se atenúa para que se note
   // de un vistazo que no es lo que ve el resto de la comunidad.
@@ -247,7 +247,7 @@ $star-color: #f5c518;
     flex-direction: column;
     padding: $spacing-sm;
     background-color: $color-bg;
-    border-radius: 6px;
+    border-radius: $radius;
   }
 
   &__target-title {
@@ -398,7 +398,7 @@ $star-color: #f5c518;
     min-width: 0;
     padding: $spacing-sm $spacing-md;
     background-color: rgba($color-text, 0.06);
-    border-radius: 12px;
+    border-radius: $radius;
   }
 
   &__meta {
@@ -488,6 +488,21 @@ $star-color: #f5c518;
   }
 }
 
+// --- Feed social (/reviews) --------------------------------------------------
+
+.review-feed {
+  transition: opacity 0.2s ease;
+
+  // Mientras se trae el otro modo del toggle, las reseñas de antes siguen en su
+  // lugar apenas atenuadas: el alto de la columna no cambia y el cambio se lee
+  // como una transición y no como un salto. El bloqueo evita que en ese rato se
+  // le dé "me gusta" a una reseña que está por desaparecer de la lista.
+  &--switching {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+}
+
 // --- Sección completa --------------------------------------------------------
 
 .reviews-section {
@@ -527,7 +542,7 @@ $star-color: #f5c518;
     padding: $spacing-sm $spacing-md;
     background-color: rgba($star-color, 0.1);
     border-left: 3px solid $star-color;
-    border-radius: 4px;
+    border-radius: $radius;
     color: $color-text-secondary;
     font-size: 0.85rem;
   }
@@ -540,13 +555,42 @@ $star-color: #f5c518;
 // reojo (las acciones y las otras reseñas).
 
 .review-detail {
+  // Ancla al botón "Volver", que va posicionado sobre la cabecera.
+  position: relative;
   padding-bottom: $spacing-xl;
 
-  // La barra de "Volver" y los estados de carga sí van alineados con el navbar.
-  &__topbar,
+  // Botón "Volver": arriba a la izquierda del todo, flotando sobre la cabecera.
+  // Es el mismo tratamiento que en la ficha del álbum y en la de la canción;
+  // antes iba en una franja propia entre el navbar y la cabecera, y esa franja
+  // partía el fondo de la cabecera en dos.
+  &__topbar {
+    position: absolute;
+    top: $spacing-md;
+    left: $spacing-md;
+    // Por encima de las dos capas de fondo de la cabecera (la portada
+    // desenfocada y el velo oscuro), que no llevan z-index.
+    z-index: 2;
+
+    @media (min-width: $bp-md) {
+      left: $spacing-lg;
+    }
+  }
+
+  // Los avisos (cargando, error, no encontrada) sí van alineados con el navbar,
+  // con su propio "Volver" en el flujo normal porque acá no hay cabecera.
   &__state {
     @include page-container;
     padding-top: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+
+    // Los avisos ocupan el ancho completo de la caja; el "Volver" no, que por eso
+    // el contenedor alinea a la izquierda.
+    & > *:not(.back-link) {
+      width: 100%;
+    }
   }
 
   // --- Cabecera con la portada de fondo ---
@@ -565,23 +609,22 @@ $star-color: #f5c518;
     position: relative;
     width: 100%;
     padding-block: $spacing-lg;
+    // El espacio de más arriba es para el botón "Volver", que va flotando sobre
+    // la cabecera (ver &__topbar). Mismas medidas que .album-hero.
+    padding-top: calc(#{$spacing-lg} + 2.5rem);
     // Recorta el desenfoque del fondo, que se pasa de los bordes.
     overflow: hidden;
-  }
 
-  &__backdrop {
-    position: absolute;
-    inset: 0;
-    background-position: center;
-    background-size: cover;
-    // El desenfoque agranda los bordes: el scale evita que se vea el marco
-    // transparente que deja el blur alrededor.
-    filter: blur(28px) saturate(1.2);
-    transform: scale(1.15);
-    opacity: 0.45;
+    @media (min-width: $bp-md) {
+      padding-block: $spacing-xl;
+      padding-top: calc(#{$spacing-xl} + 1.5rem);
+    }
 
-    // El degradado que apaga la imagen hacia abajo y hacia los costados. Va en
-    // un ::after para no tener que repetir la imagen en dos capas.
+    // Velo oscuro sobre el fondo: la portada puede ser clarísima y sin esto el
+    // texto quedaría ilegible. Va acá y NO adentro del backdrop, que está al 45%
+    // de opacidad: metido ahí, el degradado se aguaba con la imagen y el borde
+    // de abajo no llegaba nunca al color de la página, así que se veía el corte
+    // entre la cabecera y el cuerpo. Es el mismo criterio que en .album-hero.
     &::after {
       content: '';
       position: absolute;
@@ -595,9 +638,24 @@ $star-color: #f5c518;
     }
   }
 
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: cover;
+    // El desenfoque agranda los bordes: el scale evita que se vea el marco
+    // transparente que deja el blur alrededor.
+    filter: blur(28px) saturate(1.2);
+    transform: scale(1.15);
+    opacity: 0.45;
+  }
+
   &__hero-content {
     @include page-container;
+    // Por encima de las dos capas de fondo (la portada desenfocada y el velo),
+    // que son position absolute sin z-index.
     position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -619,7 +677,7 @@ $star-color: #f5c518;
   &__cover {
     width: 140px;
     flex-shrink: 0;
-    border-radius: 10px;
+    border-radius: $radius;
     // La sombra es lo que despega la portada del telón de fondo.
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
 
@@ -823,7 +881,7 @@ $star-color: #f5c518;
     padding: $spacing-md;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 8px;
+    border-radius: $radius;
   }
 
   &__signup-text {
@@ -844,7 +902,7 @@ $star-color: #f5c518;
   flex-direction: column;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 12px;
+  border-radius: $radius;
   overflow: hidden;
 
   &__row {
@@ -944,7 +1002,7 @@ $star-color: #f5c518;
   padding: $spacing-sm;
   background-color: $color-bg;
   border: 1px solid $color-nav-border;
-  border-radius: 6px;
+  border-radius: $radius;
   text-decoration: none;
   transition: border-color 0.2s ease;
 

@@ -37,7 +37,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background-color: $color-nav-border;
-  border-radius: 8px;
+  border-radius: $radius;
   border: 2px solid $color-bg; // Añade un borde del color de fondo para que parezca más delgado
 }
 

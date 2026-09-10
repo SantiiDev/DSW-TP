@@ -23,7 +23,7 @@
   padding: $spacing-md;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
-  border-radius: 12px;
+  border-radius: $radius;
 
   &__name {
     margin: 0;
@@ -56,6 +56,17 @@
     align-items: center;
     justify-content: space-between;
     gap: $spacing-sm;
+  }
+
+  // Editar y eliminar el propio aporte, en la pestaña "Aportes" del perfil. Van
+  // como íconos y no como botones con texto: son dos acciones sobre una card
+  // chica, y con las palabras completas no entran en una fila de la grilla.
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $color-nav-border;
   }
 
   &__albums {

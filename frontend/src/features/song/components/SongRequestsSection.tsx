@@ -20,8 +20,11 @@ import type { ContentState, Song } from '../models/Song';
 import { SongRequestCard } from './SongRequestCard';
 
 type SongRequestsSectionProps = {
-  /** Estado de las solicitudes a mostrar; lo elige el selector de la pestaña. */
-  state: ContentState;
+  /**
+   * Estado de las solicitudes a mostrar; lo elige el filtro de la pestaña.
+   * 'all' es "todas": se pide el listado sin filtro de estado.
+   */
+  state: ContentState | 'all';
   emptyIcon: ReactNode;
   emptyTitle: string;
   emptyMessage: string;
@@ -45,7 +48,10 @@ export const SongRequestsSection = ({
     error,
     reload: loadRequests,
     setError,
-  } = useFetch(() => songService.list({ state, contributed: true }), state);
+  } = useFetch(
+    () => songService.list({ state: state === 'all' ? undefined : state, contributed: true }),
+    state
+  );
   const requests = data ?? [];
 
   const [feedback, setFeedback] = useState<string | null>(null);

@@ -6,7 +6,7 @@
 //                                   antes de cargar un artista repetido
 //   GET    /api/artists/:id         ficha de un artista, cualquiera logueado
 //   PATCH  /api/artists/:id         edita nombre y biografía, el que lo cargó o ADMIN
-//   DELETE /api/artists/:id         elimina el artista, solo ADMIN
+//   DELETE /api/artists/:id         elimina el artista, ADMIN o el autor si sigue pendiente
 //   PATCH  /api/artists/:id/approve aprueba un aporte pendiente, solo ADMIN
 //   PATCH  /api/artists/:id/reject  rechaza un aporte pendiente, solo ADMIN
 //
@@ -70,10 +70,13 @@ artistRouter.patch(
   artistController.update
 );
 
+// El rol se filtra acá (un FREE nunca es dueño de un artista) y el service
+// decide el resto: un ADMIN puede borrar cualquiera, y el que lo cargó solo su
+// propio aporte mientras siga pendiente de revisión.
 artistRouter.delete(
   '/:id',
   requireAuth,
-  requireRole('ADMIN'),
+  requireRole('PRO', 'ADMIN'),
   validate({ params: artistIdParamSchema }),
   artistController.remove
 );

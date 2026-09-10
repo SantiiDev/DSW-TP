@@ -13,11 +13,12 @@
   gap: 6px;
   // ButtonLink dibuja un <a>: sin esto quedaría subrayado como un link común.
   text-decoration: none;
-  // Píldora: es la forma de todos los botones del sitio.
-  border-radius: 30px;
+  // Esquina apenas marcada: es la forma de todos los botones del sitio. La
+  // píldora anterior los hacía ver más grandes y blandos de lo que son.
+  border-radius: $radius;
   border: 1px solid transparent;
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   // transform y box-shadow van incluidos para los botones que además se agrandan
@@ -35,19 +36,20 @@
   // --- Tamaños -------------------------------------------------------------
 
   &--sm {
-    padding: 0.35rem 0.9rem;
+    padding: 0.4rem 1rem;
     font-size: 0.82rem;
-    font-weight: 600;
   }
 
   &--md {
-    padding: 0.6rem $spacing-lg;
-    font-size: 0.88rem;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.9rem;
   }
 
+  // Las mismas medidas que la llamada a la acción de la página de inicio, que es
+  // de donde sale esta forma de botón.
   &--lg {
-    padding: 0.75rem $spacing-md;
-    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
   }
 
   &--full {

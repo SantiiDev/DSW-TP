@@ -16,7 +16,7 @@ $badge-tones: (
 .badge {
   display: inline-block;
   padding: 0.15rem 0.6rem;
-  border-radius: 20px;
+  border-radius: $radius;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;

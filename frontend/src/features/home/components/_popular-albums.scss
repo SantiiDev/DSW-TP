@@ -54,7 +54,7 @@
   &__cover {
     width: 100%;
     aspect-ratio: 1;
-    border-radius: 8px;
+    border-radius: $radius;
     overflow: hidden;
     background-color: #222;
     transition: transform 0.2s ease;

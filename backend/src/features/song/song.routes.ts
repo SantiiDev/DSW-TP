@@ -5,7 +5,7 @@
 //   GET    /api/songs/explore     listado del explorador ordenado, PÚBLICO
 //   GET    /api/songs/:id         ficha de una canción, PÚBLICO
 //   PATCH  /api/songs/:id         edita los datos, la que la cargó o ADMIN
-//   DELETE /api/songs/:id         elimina la canción, solo ADMIN
+//   DELETE /api/songs/:id         elimina la canción, ADMIN o el autor si sigue pendiente
 //   PATCH  /api/songs/:id/approve aprueba un aporte pendiente, solo ADMIN
 //   PATCH  /api/songs/:id/reject  rechaza un aporte pendiente, solo ADMIN
 //
@@ -59,10 +59,13 @@ songRouter.patch(
   songController.update
 );
 
+// El rol se filtra acá (un FREE nunca es dueño de una canción) y el service
+// decide el resto: un ADMIN puede borrar cualquiera, y el que la cargó solo su
+// propio aporte mientras siga pendiente de revisión.
 songRouter.delete(
   '/:id',
   requireAuth,
-  requireRole('ADMIN'),
+  requireRole('PRO', 'ADMIN'),
   validate({ params: songIdParamSchema }),
   songController.remove
 );

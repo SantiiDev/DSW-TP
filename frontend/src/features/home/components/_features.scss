@@ -35,7 +35,7 @@
 
 .features-card {
   background-color: $color-bg-light;
-  border-radius: 16px;
+  border-radius: $radius;
   padding: $spacing-xl $spacing-lg;
   min-height: 220px;
   display: flex;

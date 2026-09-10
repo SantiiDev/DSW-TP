@@ -111,7 +111,7 @@
   // Cuántas de las cuentas listadas están dadas de baja.
   &__list-note {
     padding: 0.15rem 0.6rem;
-    border-radius: 20px;
+    border-radius: $radius;
     background-color: rgba($color-error, 0.12);
     color: color.adjust($color-error, $lightness: 10%);
     font-size: 0.75rem;
@@ -166,7 +166,7 @@
     gap: $spacing-md;
     padding: $spacing-md;
     border: 1px solid rgba($color-primary, 0.45);
-    border-radius: 12px;
+    border-radius: $radius;
     background-color: $color-bg-light;
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
 
@@ -196,6 +196,49 @@
 
       & > * {
         flex: none;
+      }
+    }
+  }
+}
+
+// ─── Paneles del panel de administración ────────────────────
+//
+// El bloque de las pestañas "Música" y "Solicitudes". La tarjeta que los envuelve
+// ya pone el marco y la separación entre sus hijos (ver _card.scss): acá va solo
+// lo propio de estos paneles.
+.admin-panel {
+  // Etiqueta + desplegable del filtro de estado. El Select trae sus propios
+  // estilos (core/components/Select.tsx); acá va solo cómo se para al lado de su
+  // etiqueta, igual que el filtro de las tablas del catálogo.
+  &__filter {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: $spacing-sm;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  // Caja del conmutador de entidad. Existe para que el control no se estire a
+  // todo el ancho de la tarjeta: la caja verde se dibuja del tamaño de sus
+  // pastillas y se apoya a la izquierda, igual que en /music.
+  &__switcher {
+    display: flex;
+    justify-content: flex-start;
+
+    // En mobile, en cambio, ocupa el ancho completo y las pastillas se reparten
+    // en partes iguales: con cuatro entidades y el ancho justo del texto quedan
+    // muy chicas para el dedo.
+    @media (max-width: $bp-sm) {
+      // Solo hay que estirarlo: el reparto en partes iguales ya lo hace su
+      // grilla (ver _view-switcher.scss).
+      .view-switcher {
+        width: 100%;
+      }
+
+      .view-switcher__option {
+        padding-left: $spacing-sm;
+        padding-right: $spacing-sm;
       }
     }
   }

@@ -28,7 +28,7 @@
     min-width: 0;
     background-color: $color-bg;
     border: 1px solid $color-nav-border;
-    border-radius: 8px;
+    border-radius: $radius;
     color: $color-text;
     font: inherit;
     text-align: left;
@@ -132,7 +132,7 @@
     max-width: 320px;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
-    border-radius: 10px;
+    border-radius: $radius;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
     animation: select-panel-in 0.12s ease-out;
   }
@@ -173,7 +173,7 @@
     padding: 0.4rem 0.6rem 0.4rem 1.9rem;
     background-color: $color-bg;
     border: 1px solid $color-nav-border;
-    border-radius: 6px;
+    border-radius: $radius;
     color: $color-text;
     font: inherit;
     font-size: 0.85rem;
@@ -202,7 +202,7 @@
     justify-content: space-between;
     gap: $spacing-sm;
     padding: 0.45rem 0.6rem;
-    border-radius: 6px;
+    border-radius: $radius;
     color: $color-text-secondary;
     font-size: 0.88rem;
     cursor: pointer;

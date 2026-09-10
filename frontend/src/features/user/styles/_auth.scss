@@ -36,7 +36,7 @@
     width: 100%;
     max-width: 440px;
     background-color: $color-bg-light;
-    border-radius: 16px;
+    border-radius: $radius;
     padding: $spacing-lg;
     border: 1px solid $color-nav-border;
     display: flex;
@@ -92,7 +92,7 @@
     padding: 0.7rem $spacing-md;
     background-color: transparent;
     border: 1px solid #444;
-    border-radius: 30px;
+    border-radius: $radius;
     color: $color-text;
     font-size: 0.95rem;
     font-weight: 600;
@@ -161,7 +161,7 @@
     width: 100%;
     background-color: $color-bg;
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: $radius;
     padding: 0.6rem 1rem;
     color: $color-text;
     font-size: 0.9rem;
@@ -185,7 +185,7 @@
     padding: 0.6rem 0.9rem;
     background-color: rgba($color-error, 0.12);
     border: 1px solid rgba($color-error, 0.4);
-    border-radius: 8px;
+    border-radius: $radius;
     color: color.adjust($color-error, $lightness: 15%);
     font-size: 0.85rem;
     text-align: center;

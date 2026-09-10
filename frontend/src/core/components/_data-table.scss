@@ -13,7 +13,7 @@
   &__wrapper {
     overflow-x: auto;
     border: 1px solid $color-nav-border;
-    border-radius: 12px;
+    border-radius: $radius;
     // Sin esto el wrapper no se achica por debajo del ancho de la tabla y estira
     // la página entera en mobile, en vez de mostrar su propio scroll.
     min-width: 0;

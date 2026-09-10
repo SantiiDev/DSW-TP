@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 import { Check, Eye, EyeOff, Heart, MessageCircle, Pencil, Share2, Trash2 } from 'lucide-react';
 import { Avatar } from '../../../core/components/Avatar';
 import { Badge } from '../../../core/components/Badge';
-import { Button } from '../../../core/components/Button';
+import { IconButton } from '../../../core/components/IconButton';
 import { StarRating } from './StarRating';
 import { ReviewComments } from './ReviewComments';
 import type { Review } from '../models/Review';
@@ -188,38 +188,37 @@ export const ReviewCard = ({
           </button>
         </div>
 
+        {/* Van como íconos y no como botones con texto: son hasta tres acciones
+            al pie de cada tarjeta de una lista, y con las palabras completas se
+            comen la fila de reacciones. El nombre de cada una lo pone IconButton
+            como globito y como nombre accesible. */}
         {(canEdit || canDelete || isAdmin) && (
           <div className="review-card__actions">
             {canEdit && (
-              <Button variant="subtle" size="sm" onClick={() => onEdit(review)}>
-                <Pencil size={14} aria-hidden="true" />
-                Editar
-              </Button>
+              <IconButton
+                icon={<Pencil size={16} />}
+                label="Editar la reseña"
+                onClick={() => onEdit(review)}
+              />
             )}
 
             {/* Moderación: ocultar saca la reseña del listado público y del
                 promedio del álbum, pero no la borra. Es reversible. */}
             {isAdmin && (
-              <Button variant="subtle" size="sm" onClick={() => onToggleVisibility(review)}>
-                {review.isHidden ? (
-                  <>
-                    <Eye size={14} aria-hidden="true" />
-                    Restaurar
-                  </>
-                ) : (
-                  <>
-                    <EyeOff size={14} aria-hidden="true" />
-                    Ocultar
-                  </>
-                )}
-              </Button>
+              <IconButton
+                icon={review.isHidden ? <Eye size={16} /> : <EyeOff size={16} />}
+                label={review.isHidden ? 'Restaurar la reseña' : 'Ocultar la reseña'}
+                onClick={() => onToggleVisibility(review)}
+              />
             )}
 
             {canDelete && (
-              <Button variant="danger" size="sm" onClick={() => onDelete(review)}>
-                <Trash2 size={14} aria-hidden="true" />
-                Eliminar
-              </Button>
+              <IconButton
+                icon={<Trash2 size={16} />}
+                label="Eliminar la reseña"
+                tone="danger"
+                onClick={() => onDelete(review)}
+              />
             )}
           </div>
         )}
