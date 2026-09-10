@@ -81,7 +81,7 @@ export const Navbar = () => {
         {/* Center: Navigation Links */}
         <div className="navbar__center">
           <NavLink to="/music" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Música</NavLink>
-          <NavLink to="/members" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Miembros</NavLink>
+          <NavLink to="/reviews" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Reseñas</NavLink>
           <NavLink to="/lists" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Listas</NavLink>
           <NavLink to="/pro" className={({ isActive }) => `navbar__link navbar__link--pro ${isActive ? 'active' : ''}`}>Pro</NavLink>
         </div>

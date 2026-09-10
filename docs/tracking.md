@@ -48,10 +48,12 @@ Los títulos son los de las ramas que salieron de cada issue.
 | [#9](https://github.com/SantiiDev/DSW-TP/issues/9) | CUU 1 — Publicar y gestionar una reseña | Santiago Siena | Cerrado |
 | [#10](https://github.com/SantiiDev/DSW-TP/issues/10) | Seed del catálogo desde Deezer | Santino Gallo | Cerrado |
 | — | UI de administración del CRUD de Plan de membresía | Santino Gallo | Cerrado (falta abrir el issue) |
+| — | Seguimiento entre usuarios (relación `FOLLOWS`) | Santino Gallo | Cerrado (falta abrir el issue) |
+| — | CUU 4 (parte 1) — Feed social de reseñas | Santiago Siena | Cerrado (falta abrir el issue) |
 
-> La última se trabajó antes de abrir su issue. Hay que crearla en el GitHub
-> Project y vincularla a su pull request, para que la trazabilidad quede completa
-> antes de la entrega.
+> Las tres últimas se trabajaron antes de abrir su issue. Hay que crearlas en el
+> GitHub Project y vincularlas a sus pull requests, para que la trazabilidad
+> quede completa antes de la entrega.
 
 ### Pendientes de abrir
 
@@ -60,8 +62,8 @@ Lo que falta del alcance y todavía no tiene issue. El detalle de cada uno está
 
 | Ítem | Responsable propuesto | Prioridad |
 |:-|:-|:-|
-| CUU 4 — Feed social y estadísticas avanzadas | A definir | Alta |
-| Conectar `/members` y `/lists` a la API (hoy son datos fijos) | A definir | Alta |
+| CUU 4 (parte 2) — Estadísticas avanzadas y bloqueo para `FREE` | A definir | Alta |
+| Conectar `/lists` a la API (hoy son datos fijos) | A definir | Alta |
 | Tests automatizados (3 unitarios + 1 de integración en backend) | Uno por integrante | Alta (aprobación) |
 | Test unitario de componente + test E2E (frontend) | A definir | Alta (aprobación) |
 | Documentación de la API | A definir | Alta (aprobación) |

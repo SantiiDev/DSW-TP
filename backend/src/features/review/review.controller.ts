@@ -27,7 +27,10 @@ export const reviewController = {
 
   async list(req: Request, res: Response): Promise<void> {
     const filters = req.validated.query as ListReviewsQuery;
-    const reviews = await reviewService.list(filters, req.user!);
+    // Va con optionalAuth, así que req.user puede no estar: se pasa null y el
+    // service responde como para un visitante (solo publicadas, sin "me gusta"
+    // propios y sin feed de amigos).
+    const reviews = await reviewService.list(filters, req.user ?? null);
     res.status(200).json(reviews);
   },
 

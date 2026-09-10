@@ -37,7 +37,6 @@
 
 // User / Auth
 @use '../features/user/styles/auth';
-@use '../features/user/styles/members-explore';
 @use '../features/user/styles/suggested-users';
 @use '../features/user/styles/user';
 @use '../features/user/styles/admin';
@@ -62,6 +61,7 @@
 
 // Lists Explore
 @use '../features/review/styles/lists-explore';
+@use '../features/review/styles/reviews-explore';
 
 // Membership / Pro
 @use '../features/membership/styles/membership';

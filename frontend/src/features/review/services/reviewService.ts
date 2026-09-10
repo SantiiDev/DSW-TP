@@ -47,6 +47,14 @@ export type ReviewFilters = {
   state?: ReviewState;
   /** Filtro por estrellas: deja las de esta calificación para arriba. */
   minRating?: number;
+  /**
+   * Feed de amigos: deja solo las reseñas de la gente que sigue el usuario
+   * logueado. Es lo que alimenta la solapa "Amigos" de /reviews.
+   *
+   * No se combina con userId: la API rechaza los dos juntos con un 400, porque
+   * filtran por autor sobre la misma columna.
+   */
+  following?: boolean;
   limit?: number;
   offset?: number;
 };
@@ -141,6 +149,9 @@ function buildQuery(filters: ReviewFilters): string {
   if (filters.userId !== undefined) params.set('id_user', String(filters.userId));
   if (filters.state) params.set('state', filters.state);
   if (filters.minRating !== undefined) params.set('min_rating', String(filters.minRating));
+  // Solo se manda cuando está en true: un following=false sería pedir "el feed de
+  // la comunidad", que es justamente lo que devuelve el listado sin el filtro.
+  if (filters.following) params.set('following', 'true');
   if (filters.limit !== undefined) params.set('limit', String(filters.limit));
   if (filters.offset !== undefined) params.set('offset', String(filters.offset));
 
@@ -149,7 +160,13 @@ function buildQuery(filters: ReviewFilters): string {
 }
 
 export const reviewService = {
-  /** Lista reseñas filtradas y paginadas. Pide sesión. */
+  /**
+   * Lista reseñas filtradas y paginadas.
+   *
+   * Es una lectura pública: sin sesión devuelve las publicadas, con el corazón
+   * apagado. Con sesión llegan además los "me gusta" propios, y un ADMIN puede
+   * pedir las ocultas.
+   */
   async list(filters: ReviewFilters = {}): Promise<Review[]> {
     const data = await httpClient.get<ReviewApiResponse[]>(`/reviews${buildQuery(filters)}`);
     return data.map(toReview);

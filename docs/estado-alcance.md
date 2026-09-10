@@ -86,13 +86,14 @@ en la [propuesta](../proposal.md) y los requisitos del
 | 1 — Sistema de reseñas (álbumes y canciones) | ✅ | Alta, edición, baja, likes y comentarios |
 | 2 — Pasarela de pagos y membresías | ✅ | Checkout Pro en sandbox, webhook y confirmación al volver |
 | 3 — Aporte y moderación de catálogo | ✅ | Alta en estado `pending` por un `PRO`, aprobación por un `ADMIN` |
-| 4 — Feed social y estadísticas avanzadas | ❌ | No hay timeline global ni estadísticas analíticas. La única estadística es el histograma de calificaciones del perfil (`GET /api/reviews/stats`), que además es público en lugar de estar bloqueado para usuarios `FREE`. |
+| 4 — Feed social y estadísticas avanzadas | ⚠️ | **Feed social terminado**: la sección `/reviews` con su toggle Comunidad / Amigos, el seguimiento unidireccional entre usuarios (relación `FOLLOWS`) y el panel "Gente para seguir". **Faltan** las estadísticas avanzadas ("Tu año en música", "Géneros más escuchados") y el bloqueo de las estadísticas para usuarios `FREE`. Hoy la única estadística es el histograma de calificaciones del perfil (`GET /api/reviews/stats`), que es público. |
 
-La relación entre casos de uso comprometida en la propuesta está encadenada hasta
-el CUU 1: el pago del CUU 2 convierte al usuario en `PRO`, eso lo habilita a
-aportar catálogo en el CUU 3, y sobre ese catálogo aprobado se publican las
-reseñas del CUU 1. El último eslabón —que esas reseñas alimenten el feed y las
-estadísticas— depende del CUU 4, que todavía no está.
+La relación entre casos de uso comprometida en la propuesta **cierra de punta a
+punta**: el pago del CUU 2 convierte al usuario en `PRO`, eso lo habilita a
+aportar catálogo en el CUU 3, sobre ese catálogo aprobado se publican las reseñas
+del CUU 1, y esas reseñas son las que alimentan el feed del CUU 4, que las lleva a
+la gente que sigue al autor. Cada eslabón usa como entrada la data que registró el
+anterior, que es lo que pide la cátedra.
 
 ### Alcance adicional voluntario
 
@@ -122,14 +123,18 @@ estadísticas— depende del CUU 4, que todavía no está.
 
 Cosas que funcionan pero no están como deberían, ordenadas por prioridad:
 
-1. **`/members` y `/lists` muestran datos fijos.** Sus siete secciones
-   (`FeaturedMembers`, `PopularReviewers`, `MemberReviews`, `MemberLists`,
-   `TopListsSection`, `TrendingListsSection`, `ExploreTagsSection`) tienen los
-   datos escritos en el componente en lugar de pedirlos a la API. Hay que
-   conectarlas o sacarlas.
+1. **`/lists` muestra datos fijos.** Sus tres secciones (`TopListsSection`,
+   `TrendingListsSection`, `ExploreTagsSection`) tienen los datos escritos en el
+   componente en lugar de pedirlos a la API. Hay que conectarlas o sacarlas. Es
+   el último foco de datos inventados del proyecto: la sección `/members`, que era
+   el otro, se eliminó junto con sus cuatro componentes al construir el feed
+   social.
 2. **Los beneficios Pro no se cumplen todos.** El sitio promete "sin anuncios" y
    "estadísticas desbloqueadas", pero no existe ningún componente de anuncios que
    se le muestre a un `FREE` ni ninguna estadística que dependa del rol.
-3. **Falta el CUU 4 entero**, que es el que cierra la cadena de casos de uso
-   comprometida en la propuesta.
+3. **Faltan las estadísticas avanzadas del CUU 4** y el bloqueo para `FREE`. El
+   feed social, que es la otra mitad de ese caso de uso, ya está.
 4. **No hay ni un test automatizado** en ninguna de las dos apps.
+5. **El encabezado de página está duplicado** entre `_lists-explore.scss` y
+   `_reviews-explore.scss` (título con degradado, subtítulo y la línea de abajo).
+   Conviene unificarlo en un parcial compartido cuando se rehaga `/lists`.

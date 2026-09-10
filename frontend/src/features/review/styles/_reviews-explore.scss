@@ -1,0 +1,127 @@
+// Estilos de la página /reviews (pages/ReviewsExplorePage): el feed social con su
+// toggle y el panel de gente para seguir.
+//
+// El bloque del encabezado (título con degradado, subtítulo y la línea de abajo)
+// es el mismo que el de /lists. Está copiado y no compartido a propósito:
+// unificarlo obligaría a rehacer también _lists-explore.scss, que en esta tanda
+// no se toca. Queda anotado como deuda en docs/estado-alcance.md.
+//
+// Mobile-first: primero los estilos para pantalla chica y después las media
+// queries que amplían. Las tarjetas de reseña las estila _review.scss; acá va
+// solo el layout de la página.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.reviews-explore {
+  min-height: 100vh;
+  padding-bottom: $spacing-xl;
+
+  &__header {
+    padding: $spacing-xl $spacing-md $spacing-lg;
+    text-align: center;
+    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
+    margin: 0 auto;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, $color-nav-border, transparent);
+    }
+  }
+
+  &__title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0 0 $spacing-sm;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, $color-text 0%, $color-primary 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+
+    @media (min-width: $bp-sm) {
+      font-size: 2.5rem;
+    }
+  }
+
+  &__subtitle {
+    margin: 0 auto;
+    max-width: 640px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+  }
+
+  &__toggle {
+    display: flex;
+    justify-content: center;
+    padding: $spacing-lg $spacing-md 0;
+
+    // En mobile el toggle ocupa todo el ancho y sus dos pastillas se reparten la
+    // mitad cada una: son la acción principal de la pantalla y con el ancho justo
+    // del texto quedan chicas para el dedo.
+    .segmented {
+      width: 100%;
+    }
+
+    .segmented__option {
+      flex: 1;
+    }
+
+    @media (min-width: $bp-sm) {
+      .segmented {
+        width: auto;
+      }
+
+      .segmented__option {
+        flex: initial;
+      }
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
+    margin: 0 auto;
+    padding: $spacing-lg $spacing-md 0;
+  }
+
+  &__main {
+    // Sin esto, un texto largo de reseña ensancha el flex item y desborda la
+    // página en horizontal cuando el contenido pasa a dos columnas.
+    min-width: 0;
+  }
+
+  // A partir de LG el feed y el panel conviven en dos columnas. Antes no: a 768
+  // el feed quedaría demasiado angosto para una tarjeta con avatar, estrellas y
+  // barra de acciones.
+  @media (min-width: $bp-lg) {
+    &__content {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: $spacing-lg;
+    }
+
+    &__main {
+      flex: 1;
+    }
+
+    &__side {
+      // El panel queda fijo mientras el feed scrollea. El top es el mismo que en
+      // /lists, para que las dos secciones de dos columnas del sitio se comporten
+      // igual debajo del navbar.
+      width: 320px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 80px;
+    }
+  }
+}
