@@ -1,0 +1,129 @@
+// Estilos del panel "Gente para seguir" (components/SuggestedUsersPanel).
+//
+// Reemplaza a los bloques .popular-reviewers y .reviewer-item que vivían en
+// _members-explore.scss. La lista es la misma idea visual —filas apiladas sobre
+// un fondo redondeado, separadas por una línea de 2px de hueco— pero el avatar y
+// la pastilla del rol ahora los dibujan los componentes compartidos Avatar y
+// Badge, así que acá no hay ningún color de usuario inventado.
+//
+// Mobile-first: primero los estilos para pantalla chica y después las media
+// queries que amplían.
+@use 'sass:color';
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.suggested-users {
+  // El feed lo lleva hasta acá con un scroll suave desde su estado vacío, y el
+  // navbar es fijo: sin este margen el título del panel queda tapado. Es el
+  // mismo criterio que usa core/utils/scrollToSection.
+  scroll-margin-top: 80px;
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background-color: rgba($color-bg-light, 0.5);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  &__message {
+    margin: 0;
+    padding: $spacing-md;
+    background-color: rgba($color-bg-light, 0.5);
+    border-radius: 16px;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+
+    &--error {
+      background-color: rgba($color-error, 0.12);
+      border: 1px solid rgba($color-error, 0.4);
+      color: $color-error;
+    }
+  }
+
+  // En tablet la lista pasa a dos columnas: a ese ancho el panel va debajo del
+  // feed y a una sola columna sería una tira vertical larguísima.
+  @media (min-width: $bp-md) {
+    &__list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      background-color: transparent;
+      gap: $spacing-sm;
+    }
+
+    .suggested-user {
+      border-radius: 12px;
+    }
+  }
+
+  // En desktop el panel es la columna lateral angosta y vuelve a una sola
+  // columna, que es como se lee una lista de gente.
+  @media (min-width: $bp-lg) {
+    &__list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      background-color: rgba($color-bg-light, 0.5);
+    }
+
+    .suggested-user {
+      border-radius: 0;
+    }
+  }
+}
+
+.suggested-user {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: color.adjust($color-bg-light, $lightness: 4%);
+  }
+
+  // El nombre y el avatar son el link al perfil; el botón queda afuera para que
+  // apretarlo no navegue.
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    // min-width: 0 sobre el flex item, si no un username largo empuja el botón
+    // fuera de la tarjeta en vez de recortarse.
+    min-width: 0;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__username {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: $color-text;
+    // El nombre se recorta antes que empujar la pastilla del rol.
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    margin-top: 2px;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+}

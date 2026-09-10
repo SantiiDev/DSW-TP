@@ -13,6 +13,15 @@
 // corazón lleno) y si es el autor o un ADMIN (para poder ver una reseña oculta).
 // Con requireAuth el enlace compartido dejaría afuera a quien no tiene cuenta, y
 // sin ningún middleware el que sí la tiene vería la reseña como un desconocido.
+//
+// El seguimiento entre usuarios lo usa por el mismo motivo en tres rutas más:
+//
+//   reviewRouter.get('/', optionalAuth, ...)              feed de la comunidad
+//   followRouter.get('/suggestions', optionalAuth, ...)   gente para seguir
+//   followRouter.get('/:id/follow-stats', optionalAuth, ...)
+//
+// Las tres se ven sin cuenta —son la vitrina de /reviews— pero con sesión suman
+// el estado del que mira: qué reseñas ya le gustaron y a quiénes ya sigue.
 import { NextFunction, Request, Response } from 'express';
 import { verifyToken } from '../auth/jwt';
 

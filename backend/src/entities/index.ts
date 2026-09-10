@@ -6,6 +6,7 @@
 // el modelo listo para usar.
 import { Album } from './album.entity';
 import { Artist } from './artist.entity';
+import { Follow } from './follow.entity';
 import { Genre } from './genre.entity';
 import { GenreAlbum } from './genre-album.entity';
 import { Payment } from './payment.entity';
@@ -121,6 +122,46 @@ ReviewComment.belongsTo(Review, { foreignKey: 'id_review', as: 'review' });
 User.hasMany(ReviewComment, { foreignKey: 'id_user', as: 'comments', onDelete: 'CASCADE' });
 ReviewComment.belongsTo(User, { foreignKey: 'id_user', as: 'user' });
 
+// --- Seguimiento entre usuarios: USERS N:M USERS ----------------------------
+//
+// AGREGADO AL DER ORIGINAL (ver el encabezado de follow.entity.ts). Es lo que
+// alimenta el feed social: "las reseñas de la gente que sigo".
+//
+// Es la única relación RECURSIVA del modelo: los dos extremos son USERS. Por eso
+// cada lado necesita su propia clave foránea y su propio alias; si los dos
+// usaran el mismo, Sequelize no tendría forma de saber cuál de las dos columnas
+// es "el que sigue".
+User.belongsToMany(User, {
+  through: Follow,
+  as: 'following', // a quiénes sigue este usuario
+  foreignKey: 'id_follower',
+  otherKey: 'id_followed',
+});
+User.belongsToMany(User, {
+  through: Follow,
+  as: 'followers', // quiénes siguen a este usuario
+  foreignKey: 'id_followed',
+  otherKey: 'id_follower',
+});
+
+// Igual que con los "me gusta", además del N:M se declara el hasMany contra la
+// tabla intermedia: los contadores y la lista de ids seguidos se resuelven sobre
+// ella directamente, sin traer los usuarios enteros.
+//
+// De hecho la feature follow consulta SIEMPRE por acá y nunca por el
+// belongsToMany de arriba: User tiene un defaultScope que excluye la contraseña,
+// y ese exclude combinado con un self-join con alias es una fuente conocida de
+// consultas raras en Sequelize 6. El belongsToMany se declara igual porque es la
+// relación del DER y documenta el modelo, exactamente como pasa con likedBy.
+//
+// CASCADE en las dos puntas: un seguimiento no significa nada sin ninguno de los
+// dos usuarios. En la práctica no dispara nunca, porque la baja de un usuario es
+// lógica (state = 'suspended').
+User.hasMany(Follow, { foreignKey: 'id_follower', as: 'followingLinks', onDelete: 'CASCADE' });
+User.hasMany(Follow, { foreignKey: 'id_followed', as: 'followerLinks', onDelete: 'CASCADE' });
+Follow.belongsTo(User, { foreignKey: 'id_follower', as: 'follower' });
+Follow.belongsTo(User, { foreignKey: 'id_followed', as: 'followed' });
+
 // --- Autoría del contenido de catálogo (created_by) -------------------------
 //
 // SET NULL: si se da de baja al usuario que aportó un álbum, el álbum sobrevive
@@ -138,6 +179,7 @@ User.hasMany(Song, { foreignKey: 'created_by', as: 'createdSongs', onDelete: 'SE
 export {
   Album,
   Artist,
+  Follow,
   Genre,
   GenreAlbum,
   Payment,

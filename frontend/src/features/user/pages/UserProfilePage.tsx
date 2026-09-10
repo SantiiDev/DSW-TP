@@ -12,6 +12,7 @@ import { UserX } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { BackLink } from '../../../core/components/BackLink';
 import { useAuth } from '../../../core/context/AuthContext';
+import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { Navbar } from '../../../core/components/Navbar';
 import { Footer } from '../../../core/components/Footer';
 import { Loader } from '../../../core/components/Loader';
@@ -28,7 +29,9 @@ import { reviewService } from '../../review/services/reviewService';
 import type { ReviewStats } from '../../review/models/Review';
 import { EMPTY_PROFILE_STATS } from '../models/ProfileStats';
 import type { ProfileStats } from '../models/ProfileStats';
+import type { FollowStats } from '../models/Follow';
 import type { User } from '../models/User';
+import { followService } from '../services/followService';
 import { userService } from '../services/userService';
 import type { UpdateUserInput } from '../services/userService';
 import '../styles/_user.scss';
@@ -36,6 +39,7 @@ import '../styles/_user.scss';
 export const UserProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const { state: authState, updateProfile, deleteAccount, clearError } = useAuth();
+  const { openSignup } = useAuthModal();
   const navigate = useNavigate();
 
   // Perfil que se está mirando. En el propio se usa el usuario del contexto, así
@@ -52,6 +56,14 @@ export const UserProfilePage = () => {
   // la cabecera las usa para sus contadores y la columna lateral para el
   // histograma de calificaciones. null mientras no llegaron.
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
+
+  // Seguidores, seguidos y si el que mira sigue a este perfil. Se piden aparte de
+  // las de reseñas porque salen de otra tabla y de otro endpoint. null mientras
+  // no llegaron.
+  const [followStats, setFollowStats] = useState<FollowStats | null>(null);
+  // Hay un seguir/dejar de seguir en curso: deshabilita el botón para no mandar
+  // dos veces la misma operación.
+  const [isFollowBusy, setIsFollowBusy] = useState(false);
 
   const profileId = id ? Number(id) : authState.user?.id;
   const isOwnProfile = profileId !== undefined && profileId === authState.user?.id;
@@ -103,6 +115,24 @@ export const UserProfilePage = () => {
     void loadReviewStats();
   }, [loadReviewStats]);
 
+  // Trae los contadores de seguimiento del perfil que se está mirando.
+  const loadFollowStats = useCallback(async () => {
+    if (profileId === undefined) return;
+
+    try {
+      setFollowStats(await followService.stats(profileId));
+    } catch {
+      // Mismo criterio que con las estadísticas de reseñas: que fallen los
+      // contadores no puede tirar abajo el perfil entero.
+      setFollowStats(null);
+    }
+  }, [profileId]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadFollowStats();
+  }, [loadFollowStats]);
+
   // Al pasar del perfil propio al de otro, la pestaña activa puede dejar de
   // existir (Membresía y Aportes no siempre están). En ese caso se vuelve a la
   // primera visible en vez de mostrar una pantalla en blanco.
@@ -126,6 +156,36 @@ export const UserProfilePage = () => {
   const handleUpdate = async (input: UpdateUserInput) => {
     const succeeded = await updateProfile(input);
     if (succeeded) setIsEditing(false);
+  };
+
+  /**
+   * Sigue o deja de seguir al dueño de este perfil.
+   *
+   * Sin sesión no hay a quién anotar como seguidor, así que se ofrece la cuenta.
+   * El resultado de la API ya trae los contadores actualizados, así que se guardan
+   * tal cual en vez de volver a pedirlos.
+   */
+  const handleToggleFollow = async () => {
+    if (authState.status !== 'authenticated') {
+      openSignup();
+      return;
+    }
+
+    if (profileId === undefined || followStats === null) return;
+
+    setIsFollowBusy(true);
+
+    try {
+      setFollowStats(
+        followStats.followedByMe
+          ? await followService.unfollow(profileId)
+          : await followService.follow(profileId)
+      );
+    } catch (error) {
+      setLoadError(getErrorMessage(error));
+    } finally {
+      setIsFollowBusy(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -171,16 +231,18 @@ export const UserProfilePage = () => {
       );
     }
 
-    // Los contadores que salen de las reseñas ya son reales. "Siguiendo" y
-    // "Seguidores" siguen en cero porque la tabla FOLLOW todavía no existe.
-    const stats: ProfileStats =
-      reviewStats === null
-        ? EMPTY_PROFILE_STATS
-        : {
-            ...EMPTY_PROFILE_STATS,
-            reviews: reviewStats.total,
-            listened: reviewStats.listened,
-          };
+    // Las cuatro cajas de la cabecera salen de dos endpoints distintos: dos de las
+    // estadísticas de reseñas y dos de los contadores de seguimiento. Cada mitad
+    // queda en cero mientras su respuesta no llegó, sin bloquear a la otra.
+    const stats: ProfileStats = {
+      ...EMPTY_PROFILE_STATS,
+      ...(reviewStats === null
+        ? {}
+        : { reviews: reviewStats.total, listened: reviewStats.listened }),
+      ...(followStats === null
+        ? {}
+        : { following: followStats.following, followers: followStats.followers }),
+    };
 
     return (
       <>
@@ -188,8 +250,11 @@ export const UserProfilePage = () => {
           user={viewedUser}
           stats={stats}
           isOwnProfile={isOwnProfile}
+          isFollowing={followStats?.followedByMe ?? false}
+          isFollowBusy={isFollowBusy}
           onEdit={handleStartEdit}
           onDelete={() => setIsDeleteDialogOpen(true)}
+          onToggleFollow={handleToggleFollow}
         />
 
         <ProfileTabs
