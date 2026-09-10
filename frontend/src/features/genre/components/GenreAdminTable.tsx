@@ -1,13 +1,14 @@
 // Tabla de géneros del panel de administración: muestra el catálogo con cuántos
-// álbumes tiene cada uno y los botones de editar y eliminar.
+// álbumes tiene cada uno y los íconos de editar y eliminar.
 //
 // Solo define sus columnas: el armado de la tabla (wrapper con scroll, cabecera,
 // filas) lo pone DataTable, el mismo que usan las tablas de artistas y usuarios.
 //
 // Es presentacional: no llama a la API ni guarda estado propio; avisa al padre
 // (GenreAdminSection) con los handlers que recibe.
-import { Button } from '../../../core/components/Button';
+import { Pencil, Trash2 } from 'lucide-react';
 import { DataTable } from '../../../core/components/DataTable';
+import { IconButton } from '../../../core/components/IconButton';
 import type { DataTableColumn } from '../../../core/components/DataTable';
 import type { Genre } from '../models/Genre';
 
@@ -44,16 +45,23 @@ export const GenreAdminTable = ({
 
         return (
           <div className="data-table__actions">
-            <Button variant="outline" size="sm" disabled={isBusy} onClick={() => onEdit(genre)}>
-              Editar
-            </Button>
+            <IconButton
+              icon={<Pencil size={16} aria-hidden="true" />}
+              label="Editar"
+              disabled={isBusy}
+              onClick={() => onEdit(genre)}
+            />
 
             {/* El botón se muestra siempre, también cuando el género tiene
                 álbumes: en ese caso el diálogo explica por qué no se puede
                 borrar, que es más útil que un botón ausente sin motivo. */}
-            <Button variant="danger" size="sm" disabled={isBusy} onClick={() => onDelete(genre)}>
-              Eliminar
-            </Button>
+            <IconButton
+              icon={<Trash2 size={16} aria-hidden="true" />}
+              label="Eliminar"
+              tone="danger"
+              disabled={isBusy}
+              onClick={() => onDelete(genre)}
+            />
           </div>
         );
       },

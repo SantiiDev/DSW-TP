@@ -1,15 +1,16 @@
 // Tabla de canciones del panel de administración: muestra el catálogo con su
-// estado de moderación y los botones de editar, eliminar y aprobar/rechazar.
+// estado de moderación y los íconos de editar, eliminar y aprobar/rechazar.
 //
 // Solo define sus columnas: el armado de la tabla lo pone DataTable, el mismo
 // que usan las tablas de álbumes, artistas, géneros y usuarios.
 //
 // Es presentacional: no llama a la API ni guarda estado propio; avisa al padre
 // (SongAdminSection) con los handlers que recibe.
+import { Check, Pencil, Trash2, X } from 'lucide-react';
 import { Badge } from '../../../core/components/Badge';
-import { Button } from '../../../core/components/Button';
 import { DataTable } from '../../../core/components/DataTable';
 import type { DataTableColumn } from '../../../core/components/DataTable';
+import { IconButton } from '../../../core/components/IconButton';
 import { STATE_LABELS, STATE_TONES } from '../models/Song';
 import type { Song } from '../models/Song';
 
@@ -76,33 +77,43 @@ export const SongAdminTable = ({
         return (
           <div className="data-table__actions">
             {canEdit && (
-              <Button variant="outline" size="sm" disabled={isBusy} onClick={() => onEdit(song)}>
-                Editar
-              </Button>
+              <IconButton
+                icon={<Pencil size={16} aria-hidden="true" />}
+                label="Editar"
+                disabled={isBusy}
+                onClick={() => onEdit(song)}
+              />
             )}
 
             {/* La moderación es exclusiva del ADMIN, y solo tiene sentido sobre
                 un aporte que todavía nadie revisó. */}
             {isAdmin && song.isPending && (
               <>
-                <Button
-                  variant="success"
-                  size="sm"
+                <IconButton
+                  icon={<Check size={16} aria-hidden="true" />}
+                  label="Aprobar"
+                  tone="success"
                   disabled={isBusy}
                   onClick={() => onApprove(song)}
-                >
-                  Aprobar
-                </Button>
-                <Button variant="danger" size="sm" disabled={isBusy} onClick={() => onReject(song)}>
-                  Rechazar
-                </Button>
+                />
+                <IconButton
+                  icon={<X size={16} aria-hidden="true" />}
+                  label="Rechazar"
+                  tone="danger"
+                  disabled={isBusy}
+                  onClick={() => onReject(song)}
+                />
               </>
             )}
 
             {isAdmin && (
-              <Button variant="danger" size="sm" disabled={isBusy} onClick={() => onDelete(song)}>
-                Eliminar
-              </Button>
+              <IconButton
+                icon={<Trash2 size={16} aria-hidden="true" />}
+                label="Eliminar"
+                tone="danger"
+                disabled={isBusy}
+                onClick={() => onDelete(song)}
+              />
             )}
           </div>
         );

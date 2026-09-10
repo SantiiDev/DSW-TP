@@ -1,0 +1,41 @@
+// Estilos del botón de solo ícono (core/components/IconButton.tsx).
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/mixins' as *;
+
+.icon-btn {
+  // Cuadrado: el ícono va centrado y el alto lo fija el propio padding, así
+  // todas las acciones de una fila quedan del mismo tamaño sin importar el ícono.
+  padding: 0.4rem;
+  background-color: transparent;
+  border: 1px solid $color-nav-border;
+  border-radius: 8px;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  @include control-centrado;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  // Cada tono se enciende recién al pasar por encima: en reposo las cuatro
+  // acciones se ven iguales y en gris, para no llenar la tabla de colores.
+  &--neutral:hover:not(:disabled) {
+    border-color: $color-primary;
+    color: $color-primary;
+    background-color: rgba($color-primary, 0.1);
+  }
+
+  &--success:hover:not(:disabled) {
+    border-color: $color-primary;
+    color: $color-primary;
+    background-color: rgba($color-primary, 0.1);
+  }
+
+  &--danger:hover:not(:disabled) {
+    border-color: $color-error;
+    color: $color-error;
+    background-color: rgba($color-error, 0.12);
+  }
+}

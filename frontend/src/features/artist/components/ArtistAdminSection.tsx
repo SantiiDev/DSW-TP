@@ -2,7 +2,7 @@
 // de artistas (alta, edición, baja y moderación de los aportes pendientes).
 //
 // Concentra el estado y las llamadas a la API, y delega el dibujo en ArtistForm,
-// ArtistFilterBar y ArtistAdminTable. Vive en la feature artist y no en la feature
+// SearchBar y ArtistAdminTable. Vive en la feature artist y no en la feature
 // user para que el panel (AdminMusicPanel) solo tenga que montarla.
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
@@ -11,6 +11,7 @@ import { Button } from '../../../core/components/Button';
 import { FormModal } from '../../../core/components/FormModal';
 import { Loader } from '../../../core/components/Loader';
 import { ConfirmDialog } from '../../../core/components/Modal';
+import { SearchBar } from '../../../core/components/SearchBar';
 import { Select } from '../../../core/components/Select';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { useAuth } from '../../../core/context/AuthContext';
@@ -20,7 +21,6 @@ import type { ArtistInput } from '../services/artistService';
 import { STATE_LABELS } from '../models/Artist';
 import type { Artist, ContentState } from '../models/Artist';
 import { ArtistForm } from './ArtistForm';
-import { ArtistFilterBar } from './ArtistFilterBar';
 import { ArtistAdminTable } from './ArtistAdminTable';
 import '../styles/_artist.scss';
 
@@ -250,19 +250,19 @@ export const ArtistAdminSection = () => {
             }))}
             value={stateFilter}
             onChange={handleFilterByState}
-            size="sm"
             ariaLabel="Filtrar artistas por estado"
           />
         </span>
 
-        <Button size="sm" onClick={handleOpenCreate}>
+        <Button onClick={handleOpenCreate}>
           <Plus size={16} aria-hidden="true" />
           Agregar artista
         </Button>
       </div>
 
-      <ArtistFilterBar
+      <SearchBar
         value={search}
+        placeholder="Buscar un artista por nombre..."
         hasActiveSearch={appliedSearch !== ''}
         onChange={setSearch}
         onSearch={handleSearch}

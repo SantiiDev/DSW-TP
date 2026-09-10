@@ -263,12 +263,11 @@ export const SongAdminSection = () => {
             }))}
             value={stateFilter}
             onChange={handleFilterByState}
-            size="sm"
             ariaLabel="Filtrar canciones por estado"
           />
         </span>
 
-        <Button size="sm" onClick={handleOpenCreate}>
+        <Button onClick={handleOpenCreate}>
           <Plus size={16} aria-hidden="true" />
           Agregar canción
         </Button>

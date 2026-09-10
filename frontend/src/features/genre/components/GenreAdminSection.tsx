@@ -172,7 +172,7 @@ export const GenreAdminSection = () => {
       <div className="genre-admin__toolbar">
         <h3 className="genre-admin__list-title">Géneros del catálogo ({genres.length})</h3>
 
-        <Button size="sm" onClick={handleOpenCreate}>
+        <Button onClick={handleOpenCreate}>
           <Plus size={16} aria-hidden="true" />
           Agregar género
         </Button>

@@ -1,5 +1,5 @@
 // Tabla de planes de membresía del panel de administración: muestra cada plan con
-// su precio, su descripción y cuántas suscripciones tiene, más los botones de
+// su precio, su descripción y cuántas suscripciones tiene, más los íconos de
 // editar y eliminar.
 //
 // Solo define sus columnas: el armado de la tabla (wrapper con scroll, cabecera,
@@ -7,10 +7,11 @@
 //
 // Es presentacional: no llama a la API ni guarda estado propio; avisa al padre
 // (PlanAdminSection) con los handlers que recibe.
+import { Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '../../../core/components/Badge';
-import { Button } from '../../../core/components/Button';
 import { DataTable } from '../../../core/components/DataTable';
 import type { DataTableColumn } from '../../../core/components/DataTable';
+import { IconButton } from '../../../core/components/IconButton';
 import type { Plan } from '../models/Membership';
 
 type PlanAdminTableProps = {
@@ -67,17 +68,24 @@ export const PlanAdminTable = ({
 
         return (
           <div className="data-table__actions">
-            <Button variant="outline" size="sm" disabled={isBusy} onClick={() => onEdit(plan)}>
-              Editar
-            </Button>
+            <IconButton
+              icon={<Pencil size={16} aria-hidden="true" />}
+              label="Editar"
+              disabled={isBusy}
+              onClick={() => onEdit(plan)}
+            />
 
             {/* El botón se muestra siempre, también cuando el plan tiene
                 suscripciones: en ese caso el diálogo explica por qué no se puede
                 borrar, que es más útil que un botón ausente sin motivo. Es el
                 mismo criterio que la tabla de géneros. */}
-            <Button variant="danger" size="sm" disabled={isBusy} onClick={() => onDelete(plan)}>
-              Eliminar
-            </Button>
+            <IconButton
+              icon={<Trash2 size={16} aria-hidden="true" />}
+              label="Eliminar"
+              tone="danger"
+              disabled={isBusy}
+              onClick={() => onDelete(plan)}
+            />
           </div>
         );
       },

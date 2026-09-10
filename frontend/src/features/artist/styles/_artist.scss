@@ -13,49 +13,6 @@
 // La píldora de estado de moderación ahora la dibuja el componente Badge
 // (core/components/Badge.tsx), así que acá no queda ni el mixin ni sus colores.
 
-// --- Buscador por nombre (tabla del panel) ---------------------------------
-
-.artist-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-
-  &__field {
-    position: relative;
-    display: flex;
-    align-items: center;
-    flex: 1 1 220px;
-  }
-
-  &__icon {
-    position: absolute;
-    left: 0.75rem;
-    color: $color-text-secondary;
-    pointer-events: none;
-  }
-
-  &__input {
-    width: 100%;
-    background-color: $color-bg-light;
-    // Con qué color se tapa el fondo del navegador si autocompleta el campo
-    // (ver la regla de :-webkit-autofill en base/_reset.scss).
-    --autofill-bg: #{$color-bg-light};
-    border: 1px solid $color-nav-border;
-    border-radius: 30px;
-    padding: 0.6rem 1rem 0.6rem 2.4rem;
-    color: $color-text;
-    font: inherit;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s ease;
-
-    &:focus {
-      border-color: $color-primary;
-    }
-  }
-
-}
-
 // --- Card de un artista (aportes del perfil) -------------------------------
 
 .artist-card {

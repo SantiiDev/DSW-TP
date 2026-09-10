@@ -272,12 +272,11 @@ export const AlbumAdminSection = () => {
             }))}
             value={stateFilter}
             onChange={handleFilterByState}
-            size="sm"
             ariaLabel="Filtrar álbumes por estado"
           />
         </span>
 
-        <Button size="sm" onClick={handleOpenCreate}>
+        <Button onClick={handleOpenCreate}>
           <Plus size={16} aria-hidden="true" />
           Agregar álbum
         </Button>

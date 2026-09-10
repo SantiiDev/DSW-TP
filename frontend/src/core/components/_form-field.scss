@@ -12,10 +12,20 @@
   &__label {
     display: flex;
     align-items: baseline;
+    flex-wrap: wrap;
     gap: 0.35rem;
     font-size: 0.85rem;
     font-weight: 600;
     color: $color-text-secondary;
+    // Empuja al control hacia abajo del campo.
+    //
+    // Cuando dos campos comparten fila (el número de pista y la duración, el año
+    // y la portada) y una etiqueta ocupa dos renglones porque tiene una
+    // aclaración larga, la otra queda en uno solo: sin esto los dos inputs
+    // arrancaban a distinta altura y la fila se veía torcida. La grilla ya
+    // estira los dos campos al alto de la fila, así que alcanza con mandar el
+    // control al fondo del suyo para que queden alineados.
+    margin-bottom: auto;
   }
 
   // Aclaración al lado de la etiqueta: pesa menos que el nombre del campo.

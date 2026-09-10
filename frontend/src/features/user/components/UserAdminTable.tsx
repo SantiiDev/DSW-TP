@@ -14,11 +14,12 @@
 //
 // Es presentacional: no llama a la API ni guarda estado propio; avisa al padre
 // (AdminUsersPanel) con onSelectRole / onSuspend / onActivate.
+import { UserCheck, UserX } from 'lucide-react';
 import { Avatar } from '../../../core/components/Avatar';
 import { Badge } from '../../../core/components/Badge';
-import { Button } from '../../../core/components/Button';
 import { DataTable } from '../../../core/components/DataTable';
 import type { DataTableColumn } from '../../../core/components/DataTable';
+import { IconButton } from '../../../core/components/IconButton';
 import { Select } from '../../../core/components/Select';
 import { ROLE_LABELS, USER_ROLES } from '../models/User';
 import type { User, UserRole } from '../models/User';
@@ -129,23 +130,21 @@ export const UserAdminTable = ({
         }
 
         return user.isActive ? (
-          <Button
-            variant="danger"
-            size="sm"
+          <IconButton
+            icon={<UserX size={16} aria-hidden="true" />}
+            label="Suspender"
+            tone="danger"
             disabled={isBusy || isSaving}
             onClick={() => onSuspend(user)}
-          >
-            Suspender
-          </Button>
+          />
         ) : (
-          <Button
-            variant="success"
-            size="sm"
+          <IconButton
+            icon={<UserCheck size={16} aria-hidden="true" />}
+            label="Reactivar"
+            tone="success"
             disabled={isBusy || isSaving}
             onClick={() => onActivate(user)}
-          >
-            Reactivar
-          </Button>
+          />
         );
       },
     },

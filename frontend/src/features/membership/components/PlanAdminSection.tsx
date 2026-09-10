@@ -203,7 +203,7 @@ export const PlanAdminSection = () => {
         <div className="plan-admin__toolbar">
           <h3 className="plan-admin__list-title">Planes del sistema ({plans.length})</h3>
 
-          <Button size="sm" onClick={handleOpenCreate}>
+          <Button onClick={handleOpenCreate}>
             <Plus size={16} aria-hidden="true" />
             Agregar plan
           </Button>

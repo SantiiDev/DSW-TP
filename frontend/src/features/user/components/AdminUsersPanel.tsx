@@ -210,7 +210,7 @@ export const AdminUsersPanel = () => {
             )}
           </h2>
 
-          <Button size="sm" onClick={handleOpenCreate}>
+          <Button onClick={handleOpenCreate}>
             <Plus size={16} aria-hidden="true" />
             Agregar usuario
           </Button>
