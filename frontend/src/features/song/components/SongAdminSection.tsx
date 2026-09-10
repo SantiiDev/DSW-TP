@@ -8,10 +8,11 @@
 // A diferencia del álbum, la baja de una canción nunca se bloquea: sus reseñas se
 // borran con ella (la FK de REVIEW hacia SONG es CASCADE), así que el diálogo es
 // siempre una confirmación y avisa qué se va a perder.
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { Button } from '../../../core/components/Button';
-import { Card } from '../../../core/components/Card';
+import { FormModal } from '../../../core/components/FormModal';
 import { Loader } from '../../../core/components/Loader';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { SearchBar } from '../../../core/components/SearchBar';
@@ -86,10 +87,14 @@ export const SongAdminSection = () => {
   // Canción elegida para eliminar, a la espera de que confirmen el diálogo.
   const [songToDelete, setSongToDelete] = useState<Song | null>(null);
 
-  // El formulario está arriba de todo y la tabla puede ser larga: al elegir
-  // "Editar" en una fila de abajo hay que traer la vista hasta acá, si no parece
-  // que el botón no hizo nada.
-  const formRef = useRef<HTMLElement>(null);
+  // El formulario vive en un modal: al panel se entra a mirar y a moderar mucho
+  // más seguido que a cargar, así que el alta espera detrás de un botón en vez
+  // de ocupar el lugar de arriba de la tabla.
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  // Error del alta o de la edición. Va aparte del error de la sección porque se
+  // muestra DENTRO del modal: si se mostrara afuera, quedaría tapado por el
+  // propio formulario.
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Se vuelve a pedir cada vez que cambia el estado elegido o la búsqueda
   // aplicada: el filtrado lo resuelve la API, no el cliente.
@@ -127,16 +132,26 @@ export const SongAdminSection = () => {
     setVisibleCount(PAGE_SIZE);
   };
 
-  /** Carga la canción en el formulario y sube la vista hasta él. */
+  /** Abre el modal vacío, para cargar una canción nueva. */
+  const handleOpenCreate = () => {
+    setEditingSong(null);
+    setFormError(null);
+    setFeedback(null);
+    setIsFormOpen(true);
+  };
+
+  /** Abre el modal con los datos de la canción elegida. */
   const handleEdit = (song: Song) => {
     setEditingSong(song);
+    setFormError(null);
     setFeedback(null);
-    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setIsFormOpen(true);
   };
 
   const handleCreate = async (input: SongInput): Promise<boolean> => {
     setIsSubmitting(true);
     setError(null);
+    setFormError(null);
     setFeedback(null);
 
     try {
@@ -144,10 +159,13 @@ export const SongAdminSection = () => {
       // Se recarga en vez de agregar a mano: la API devuelve el listado ordenado
       // por álbum y pista, y así la canción nueva aparece en su lugar.
       await loadSongs();
+      setIsFormOpen(false);
       setFeedback(`Se agregó "${created.title}" al catálogo.`);
       return true;
     } catch (err) {
-      setError(getErrorMessage(err));
+      // El modal queda abierto con lo que se había escrito: cerrarlo obligaría a
+      // cargar todo de nuevo por un número de pista ya usado.
+      setFormError(getErrorMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -159,16 +177,18 @@ export const SongAdminSection = () => {
 
     setIsSubmitting(true);
     setError(null);
+    setFormError(null);
     setFeedback(null);
 
     try {
       await songService.update(editingSong.id, input);
       setEditingSong(null);
       await loadSongs();
+      setIsFormOpen(false);
       setFeedback('Los cambios se guardaron.');
       return true;
     } catch (err) {
-      setError(getErrorMessage(err));
+      setFormError(getErrorMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -229,29 +249,6 @@ export const SongAdminSection = () => {
       {error && <Alert tone="error">{error}</Alert>}
       {feedback && <Alert tone="success">{feedback}</Alert>}
 
-      {/* El formulario es el mismo para alta y edición. La key lo remonta al
-          cambiar de canción, así arranca con los valores de la que se eligió. */}
-      {/* variant="plain": esta sección ya vive adentro de la Card del panel de
-          música, y dos marcos anidados del mismo color se ven mal. */}
-      <Card
-        ref={formRef}
-        variant="plain"
-        title={editingSong ? `Editando "${editingSong.title}"` : 'Agregar canción'}
-      >
-        {editingSong ? (
-          <SongForm
-            key={editingSong.id}
-            initialValues={toFormValues(editingSong)}
-            isSubmitting={isSubmitting}
-            submitLabel="Guardar cambios"
-            onSubmit={handleUpdate}
-            onCancel={() => setEditingSong(null)}
-          />
-        ) : (
-          <SongForm key="new" isSubmitting={isSubmitting} onSubmit={handleCreate} />
-        )}
-      </Card>
-
       <div className="song-admin__toolbar">
         <h3 className="song-admin__list-title">Canciones del catálogo ({songs.length})</h3>
 
@@ -270,6 +267,11 @@ export const SongAdminSection = () => {
             ariaLabel="Filtrar canciones por estado"
           />
         </span>
+
+        <Button size="sm" onClick={handleOpenCreate}>
+          <Plus size={16} aria-hidden="true" />
+          Agregar canción
+        </Button>
       </div>
 
       <SearchBar
@@ -317,6 +319,26 @@ export const SongAdminSection = () => {
           )}
         </>
       )}
+
+      {/* El mismo modal sirve para el alta y para la edición: lo que cambia son
+          el título, los valores iniciales y a qué handler se manda. La key lo
+          remonta al pasar de uno a otro, así arranca con los valores correctos. */}
+      <FormModal
+        isOpen={isFormOpen}
+        title={editingSong ? `Editando "${editingSong.title}"` : 'Agregar canción'}
+        error={formError}
+        isBusy={isSubmitting}
+        onClose={() => setIsFormOpen(false)}
+      >
+        <SongForm
+          key={editingSong?.id ?? 'new'}
+          initialValues={editingSong ? toFormValues(editingSong) : undefined}
+          isSubmitting={isSubmitting}
+          submitLabel={editingSong ? 'Guardar cambios' : undefined}
+          onSubmit={editingSong ? handleUpdate : handleCreate}
+          onCancel={() => setIsFormOpen(false)}
+        />
+      </FormModal>
 
       <ConfirmDialog
         isOpen={songToDelete !== null}

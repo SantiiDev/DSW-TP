@@ -16,8 +16,11 @@ import '../styles/_membership.scss';
 /**
  * Valores del formulario. El monto va como texto porque el campo puede estar
  * vacío mientras se escribe, y '' no es un número.
+ *
+ * Se exporta porque la sección de administración arma estos valores a partir del
+ * plan que se está editando (ver toFormValues en PlanAdminSection).
  */
-type PlanFormValues = {
+export type PlanFormValues = {
   name: string;
   amount: string;
   description: string;

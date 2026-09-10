@@ -27,6 +27,9 @@
   &__input {
     width: 100%;
     background-color: $color-bg-light;
+    // Con qué color se tapa el fondo del navegador si autocompleta el campo
+    // (ver la regla de :-webkit-autofill en base/_reset.scss).
+    --autofill-bg: #{$color-bg-light};
     border: 1px solid $color-nav-border;
     border-radius: 30px;
     // El padding izquierdo deja lugar para la lupa.

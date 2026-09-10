@@ -8,7 +8,7 @@
 //   <Card title="Agregar género">
 //     <GenreForm ... />
 //   </Card>
-import type { ReactNode, Ref } from 'react';
+import type { ReactNode } from 'react';
 import './_card.scss';
 
 type CardProps = {
@@ -24,11 +24,6 @@ type CardProps = {
    */
   variant?: 'panel' | 'plain';
   children: ReactNode;
-  /**
-   * Referencia al elemento raíz. La usan las secciones de administración para
-   * traer la vista hasta el formulario al apretar "Editar" en una fila de abajo.
-   */
-  ref?: Ref<HTMLElement>;
   className?: string;
 };
 
@@ -37,14 +32,10 @@ export const Card = ({
   subtitle,
   variant = 'panel',
   children,
-  ref,
   className = '',
 }: CardProps) => {
   return (
-    <section
-      ref={ref}
-      className={['card', `card--${variant}`, className].filter(Boolean).join(' ')}
-    >
+    <section className={['card', `card--${variant}`, className].filter(Boolean).join(' ')}>
       {(title || subtitle) && (
         <header className="card__header">
           {title && <h3 className="card__title">{title}</h3>}

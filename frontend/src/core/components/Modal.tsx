@@ -39,15 +39,26 @@ export const ConfirmDialog = ({
 }: ConfirmDialogProps) => {
   // Escape cancela, como en cualquier diálogo del sistema. El listener se
   // engancha solo mientras está abierto para no quedar escuchando de más.
+  //
+  // Va en fase de CAPTURA (el `true`) y corta la propagación porque este diálogo
+  // puede aparecer arriba de un FormModal: por ejemplo el aviso de artistas
+  // parecidos, que sale desde adentro del formulario de alta. Los dos escuchan
+  // en window, y el de abajo enganchó su listener primero, así que en fase de
+  // burbuja se llevaría el Escape y cerraría el formulario entero con lo que el
+  // usuario venía escribiendo. La captura corre antes, sin importar el orden en
+  // que se engancharon.
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel();
+      if (e.key !== 'Escape') return;
+
+      e.stopPropagation();
+      onCancel();
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [isOpen, onCancel]);
 
   if (!isOpen) return null;

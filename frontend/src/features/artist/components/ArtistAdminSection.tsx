@@ -4,10 +4,11 @@
 // Concentra el estado y las llamadas a la API, y delega el dibujo en ArtistForm,
 // ArtistFilterBar y ArtistAdminTable. Vive en la feature artist y no en la feature
 // user para que el panel (AdminMusicPanel) solo tenga que montarla.
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { Button } from '../../../core/components/Button';
-import { Card } from '../../../core/components/Card';
+import { FormModal } from '../../../core/components/FormModal';
 import { Loader } from '../../../core/components/Loader';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { Select } from '../../../core/components/Select';
@@ -72,10 +73,14 @@ export const ArtistAdminSection = () => {
   // Artista elegido para eliminar, a la espera de que confirmen el diálogo.
   const [artistToDelete, setArtistToDelete] = useState<Artist | null>(null);
 
-  // El formulario está arriba de todo y la tabla puede ser larga: al elegir
-  // "Editar" en una fila de abajo hay que traer la vista hasta acá, si no parece
-  // que el botón no hizo nada.
-  const formRef = useRef<HTMLElement>(null);
+  // El formulario vive en un modal: al panel se entra a mirar y a moderar mucho
+  // más seguido que a cargar, así que el alta espera detrás de un botón en vez
+  // de ocupar el lugar de arriba de la tabla.
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  // Error del alta o de la edición. Va aparte del error de la sección porque se
+  // muestra DENTRO del modal: si se mostrara afuera, quedaría tapado por el
+  // propio formulario.
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Se vuelve a pedir cada vez que cambia el estado elegido o la búsqueda
   // aplicada: el filtrado lo resuelve la API, no el cliente.
@@ -113,16 +118,26 @@ export const ArtistAdminSection = () => {
     setVisibleCount(PAGE_SIZE);
   };
 
-  /** Carga el artista en el formulario y sube la vista hasta él. */
+  /** Abre el modal vacío, para cargar un artista nuevo. */
+  const handleOpenCreate = () => {
+    setEditingArtist(null);
+    setFormError(null);
+    setFeedback(null);
+    setIsFormOpen(true);
+  };
+
+  /** Abre el modal con los datos del artista elegido. */
   const handleEdit = (artist: Artist) => {
     setEditingArtist(artist);
+    setFormError(null);
     setFeedback(null);
-    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setIsFormOpen(true);
   };
 
   const handleCreate = async (input: ArtistInput): Promise<boolean> => {
     setIsSubmitting(true);
     setError(null);
+    setFormError(null);
     setFeedback(null);
 
     try {
@@ -130,10 +145,13 @@ export const ArtistAdminSection = () => {
       // Se recarga en vez de agregar a mano: la API devuelve el listado ordenado
       // por nombre y así el artista nuevo aparece en su lugar.
       await loadArtists();
+      setIsFormOpen(false);
       setFeedback(`Se agregó "${created.name}" al catálogo.`);
       return true;
     } catch (err) {
-      setError(getErrorMessage(err));
+      // El modal queda abierto con lo que se había escrito: cerrarlo obligaría a
+      // tipear todo de nuevo por un nombre repetido.
+      setFormError(getErrorMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -145,16 +163,18 @@ export const ArtistAdminSection = () => {
 
     setIsSubmitting(true);
     setError(null);
+    setFormError(null);
     setFeedback(null);
 
     try {
       await artistService.update(editingArtist.id, input);
       setEditingArtist(null);
       await loadArtists();
+      setIsFormOpen(false);
       setFeedback('Los cambios se guardaron.');
       return true;
     } catch (err) {
-      setError(getErrorMessage(err));
+      setFormError(getErrorMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -216,33 +236,6 @@ export const ArtistAdminSection = () => {
       {error && <Alert tone="error">{error}</Alert>}
       {feedback && <Alert tone="success">{feedback}</Alert>}
 
-      {/* El formulario es el mismo para alta y edición. La key lo remonta al
-          cambiar de artista, así arranca con los valores del que se eligió. */}
-      {/* variant="plain": esta sección ya vive adentro de la Card del panel de
-          música, y dos marcos anidados del mismo color se ven mal. */}
-      <Card
-        ref={formRef}
-        variant="plain"
-        title={editingArtist ? `Editando a ${editingArtist.name}` : 'Agregar artista'}
-      >
-        {editingArtist ? (
-          <ArtistForm
-            key={editingArtist.id}
-            initialValues={{
-              name: editingArtist.name,
-              biography: editingArtist.biography ?? '',
-            }}
-            excludeArtistId={editingArtist.id}
-            isSubmitting={isSubmitting}
-            submitLabel="Guardar cambios"
-            onSubmit={handleUpdate}
-            onCancel={() => setEditingArtist(null)}
-          />
-        ) : (
-          <ArtistForm key="new" isSubmitting={isSubmitting} onSubmit={handleCreate} />
-        )}
-      </Card>
-
       <div className="artist-admin__toolbar">
         <h3 className="artist-admin__list-title">Artistas del catálogo ({artists.length})</h3>
 
@@ -261,6 +254,11 @@ export const ArtistAdminSection = () => {
             ariaLabel="Filtrar artistas por estado"
           />
         </span>
+
+        <Button size="sm" onClick={handleOpenCreate}>
+          <Plus size={16} aria-hidden="true" />
+          Agregar artista
+        </Button>
       </div>
 
       <ArtistFilterBar
@@ -307,6 +305,31 @@ export const ArtistAdminSection = () => {
           )}
         </>
       )}
+
+      {/* El mismo modal sirve para el alta y para la edición: lo que cambia son
+          el título, los valores iniciales y a qué handler se manda. La key lo
+          remonta al pasar de uno a otro, así arranca con los valores correctos. */}
+      <FormModal
+        isOpen={isFormOpen}
+        title={editingArtist ? `Editando a ${editingArtist.name}` : 'Agregar artista'}
+        error={formError}
+        isBusy={isSubmitting}
+        onClose={() => setIsFormOpen(false)}
+      >
+        <ArtistForm
+          key={editingArtist?.id ?? 'new'}
+          initialValues={
+            editingArtist
+              ? { name: editingArtist.name, biography: editingArtist.biography ?? '' }
+              : undefined
+          }
+          excludeArtistId={editingArtist?.id}
+          isSubmitting={isSubmitting}
+          submitLabel={editingArtist ? 'Guardar cambios' : undefined}
+          onSubmit={editingArtist ? handleUpdate : handleCreate}
+          onCancel={() => setIsFormOpen(false)}
+        />
+      </FormModal>
 
       {/* Con álbumes asociados el diálogo solo informa: confirmar no borraría
           nada, porque la API rechaza la baja mientras esos álbumes existan. */}

@@ -56,6 +56,21 @@ export const FormModal = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isBusy, onClose]);
 
+  // Mientras el diálogo está abierto, la página de atrás no scrollea. Sin esto,
+  // sobre una tabla larga (el panel de administración) la rueda mueve el listado
+  // del fondo en vez del formulario, que es lo único con lo que se está
+  // trabajando. Al cerrar se restaura lo que hubiera, que puede no ser vacío.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (

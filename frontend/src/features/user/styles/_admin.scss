@@ -48,8 +48,8 @@
 
   // --- Formulario de alta -------------------------------------------------
 
-  // El fondo, el borde y el padding los pone el componente Card que lo envuelve:
-  // acá queda solo cómo se apilan los campos y el botón.
+  // El fondo, el borde y el padding los pone el FormModal que lo envuelve: acá
+  // queda solo cómo se apilan los campos y los botones.
   &__form {
     display: flex;
     flex-direction: column;
@@ -68,13 +68,24 @@
     }
   }
 
-  // El botón es el Button compartido; lo único propio de esta pantalla es que no
-  // se estire a lo ancho del formulario.
-  &__submit-btn {
-    align-self: flex-start;
+  // Los botones son los Button compartidos; lo único propio de esta pantalla es
+  // que no se estiren a lo ancho del formulario.
+  &__form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
   }
 
   // --- Listado ------------------------------------------------------------
+
+  // Título del listado y, a la derecha, el botón que abre el alta.
+  &__list-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
 
   &__list {
     display: flex;

@@ -91,6 +91,9 @@
   &__input {
     flex: 1;
     background-color: $color-bg-light;
+    // Con qué color se tapa el fondo del navegador si autocompleta el mail
+    // (ver la regla de :-webkit-autofill en base/_reset.scss).
+    --autofill-bg: #{$color-bg-light};
     border: 1px solid transparent;
     border-radius: 30px;
     padding: 0.6rem 1.2rem;

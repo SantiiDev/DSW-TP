@@ -4,10 +4,11 @@
 // Concentra el estado y las llamadas a la API, y delega el dibujo en AlbumForm,
 // SearchBar y AlbumAdminTable. Vive en la feature album y no en la feature user
 // para que el panel (AdminMusicPanel) solo tenga que montarla.
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { Button } from '../../../core/components/Button';
-import { Card } from '../../../core/components/Card';
+import { FormModal } from '../../../core/components/FormModal';
 import { Loader } from '../../../core/components/Loader';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { SearchBar } from '../../../core/components/SearchBar';
@@ -94,10 +95,14 @@ export const AlbumAdminSection = () => {
   // Álbum elegido para eliminar, a la espera de que confirmen el diálogo.
   const [albumToDelete, setAlbumToDelete] = useState<Album | null>(null);
 
-  // El formulario está arriba de todo y la tabla puede ser larga: al elegir
-  // "Editar" en una fila de abajo hay que traer la vista hasta acá, si no parece
-  // que el botón no hizo nada.
-  const formRef = useRef<HTMLElement>(null);
+  // El formulario vive en un modal: al panel se entra a mirar y a moderar mucho
+  // más seguido que a cargar, así que el alta espera detrás de un botón en vez
+  // de ocupar el lugar de arriba de la tabla.
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  // Error del alta o de la edición. Va aparte del error de la sección porque se
+  // muestra DENTRO del modal: si se mostrara afuera, quedaría tapado por el
+  // propio formulario.
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Se vuelve a pedir cada vez que cambia el estado elegido o la búsqueda
   // aplicada: el filtrado lo resuelve la API, no el cliente.
@@ -135,16 +140,26 @@ export const AlbumAdminSection = () => {
     setVisibleCount(PAGE_SIZE);
   };
 
-  /** Carga el álbum en el formulario y sube la vista hasta él. */
+  /** Abre el modal vacío, para cargar un álbum nuevo. */
+  const handleOpenCreate = () => {
+    setEditingAlbum(null);
+    setFormError(null);
+    setFeedback(null);
+    setIsFormOpen(true);
+  };
+
+  /** Abre el modal con los datos del álbum elegido. */
   const handleEdit = (album: Album) => {
     setEditingAlbum(album);
+    setFormError(null);
     setFeedback(null);
-    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setIsFormOpen(true);
   };
 
   const handleCreate = async (input: AlbumInput): Promise<boolean> => {
     setIsSubmitting(true);
     setError(null);
+    setFormError(null);
     setFeedback(null);
 
     try {
@@ -152,10 +167,13 @@ export const AlbumAdminSection = () => {
       // Se recarga en vez de agregar a mano: la API devuelve el listado ordenado
       // por título y así el álbum nuevo aparece en su lugar.
       await loadAlbums();
+      setIsFormOpen(false);
       setFeedback(`Se agregó "${created.title}" al catálogo.`);
       return true;
     } catch (err) {
-      setError(getErrorMessage(err));
+      // El modal queda abierto con lo que se había escrito: cerrarlo obligaría a
+      // cargar todo de nuevo por un título repetido.
+      setFormError(getErrorMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -167,16 +185,18 @@ export const AlbumAdminSection = () => {
 
     setIsSubmitting(true);
     setError(null);
+    setFormError(null);
     setFeedback(null);
 
     try {
       await albumService.update(editingAlbum.id, input);
       setEditingAlbum(null);
       await loadAlbums();
+      setIsFormOpen(false);
       setFeedback('Los cambios se guardaron.');
       return true;
     } catch (err) {
-      setError(getErrorMessage(err));
+      setFormError(getErrorMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -238,29 +258,6 @@ export const AlbumAdminSection = () => {
       {error && <Alert tone="error">{error}</Alert>}
       {feedback && <Alert tone="success">{feedback}</Alert>}
 
-      {/* El formulario es el mismo para alta y edición. La key lo remonta al
-          cambiar de álbum, así arranca con los valores del que se eligió. */}
-      {/* variant="plain": esta sección ya vive adentro de la Card del panel de
-          música, y dos marcos anidados del mismo color se ven mal. */}
-      <Card
-        ref={formRef}
-        variant="plain"
-        title={editingAlbum ? `Editando "${editingAlbum.title}"` : 'Agregar álbum'}
-      >
-        {editingAlbum ? (
-          <AlbumForm
-            key={editingAlbum.id}
-            initialValues={toFormValues(editingAlbum)}
-            isSubmitting={isSubmitting}
-            submitLabel="Guardar cambios"
-            onSubmit={handleUpdate}
-            onCancel={() => setEditingAlbum(null)}
-          />
-        ) : (
-          <AlbumForm key="new" isSubmitting={isSubmitting} onSubmit={handleCreate} />
-        )}
-      </Card>
-
       <div className="album-admin__toolbar">
         <h3 className="album-admin__list-title">Álbumes del catálogo ({albums.length})</h3>
 
@@ -279,6 +276,11 @@ export const AlbumAdminSection = () => {
             ariaLabel="Filtrar álbumes por estado"
           />
         </span>
+
+        <Button size="sm" onClick={handleOpenCreate}>
+          <Plus size={16} aria-hidden="true" />
+          Agregar álbum
+        </Button>
       </div>
 
       <SearchBar
@@ -326,6 +328,26 @@ export const AlbumAdminSection = () => {
           )}
         </>
       )}
+
+      {/* El mismo modal sirve para el alta y para la edición: lo que cambia son
+          el título, los valores iniciales y a qué handler se manda. La key lo
+          remonta al pasar de uno a otro, así arranca con los valores correctos. */}
+      <FormModal
+        isOpen={isFormOpen}
+        title={editingAlbum ? `Editando "${editingAlbum.title}"` : 'Agregar álbum'}
+        error={formError}
+        isBusy={isSubmitting}
+        onClose={() => setIsFormOpen(false)}
+      >
+        <AlbumForm
+          key={editingAlbum?.id ?? 'new'}
+          initialValues={editingAlbum ? toFormValues(editingAlbum) : undefined}
+          isSubmitting={isSubmitting}
+          submitLabel={editingAlbum ? 'Guardar cambios' : undefined}
+          onSubmit={editingAlbum ? handleUpdate : handleCreate}
+          onCancel={() => setIsFormOpen(false)}
+        />
+      </FormModal>
 
       {/* Con canciones o reseñas asociadas el diálogo solo informa: confirmar no
           borraría nada, porque la API rechaza la baja mientras existan. */}

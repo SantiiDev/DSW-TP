@@ -8,9 +8,11 @@
 // Es más simple que ArtistAdminSection porque el género no tiene moderación: no
 // hay filtro por estado ni botones de aprobar/rechazar. Tampoco tiene buscador ni
 // paginado: son once géneros y entran todos en pantalla.
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
-import { Card } from '../../../core/components/Card';
+import { Button } from '../../../core/components/Button';
+import { FormModal } from '../../../core/components/FormModal';
 import { Loader } from '../../../core/components/Loader';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { useFetch } from '../../../core/hooks/useFetch';
@@ -66,20 +68,35 @@ export const GenreAdminSection = () => {
   // Género elegido para eliminar, a la espera de que confirmen el diálogo.
   const [genreToDelete, setGenreToDelete] = useState<Genre | null>(null);
 
-  // El formulario está arriba de la tabla: al elegir "Editar" en una fila de
-  // abajo hay que traer la vista hasta acá, si no parece que el botón no hizo nada.
-  const formRef = useRef<HTMLElement>(null);
+  // El formulario vive en un modal: al panel se entra a mirar y a moderar mucho
+  // más seguido que a cargar, así que el alta espera detrás de un botón en vez
+  // de ocupar el lugar de arriba de la tabla.
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  // Error del alta o de la edición. Va aparte del error de la sección porque se
+  // muestra DENTRO del modal: si se mostrara afuera, quedaría tapado por el
+  // propio formulario.
+  const [formError, setFormError] = useState<string | null>(null);
 
-  /** Carga el género en el formulario y sube la vista hasta él. */
+  /** Abre el modal vacío, para cargar un género nuevo. */
+  const handleOpenCreate = () => {
+    setEditingGenre(null);
+    setFormError(null);
+    setFeedback(null);
+    setIsFormOpen(true);
+  };
+
+  /** Abre el modal con los datos del género elegido. */
   const handleEdit = (genre: Genre) => {
     setEditingGenre(genre);
+    setFormError(null);
     setFeedback(null);
-    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setIsFormOpen(true);
   };
 
   const handleCreate = async (input: GenreInput): Promise<boolean> => {
     setIsSubmitting(true);
     setError(null);
+    setFormError(null);
     setFeedback(null);
 
     try {
@@ -87,10 +104,13 @@ export const GenreAdminSection = () => {
       // Se recarga en vez de agregar a mano: la API devuelve el listado ordenado
       // por nombre y así el género nuevo aparece en su lugar.
       await loadGenres();
+      setIsFormOpen(false);
       setFeedback(`Se agregó el género "${created.name}".`);
       return true;
     } catch (err) {
-      setError(getErrorMessage(err));
+      // El modal queda abierto con lo que se había escrito: cerrarlo obligaría a
+      // tipear todo de nuevo por un nombre repetido.
+      setFormError(getErrorMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -102,16 +122,18 @@ export const GenreAdminSection = () => {
 
     setIsSubmitting(true);
     setError(null);
+    setFormError(null);
     setFeedback(null);
 
     try {
       await genreService.update(editingGenre.id, input);
       setEditingGenre(null);
       await loadGenres();
+      setIsFormOpen(false);
       setFeedback('Los cambios se guardaron.');
       return true;
     } catch (err) {
-      setError(getErrorMessage(err));
+      setFormError(getErrorMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -147,37 +169,20 @@ export const GenreAdminSection = () => {
       {error && <Alert tone="error">{error}</Alert>}
       {feedback && <Alert tone="success">{feedback}</Alert>}
 
-      {/* El formulario es el mismo para alta y edición. La key lo remonta al
-          cambiar de género, así arranca con el valor del que se eligió. */}
-      {/* variant="plain": ver la nota en ArtistAdminSection. */}
-      <Card
-        ref={formRef}
-        variant="plain"
-        title={editingGenre ? `Editando "${editingGenre.name}"` : 'Agregar género'}
-      >
-        {editingGenre ? (
-          <GenreForm
-            key={editingGenre.id}
-            initialValues={{ name: editingGenre.name }}
-            isSubmitting={isSubmitting}
-            submitLabel="Guardar cambios"
-            onSubmit={handleUpdate}
-            onCancel={() => setEditingGenre(null)}
-          />
-        ) : (
-          <GenreForm key="new" isSubmitting={isSubmitting} onSubmit={handleCreate} />
-        )}
-      </Card>
-
       <div className="genre-admin__toolbar">
         <h3 className="genre-admin__list-title">Géneros del catálogo ({genres.length})</h3>
+
+        <Button size="sm" onClick={handleOpenCreate}>
+          <Plus size={16} aria-hidden="true" />
+          Agregar género
+        </Button>
       </div>
 
       {isLoading ? (
         <Loader message="Cargando géneros..." />
       ) : genres.length === 0 ? (
         <p className="genre-admin__empty">
-          Todavía no hay géneros cargados. Agregá el primero con el formulario de arriba.
+          Todavía no hay géneros cargados. Agregá el primero con el botón de arriba.
         </p>
       ) : (
         <GenreAdminTable
@@ -187,6 +192,26 @@ export const GenreAdminSection = () => {
           onDelete={setGenreToDelete}
         />
       )}
+
+      {/* El mismo modal sirve para el alta y para la edición: lo que cambia son
+          el título, los valores iniciales y a qué handler se manda. La key lo
+          remonta al pasar de uno a otro, así arranca con el valor correcto. */}
+      <FormModal
+        isOpen={isFormOpen}
+        title={editingGenre ? `Editando "${editingGenre.name}"` : 'Agregar género'}
+        error={formError}
+        isBusy={isSubmitting}
+        onClose={() => setIsFormOpen(false)}
+      >
+        <GenreForm
+          key={editingGenre?.id ?? 'new'}
+          initialValues={editingGenre ? { name: editingGenre.name } : undefined}
+          isSubmitting={isSubmitting}
+          submitLabel={editingGenre ? 'Guardar cambios' : undefined}
+          onSubmit={editingGenre ? handleUpdate : handleCreate}
+          onCancel={() => setIsFormOpen(false)}
+        />
+      </FormModal>
 
       {/* Con álbumes asignados el diálogo solo informa: confirmar no borraría
           nada, porque la API rechaza la baja mientras esos álbumes existan. */}

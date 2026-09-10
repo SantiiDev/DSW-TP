@@ -1,12 +1,14 @@
 // Estilos de la feature artist: la tabla y el formulario del panel de
-// administración, la cola de solicitudes, y los aportes del perfil con su modal
-// de propuesta.
+// administración, la cola de solicitudes y los aportes del perfil.
+//
+// El marco de los diálogos NO está acá: tanto el alta del panel como la
+// propuesta del perfil usan el FormModal de core/components, que trae su propio
+// overlay y su cabecera.
 //
 // Mobile-first: primero los estilos para pantalla chica y después las media
 // queries que amplían. Los colores y espaciados salen de las variables globales.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
-@use '../../../styles/abstracts/mixins' as *;
 
 // La píldora de estado de moderación ahora la dibuja el componente Badge
 // (core/components/Badge.tsx), así que acá no queda ni el mixin ni sus colores.
@@ -35,6 +37,9 @@
   &__input {
     width: 100%;
     background-color: $color-bg-light;
+    // Con qué color se tapa el fondo del navegador si autocompleta el campo
+    // (ver la regla de :-webkit-autofill en base/_reset.scss).
+    --autofill-bg: #{$color-bg-light};
     border: 1px solid $color-nav-border;
     border-radius: 30px;
     padding: 0.6rem 1rem 0.6rem 2.4rem;
@@ -232,88 +237,3 @@
   margin-top: $spacing-md;
 }
 
-// --- Modal de propuesta (pestaña "Aportes") --------------------------------
-//
-// Mismo comportamiento visual que el ConfirmDialog de core, pero con un
-// formulario adentro. El overlay es propio de la feature, igual que el del
-// modal de autenticación.
-
-.artist-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  // Por encima del AuthModal (1000), igual que el diálogo de confirmación.
-  z-index: 1100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $spacing-md;
-}
-
-.artist-modal {
-  width: 100%;
-  max-width: 460px;
-  // En pantallas bajas el formulario no entra entero: el modal scrollea solo.
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: $spacing-lg;
-  background-color: $color-bg-light;
-  border: 1px solid $color-nav-border;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-
-  &__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: $spacing-sm;
-  }
-
-  &__title {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: $color-text;
-  }
-
-  &__close {
-    @include control-centrado;
-    padding: 0.3rem;
-    background-color: transparent;
-    border: none;
-    border-radius: 50%;
-    color: $color-text-secondary;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-
-    &:hover:not(:disabled) {
-      background-color: rgba(255, 255, 255, 0.08);
-      color: $color-text;
-    }
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  &__hint {
-    margin: 0;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: $color-text-secondary;
-  }
-
-  // Adentro del modal el formulario no necesita su propio marco: ya lo tiene.
-  .artist-form {
-    padding: 0;
-    background-color: transparent;
-    border: none;
-  }
-}

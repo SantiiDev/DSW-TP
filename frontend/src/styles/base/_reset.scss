@@ -88,6 +88,35 @@ button {
   color: inherit;
 }
 
+// Campos que completa el navegador (usuario y contraseña guardados, mail, etc.).
+//
+// Chrome los pinta con un fondo claro propio que rompe el tema oscuro, y no hay
+// forma de cambiarlo con `background-color`: lo pisa igual. Lo que sí lo tapa es
+// una sombra interior tan grande como el campo.
+//
+// El color va en una variable CSS y no fijo porque los inputs del sitio usan dos
+// fondos distintos: los que no son $color-bg la redefinen (ver .search-bar__input,
+// .footer__input y el buscador de artistas).
+input,
+textarea,
+select {
+  --autofill-bg: #{$color-bg};
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  box-shadow: 0 0 0 1000px var(--autofill-bg) inset;
+  // Al texto le pasa lo mismo que al fondo: `color` no lo mueve, esta propiedad sí.
+  -webkit-text-fill-color: $color-text;
+  caret-color: $color-text;
+  // Chrome muestra su amarillo un instante antes de aplicar la sombra. Con una
+  // transición imposible de terminar, ese instante nunca llega.
+  transition: background-color 100000s ease-in-out 0s;
+}
+
 // Global Animations
 @keyframes fadeIn {
   from {
