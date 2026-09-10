@@ -48,6 +48,8 @@ A partir de ahí, el catálogo crece **desde dentro del sistema**: los usuarios 
 <img width="1168" height="681" alt="MUSICBOXD_DER" src="https://github.com/user-attachments/assets/ab00d957-3334-4eb3-84e5-903ef95bb7ad" />
 https://drive.google.com/drive/folders/1popRH9AojPdvK1NS7iWrenMltxDe6gXC
 
+> La imagen de arriba es el DER **aprobado con la propuesta**. El modelo tal como está implementado hoy, con los ajustes que se detallan a continuación ya incorporados, está en [`docs/der.md`](docs/der.md): es el mismo diagrama en Mermaid, versionado junto al código para que no se desincronice.
+
 Ajustes sobre el DER original:
 * `USERS.rol` se define como `FREE | PRO | ADMIN`, cubriendo los niveles de acceso del sistema.
 * `ARTIST`, `ALBUMS` y `SONGS` incorporan los atributos `state` (`pending | approved | rejected`) y `created_by`, necesarios para el circuito de aporte de catálogo por parte de usuarios Pro y su moderación por parte de un administrador.

@@ -12,6 +12,7 @@ versionado en el repositorio.
 | [Minutas de reunión y avance](minutas.md) | Registro de las reuniones del equipo: qué se decidió, qué se repartió y qué quedó pendiente. |
 | [Tracking de features, bugs e issues](tracking.md) | Issues del GitHub Project, ramas, pull requests y estado de cada feature. |
 | [Estado del alcance](estado-alcance.md) | Qué ítems de la propuesta están terminados y cuáles faltan, punto por punto. |
+| [Diagrama de entidad-relación](der.md) | El modelo de datos completo en Mermaid, con las restricciones y el comportamiento ante borrados. |
 | [Instalación y ejecución](#instalación-y-ejecución) | Cómo levantar el proyecto sin conocer cómo está hecho. |
 | [Enunciado de la cátedra](enunciado.md) | Copia del enunciado original del TP (era el `README.md` del fork). |
 | [FAQ de la cátedra](../FAQ.md) | Preguntas frecuentes publicadas por los docentes. |
