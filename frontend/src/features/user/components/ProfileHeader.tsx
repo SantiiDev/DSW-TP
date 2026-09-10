@@ -6,14 +6,20 @@ import { Button } from '../../../core/components/Button';
 import { ROLE_LABELS, ROLE_TONES } from '../models/User';
 import type { User } from '../models/User';
 import type { ProfileStats } from '../models/ProfileStats';
+import { FollowButton } from './FollowButton';
 
 type ProfileHeaderProps = {
   user: User;
   stats: ProfileStats;
   /** true si el perfil es el del usuario logueado: habilita editar y eliminar. */
   isOwnProfile: boolean;
+  /** Si el usuario logueado sigue al dueño de este perfil. */
+  isFollowing: boolean;
+  /** Hay un seguir/dejar de seguir en curso: deshabilita el botón. */
+  isFollowBusy: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onToggleFollow: () => void;
 };
 
 // Los contadores se declaran como data y no como JSX repetido: son cuatro cajas
@@ -29,8 +35,11 @@ export const ProfileHeader = ({
   user,
   stats,
   isOwnProfile,
+  isFollowing,
+  isFollowBusy,
   onEdit,
   onDelete,
+  onToggleFollow,
 }: ProfileHeaderProps) => {
   return (
     <header className="profile-header">
@@ -64,7 +73,10 @@ export const ProfileHeader = ({
           ))}
         </ul>
 
-        {isOwnProfile && (
+        {/* En el perfil propio van las acciones sobre la cuenta; en el de otro,
+            el botón de seguirlo. Los dos casos comparten el mismo lugar y la
+            misma caja, que es donde el usuario ya sabe que están las acciones. */}
+        {isOwnProfile ? (
           <div className="profile-header__actions">
             <Button variant="outline" size="sm" onClick={onEdit}>
               Editar perfil
@@ -72,6 +84,15 @@ export const ProfileHeader = ({
             <Button variant="danger" size="sm" onClick={onDelete}>
               Dar de baja mi cuenta
             </Button>
+          </div>
+        ) : (
+          <div className="profile-header__actions">
+            <FollowButton
+              isFollowing={isFollowing}
+              isBusy={isFollowBusy}
+              size="sm"
+              onToggle={onToggleFollow}
+            />
           </div>
         )}
       </div>

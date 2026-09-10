@@ -707,10 +707,15 @@ con un `localhost` rechaza la preference entera.
 
 ## Modelo de datos
 
-Diez tablas, según el pasaje a tablas del DER:
+Trece tablas. Las diez primeras salen del pasaje a tablas del DER original:
 
 `users`, `plan`, `subscription`, `payments`, `artist`, `albums`, `genres`,
 `genres_albums`, `song`, `review`.
+
+Las tres últimas son los agregados al DER, documentados y justificados uno por
+uno en la [propuesta](../proposal.md#modelo):
+
+`review_likes`, `review_comments`, `follows`.
 
 ### Desvíos respecto del pasaje a tablas original
 
@@ -745,6 +750,11 @@ En los tres casos la regla de unicidad del modelo original se conserva mediante 
   ADMIN lo aprueba.
 - La contraseña del usuario nunca sale en una consulta: el `defaultScope` de `User`
   la excluye. Para el login se usa explícitamente `User.scope('withPassword')`.
+- El seguimiento entre usuarios es **unidireccional**: seguir a alguien no requiere
+  que la otra parte acepte, así que `follows` no lleva ningún atributo de estado.
+  Su PK compuesta `(id_follower, id_followed)` es lo que garantiza que no se pueda
+  seguir dos veces a la misma persona, y nadie puede seguirse a sí mismo (lo corta
+  el service con un 400).
 
 ## Pasaje a producción
 

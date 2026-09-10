@@ -11,7 +11,7 @@ import { AlbumDetailPage } from '../features/album/pages/AlbumDetailPage';
 import { AlbumsExplorePage } from '../features/album/pages/AlbumsExplorePage';
 import { SongDetailPage } from '../features/song/pages/SongDetailPage';
 import { SongsExplorePage } from '../features/song/pages/SongsExplorePage';
-import { MembersExplorePage } from '../features/user/pages/MembersExplorePage';
+import { ReviewsExplorePage } from '../features/review/pages/ReviewsExplorePage';
 import { UserProfilePage } from '../features/user/pages/UserProfilePage';
 import { AdminPage } from '../features/user/pages/AdminPage';
 import { ProCheckoutPage } from '../features/membership/pages/ProCheckoutPage';
@@ -112,7 +112,10 @@ export const App = () => {
                 </ProtectedRoute>
               }
             />
-            <Route path="/members" element={<MembersExplorePage />} />
+            {/* Feed social: es una vitrina pública, como /music. Sin sesión se
+                ve el feed de la comunidad, y la solapa "Amigos" abre el modal de
+                registro (ver ReviewsExplorePage). */}
+            <Route path="/reviews" element={<ReviewsExplorePage />} />
             <Route path="/lists" element={<ListsExplorePage />} />
 
             {/* Página de una reseña: el detalle del listado de reseñas del
@@ -190,6 +193,11 @@ export const App = () => {
                 Se mantiene la URL vieja redirigiendo, para no romper links ya
                 guardados. */}
             <Route path="/admin/users" element={<Navigate to="/admin" replace />} />
+
+            {/* La sección se llamaba "Miembros" y vivía en /members cuando
+                mostraba perfiles. Se mantiene la URL vieja redirigiendo, por el
+                mismo motivo que la de arriba. */}
+            <Route path="/members" element={<Navigate to="/reviews" replace />} />
           </Routes>
         </div>
         <AuthModal />

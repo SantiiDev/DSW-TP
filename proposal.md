@@ -10,6 +10,10 @@
 * [Repositorio del proyecto (monorepo: frontend + backend)](https://github.com/SantiiDev/DSW-TP)
   * [frontend app](https://github.com/SantiiDev/DSW-TP/tree/main/frontend)
   * [backend app](https://github.com/SantiiDev/DSW-TP/tree/main/backend)
+  * [documentación del TP](https://github.com/SantiiDev/DSW-TP/tree/main/docs)
+
+Los pull requests del desarrollo están listados en la sección
+[Pull requests](#pull-requests), al final de este documento.
 
 ## Tema
 ### Descripción
@@ -44,6 +48,8 @@ A partir de ahí, el catálogo crece **desde dentro del sistema**: los usuarios 
 <img width="1168" height="681" alt="MUSICBOXD_DER" src="https://github.com/user-attachments/assets/ab00d957-3334-4eb3-84e5-903ef95bb7ad" />
 https://drive.google.com/drive/folders/1popRH9AojPdvK1NS7iWrenMltxDe6gXC
 
+> La imagen de arriba es el DER **aprobado con la propuesta**. El modelo tal como está implementado hoy, con los ajustes que se detallan a continuación ya incorporados, está en [`docs/der.md`](docs/der.md): es el mismo diagrama en Mermaid, versionado junto al código para que no se desincronice.
+
 Ajustes sobre el DER original:
 * `USERS.rol` se define como `FREE | PRO | ADMIN`, cubriendo los niveles de acceso del sistema.
 * `ARTIST`, `ALBUMS` y `SONGS` incorporan los atributos `state` (`pending | approved | rejected`) y `created_by`, necesarios para el circuito de aporte de catálogo por parte de usuarios Pro y su moderación por parte de un administrador.
@@ -53,6 +59,7 @@ Ajustes sobre el DER original:
 * `REVIEW` incorpora el atributo `edited_date`, nulo mientras la reseña no se haya modificado desde su publicación. Permite advertir en la interfaz que el contenido fue editado con posterioridad. Se modela como atributo propio y no mediante las columnas de auditoría del ORM porque el proyecto las tiene deshabilitadas: las fechas persistidas son únicamente las previstas en el DER. Las acciones de moderación no lo modifican, ya que no alteran el contenido escrito por el autor.
 * Se agrega la relación N:M **`REVIEW_LIKES`** entre `USERS` y `REVIEW`, para el "me gusta" sobre una reseña ajena. No se modeló como un contador dentro de `REVIEW` porque un contador no registra *quién* reaccionó, y sin ese dato no se puede impedir que un mismo usuario sume varios "me gusta", ni mostrar el estado del botón, ni permitir retirarlo. Al ser una relación N:M, en el pasaje a tablas se materializa como tabla intermedia con clave primaria compuesta `(id_user, id_review)`, con el mismo tratamiento que `GENRES_ALBUMS`.
 * Se agrega la entidad débil **`REVIEW_COMMENTS`**, dependiente de `REVIEW`, para los comentarios sobre una reseña. A diferencia del "me gusta", el comentario tiene atributos propios (`text_comment`, `comment_date`) además de su autor, por lo que constituye una entidad y no una relación. Su existencia depende de la reseña comentada: al eliminarse la reseña se eliminan sus comentarios en cascada. Se le asigna la clave subrogada `id_comment`, con el mismo criterio aplicado en `SONG`, dado que un mismo usuario puede comentar varias veces la misma reseña y por lo tanto `(id_review, id_user)` no identifica unívocamente una fila.
+* Se agrega la relación N:M **`FOLLOWS`** de `USERS` consigo misma, para el seguimiento entre usuarios que alimenta el feed social del CUU 4. Es la única relación **recursiva** del modelo: los dos extremos son la misma entidad, y por eso cada uno lleva su propio rol —`id_follower`, quién sigue, e `id_followed`, a quién sigue—. El seguimiento es **unidireccional** y no requiere que la otra parte lo acepte (mismo criterio que Letterboxd), por lo que la relación no lleva ningún atributo de estado: la fila existe o no existe. En el pasaje a tablas se materializa como tabla intermedia con clave primaria compuesta `(id_follower, id_followed)` —que es además lo que impide seguir dos veces a la misma persona— y el atributo propio `follow_date`, con el mismo tratamiento que `REVIEW_LIKES` y `GENRES_ALBUMS`.
 
 ## Alcance Funcional
 
@@ -97,8 +104,31 @@ CUU 2 (pago)  →  el usuario pasa a ser PRO
 |:-|:-|
 |Frontend|Vite + React + TypeScript, React Router, Context API + useReducer, SASS (arquitectura 7-1)|
 |Backend|Node.js + Express + TypeScript, arquitectura en capas (routes → controller → service → repository)|
-|Persistencia|MySQL gestionado en Aiven (servicio cloud externo), ORM Sequelize v6|
+|Persistencia|MySQL 8 como servicio externo a la aplicación (no embebido), ORM Sequelize v6. Se trabaja contra una instancia local, acordado con la cátedra; el pasaje a un servicio cloud gestionado no requiere cambios de código, solo del `.env`|
 |Validación|Zod|
 |Autenticación|JWT propio + bcrypt, con 3 niveles de acceso (FREE, PRO, ADMIN)|
 |Pagos|MercadoPago Checkout Pro (sandbox) con webhook de confirmación|
 |Testing|Vitest + React Testing Library (frontend), Vitest + Supertest (backend), Playwright (E2E)|
+
+## Pull requests
+
+Pull requests del desarrollo, todos contra `develop` salvo donde se aclara.
+Cada uno sale de un issue y lo revisa y mergea Santino Gallo. El estado de cada
+issue y las correcciones de bugs están en
+[`docs/tracking.md`](docs/tracking.md).
+
+|PR|Rama|Contenido|Fecha|
+|:-:|:-|:-|:-:|
+|[#1](https://github.com/SantiiDev/DSW-TP/pull/1)|`feature/10-catalog-seed`|Seed del catálogo desde Deezer, en dos etapas|13/08|
+|[#2](https://github.com/SantiiDev/DSW-TP/pull/2)|`feature/1-user-crud`|CRUD de usuario y autenticación con JWT y roles|13/08|
+|[#3](https://github.com/SantiiDev/DSW-TP/pull/3)|`feature/1-user-crud`|Panel de administración y ajustes visuales del CRUD|14/08|
+|[#4](https://github.com/SantiiDev/DSW-TP/pull/4)|`feature/1-user-crud`|Interfaz del perfil de usuario|18/08|
+|[#6](https://github.com/SantiiDev/DSW-TP/pull/6)|`feature/1-user-crud` → `main`|Baja lógica de usuarios en vez de borrado físico|21/08|
+|[#7](https://github.com/SantiiDev/DSW-TP/pull/7)|`feature/4-artist-crud`|CRUD de artista, incluido el circuito de propuestas|22/08|
+|[#8](https://github.com/SantiiDev/DSW-TP/pull/8)|`feature/7-genre-crud`|CRUD de género: lecturas públicas, escritura solo ADMIN|22/08|
+|[#9](https://github.com/SantiiDev/DSW-TP/pull/9)|`fix/genre-detail-improvements`|Ficha de género: tarjetas de álbum, filtros y paginado|25/08|
+|[#10](https://github.com/SantiiDev/DSW-TP/pull/10)|`feature/5-album-crud`|CRUD de álbum y canción, colas de solicitudes y explorador conectado a datos reales|28/08|
+|[#11](https://github.com/SantiiDev/DSW-TP/pull/11)|`feature/8-review-crud`|CRUD de reseña con interacción social (likes y comentarios)|28/08|
+
+El PR #5 que aparece en el historial del repositorio pertenece al repositorio
+original `utnfrrodsw/tp`, anterior al fork, y no es trabajo del grupo.

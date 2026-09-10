@@ -111,6 +111,8 @@ type ReviewFilters = {
   /** Deja solo las reseñas de álbum, o solo las de canción, sin importar cuál. */
   targetKind?: ReviewTargetKind;
   idUser?: number;
+  /** Feed de amigos: deja solo las reseñas de este conjunto de autores. */
+  idUsers?: number[];
   state?: ReviewState;
   /** Deja solo las reseñas de esta calificación para arriba. */
   minRating?: number;
@@ -210,6 +212,10 @@ function buildWhere(filters: ReviewFilters) {
     ...(filters.targetKind === 'album' ? { id_album: { [Op.ne]: null } } : {}),
     ...(filters.targetKind === 'song' ? { id_song: { [Op.ne]: null } } : {}),
     ...(filters.idUser !== undefined ? { id_user: filters.idUser } : {}),
+    // El feed de amigos filtra por un CONJUNTO de autores y no por uno solo. El
+    // schema ya garantiza que id_user y following no lleguen juntos, así que
+    // estos dos nunca se pisan sobre la misma columna.
+    ...(filters.idUsers !== undefined ? { id_user: { [Op.in]: filters.idUsers } } : {}),
     ...(filters.state ? { state: filters.state } : {}),
     // "De 4 estrellas para arriba" es el filtro del listado de reseñas del perfil.
     ...(filters.minRating !== undefined ? { rating: { [Op.gte]: filters.minRating } } : {}),

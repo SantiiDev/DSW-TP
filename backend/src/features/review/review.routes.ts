@@ -1,6 +1,6 @@
 // Rutas del CRUD de reseñas, montadas en /api/reviews.
 //
-//   GET    /api/reviews                          listado filtrado y paginado, logueado
+//   GET    /api/reviews                          listado filtrado y paginado, PÚBLICO
 //   GET    /api/reviews/mine                     mi reseña sobre un ítem, logueado
 //   GET    /api/reviews/stats                    estadísticas de un usuario, PÚBLICO
 //   GET    /api/reviews/:id                      detalle de una reseña, PÚBLICO
@@ -23,15 +23,22 @@
 // resolver un middleware genérico: viven en el service, igual que el "dueño o
 // admin" del CRUD de álbumes.
 //
-// El listado pide token por el mismo motivo que el de álbumes: necesita saber
-// quién pregunta para decidir qué estados mostrar. Solo un ADMIN ve las reseñas
-// ocultas; para el resto el listado es siempre lo publicado.
+// El listado y el detalle son los dos PÚBLICOS y los dos van con optionalAuth,
+// que usa el token si viene pero no lo exige. Son públicos porque los dos son
+// destino de un enlace que se comparte: el detalle es a donde lleva el botón de
+// "compartir" de una reseña, y el listado es lo que dibuja el feed de la
+// comunidad en /reviews, que se ve sin cuenta.
 //
-// El detalle, en cambio, es público como la ficha de un álbum: es el destino del
-// enlace de "compartir" y lo tiene que poder abrir alguien sin cuenta. Va con
-// optionalAuth, que usa el token si viene pero no lo exige, porque la respuesta
-// mejora con sesión: el corazón se dibuja lleno si ya lo diste, y una reseña
-// oculta la siguen viendo su autor y un ADMIN (para el resto, 404).
+// Van con optionalAuth y no sin ningún middleware porque la respuesta mejora con
+// sesión, en las dos:
+//
+//   - el corazón se dibuja lleno en las reseñas que ya le gustaron al que mira
+//     (liked_by_me);
+//   - una reseña oculta la siguen viendo su autor y un ADMIN; para el resto, 404;
+//   - en el listado, un ADMIN puede además pedir las ocultas, y se habilita el
+//     filtro following, que es el feed de amigos.
+//
+// Sin token nada de eso aplica y las dos rutas devuelven lo publicado.
 import { Router } from 'express';
 import { optionalAuth } from '../../shared/middlewares/optional-auth';
 import { requireAuth } from '../../shared/middlewares/require-auth';
@@ -60,7 +67,7 @@ reviewRouter.post(
 
 reviewRouter.get(
   '/',
-  requireAuth,
+  optionalAuth,
   validate({ query: listReviewsQuerySchema }),
   reviewController.list
 );

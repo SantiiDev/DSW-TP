@@ -6,10 +6,11 @@
 //   Usuarios     -> CRUD de cuentas y cambio de rol
 //   Música       -> ABM del catálogo (artistas, álbumes y canciones)
 //   Solicitudes  -> moderación de los aportes que mandan los usuarios Pro
+//   Planes       -> ABM de los planes de membresía
 //
 // La página no sabe nada del contenido de cada pestaña: solo decide cuál está
 // activa. Cada panel se encarga de sus propios datos, así que abrir el panel no
-// dispara las requests de las tres áreas a la vez.
+// dispara las requests de las cuatro áreas a la vez.
 //
 // Ruta protegida con roles={['ADMIN']}, pero la validación real es la del backend:
 // todos estos endpoints exigen rol ADMIN aunque alguien fuerce la URL.
@@ -20,12 +21,14 @@ import { Tabs } from '../../../core/components/Tabs';
 import { AdminUsersPanel } from '../components/AdminUsersPanel';
 import { AdminMusicPanel } from '../components/AdminMusicPanel';
 import { AdminRequestsPanel } from '../components/AdminRequestsPanel';
+import { PlanAdminSection } from '../../membership/components/PlanAdminSection';
 import '../styles/_admin.scss';
 
 const ADMIN_TABS = [
   { id: 'users', label: 'Usuarios' },
   { id: 'music', label: 'Música' },
   { id: 'requests', label: 'Solicitudes' },
+  { id: 'plans', label: 'Planes' },
 ] as const;
 
 type AdminTab = (typeof ADMIN_TABS)[number]['id'];
@@ -35,6 +38,7 @@ const TAB_SUBTITLES: Record<AdminTab, string> = {
   users: 'Dar de alta cuentas, cambiar roles y suspender usuarios de Musicboxd.',
   music: 'Mantener el catálogo: artistas, álbumes y canciones.',
   requests: 'Revisar los aportes al catálogo que envían los usuarios Pro.',
+  plans: 'Definir los planes de membresía: nombre, precio y qué incluye cada uno.',
 };
 
 export const AdminPage = () => {
@@ -61,6 +65,7 @@ export const AdminPage = () => {
         {activeTab === 'users' && <AdminUsersPanel />}
         {activeTab === 'music' && <AdminMusicPanel />}
         {activeTab === 'requests' && <AdminRequestsPanel />}
+        {activeTab === 'plans' && <PlanAdminSection />}
       </main>
       <Footer />
     </>

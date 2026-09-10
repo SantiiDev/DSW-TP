@@ -109,14 +109,43 @@ export class Plan {
     return this.amount > 0;
   }
 
-  /** Precio listo para mostrar: "$3.500" o "Gratis". */
+  /**
+   * Precio listo para mostrar: "$ 3.500", "$ 1.750,50" o "Gratis".
+   *
+   * Los centavos se muestran solo si el precio los tiene. Un plan de $3.500 con
+   * ",00" pegado atrás es ruido en la página de venta, pero redondear uno de
+   * $1.750,50 a "$ 1.751" sería mostrar un precio que no es el que se va a
+   * cobrar: la columna es un DECIMAL(10,2) y el panel de administración deja
+   * cargar centavos.
+   */
   get priceLabel(): string {
     if (!this.isPaid) return 'Gratis';
+
+    const decimals = Number.isInteger(this.amount) ? 0 : 2;
+
     return this.amount.toLocaleString('es-AR', {
       style: 'currency',
       currency: 'ARS',
-      maximumFractionDigits: 0,
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
     });
+  }
+
+  /** Cuántos suscriptores tiene, en singular o plural, para la tabla del panel. */
+  get subscribersLabel(): string {
+    return this.subscribers === 1 ? '1 suscripción' : `${this.subscribers} suscripciones`;
+  }
+
+  /**
+   * ¿Se puede eliminar?
+   *
+   * La API rechaza la baja con un 409 mientras el plan tenga suscripciones,
+   * incluso vencidas o canceladas: son el historial de facturación del usuario y
+   * de ellas cuelgan los pagos. Saberlo de antemano es lo que le permite al panel
+   * explicar el motivo en vez de mostrar el error después de intentarlo.
+   */
+  get canBeDeleted(): boolean {
+    return this.subscribers === 0;
   }
 }
 

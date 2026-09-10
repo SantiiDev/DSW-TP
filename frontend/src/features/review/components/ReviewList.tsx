@@ -3,6 +3,7 @@
 // Es puramente de presentación: recibe las reseñas ya cargadas y avisa cuándo hay
 // que traer la tanda siguiente. Quien las pide es ReviewsSection.
 import { Star } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { Alert } from '../../../core/components/Alert';
 import { Button } from '../../../core/components/Button';
 import { EmptyState } from '../../../core/components/EmptyState';
@@ -22,6 +23,11 @@ type ReviewListProps = {
   isLoadingMore: boolean;
   emptyTitle: string;
   emptyMessage: string;
+  /**
+   * Acción opcional del estado vacío: un botón que saque al usuario de ahí.
+   * La usa el feed social para llevar al panel de gente para seguir.
+   */
+  emptyAction?: ReactNode;
   hideTarget?: boolean;
   currentUserId: number | null;
   isAdmin: boolean;
@@ -40,6 +46,7 @@ export const ReviewList = ({
   isLoadingMore,
   emptyTitle,
   emptyMessage,
+  emptyAction,
   hideTarget = false,
   currentUserId,
   isAdmin,
@@ -56,7 +63,14 @@ export const ReviewList = ({
   if (error) return <Alert tone="error">{error}</Alert>;
 
   if (reviews.length === 0) {
-    return <EmptyState icon={<Star size={22} />} title={emptyTitle} message={emptyMessage} />;
+    return (
+      <EmptyState
+        icon={<Star size={22} />}
+        title={emptyTitle}
+        message={emptyMessage}
+        action={emptyAction}
+      />
+    );
   }
 
   return (

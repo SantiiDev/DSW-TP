@@ -124,6 +124,23 @@ export const listReviewsQuerySchema = z.object({
   // Filtro por estrellas: "de 4 para arriba". Usa la misma escala que el alta, así
   // que también tiene que ser múltiplo de 0,5.
   min_rating: ratingSchema.optional(),
+  // Feed de amigos: deja solo las reseñas de la gente que sigue el usuario que
+  // hace la request. Es lo que alimenta la solapa "Amigos" de /reviews.
+  //
+  // No incluye las reseñas propias: son las de la gente que seguís, y las tuyas
+  // ya las ves en tu perfil.
+  //
+  // Va como filtro y no como un endpoint /feed aparte porque es exactamente la
+  // misma consulta con un WHERE de más: mismo orden, mismo paginado, misma regla
+  // de visibilidad y los mismos includes.
+  //
+  // No se usa z.coerce.boolean(): en un query string TODO llega como texto, y
+  // coerce daría true incluso para "false". Se piden los dos literales y se
+  // traduce a mano.
+  following: z
+    .enum(['true', 'false'], { message: 'El filtro de amigos se manda como true o false.' })
+    .transform((value) => value === 'true')
+    .optional(),
   // Tope de la tanda y desde qué fila arranca. Juntos arman el paginado: la
   // primera tanda va sin offset y la siguiente con el total ya mostrado. No hace
   // falta devolver un total, igual que en el explorador de álbumes: el botón "Ver
@@ -135,7 +152,13 @@ export const listReviewsQuerySchema = z.object({
     .max(MAX_LIMIT, `El tope no puede ser mayor a ${MAX_LIMIT}.`)
     .default(DEFAULT_LIMIT),
   offset: z.coerce.number().int().min(0, 'El desde no puede ser negativo.').default(0),
-});
+})
+  // Los dos filtran por autor sobre la misma columna, así que juntos serían un
+  // pedido contradictorio. Se rechaza con un 400 explícito en vez de resolverlo
+  // en silencio a favor de uno de los dos.
+  .refine((data) => !(data.following && data.id_user !== undefined), {
+    message: 'El feed de amigos no se combina con el filtro por usuario.',
+  });
 
 // GET /api/reviews/mine?id_album=5 — la reseña propia sobre un ítem puntual.
 // Mismo XOR que el alta: se pregunta por un álbum o por una canción.

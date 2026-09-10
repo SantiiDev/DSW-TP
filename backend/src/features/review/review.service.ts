@@ -10,8 +10,13 @@ import {
   ConflictError,
   ForbiddenError,
   NotFoundError,
+  UnauthorizedError,
 } from '../../shared/errors/app-error';
 import { TokenPayload } from '../../shared/auth/jwt';
+// El feed de amigos necesita saber a quiénes sigue el usuario, y de esa relación
+// es dueña la feature follow. Se le pregunta a su service en vez de consultar la
+// tabla follows desde acá: service -> service, sin saltear capas.
+import { followService } from '../follow/follow.service';
 import { ReviewState } from '../../shared/types/enums';
 import {
   reviewRepository,
@@ -414,32 +419,56 @@ export const reviewService = {
   /**
    * Lista reseñas, filtradas y paginadas.
    *
-   * Alimenta cuatro pantallas con la misma consulta: las reseñas de un álbum, las
+   * Alimenta cinco pantallas con la misma consulta: las reseñas de un álbum, las
    * de una canción, las de un usuario (esta última, con el filtro por estrellas,
-   * es el listado del perfil) y las de un usuario acotadas a un tipo de ítem, que
-   * son las pestañas "Álbumes" y "Canciones" calificados.
+   * es el listado del perfil), las de un usuario acotadas a un tipo de ítem —que
+   * son las pestañas "Álbumes" y "Canciones" calificados— y el feed social de
+   * /reviews, con sus dos solapas.
    *
-   * @param filters ítem, tipo de ítem, autor, estado, calificación mínima y paginado.
-   * @param actor usuario autenticado; define qué estados puede ver.
+   * @param filters ítem, tipo de ítem, autor, estado, calificación mínima, feed de
+   *   amigos y paginado.
+   * @param actor usuario autenticado, o null si es un visitante sin sesión.
+   *   Define qué estados puede ver y de quién es el feed de amigos.
    */
-  async list(filters: ListReviewsQuery, actor: TokenPayload): Promise<PublicReview[]> {
+  async list(filters: ListReviewsQuery, actor: TokenPayload | null): Promise<PublicReview[]> {
     // Las ocultas solo las ve un ADMIN, que es el que modera. Para cualquier otro
-    // el listado es siempre lo publicado, sin importar qué estado haya pedido.
-    // Mismo criterio que el listado de álbumes con el contenido sin aprobar.
-    const state = actor.rol === 'ADMIN' ? filters.state : 'published';
+    // —incluido el visitante sin sesión— el listado es siempre lo publicado, sin
+    // importar qué estado haya pedido. Mismo criterio que el listado de álbumes
+    // con el contenido sin aprobar, y el mismo que ya aplica getById, que es
+    // público desde siempre.
+    const state = actor?.rol === 'ADMIN' ? filters.state : 'published';
+
+    let idUsers: number[] | undefined;
+
+    if (filters.following) {
+      // El feed de amigos no existe sin saber quién pregunta: no hay forma de
+      // resolverlo para un visitante.
+      if (actor === null) {
+        throw new UnauthorizedError('Necesitás iniciar sesión para ver el feed de amigos.');
+      }
+
+      idUsers = await followService.listFollowedIds(actor.id_user);
+
+      // No seguir a nadie NO es un error: es el estado normal de una cuenta recién
+      // creada. Se devuelve la lista vacía y el frontend muestra el mensaje que
+      // invita a seguir gente. Además se corta acá para no mandarle a MySQL un
+      // IN () que no filtraría nada.
+      if (idUsers.length === 0) return [];
+    }
 
     const reviews = await reviewRepository.findAll({
       idAlbum: filters.id_album,
       idSong: filters.id_song,
       targetKind: filters.target,
       idUser: filters.id_user,
+      idUsers,
       state,
       minRating: filters.min_rating,
       limit: filters.limit,
       offset: filters.offset,
     });
 
-    return reviews.map((review) => toPublicReview(review, actor.id_user));
+    return reviews.map((review) => toPublicReview(review, actor?.id_user ?? null));
   },
 
   /**

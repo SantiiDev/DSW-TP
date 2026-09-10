@@ -1,9 +1,10 @@
 // Contadores que se muestran en la cabecera de un perfil.
 //
-// Hoy vienen en cero: las features que los alimentan todavía no están hechas
-// (reseñas es el CRUD de Siena, y el seguimiento entre usuarios es una tabla que
-// se suma más adelante). El tipo existe para que, cuando esos endpoints estén,
-// solo haya que llenarlo sin tocar los componentes que lo consumen.
+// Salen de dos endpoints distintos: los dos primeros de las estadísticas de
+// reseñas (GET /api/reviews/stats) y los dos últimos de los contadores de
+// seguimiento (GET /api/users/:id/follow-stats). Este tipo los junta en una sola
+// forma para que la cabecera dibuje las cuatro cajas igual, sin saber de dónde
+// vino cada número; quien arma el objeto es UserProfilePage.
 
 export type ProfileStats = {
   /** Reseñas publicadas por el usuario (tabla REVIEW). */
@@ -13,13 +14,13 @@ export type ProfileStats = {
    * una canción, es porque los escuchó. No hay tabla propia para esto.
    */
   listened: number;
-  /** Usuarios a los que sigue (pendiente de la tabla FOLLOW). */
+  /** Usuarios a los que sigue (tabla FOLLOWS). */
   following: number;
-  /** Usuarios que lo siguen (pendiente de la tabla FOLLOW). */
+  /** Usuarios que lo siguen (tabla FOLLOWS). */
   followers: number;
 };
 
-/** Contadores en cero, mientras no haya endpoints que los calculen. */
+/** Contadores en cero: es el estado mientras las respuestas no llegaron. */
 export const EMPTY_PROFILE_STATS: ProfileStats = {
   reviews: 0,
   listened: 0,
