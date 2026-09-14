@@ -1,11 +1,12 @@
 // Barra de navegación principal que provee enlaces a las secciones del sitio y opciones de usuario.
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ChevronDown, LogOut, Search, UserRound } from 'lucide-react';
+import { ChevronDown, LogOut, UserRound } from 'lucide-react';
 import { useAuthModal } from '../context/AuthModalContext';
 import { useAuth } from '../context/AuthContext';
 import { Avatar } from './Avatar';
 import { ConfirmDialog } from './Modal';
+import { NavbarSearch } from './NavbarSearch';
 import './_navbar.scss';
 
 export const Navbar = () => {
@@ -68,14 +69,9 @@ export const Navbar = () => {
           <Link to="/" className="navbar__logo">
             <img src="/images/logo-musicboxd.png" alt="Musicboxd" className="navbar__logo-img" />
           </Link>
-          <div className="navbar__search">
-            <Search className="navbar__search-icon" size={18} />
-            <input 
-              type="text" 
-              placeholder="Buscar en Musicboxd..." 
-              className="navbar__search-input"
-            />
-          </div>
+          {/* Busca álbumes, canciones y usuarios. Tiene su propio componente
+              porque maneja estado, pedidos a la API y teclado. */}
+          <NavbarSearch />
         </div>
 
         {/* Center: Navigation Links */}

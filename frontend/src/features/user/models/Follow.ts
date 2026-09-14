@@ -1,8 +1,10 @@
 // Modelos del seguimiento entre usuarios dentro del frontend: el estado del
-// seguimiento sobre un usuario y el usuario que se recomienda seguir.
+// seguimiento sobre un usuario y la tarjeta de un usuario de la comunidad (la que
+// se muestra en las sugerencias, la búsqueda y las listas de seguidores).
 //
 // El resto de la app trabaja SIEMPRE con estas clases; el JSON crudo del backend
 // no sale nunca de la capa de servicios (ver services/followService.ts).
+import type { UserRole } from './User';
 
 /** Forma cruda del estado del seguimiento, tal como viaja en la API. */
 export type FollowStatsApiResponse = {
@@ -12,12 +14,15 @@ export type FollowStatsApiResponse = {
   followed_by_me: boolean;
 };
 
-/** Forma cruda de un usuario sugerido. */
-export type SuggestedUserApiResponse = {
+/**
+ * Forma cruda de la tarjeta de un usuario. La devuelven las sugerencias, la
+ * búsqueda y las listas de seguidores y seguidos.
+ */
+export type CommunityUserApiResponse = {
   id_user: number;
   username: string;
   url_avatar: string | null;
-  rol: string;
+  rol: UserRole;
   reviews_count: number;
   followers_count: number;
   followed_by_me: boolean;
@@ -42,14 +47,17 @@ export class FollowStats {
 /** Contadores en cero, para mostrar mientras la respuesta no llegó. */
 export const EMPTY_FOLLOW_STATS = new FollowStats(0, 0, 0, false);
 
-/** Un usuario que el panel "Gente para seguir" recomienda. */
-export class SuggestedUser {
+/**
+ * Un usuario de la comunidad, tal como se lo lista: en el panel "Gente para
+ * seguir", en los resultados del buscador y en las listas de seguidores y seguidos.
+ */
+export class CommunityUser {
   constructor(
     public readonly id: number,
     public readonly username: string,
     public readonly avatarUrl: string | null,
-    public readonly rol: string,
-    /** Reseñas publicadas. Es el criterio por el que se lo recomienda. */
+    public readonly rol: UserRole,
+    /** Reseñas publicadas. Es el criterio por el que se recomienda a alguien. */
     public readonly reviewsCount: number,
     public readonly followersCount: number,
     public readonly followedByMe: boolean
@@ -65,6 +73,11 @@ export class SuggestedUser {
     return this.reviewsCount === 1 ? '1 reseña' : `${this.reviewsCount} reseñas`;
   }
 
+  /** Cuántos lo siguen, en singular o plural. */
+  get followersLabel(): string {
+    return this.followersCount === 1 ? '1 seguidor' : `${this.followersCount} seguidores`;
+  }
+
   /**
    * Copia de este usuario con el seguimiento cambiado.
    *
@@ -75,8 +88,8 @@ export class SuggestedUser {
    *
    * @param followedByMe si pasa a estar seguido.
    */
-  withFollowedByMe(followedByMe: boolean): SuggestedUser {
-    return new SuggestedUser(
+  withFollowedByMe(followedByMe: boolean): CommunityUser {
+    return new CommunityUser(
       this.id,
       this.username,
       this.avatarUrl,

@@ -1,0 +1,542 @@
+// Estilos de las estadísticas avanzadas ("Tu año en música"): la pestaña del
+// perfil, la vista bloqueada para Free y el resumen del área de socio de /pro.
+//
+// Mobile-first: todo en una columna, y desde MD el tablero pasa a dos, con las
+// secciones anchas (portada, actividad mensual y álbumes) ocupando la fila entera.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+@keyframes stats-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// --- Contenedor de la pestaña -------------------------------------------------
+
+.stats-panel {
+  // En mobile el panel del perfil tiene 2rem de padding: con los gráficos adentro
+  // se come demasiado ancho, así que acá se achica. Va con las dos clases para
+  // ganarle a .profile-panel sin depender del orden en que se cargan las hojas.
+  &.profile-panel {
+    padding: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      padding: $spacing-lg;
+    }
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+  }
+
+  &__title {
+    margin-bottom: 0.25rem;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__content--refreshing {
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+}
+
+// --- Tablero ------------------------------------------------------------------
+
+// La grilla decide sus columnas por el ancho del TABLERO, no de la pantalla: en
+// desktop el tablero comparte la fila con la columna lateral del perfil y queda
+// más angosto que en una tablet, donde ocupa todo el ancho. Con una media query
+// de pantalla, en desktop las tarjetas quedaban tan finas que la dona se salía.
+// Sigue siendo mobile-first: una columna, y dos cuando hay lugar.
+$stats-two-columns: 620px;
+
+// El contenedor que se mide es un envoltorio y no el propio tablero: una
+// container query solo aplica a los descendientes, así que el tablero no podría
+// cambiar sus propias columnas midiéndose a sí mismo.
+.stats-dashboard-container {
+  container-type: inline-size;
+}
+
+.stats-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: $spacing-md;
+
+  @container (min-width: #{$stats-two-columns}) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  // Cada bloque sube apenas al aparecer, escalonado, como las tarjetas de un resumen.
+  > * {
+    animation: stats-rise 0.5s ease both;
+
+    @for $i from 1 through 7 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{($i - 1) * 70}ms;
+      }
+    }
+  }
+}
+
+.stats-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: $spacing-md;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+
+  @media (min-width: $bp-sm) {
+    padding: 1.5rem;
+  }
+
+  &--wide {
+    @container (min-width: #{$stats-two-columns}) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__subtitle {
+    margin: 0 0 $spacing-md;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+
+    strong {
+      color: $color-text;
+    }
+  }
+
+  // Si no hay subtítulo, el contenido necesita su propio aire debajo del título.
+  &__title + :not(.stats-card__subtitle) {
+    margin-top: $spacing-md;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Portada: "Tu año en música" ----------------------------------------------
+
+.stats-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: 1.5rem $spacing-md;
+  overflow: hidden;
+  border: 1px solid rgba($color-primary, 0.35);
+  border-radius: $radius;
+  // Mismo degradado verde que la promo Pro del perfil, un poco más intenso: es el
+  // bloque protagonista de la pestaña.
+  background: linear-gradient(135deg, rgba($color-primary, 0.28) 0%, rgba($color-primary, 0.08) 45%, $color-bg-light 100%);
+
+  @media (min-width: $bp-sm) {
+    padding: $spacing-lg;
+  }
+
+  @container (min-width: #{$stats-two-columns}) {
+    grid-column: 1 / -1;
+  }
+
+  // Disco decorativo que asoma por la esquina, como en las tarjetas de un resumen anual.
+  &::after {
+    content: '';
+    position: absolute;
+    top: -70px;
+    right: -70px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 9px);
+    pointer-events: none;
+  }
+
+  &__intro {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $color-primary;
+  }
+
+  &__intro .stat-number__label {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.95rem;
+    color: $color-text;
+  }
+
+  &__totals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  &__highlights {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: $spacing-sm;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    @container (min-width: #{$stats-two-columns}) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  &__highlight {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    padding: 0.6rem 0.8rem;
+    border-radius: $radius;
+    background-color: rgba(0, 0, 0, 0.3);
+    font-size: 0.85rem;
+  }
+
+  &__highlight-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: $color-primary;
+  }
+
+  &__highlight-text {
+    color: $color-text-secondary;
+    white-space: nowrap;
+  }
+
+  &__highlight-value {
+    margin-left: auto;
+    min-width: 0;
+    // Un nombre de género largo ("Rock Nacional") baja de línea en vez de cortarse.
+    text-align: right;
+    color: $color-text;
+  }
+
+  &--compact {
+    gap: $spacing-md;
+  }
+}
+
+// --- Ranking de artistas ------------------------------------------------------
+
+.stats-rank {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  &__position {
+    flex-shrink: 0;
+    width: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-align: center;
+    color: $color-text-secondary;
+  }
+
+  &__item:first-child &__position {
+    color: $color-primary;
+  }
+
+  // Un artista va en círculo, para distinguirlo a simple vista de un álbum.
+  &__cover .album-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  &__cover .album-cover__initial {
+    font-size: 1.1rem;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__meta {
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+  }
+
+  &__track {
+    display: block;
+    height: 4px;
+    margin-top: 3px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+
+  &__fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background-color: $color-primary;
+    transform-origin: left center;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+}
+
+// --- Top de álbumes -----------------------------------------------------------
+
+.stats-albums {
+  display: grid;
+  // Las portadas se reparten solas: dos por fila en un celular, cinco en desktop.
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    min-width: 0;
+    animation: stats-rise 0.5s ease both;
+  }
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  &__cover {
+    position: relative;
+    display: block;
+    margin-bottom: 0.4rem;
+    overflow: hidden;
+    border-radius: $radius;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+    .album-cover {
+      display: block;
+      transition: transform 0.35s ease;
+    }
+
+    // Oscurece el pie de la portada para que el puesto se lea sobre cualquier imagen.
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 50% 0 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+      pointer-events: none;
+    }
+  }
+
+  a.stats-albums__link:hover .album-cover,
+  a.stats-albums__link:focus-visible .album-cover {
+    transform: scale(1.05);
+  }
+
+  &__position {
+    position: absolute;
+    left: 0.5rem;
+    bottom: 0.1rem;
+    z-index: 1;
+    font-size: 2.4rem;
+    font-weight: 900;
+    line-height: 1;
+    color: #fff;
+  }
+
+  &__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+  }
+
+  &__rating {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #f5c518;
+  }
+}
+
+// --- Vista bloqueada (Free) ---------------------------------------------------
+
+.stats-locked {
+  &__stage {
+    position: relative;
+    // El tablero de muestra es largo: se muestra solo el principio y se funde hacia
+    // abajo, que alcanza para entender qué hay detrás.
+    max-height: 640px;
+    overflow: hidden;
+  }
+
+  &__preview {
+    filter: blur(5px) saturate(0.8);
+    opacity: 0.55;
+    pointer-events: none;
+    user-select: none;
+    mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 3rem $spacing-sm 0;
+
+    @media (min-width: $bp-md) {
+      padding-top: 6rem;
+    }
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 420px;
+    padding: $spacing-lg 1.5rem;
+    text-align: center;
+    border: 1px solid rgba($color-primary, 0.35);
+    border-radius: $radius;
+    // El degradado va sobre un fondo sólido: sin él, la parte transparente dejaba
+    // ver los números de muestra de atrás y el texto costaba leerse.
+    background:
+      linear-gradient(160deg, rgba($color-primary, 0.16), transparent 60%),
+      $color-bg-light;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    animation: stats-rise 0.5s ease both;
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: rgba($color-primary, 0.15);
+    color: $color-primary;
+  }
+
+  &__badge {
+    padding: 2px 8px;
+    border-radius: $radius;
+    background-color: $color-primary;
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: $color-text;
+  }
+
+  &__text {
+    margin: 0 0 0.25rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Resumen en /pro ----------------------------------------------------------
+
+.stats-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $spacing-md;
+
+  .stats-hero {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stats-dashboard > *,
+  .stats-albums__item,
+  .stats-locked__card {
+    animation: none;
+  }
+}

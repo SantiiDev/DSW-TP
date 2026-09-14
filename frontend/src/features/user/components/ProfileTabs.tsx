@@ -6,6 +6,7 @@
 //   Álbumes    -> álbumes que el usuario calificó
 //   Canciones  -> canciones que el usuario calificó
 //   Aportes    -> CUU 3, alta de catálogo (solo tiene sentido para PRO/ADMIN)
+//   Estadísticas -> CUU 4, "Tu año en música" (privado; bloqueado para FREE)
 //   Membresía  -> CUU 2, plan y pagos (privado: solo en el perfil propio)
 //
 // El dibujo de la barra lo hace el componente compartido core/components/Tabs;
@@ -19,6 +20,7 @@ export const PROFILE_TABS = [
   'albums',
   'songs',
   'contributions',
+  'stats',
   'membership',
 ] as const;
 
@@ -46,6 +48,14 @@ const TAB_DEFINITIONS: TabDefinition[] = [
     id: 'contributions',
     label: 'Aportes',
     isVisible: (user) => user.canContributeCatalog,
+  },
+  {
+    // Las estadísticas avanzadas son de cada uno: no se muestran en perfiles
+    // ajenos. A un FREE la pestaña SÍ se le muestra, con la vista bloqueada: es
+    // la forma de que vea lo que desbloquea Pro.
+    id: 'stats',
+    label: 'Estadísticas',
+    isVisible: (_user, isOwnProfile) => isOwnProfile,
   },
   {
     // El plan y los pagos son datos privados: no se muestran en perfiles ajenos.

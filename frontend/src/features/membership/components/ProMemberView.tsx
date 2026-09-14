@@ -2,13 +2,11 @@
 // membresía paga. En vez del pitch de venta muestra el estado de su membresía,
 // los accesos directos a lo que Pro le habilita y sus beneficios activos.
 //
-// Los únicos datos reales disponibles hoy son los del usuario logueado (nombre,
-// rol y fecha de alta). Lo que todavía depende de features no implementadas
-// —el detalle de facturación y las estadísticas— se muestra como estado vacío
-// en lugar de inventar números.
+// Los datos de la cabecera son los del usuario logueado (nombre, rol y fecha de
+// alta). Las estadísticas del año las pone la feature review con su propio
+// resumen, que lleva al tablero completo de la pestaña "Estadísticas" del perfil.
 import { Link } from 'react-router-dom';
 import {
-  BarChart3,
   Crown,
   Disc3,
   LifeBuoy,
@@ -17,8 +15,8 @@ import {
   Shield,
   Sparkles,
 } from 'lucide-react';
-import { EmptyState } from '../../../core/components/EmptyState';
 import { FadeInSection } from '../../../core/components/FadeInSection';
+import { StatsProSummary } from '../../review/components/StatsProSummary';
 import { ROLE_LABELS } from '../../user/models/User';
 import type { User } from '../../user/models/User';
 import { ProBenefits } from './ProBenefits';
@@ -119,21 +117,12 @@ export const ProMemberView = ({ user }: ProMemberViewProps) => {
         </section>
       </FadeInSection>
 
-      {/* ── Estadísticas avanzadas (pendientes de datos) ── */}
+      {/* ── Estadísticas avanzadas del año ───────── */}
       <FadeInSection delay={200}>
         <section className="pro-member__section">
           <h2 className="pro-member__heading">Tus estadísticas Pro</h2>
           <div className="pro-member__panel">
-            <EmptyState
-              icon={<BarChart3 size={22} />}
-              title="Todavía no hay nada para graficar."
-              message="Tus géneros más reseñados, tu evolución mensual y tu top de artistas se arman con tus reseñas. Calificá tu primer álbum y esta sección se llena sola."
-              action={
-                <Link to="/music" className="pro-member__panel-cta">
-                  Buscar un álbum para reseñar
-                </Link>
-              }
-            />
+            <StatsProSummary />
           </div>
         </section>
       </FadeInSection>

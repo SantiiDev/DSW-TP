@@ -164,6 +164,36 @@
     }
   }
 
+  // Los contadores de seguimiento son botones que abren la lista. Sin fondo ni
+  // borde, para que se vean como los otros dos; el hover es lo que avisa que se
+  // pueden tocar.
+  &__stat-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.2rem 0;
+    background: none;
+    border: none;
+    border-radius: $radius;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      background-color: rgba(255, 255, 255, 0.06);
+      outline: none;
+
+      .profile-header__stat-label {
+        color: $color-primary;
+      }
+    }
+  }
+
   &__stat-value {
     font-size: 1.2rem;
     font-weight: 700;

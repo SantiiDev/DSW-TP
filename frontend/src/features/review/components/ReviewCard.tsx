@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { Check, Eye, EyeOff, Heart, MessageCircle, Pencil, Share2, Trash2 } from 'lucide-react';
 import { Avatar } from '../../../core/components/Avatar';
 import { Badge } from '../../../core/components/Badge';
+import { GatedLink } from '../../../core/components/GatedLink';
 import { IconButton } from '../../../core/components/IconButton';
 import { StarRating } from './StarRating';
 import { ReviewComments } from './ReviewComments';
@@ -81,40 +82,60 @@ export const ReviewCard = ({
 
   return (
     <article className={`review-card${review.isHidden ? ' review-card--hidden' : ''}`}>
-      {/* Toda la reseña es un enlace a su página, como en cualquier muro: se
-          aprieta en cualquier lado y se abre entera, con sus comentarios.
+      {/* La cabecera va AFUERA del enlace a la reseña: el avatar y el nombre del
+          autor llevan a su perfil, y un <a> adentro de otro <a> es HTML inválido
+          (el navegador los separa solo y el click cae donde no se espera). */}
+      <header className="review-card__header">
+        {review.author ? (
+          <GatedLink
+            to={`/users/${review.author.id}`}
+            className="review-card__author-link"
+            ariaLabel={`Ver el perfil de ${review.authorName}`}
+          >
+            <Avatar url={review.author.avatarUrl} username={review.authorName} size="md" />
+          </GatedLink>
+        ) : (
+          <Avatar url={null} username={review.authorName} size="md" />
+        )}
 
-          El enlace envuelve solo esta parte y no la tarjeta completa a
-          propósito: abajo hay botones, y un <button> adentro de un <a> es HTML
-          inválido (y el click terminaría navegando en vez de dar "me gusta").
-          Por lo mismo el ítem reseñado dejó de ser un enlace aparte: se llega a
-          su ficha desde la página de la reseña. */}
+        <div className="review-card__meta">
+          <p className="review-card__author">
+            {review.author ? (
+              <GatedLink to={`/users/${review.author.id}`} className="review-card__author-name">
+                {review.authorName}
+              </GatedLink>
+            ) : (
+              review.authorName
+            )}
+            {/* La pastilla solo la ven el autor y un ADMIN: para el resto, una
+                reseña oculta directamente no aparece en el listado. */}
+            {review.isHidden && <Badge tone="warning">Oculta</Badge>}
+          </p>
+          <p className="review-card__date">
+            {review.dateLabel}
+            {/* Aviso de que lo que se está leyendo no es exactamente lo que se
+                publicó. El title da la fecha exacta sin sumar texto a la UI. */}
+            {review.isEdited && (
+              <span className="review-card__edited" title={`Editada el ${review.editedLabel}`}>
+                · Editado
+              </span>
+            )}
+          </p>
+        </div>
+
+        <StarRating value={review.rating} size={16} showValue />
+      </header>
+
+      {/* El resto de la reseña es un enlace a su página, como en cualquier muro:
+          se aprieta en cualquier lado del texto y se abre entera, con sus
+          comentarios.
+
+          El enlace no envuelve la tarjeta completa a propósito: arriba está el
+          enlace al autor y abajo hay botones, y un <button> adentro de un <a> es
+          HTML inválido (y el click terminaría navegando en vez de dar "me gusta").
+          Por lo mismo el ítem reseñado no es un enlace aparte: se llega a su
+          ficha desde la página de la reseña. */}
       <Link to={review.sharePath} className="review-card__link">
-        <header className="review-card__header">
-          <Avatar url={review.author?.avatarUrl ?? null} username={review.authorName} size="md" />
-
-          <div className="review-card__meta">
-            <p className="review-card__author">
-              {review.authorName}
-              {/* La pastilla solo la ven el autor y un ADMIN: para el resto, una
-                  reseña oculta directamente no aparece en el listado. */}
-              {review.isHidden && <Badge tone="warning">Oculta</Badge>}
-            </p>
-            <p className="review-card__date">
-              {review.dateLabel}
-              {/* Aviso de que lo que se está leyendo no es exactamente lo que se
-                  publicó. El title da la fecha exacta sin sumar texto a la UI. */}
-              {review.isEdited && (
-                <span className="review-card__edited" title={`Editada el ${review.editedLabel}`}>
-                  · Editado
-                </span>
-              )}
-            </p>
-          </div>
-
-          <StarRating value={review.rating} size={16} showValue />
-        </header>
-
         {/* En el listado del perfil hace falta decir qué se reseñó. En la ficha
             del ítem, no: ahí ya se sabe. */}
         {!hideTarget && (

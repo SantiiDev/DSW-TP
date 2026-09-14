@@ -2,6 +2,7 @@
 // del catálogo. Es la única capa que habla con Sequelize.
 import { IncludeOptions, literal, Op, Order, OrderItem } from 'sequelize';
 import { Album, Artist, Genre, GenreAlbum, Review, Song, User } from '../../entities';
+import { escapeLike, startsWithFirst } from '../../shared/db/like';
 import { ContentState } from '../../shared/types/enums';
 import { AlbumSort } from './album.schema';
 
@@ -202,6 +203,8 @@ type ExploreOptions = {
   yearFrom?: number;
   yearTo?: number;
   idGenre?: number;
+  /** Búsqueda parcial por título, para el buscador de la barra. */
+  title?: string;
 };
 
 /**
@@ -247,7 +250,7 @@ function buildOrder(sort: AlbumSort = 'title'): Order {
 
 /**
  * Arma el where del explorador: siempre el catálogo aprobado, más el rango de
- * años si se pidió uno.
+ * años y la búsqueda por título si se pidieron.
  * @param options filtros del explorador.
  */
 function buildExploreWhere(options: ExploreOptions) {
@@ -265,6 +268,8 @@ function buildExploreWhere(options: ExploreOptions) {
     // Los álbumes sin año quedan afuera de una década a propósito: no se sabe a
     // cuál pertenecen.
     ...(hasYearRange ? { release_year: yearRange } : {}),
+    // Los comodines de LIKE se escapan: buscar "%" no tiene que traer todo el catálogo.
+    ...(options.title ? { title: { [Op.like]: `%${escapeLike(options.title)}%` } } : {}),
   };
 }
 
@@ -285,7 +290,11 @@ export const albumRepository = {
     const albums = await Album.findAll({
       where: buildExploreWhere(options),
       include: [artistInclude, genresFilterInclude, songIdsInclude, reviewIdsInclude],
-      order: buildOrder(options.sort),
+      // En una búsqueda, primero los títulos que empiezan con lo buscado y, dentro
+      // de cada grupo, el orden pedido.
+      order: options.title
+        ? [startsWithFirst('`Album`.`title`', options.title), ...(buildOrder(options.sort) as OrderItem[])]
+        : buildOrder(options.sort),
       ...(options.limit !== undefined ? { limit: options.limit } : {}),
       ...(options.offset !== undefined ? { offset: options.offset } : {}),
     });

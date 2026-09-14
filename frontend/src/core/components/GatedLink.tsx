@@ -31,6 +31,11 @@ type GatedLinkProps = {
   style?: CSSProperties;
   /** Nombre accesible, para cuando el contenido no alcanza para describirlo. */
   ariaLabel?: string;
+  /**
+   * Aviso extra al hacer click, con o sin sesión. Lo usan el buscador y el modal
+   * de seguidores para cerrarse cuando se elige a alguien.
+   */
+  onClick?: () => void;
   children: ReactNode;
 };
 
@@ -39,6 +44,7 @@ export const GatedLink = ({
   className = '',
   style,
   ariaLabel,
+  onClick,
   children,
 }: GatedLinkProps) => {
   const { isAuthenticated, goOrSignup } = useGatedNavigation();
@@ -47,7 +53,7 @@ export const GatedLink = ({
 
   if (isAuthenticated) {
     return (
-      <Link to={to} className={classes} style={style} aria-label={ariaLabel}>
+      <Link to={to} className={classes} style={style} aria-label={ariaLabel} onClick={onClick}>
         {children}
       </Link>
     );
@@ -59,7 +65,10 @@ export const GatedLink = ({
       className={classes}
       style={style}
       aria-label={ariaLabel}
-      onClick={() => goOrSignup(to)}
+      onClick={() => {
+        onClick?.();
+        goOrSignup(to);
+      }}
     >
       {children}
     </button>

@@ -420,6 +420,7 @@ export const albumService = {
       yearFrom: filters.year_from ?? undefined,
       yearTo: filters.year_to ?? undefined,
       idGenre: filters.id_genre,
+      title: filters.title,
     });
 
     return albums.map(toPublicAlbum);

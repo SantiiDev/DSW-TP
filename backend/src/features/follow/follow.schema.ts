@@ -29,5 +29,45 @@ export const suggestedUsersQuerySchema = z.object({
     .default(DEFAULT_SUGGESTIONS_LIMIT),
 });
 
+// GET /api/users/search?q=gar
+//
+// El texto se recorta antes de validar: "  " no es una búsqueda, y sin el trim
+// pasaría el mínimo de un carácter y traería a todos los usuarios.
+const DEFAULT_SEARCH_LIMIT = 8;
+const MAX_SEARCH_LIMIT = 20;
+
+export const searchUsersQuerySchema = z.object({
+  q: z
+    .string({ error: 'Escribí el nombre de usuario que buscás.' })
+    .trim()
+    .min(1, 'Escribí el nombre de usuario que buscás.')
+    .max(50, 'La búsqueda no puede superar los 50 caracteres.'),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1, 'El tope tiene que ser mayor a cero.')
+    .max(MAX_SEARCH_LIMIT, `El tope no puede ser mayor a ${MAX_SEARCH_LIMIT}.`)
+    .default(DEFAULT_SEARCH_LIMIT),
+});
+
+// GET /api/users/:id/followers y /following
+//
+// Estas sí paginan, a diferencia de las sugerencias: alguien puede seguir a
+// cientos de personas, y la lista se va cargando de a tandas con "Cargar más".
+const DEFAULT_FOLLOW_LIST_LIMIT = 20;
+const MAX_FOLLOW_LIST_LIMIT = 50;
+
+export const followListQuerySchema = z.object({
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1, 'El tope tiene que ser mayor a cero.')
+    .max(MAX_FOLLOW_LIST_LIMIT, `El tope no puede ser mayor a ${MAX_FOLLOW_LIST_LIMIT}.`)
+    .default(DEFAULT_FOLLOW_LIST_LIMIT),
+  offset: z.coerce.number().int().min(0, 'El desplazamiento no puede ser negativo.').default(0),
+});
+
 export type FollowParams = z.infer<typeof followParamsSchema>;
 export type SuggestedUsersQuery = z.infer<typeof suggestedUsersQuerySchema>;
+export type SearchUsersQuery = z.infer<typeof searchUsersQuerySchema>;
+export type FollowListQuery = z.infer<typeof followListQuerySchema>;

@@ -152,7 +152,6 @@ ofrece iniciar sesión**, y a quien ya es Pro no se le vende Pro.
 | :------- | :-------- | :--------- |
 | Navbar | "Iniciar sesión" y "Registrarse" | avatar con el menú de la cuenta |
 | Home (`Hero`, `CallToAction`) | invitación a registrarse | saludo por nombre y accesos a su perfil y al catálogo |
-| `/members` | botón "Unirse a la comunidad" | sin botón: ya es parte |
 | `/pro` | `ProSalesView`, el pitch del plan | Free: mismo pitch, pero el botón dice "Pasarme a Pro"<br>Pro/Admin: `ProMemberView`, el área de socio |
 
 Como red de seguridad, `openLogin` y `openSignup` del `AuthModalContext` no hacen

@@ -200,7 +200,19 @@ export const reviewStatsQuerySchema = z.object({
     .positive('El id del usuario debe ser un número positivo.'),
 });
 
+// GET /api/reviews/stats/me?year=2026 — las estadísticas avanzadas propias.
+// Sin year se usan las del año en curso.
+export const advancedStatsQuerySchema = z.object({
+  year: z.coerce
+    .number({ error: 'El año tiene que ser un número.' })
+    .int('El año tiene que ser un número entero.')
+    .min(1900, 'El año no es válido.')
+    .max(2100, 'El año no es válido.')
+    .optional(),
+});
+
 export type ReviewIdParam = z.infer<typeof reviewIdParamSchema>;
+export type AdvancedStatsQuery = z.infer<typeof advancedStatsQuerySchema>;
 export type CreateCommentInput = z.infer<typeof createCommentSchema>;
 export type CommentParams = z.infer<typeof commentParamsSchema>;
 export type ReviewStatsQuery = z.infer<typeof reviewStatsQuerySchema>;

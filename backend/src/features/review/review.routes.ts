@@ -2,6 +2,7 @@
 //
 //   GET    /api/reviews                          listado filtrado y paginado, PÚBLICO
 //   GET    /api/reviews/mine                     mi reseña sobre un ítem, logueado
+//   GET    /api/reviews/stats/me                 estadísticas avanzadas propias, PRO o ADMIN
 //   GET    /api/reviews/stats                    estadísticas de un usuario, PÚBLICO
 //   GET    /api/reviews/:id                      detalle de una reseña, PÚBLICO
 //   POST   /api/reviews                          publica una reseña, logueado
@@ -46,6 +47,7 @@ import { requireRole } from '../../shared/middlewares/require-role';
 import { validate } from '../../shared/middlewares/validate';
 import { reviewController } from './review.controller';
 import {
+  advancedStatsQuerySchema,
   commentParamsSchema,
   createCommentSchema,
   createReviewSchema,
@@ -80,6 +82,18 @@ reviewRouter.get(
   requireAuth,
   validate({ query: myReviewQuerySchema }),
   reviewController.mine
+);
+
+// Estadísticas avanzadas ("Tu año en música"), el beneficio que desbloquea Pro.
+// Va antes de /stats y de /:id por lo mismo que las de arriba. requireRole corta
+// a un FREE con el rol del token; el service además relee el rol de la base,
+// porque un token emitido antes de que venciera la membresía sigue diciendo PRO.
+reviewRouter.get(
+  '/stats/me',
+  requireAuth,
+  requireRole('PRO', 'ADMIN'),
+  validate({ query: advancedStatsQuerySchema }),
+  reviewController.advancedStats
 );
 
 // Pública porque el perfil de un usuario se puede mirar sin cuenta: su histograma

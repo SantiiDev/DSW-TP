@@ -1,5 +1,6 @@
 // Lógica de negocio del seguimiento entre usuarios: seguir, dejar de seguir,
-// contadores y sugerencias de a quién seguir. No conoce req ni res; recibe datos
+// contadores, listas de seguidores y seguidos, búsqueda y sugerencias de a quién
+// seguir. No conoce req ni res; recibe datos
 // ya validados y lanza errores de negocio que traduce el errorHandler.
 //
 // Es la feature que alimenta el feed social: review.service le pide acá la lista
@@ -9,7 +10,7 @@ import { TokenPayload } from '../../shared/auth/jwt';
 import { UserRole } from '../../shared/types/enums';
 import { User } from '../../entities';
 import { followRepository, SuggestedUserRow } from './follow.repository';
-import { SuggestedUsersQuery } from './follow.schema';
+import { FollowListQuery, SearchUsersQuery, SuggestedUsersQuery } from './follow.schema';
 
 /**
  * Estado del seguimiento sobre un usuario, tal como sale en la API.
@@ -29,12 +30,13 @@ export type PublicFollowStats = {
 };
 
 /**
- * Un usuario recomendado, reducido a lo que dibuja la tarjeta del panel.
+ * Un usuario reducido a lo que dibuja su tarjeta: la misma forma sirve para el
+ * panel "Gente para seguir", la búsqueda y las listas de seguidores y seguidos.
  *
- * NO lleva email ni state: es una lista pública de descubrimiento, y el email es
+ * NO lleva email ni state: son listas públicas de descubrimiento, y el email es
  * un dato privado que solo ve su dueño o un ADMIN (ver user.service).
  */
-export type PublicSuggestedUser = {
+export type PublicUserCard = {
   id_user: number;
   username: string;
   url_avatar: string | null;
@@ -104,7 +106,7 @@ async function buildStats(id_user: number, actorId: number | null): Promise<Publ
 }
 
 /**
- * Pasa una fila de la consulta de sugerencias a la vista pública.
+ * Pasa una fila de las consultas de usuarios a la vista pública.
  *
  * Los dos conteos salen de subconsultas y MySQL los puede devolver como texto,
  * así que se fuerzan a número acá: si no, el frontend recibiría "3" en vez de 3 y
@@ -113,7 +115,7 @@ async function buildStats(id_user: number, actorId: number | null): Promise<Publ
  * @param row usuario con sus conteos.
  * @param followedIds ids que el que pregunta ya sigue.
  */
-function toPublicSuggestedUser(row: SuggestedUserRow, followedIds: number[]): PublicSuggestedUser {
+function toPublicUserCard(row: SuggestedUserRow, followedIds: number[]): PublicUserCard {
   return {
     id_user: row.id_user,
     username: row.username,
@@ -213,7 +215,7 @@ export const followService = {
   async suggestions(
     query: SuggestedUsersQuery,
     actor: TokenPayload | null
-  ): Promise<PublicSuggestedUser[]> {
+  ): Promise<PublicUserCard[]> {
     const followedIds = actor ? await followRepository.findFollowedIds(actor.id_user) : [];
     const excludeIds = actor ? [actor.id_user, ...followedIds] : [];
 
@@ -222,6 +224,74 @@ export const followService = {
     // followedIds queda siempre vacío en la práctica cuando hay sesión, porque los
     // seguidos ya se excluyeron de la consulta. Se pasa igual para que el DTO sea
     // correcto por sí mismo y no dependa de esa exclusión.
-    return rows.map((row) => toPublicSuggestedUser(row, followedIds));
+    return rows.map((row) => toPublicUserCard(row, followedIds));
+  },
+
+  /**
+   * Busca usuarios por nombre. Es lo que usa el buscador de la barra de navegación.
+   *
+   * A diferencia de las sugerencias, acá NO se excluye a nadie: si alguien busca a
+   * una persona que ya sigue, o se busca a sí mismo, tiene que encontrarla.
+   *
+   * @param query texto y tope.
+   * @param actor quién busca, o null sin sesión.
+   */
+  async search(query: SearchUsersQuery, actor: TokenPayload | null): Promise<PublicUserCard[]> {
+    const [rows, followedIds] = await Promise.all([
+      followRepository.searchByUsername(query.q, query.limit),
+      actor ? followRepository.findFollowedIds(actor.id_user) : Promise.resolve([]),
+    ]);
+
+    return rows.map((row) => toPublicUserCard(row, followedIds));
+  },
+
+  /**
+   * Quiénes siguen a un usuario, del seguimiento más reciente al más viejo.
+   *
+   * Son públicos, como los contadores: cualquiera que vea el número puede abrir la
+   * lista. `followed_by_me` dice, para cada uno, si el que MIRA lo sigue, que es lo
+   * que decide el botón de cada fila.
+   *
+   * @param id_user dueño del perfil.
+   * @param query paginado.
+   * @param actor quién mira, o null sin sesión.
+   */
+  async followers(
+    id_user: number,
+    query: FollowListQuery,
+    actor: TokenPayload | null
+  ): Promise<PublicUserCard[]> {
+    await findExistingUser(id_user);
+    return listWithFollowState(followRepository.findFollowers({ id_user, ...query }), actor);
+  },
+
+  /**
+   * A quiénes sigue un usuario, del seguimiento más reciente al más viejo.
+   * Mismo criterio que followers.
+   */
+  async following(
+    id_user: number,
+    query: FollowListQuery,
+    actor: TokenPayload | null
+  ): Promise<PublicUserCard[]> {
+    await findExistingUser(id_user);
+    return listWithFollowState(followRepository.findFollowing({ id_user, ...query }), actor);
   },
 };
+
+/**
+ * Completa una tanda de usuarios con si el que mira sigue a cada uno.
+ * @param rowsPromise la consulta de la lista, ya lanzada.
+ * @param actor quién mira, o null sin sesión.
+ */
+async function listWithFollowState(
+  rowsPromise: Promise<SuggestedUserRow[]>,
+  actor: TokenPayload | null
+): Promise<PublicUserCard[]> {
+  const [rows, followedIds] = await Promise.all([
+    rowsPromise,
+    actor ? followRepository.findFollowedIds(actor.id_user) : Promise.resolve([]),
+  ]);
+
+  return rows.map((row) => toPublicUserCard(row, followedIds));
+}

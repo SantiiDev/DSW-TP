@@ -115,6 +115,8 @@ export type AlbumExploreFilters = {
   yearTo?: number;
   /** Solo los álbumes de un género. */
   idGenre?: number;
+  /** Búsqueda parcial por título. La usa el buscador de la barra de navegación. */
+  title?: string;
 };
 
 /**
@@ -130,6 +132,7 @@ function buildExploreQuery(filters: AlbumExploreFilters): string {
   if (filters.yearFrom !== undefined) params.set('year_from', String(filters.yearFrom));
   if (filters.yearTo !== undefined) params.set('year_to', String(filters.yearTo));
   if (filters.idGenre !== undefined) params.set('id_genre', String(filters.idGenre));
+  if (filters.title) params.set('title', filters.title);
 
   const query = params.toString();
   return query === '' ? '' : `?${query}`;

@@ -6,6 +6,7 @@
 import { Request, Response } from 'express';
 import { reviewService } from './review.service';
 import {
+  AdvancedStatsQuery,
   CommentParams,
   CreateCommentInput,
   CreateReviewInput,
@@ -82,6 +83,13 @@ export const reviewController = {
     const { id_user } = req.validated.query as ReviewStatsQuery;
     // Ruta pública: las estadísticas de un perfil las ve cualquiera.
     const stats = await reviewService.stats(id_user);
+    res.status(200).json(stats);
+  },
+
+  async advancedStats(req: Request, res: Response): Promise<void> {
+    const { year } = req.validated.query as AdvancedStatsQuery;
+    // Siempre las del usuario del token: las estadísticas avanzadas son privadas.
+    const stats = await reviewService.advancedStats(req.user!, year);
     res.status(200).json(stats);
   },
 

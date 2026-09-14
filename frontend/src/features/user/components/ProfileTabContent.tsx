@@ -1,17 +1,9 @@
 // Contenido de la pestaña activa del perfil.
 //
 // Cada feature aporta su propia lista y esta página solo la monta: así lo hacen
-// "Aportes" (con las de artista, álbum y canción), "Reseñas" y las dos pestañas
-// de calificados (las tres, con las de review).
-//
-// La única que todavía muestra su vacío definitivo es "Resumen": la actividad
-// reciente depende de un feed que no está implementado. Cuando exista, se
-// reemplaza el EmptyState por el listado real sin tocar ni la cabecera ni la
-// navegación de pestañas.
+// "Resumen" (la actividad reciente), "Aportes" (con las de artista, álbum y
+// canción), "Reseñas" y las dos pestañas de calificados (todas, con las de review).
 import { useState } from 'react';
-import { Activity } from 'lucide-react';
-import { ButtonLink } from '../../../core/components/Button';
-import { EmptyState } from '../../../core/components/EmptyState';
 import { SegmentedControl } from '../../../core/components/SegmentedControl';
 import type { SegmentOption } from '../../../core/components/SegmentedControl';
 import type { User } from '../models/User';
@@ -19,7 +11,10 @@ import { AlbumContributionsList } from '../../album/components/AlbumContribution
 import { ArtistContributionsList } from '../../artist/components/ArtistContributionsList';
 import { SongContributionsList } from '../../song/components/SongContributionsList';
 import { MembershipPanel } from '../../membership/components/MembershipPanel';
+import { AdvancedStatsPanel } from '../../review/components/AdvancedStatsPanel';
+import { LockedStatsPreview } from '../../review/components/LockedStatsPreview';
 import { RatedItemsList } from '../../review/components/RatedItemsList';
+import { RecentActivity } from '../../review/components/RecentActivity';
 import { UserReviewsList } from '../../review/components/UserReviewsList';
 import type { ProfileTab } from './ProfileTabs';
 
@@ -29,6 +24,8 @@ type ProfileTabContentProps = {
   activeTab: ProfileTab;
   /** Avisa cuando cambian las reseñas, para refrescar los contadores del perfil. */
   onReviewsChange?: () => void;
+  /** Cambia a la pestaña "Reseñas". Lo usa el botón del final de la actividad reciente. */
+  onShowAllReviews?: () => void;
 };
 
 /**
@@ -45,16 +42,12 @@ const CONTRIBUTION_KINDS = [
 
 type ContributionKind = (typeof CONTRIBUTION_KINDS)[number]['value'];
 
-/** Textos del vacío según se mire el perfil propio o el de otro. */
-function emptyCopy(isOwnProfile: boolean, own: string, other: string): string {
-  return isOwnProfile ? own : other;
-}
-
 export const ProfileTabContent = ({
   user,
   isOwnProfile,
   activeTab,
   onReviewsChange,
+  onShowAllReviews,
 }: ProfileTabContentProps) => {
   const name = user.username;
 
@@ -68,21 +61,12 @@ export const ProfileTabContent = ({
       return (
         <section className="profile-panel">
           <h2 className="profile-panel__title">Actividad reciente</h2>
-          <EmptyState
-            icon={<Activity size={22} />}
-            title={emptyCopy(isOwnProfile, 'Todavía no tenés actividad.', `${name} no tiene actividad todavía.`)}
-            message={emptyCopy(
-              isOwnProfile,
-              'Cuando califiques un álbum o una canción, tu actividad va a aparecer acá.',
-              'Cuando publique su primera reseña, va a aparecer en esta sección.'
-            )}
-            action={
-              isOwnProfile ? (
-                <ButtonLink to="/music" size="sm">
-                  Explorar música
-                </ButtonLink>
-              ) : undefined
-            }
+          {/* Las últimas reseñas, con su propio estado de carga y de vacío. */}
+          <RecentActivity
+            userId={user.id}
+            username={name}
+            isOwnProfile={isOwnProfile}
+            onShowAll={() => onShowAllReviews?.()}
           />
         </section>
       );
@@ -168,6 +152,12 @@ export const ProfileTabContent = ({
           )}
         </section>
       );
+
+    case 'stats':
+      // La pestaña solo existe en el perfil propio (ver ProfileTabs). Un Pro ve sus
+      // estadísticas; un Free, la vista bloqueada, que no llega a pedir nada a la
+      // API. La restricción real es la del backend, que a un FREE le responde 403.
+      return user.isPro ? <AdvancedStatsPanel /> : <LockedStatsPreview />;
 
     case 'membership':
       // La pestaña solo está visible en el perfil propio (ver ProfileTabs), y el

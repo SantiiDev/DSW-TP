@@ -105,6 +105,8 @@ export type SongExploreFilters = {
   /** Rango de años del ÁLBUM, los dos incluidos. Es lo que arma una década. */
   yearFrom?: number;
   yearTo?: number;
+  /** Búsqueda parcial por título. La usa el buscador de la barra de navegación. */
+  title?: string;
 };
 
 /**
@@ -119,6 +121,7 @@ function buildExploreQuery(filters: SongExploreFilters): string {
   // La API usa los nombres del DER, así que acá se traduce el camelCase del front.
   if (filters.yearFrom !== undefined) params.set('year_from', String(filters.yearFrom));
   if (filters.yearTo !== undefined) params.set('year_to', String(filters.yearTo));
+  if (filters.title) params.set('title', filters.title);
 
   const query = params.toString();
   return query === '' ? '' : `?${query}`;

@@ -1,0 +1,81 @@
+// Estilos de la fila de un usuario (components/UserRow): la usan el panel "Gente
+// para seguir", las listas de seguidores y seguidos y el buscador.
+//
+// Era el bloque .suggested-user de _suggested-users.scss; se movió acá al pasar
+// la fila a ser un componente compartido.
+@use 'sass:color';
+@use '../../../styles/abstracts/variable' as *;
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  transition: background-color 0.2s ease;
+
+  &:hover,
+  &--highlighted {
+    background-color: color.adjust($color-bg-light, $lightness: 4%);
+  }
+
+  // El nombre y el avatar son el link al perfil; el botón queda afuera para que
+  // apretarlo no navegue.
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    // min-width: 0 sobre el flex item, si no un username largo empuja el botón
+    // fuera de la fila en vez de recortarse.
+    min-width: 0;
+    flex: 1;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__username {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  // El nombre se recorta antes que empujar la pastilla del rol.
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__identity:hover &__name,
+  &__identity:focus-visible &__name {
+    text-decoration: underline;
+  }
+
+  &__meta {
+    margin-top: 2px;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+
+  &--compact {
+    padding: 0.55rem 0.75rem;
+
+    .user-row__username {
+      font-size: 0.9rem;
+    }
+
+    .user-row__meta {
+      font-size: 0.75rem;
+    }
+  }
+}

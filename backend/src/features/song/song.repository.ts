@@ -2,6 +2,7 @@
 // tracklist. Es la única capa que habla con Sequelize.
 import { literal, Op, Order, OrderItem } from 'sequelize';
 import { Album, Artist, Review, Song, User } from '../../entities';
+import { escapeLike, startsWithFirst } from '../../shared/db/like';
 import { ContentState } from '../../shared/types/enums';
 import { SongSort } from './song.schema';
 
@@ -164,6 +165,8 @@ type ExploreOptions = {
   offset?: number;
   yearFrom?: number;
   yearTo?: number;
+  /** Búsqueda parcial por título, para el buscador de la barra. */
+  title?: string;
 };
 
 /**
@@ -245,9 +248,22 @@ export const songRepository = {
       // Lo pendiente y lo rechazado no forman parte del catálogo público, y este
       // endpoint no pide token: no hay forma de saber si quien pregunta es el
       // autor.
-      where: { state: 'approved' as ContentState },
+      where: {
+        state: 'approved' as ContentState,
+        // Los comodines de LIKE se escapan: buscar "%" no tiene que traer todo.
+        ...(options.title
+          ? { song_title: { [Op.like]: `%${escapeLike(options.title)}%` } }
+          : {}),
+      },
       include: [albumFilterInclude, reviewsInclude],
-      order: buildExploreOrder(options.sort),
+      // En una búsqueda, primero los títulos que empiezan con lo buscado y, dentro
+      // de cada grupo, el orden pedido.
+      order: options.title
+        ? [
+            startsWithFirst('`Song`.`song_title`', options.title),
+            ...(buildExploreOrder(options.sort) as OrderItem[]),
+          ]
+        : buildExploreOrder(options.sort),
       ...(options.limit !== undefined ? { limit: options.limit } : {}),
       ...(options.offset !== undefined ? { offset: options.offset } : {}),
     });

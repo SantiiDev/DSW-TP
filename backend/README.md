@@ -573,6 +573,7 @@ catálogo, donde el alta exige `PRO`.
 |:-|:-|:-|
 | GET | `/api/reviews` | logueado |
 | GET | `/api/reviews/mine` | logueado |
+| GET | `/api/reviews/stats/me?year=` | PRO o ADMIN |
 | GET | `/api/reviews/stats` | público |
 | GET | `/api/reviews/:id` | **público**, con `optionalAuth` |
 | POST | `/api/reviews` | logueado |
@@ -603,6 +604,27 @@ reseña se guarda como cuál de los dos ids quedó en NULL, así que "todas las 
 Solo un `ADMIN` puede pedir un `state` distinto de `published`: para cualquier
 otro, el listado es siempre lo publicado, sin importar qué haya pedido.
 
+### Estadísticas avanzadas: "Tu año en música"
+
+`GET /api/reviews/stats/me?year=2026` es el beneficio que desbloquea Pro (CUU 4).
+Devuelve, a partir de las reseñas publicadas del usuario en ese año: totales
+(reseñas, álbumes, canciones, artistas, géneros, promedio y minutos de música
+calificada), actividad por mes, top 5 de géneros (con "Otros"), de artistas y de
+álbumes mejor calificados, décadas de lanzamiento, distribución de notas y los
+destacados del año. Sin `year`, usa el año en curso.
+
+Son siempre **las propias**: la ruta no recibe un id de usuario, lo saca del token.
+
+**Por qué el service relee el rol**, si `requireRole('PRO', 'ADMIN')` ya cortó a
+un `FREE`: `requireRole` lee el rol del JWT, y un token emitido antes de que venciera
+la membresía sigue diciendo `PRO` hasta que expira. Para un `PRO`, el service aplica
+el vencimiento con `subscriptionService.getActive` y vuelve a leer el rol de la base;
+si ya no es Pro, responde 403. No exige una suscripción activa porque un `PRO`
+asignado desde el panel de administración no tiene ninguna.
+
+Los cálculos se hacen en el service, sobre una sola consulta con includes (álbum o
+canción, artista, géneros y duraciones), con funciones chicas por cada ranking.
+
 ### Dos decisiones que hay que poder explicar
 
 - **La baja de una reseña es FÍSICA**, a diferencia de la de un usuario. El
@@ -612,6 +634,57 @@ otro, el listado es siempre lo publicado, sin importar qué haya pedido.
 - **Un ADMIN no puede EDITAR una reseña ajena**, aunque sí ocultarla o borrarla:
   cambiarle el texto a otro sería ponerle palabras en la boca y dejarlas firmadas
   con su nombre.
+
+## Seguimiento entre usuarios
+
+La feature `follow` maneja la relación `FOLLOWS`: seguir, dejar de seguir,
+contadores, listas, búsqueda y sugerencias. Las rutas cuelgan de `/api/users`
+porque seguir es una interacción con un usuario, pero viven en su propia carpeta
+para no tocar el CRUD de `user`.
+
+### Endpoints
+
+| Método | Ruta | Acceso |
+|:-|:-|:-|
+| GET | `/api/users/suggestions?limit=` | público, con `optionalAuth` |
+| GET | `/api/users/search?q=&limit=` | público, con `optionalAuth` |
+| POST · DELETE | `/api/users/:id/follow` | logueado |
+| GET | `/api/users/:id/follow-stats` | público, con `optionalAuth` |
+| GET | `/api/users/:id/followers?limit=&offset=` | público, con `optionalAuth` |
+| GET | `/api/users/:id/following?limit=&offset=` | público, con `optionalAuth` |
+
+Sugerencias, búsqueda y listas devuelven la misma tarjeta de usuario (id, nombre,
+avatar, rol, cantidad de reseñas y de seguidores, y `followed_by_me`), nunca el email.
+
+### Decisiones de esta parte
+
+- **Las cuentas suspendidas no aparecen ni cuentan.** Las listas, la búsqueda y
+  también los contadores las excluyen, para que el número de "Seguidores" sea
+  siempre el mismo que la cantidad de gente que se ve al abrir la lista.
+- **Las listas se arman en una sola consulta sobre `users`** (con subconsultas a
+  `follows`), y no trayendo primero las filas de `follows`: si se filtraran los
+  suspendidos después, una tanda de 20 podía llegar con 17 y el paginado se
+  cortaba antes de tiempo.
+- **La búsqueda escapa los comodines de `LIKE`**: buscar `%` no trae a todos. Primero
+  van los nombres que empiezan con el texto y después los que lo contienen.
+
+## Buscador de la barra
+
+El buscador del frontend encuentra álbumes, canciones y usuarios con tres pedidos
+en paralelo, todos públicos:
+
+| Qué busca | Ruta |
+|:-|:-|
+| Álbumes | `GET /api/albums/explore?title=&limit=&sort=` |
+| Canciones | `GET /api/songs/explore?title=&limit=&sort=` |
+| Usuarios | `GET /api/users/search?q=&limit=` |
+
+Para álbumes y canciones no se creó un endpoint nuevo: se sumó el filtro `title` a
+los exploradores, que ya eran públicos, tenían tope de filas y devuelven solo el
+catálogo aprobado. El listado `GET /api/albums?title=` ya filtraba por título, pero
+pide sesión y no tiene tope. Las tres búsquedas comparten
+`shared/db/like.ts`: escapan los comodines de `LIKE` y ponen primero lo que
+**empieza** con el texto buscado.
 
 ## Membresías y pasarela de pago
 

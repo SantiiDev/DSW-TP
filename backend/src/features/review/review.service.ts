@@ -17,9 +17,16 @@ import { TokenPayload } from '../../shared/auth/jwt';
 // es dueña la feature follow. Se le pregunta a su service en vez de consultar la
 // tabla follows desde acá: service -> service, sin saltear capas.
 import { followService } from '../follow/follow.service';
+// Las estadísticas avanzadas son un beneficio de Pro: para confirmar que la
+// membresía siga vigente se le pregunta a la feature de suscripciones (que aplica
+// el vencimiento) y se relee el rol del usuario, igual que hace payment.service.
+import { subscriptionService } from '../subscription/subscription.service';
+import { userRepository } from '../user/user.repository';
 import { ReviewState } from '../../shared/types/enums';
 import {
   reviewRepository,
+  StatsAlbum,
+  StatsReviewRow,
   ReviewAlbum,
   ReviewArtist,
   ReviewCommentWithUser,
@@ -111,11 +118,253 @@ type PublicReviewStats = {
   songs: number;
 };
 
+/** Un género en el ranking de géneros. `id_genre` es null en el agregado "Otros". */
+type StatsGenreEntry = {
+  id_genre: number | null;
+  name: string;
+  count: number;
+  /** Porcentaje sobre el total de apariciones de géneros, para dibujar el donut. */
+  percentage: number;
+};
+
+/** Un artista en el ranking de artistas más reseñados. */
+type StatsArtistEntry = {
+  id_artist: number;
+  name: string;
+  count: number;
+  average_rating: number;
+  /** Portada de uno de sus álbumes reseñados: un artista no tiene foto propia. */
+  url_cover: string | null;
+};
+
+/** Un álbum en el ranking de mejor calificados. */
+type StatsAlbumEntry = {
+  id_album: number;
+  title: string;
+  artist: string | null;
+  url_cover: string | null;
+  rating: number;
+};
+
+/**
+ * Estadísticas avanzadas de un usuario en un año: "Tu año en música".
+ *
+ * Todo sale de sus reseñas publicadas, que es lo que Musicboxd sabe de lo que
+ * escucha cada uno. Es el beneficio que desbloquea la membresía Pro (CUU 4).
+ */
+type PublicAdvancedStats = {
+  year: number;
+  /** Años con al menos una reseña, más el actual. Del más nuevo al más viejo. */
+  available_years: number[];
+  summary: {
+    reviews: number;
+    albums: number;
+    songs: number;
+    artists: number;
+    genres: number;
+    average_rating: number;
+    /** Reseñas que además de la nota tienen texto. */
+    written_reviews: number;
+    /** Minutos de música calificada: la duración de cada canción o del álbum entero. */
+    minutes: number;
+  };
+  /** Doce posiciones, de enero a diciembre. */
+  monthly: { month: number; reviews: number; average_rating: number }[];
+  top_genres: StatsGenreEntry[];
+  top_artists: StatsArtistEntry[];
+  top_albums: StatsAlbumEntry[];
+  /** Décadas de lanzamiento de lo que reseñó, de la más vieja a la más nueva. */
+  decades: { decade: number; count: number }[];
+  /** Mismo formato que el histograma público: diez posiciones de 0,5 a 5. */
+  distribution: number[];
+  highlights: {
+    /** 1 a 12, o null si no hay reseñas. */
+    most_active_month: number | null;
+    favorite_genre: string | null;
+    most_common_rating: number | null;
+  };
+};
+
 /** Dos decimales, la misma precisión que el DECIMAL(3,2) de ALBUMS.average_rating. */
 const RATING_PRECISION = 100;
 
 /** Cuántas posiciones tiene el histograma: de 0,5 a 5, de a media estrella. */
 const DISTRIBUTION_SIZE = 10;
+
+/** Cuántos puestos muestra cada ranking de las estadísticas avanzadas. */
+const STATS_TOP_SIZE = 5;
+
+/**
+ * Cuenta cuántas calificaciones cayeron en cada media estrella.
+ * @param ratings notas de 0,5 a 5.
+ * @returns diez posiciones: la 0 es media estrella y la 9 son cinco.
+ */
+function buildDistribution(ratings: number[]): number[] {
+  const distribution = new Array<number>(DISTRIBUTION_SIZE).fill(0);
+
+  for (const rating of ratings) {
+    // El índice sale de multiplicar la nota por dos y restar uno: 0,5 cae en el 0
+    // y 5 en el 9.
+    const index = Math.round(rating * 2) - 1;
+    // El guardaviñas es por si alguna fila vieja quedó fuera de la escala: sin
+    // él, un índice inválido rompería el arreglo en silencio.
+    if (index >= 0 && index < DISTRIBUTION_SIZE) distribution[index] += 1;
+  }
+
+  return distribution;
+}
+
+/** Promedio redondeado a dos decimales; 0 si no hay valores. */
+function averageOf(values: number[]): number {
+  if (values.length === 0) return 0;
+  const sum = values.reduce((total, value) => total + value, 0);
+  return Math.round((sum / values.length) * RATING_PRECISION) / RATING_PRECISION;
+}
+
+/**
+ * El álbum del que salen artista, géneros y portada: el reseñado, o el de la
+ * canción reseñada.
+ */
+function albumOfReview(row: StatsReviewRow): StatsAlbum | null {
+  return row.album ?? row.song?.album ?? null;
+}
+
+/**
+ * Segundos de música que representa una reseña: la duración de la canción, o la
+ * suma del tracklist si se reseñó el álbum entero. Las pistas sin duración cargada
+ * no suman.
+ */
+function secondsOfReview(row: StatsReviewRow): number {
+  if (row.song) return row.song.duration ?? 0;
+  return (row.album?.songs ?? []).reduce((total, song) => total + (song.duration ?? 0), 0);
+}
+
+/**
+ * Ranking de géneros. Una reseña suma uno a cada género de su álbum, así que un
+ * disco de "Rock" y "Alternativo" cuenta para los dos.
+ *
+ * Deja los cinco primeros y junta el resto en "Otros", para que el donut no se
+ * llene de porciones finitas imposibles de leer.
+ */
+function buildTopGenres(rows: StatsReviewRow[]): StatsGenreEntry[] {
+  const counts = new Map<number, { name: string; count: number }>();
+
+  for (const row of rows) {
+    for (const genre of albumOfReview(row)?.genres ?? []) {
+      const entry = counts.get(genre.id_genre) ?? { name: genre.name, count: 0 };
+      entry.count += 1;
+      counts.set(genre.id_genre, entry);
+    }
+  }
+
+  const sorted = [...counts.entries()].sort((a, b) => b[1].count - a[1].count);
+  const total = sorted.reduce((sum, [, entry]) => sum + entry.count, 0);
+  const toPercentage = (count: number) => (total === 0 ? 0 : Math.round((count / total) * 1000) / 10);
+
+  const top: StatsGenreEntry[] = sorted.slice(0, STATS_TOP_SIZE).map(([id_genre, entry]) => ({
+    id_genre,
+    name: entry.name,
+    count: entry.count,
+    percentage: toPercentage(entry.count),
+  }));
+
+  const othersCount = sorted.slice(STATS_TOP_SIZE).reduce((sum, [, entry]) => sum + entry.count, 0);
+  if (othersCount > 0) {
+    top.push({ id_genre: null, name: 'Otros', count: othersCount, percentage: toPercentage(othersCount) });
+  }
+
+  return top;
+}
+
+/**
+ * Ranking de artistas por cantidad de reseñas. A igual cantidad gana el de mejor
+ * promedio, que es a quien el usuario valoró más.
+ */
+function buildTopArtists(rows: StatsReviewRow[]): StatsArtistEntry[] {
+  const byArtist = new Map<
+    number,
+    { name: string; ratings: number[]; url_cover: string | null }
+  >();
+
+  for (const row of rows) {
+    const album = albumOfReview(row);
+    if (!album?.artist) continue;
+
+    const entry = byArtist.get(album.artist.id_artist) ?? {
+      name: album.artist.name,
+      ratings: [],
+      url_cover: null,
+    };
+    entry.ratings.push(Number(row.rating));
+    entry.url_cover = entry.url_cover ?? album.url_cover;
+    byArtist.set(album.artist.id_artist, entry);
+  }
+
+  return [...byArtist.entries()]
+    .map(([id_artist, entry]) => ({
+      id_artist,
+      name: entry.name,
+      count: entry.ratings.length,
+      average_rating: averageOf(entry.ratings),
+      url_cover: entry.url_cover,
+    }))
+    .sort((a, b) => b.count - a.count || b.average_rating - a.average_rating)
+    .slice(0, STATS_TOP_SIZE);
+}
+
+/**
+ * Los álbumes mejor calificados. Solo cuentan las reseñas de álbum: la nota de una
+ * canción no es la nota del disco.
+ */
+function buildTopAlbums(rows: StatsReviewRow[]): StatsAlbumEntry[] {
+  return rows
+    .filter((row) => row.album)
+    // A igual nota, primero la reseña más reciente.
+    .sort(
+      (a, b) =>
+        Number(b.rating) - Number(a.rating) ||
+        new Date(b.review_date).getTime() - new Date(a.review_date).getTime()
+    )
+    .slice(0, STATS_TOP_SIZE)
+    .map((row) => ({
+      id_album: row.album!.id_album,
+      title: row.album!.title,
+      artist: row.album!.artist?.name ?? null,
+      url_cover: row.album!.url_cover ?? null,
+      rating: Number(row.rating),
+    }));
+}
+
+/** Cuántas reseñas cayeron en cada década de lanzamiento. */
+function buildDecades(rows: StatsReviewRow[]): { decade: number; count: number }[] {
+  const counts = new Map<number, number>();
+
+  for (const row of rows) {
+    const year = albumOfReview(row)?.release_year;
+    if (!year) continue;
+    const decade = Math.floor(year / 10) * 10;
+    counts.set(decade, (counts.get(decade) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([decade, count]) => ({ decade, count }));
+}
+
+/** Actividad de cada mes del año: cuántas reseñas y con qué promedio. */
+function buildMonthly(rows: StatsReviewRow[]): PublicAdvancedStats['monthly'] {
+  const ratingsByMonth = Array.from({ length: 12 }, () => [] as number[]);
+
+  for (const row of rows) {
+    ratingsByMonth[new Date(row.review_date).getMonth()].push(Number(row.rating));
+  }
+
+  return ratingsByMonth.map((ratings, index) => ({
+    month: index + 1,
+    reviews: ratings.length,
+    average_rating: averageOf(ratings),
+  }));
+}
 
 /**
  * Arma la vista pública de un álbum reseñado.
@@ -598,22 +847,99 @@ export const reviewService = {
   async stats(id_user: number): Promise<PublicReviewStats> {
     const rows = await reviewRepository.findPublishedRatingsByUser(id_user);
 
-    // Diez casilleros en cero, uno por cada media estrella. El índice sale de
-    // multiplicar la nota por dos y restar uno: 0,5 cae en el 0 y 5 en el 9.
-    const distribution = new Array<number>(DISTRIBUTION_SIZE).fill(0);
-
-    for (const row of rows) {
-      const index = Math.round(row.rating * 2) - 1;
-      // El guardaviñas es por si alguna fila vieja quedó fuera de la escala: sin
-      // él, un índice inválido rompería el arreglo en silencio.
-      if (index >= 0 && index < DISTRIBUTION_SIZE) distribution[index] += 1;
-    }
-
     return {
       total: rows.length,
-      distribution,
+      distribution: buildDistribution(rows.map((row) => row.rating)),
       albums: rows.filter((row) => row.id_album !== null).length,
       songs: rows.filter((row) => row.id_song !== null).length,
+    };
+  },
+
+  /**
+   * Estadísticas avanzadas propias de un año: "Tu año en música".
+   *
+   * Es el beneficio de Pro, así que antes de calcular nada se confirma que la
+   * membresía siga vigente. requireRole ya cortó a un FREE, pero lee el rol del
+   * token, y un token emitido antes de que venciera la membresía sigue diciendo PRO
+   * hasta que expira. Por eso acá se aplica el vencimiento y se relee el rol de la
+   * base. No se exige una suscripción activa: un PRO asignado desde el panel de
+   * administración no tiene ninguna, y es Pro igual.
+   *
+   * @param actor usuario autenticado; las estadísticas son siempre las suyas.
+   * @param year año pedido; sin él, el año en curso.
+   */
+  async advancedStats(actor: TokenPayload, year?: number): Promise<PublicAdvancedStats> {
+    if (actor.rol === 'PRO') {
+      await subscriptionService.getActive(actor.id_user, actor.rol);
+      const user = await userRepository.findById(actor.id_user);
+
+      if (!user || (user.rol !== 'PRO' && user.rol !== 'ADMIN')) {
+        throw new ForbiddenError('Tu membresía Pro venció. Renovala para ver tus estadísticas.');
+      }
+    }
+
+    const currentYear = new Date().getFullYear();
+    const selectedYear = year ?? currentYear;
+
+    const [rows, dates] = await Promise.all([
+      reviewRepository.findPublishedForStats(
+        actor.id_user,
+        new Date(selectedYear, 0, 1),
+        new Date(selectedYear + 1, 0, 1)
+      ),
+      reviewRepository.findPublishedDatesByUser(actor.id_user),
+    ]);
+
+    const ratings = rows.map((row) => Number(row.rating));
+    const distribution = buildDistribution(ratings);
+    const monthly = buildMonthly(rows);
+    const topGenres = buildTopGenres(rows);
+
+    const artistIds = new Set<number>();
+    const genreIds = new Set<number>();
+    for (const row of rows) {
+      const album = albumOfReview(row);
+      if (album?.artist) artistIds.add(album.artist.id_artist);
+      for (const genre of album?.genres ?? []) genreIds.add(genre.id_genre);
+    }
+
+    const totalSeconds = rows.reduce((total, row) => total + secondsOfReview(row), 0);
+
+    // Los destacados salen de los mismos cálculos: el mes con más reseñas, el
+    // género que encabeza el ranking y la media estrella más repetida.
+    const maxMonthly = Math.max(...monthly.map((entry) => entry.reviews));
+    const maxDistribution = Math.max(...distribution);
+
+    const availableYears = new Set<number>([currentYear]);
+    for (const date of dates) availableYears.add(new Date(date).getFullYear());
+
+    return {
+      year: selectedYear,
+      available_years: [...availableYears].sort((a, b) => b - a),
+      summary: {
+        reviews: rows.length,
+        albums: rows.filter((row) => row.album).length,
+        songs: rows.filter((row) => row.song).length,
+        artists: artistIds.size,
+        genres: genreIds.size,
+        average_rating: averageOf(ratings),
+        written_reviews: rows.filter((row) => row.text_review && row.text_review.trim() !== '')
+          .length,
+        minutes: Math.round(totalSeconds / 60),
+      },
+      monthly,
+      top_genres: topGenres,
+      top_artists: buildTopArtists(rows),
+      top_albums: buildTopAlbums(rows),
+      decades: buildDecades(rows),
+      distribution,
+      highlights: {
+        most_active_month:
+          rows.length === 0 ? null : monthly.find((entry) => entry.reviews === maxMonthly)!.month,
+        favorite_genre: topGenres.find((genre) => genre.id_genre !== null)?.name ?? null,
+        most_common_rating:
+          rows.length === 0 ? null : (distribution.indexOf(maxDistribution) + 1) / 2,
+      },
     };
   },
 

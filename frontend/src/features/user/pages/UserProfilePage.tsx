@@ -7,7 +7,7 @@
 // pestañas están disponibles. Los datos privados (email, membresía) los filtra
 // además el backend, que es donde vale la restricción.
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { UserX } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { BackLink } from '../../../core/components/BackLink';
@@ -19,8 +19,10 @@ import { Loader } from '../../../core/components/Loader';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
+import { FollowListModal } from '../components/FollowListModal';
+import type { FollowListTab } from '../components/FollowListModal';
 import { ProfileHeader } from '../components/ProfileHeader';
-import { ProfileTabs, getVisibleTabs } from '../components/ProfileTabs';
+import { PROFILE_TABS, ProfileTabs, getVisibleTabs } from '../components/ProfileTabs';
 import type { ProfileTab } from '../components/ProfileTabs';
 import { ProfileTabContent } from '../components/ProfileTabContent';
 import { ProfileSidebar } from '../components/ProfileSidebar';
@@ -48,7 +50,14 @@ export const UserProfilePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<ProfileTab>('resumen');
+  // La pestaña inicial puede venir en la URL (/profile?tab=stats): así otras
+  // pantallas, como el área de socio de /pro, pueden llevar directo a una sección.
+  // Si el valor no es una pestaña conocida, se arranca en el resumen.
+  const [searchParams] = useSearchParams();
+  const requestedTab = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<ProfileTab>(
+    PROFILE_TABS.find((tab) => tab === requestedTab) ?? 'resumen'
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -64,6 +73,8 @@ export const UserProfilePage = () => {
   // Hay un seguir/dejar de seguir en curso: deshabilita el botón para no mandar
   // dos veces la misma operación.
   const [isFollowBusy, setIsFollowBusy] = useState(false);
+  // Lista de seguimiento abierta en la ventana, o null si está cerrada.
+  const [followListTab, setFollowListTab] = useState<FollowListTab | null>(null);
 
   const profileId = id ? Number(id) : authState.user?.id;
   const isOwnProfile = profileId !== undefined && profileId === authState.user?.id;
@@ -255,7 +266,22 @@ export const UserProfilePage = () => {
           onEdit={handleStartEdit}
           onDelete={() => setIsDeleteDialogOpen(true)}
           onToggleFollow={handleToggleFollow}
+          onOpenFollowList={setFollowListTab}
         />
+
+        {/* Se monta recién al abrirse, así cada apertura arranca limpia y con la
+            solapa del contador que se tocó. Al seguir o dejar de seguir a alguien
+            desde adentro se rehacen los contadores de la cabecera. */}
+        {followListTab && (
+          <FollowListModal
+            userId={viewedUser.id}
+            username={viewedUser.username}
+            isOwnProfile={isOwnProfile}
+            initialTab={followListTab}
+            onClose={() => setFollowListTab(null)}
+            onFollowChange={loadFollowStats}
+          />
+        )}
 
         <ProfileTabs
           user={viewedUser}
@@ -272,6 +298,7 @@ export const UserProfilePage = () => {
               activeTab={activeTab}
               // Al borrar una reseña hay que rehacer los contadores y el histograma.
               onReviewsChange={loadReviewStats}
+              onShowAllReviews={() => setActiveTab('reviews')}
             />
           </div>
 

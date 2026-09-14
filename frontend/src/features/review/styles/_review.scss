@@ -224,6 +224,38 @@ $star-color: #f5c518;
     font-size: 0.95rem;
   }
 
+  // Avatar y nombre del autor llevan a su perfil. Son enlaces aparte del de la
+  // reseña (ver ReviewCard), así que marcan su propio hover.
+  &__author-link {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: auto;
+    border-radius: 50%;
+    transition: box-shadow 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      box-shadow: 0 0 0 2px $color-primary;
+      outline: none;
+    }
+  }
+
+  &__author-name {
+    width: auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: $color-text;
+
+    &:hover,
+    &:focus-visible {
+      color: $color-primary;
+      text-decoration: underline;
+      outline: none;
+    }
+  }
+
   &__date {
     margin: 0;
     color: $color-text-secondary;
@@ -413,6 +445,32 @@ $star-color: #f5c518;
     color: $color-text;
     font-weight: 600;
     font-size: 0.85rem;
+  }
+
+  // Avatar y nombre de quien comentó, como enlaces a su perfil.
+  &__avatar-link {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: auto;
+    border-radius: 50%;
+    transition: box-shadow 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      box-shadow: 0 0 0 2px $color-primary;
+      outline: none;
+    }
+  }
+
+  &__author-link {
+    width: auto;
+
+    &:hover,
+    &:focus-visible {
+      color: $color-primary;
+      text-decoration: underline;
+      outline: none;
+    }
   }
 
   &__date {

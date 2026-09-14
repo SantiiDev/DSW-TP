@@ -4,6 +4,7 @@ import { IncludeOptions, Op } from 'sequelize';
 import {
   Album,
   Artist,
+  Genre,
   Review,
   ReviewComment,
   ReviewLike,
@@ -86,6 +87,39 @@ export type UserRatingRow = {
   rating: number;
   id_album: number | null;
   id_song: number | null;
+};
+
+/** Género de un álbum, reducido a lo que muestran las estadísticas. */
+export type StatsGenre = {
+  id_genre: number;
+  name: string;
+};
+
+/**
+ * Álbum tal como lo necesitan las estadísticas avanzadas: con su artista, sus
+ * géneros y la duración de cada pista (para sumar el tiempo de música calificada).
+ */
+export type StatsAlbum = {
+  id_album: number;
+  title: string;
+  url_cover: string | null;
+  release_year: number | null;
+  artist?: ReviewArtist | null;
+  genres?: StatsGenre[];
+  songs?: { duration: number | null }[];
+};
+
+/**
+ * Reseña con todo lo que hace falta para las estadísticas avanzadas. Una reseña de
+ * canción trae el álbum de la pista, que es de donde salen el artista, los
+ * géneros y la portada.
+ */
+export type StatsReviewRow = {
+  rating: number;
+  review_date: Date;
+  text_review: string | null;
+  album?: StatsAlbum | null;
+  song?: { id_song: number; duration: number | null; album?: StatsAlbum | null } | null;
 };
 
 /**
@@ -360,6 +394,65 @@ export const reviewRepository = {
       attributes: ['rating', 'id_album', 'id_song'],
       where: { id_user, state: 'published' },
     }),
+
+  /**
+   * Reseñas publicadas de un usuario dentro de un rango de fechas, con el álbum
+   * (o la canción y su álbum), el artista, los géneros y las duraciones.
+   *
+   * Es una sola consulta con includes en vez de una por reseña: las estadísticas
+   * de un año pueden salir de cientos de reseñas.
+   *
+   * @param id_user dueño de las reseñas.
+   * @param from inicio del rango, inclusive.
+   * @param to fin del rango, exclusive.
+   */
+  findPublishedForStats: async (id_user: number, from: Date, to: Date): Promise<StatsReviewRow[]> => {
+    // El álbum se pide igual en los dos caminos (reseña de álbum o de canción), así
+    // que su include se arma una sola vez.
+    const albumInclude = (): IncludeOptions => ({
+      model: Album,
+      as: 'album',
+      attributes: ['id_album', 'title', 'url_cover', 'release_year'],
+      include: [
+        { model: Artist, as: 'artist', attributes: ['id_artist', 'name'] },
+        {
+          model: Genre,
+          as: 'genres',
+          attributes: ['id_genre', 'name'],
+          // Sin esto Sequelize agrega las columnas de la tabla intermedia.
+          through: { attributes: [] },
+        },
+      ],
+    });
+
+    const albumWithSongs = albumInclude();
+    albumWithSongs.include!.push({ model: Song, as: 'songs', attributes: ['duration'] });
+
+    const rows = await Review.findAll({
+      attributes: ['rating', 'review_date', 'text_review'],
+      where: { id_user, state: 'published', review_date: { [Op.gte]: from, [Op.lt]: to } },
+      include: [
+        albumWithSongs,
+        {
+          model: Song,
+          as: 'song',
+          attributes: ['id_song', 'duration'],
+          include: [albumInclude()],
+        },
+      ],
+    });
+
+    return rows.map((row) => row.get({ plain: true }) as StatsReviewRow);
+  },
+
+  /** Fechas de todas las reseñas publicadas de un usuario, para el selector de años. */
+  findPublishedDatesByUser: async (id_user: number): Promise<Date[]> => {
+    const rows = await Review.findAll({
+      attributes: ['review_date'],
+      where: { id_user, state: 'published' },
+    });
+    return rows.map((row) => row.review_date);
+  },
 
   // --- "Me gusta" -----------------------------------------------------------
 

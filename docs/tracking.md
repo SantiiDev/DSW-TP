@@ -51,6 +51,7 @@ Los títulos son los de las ramas que salieron de cada issue.
 | — | UI de administración del CRUD de Plan de membresía | Santino Gallo | Cerrado (falta abrir el issue) |
 | — | Seguimiento entre usuarios (relación `FOLLOWS`) | Santino Gallo | Cerrado (falta abrir el issue) |
 | — | CUU 4 (parte 1) — Feed social de reseñas | Santiago Siena | Cerrado (falta abrir el issue) |
+| — | CUU 4 (parte 2) — Estadísticas avanzadas y bloqueo para `FREE` | A definir | Terminado, sin PR (falta abrir el issue y la rama) |
 
 > Las cuatro últimas se trabajaron antes de abrir su issue y entraron juntas por
 > el PR #13. Hay que crearlas en el GitHub Project y vincularlas a ese pull
@@ -63,7 +64,6 @@ Lo que falta del alcance y todavía no tiene issue. El detalle de cada uno está
 
 | Ítem | Responsable propuesto | Prioridad |
 |:-|:-|:-|
-| CUU 4 (parte 2) — Estadísticas avanzadas y bloqueo para `FREE` | A definir | Alta |
 | Conectar `/lists` a la API (hoy son datos fijos) | A definir | Alta |
 | Tests automatizados (3 unitarios + 1 de integración en backend) | Uno por integrante | Alta (aprobación) |
 | Test unitario de componente + test E2E (frontend) | A definir | Alta (aprobación) |

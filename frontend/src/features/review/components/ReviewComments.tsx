@@ -10,6 +10,7 @@ import { Alert } from '../../../core/components/Alert';
 import { Avatar } from '../../../core/components/Avatar';
 import { Button } from '../../../core/components/Button';
 import { TextInput } from '../../../core/components/FormField';
+import { GatedLink } from '../../../core/components/GatedLink';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { reviewService } from '../services/reviewService';
@@ -125,15 +126,32 @@ export const ReviewComments = ({
         <ul className="review-comments__list">
           {comments.map((comment) => (
             <li key={comment.id} className="review-comments__item">
-              <Avatar
-                url={comment.author?.avatarUrl ?? null}
-                username={comment.authorName}
-                size="sm"
-              />
+              {/* Avatar y nombre llevan al perfil del que comentó, igual que en la
+                  tarjeta de la reseña. Sin autor (cuenta borrada) quedan como texto. */}
+              {comment.author ? (
+                <GatedLink
+                  to={`/users/${comment.author.id}`}
+                  className="review-comments__avatar-link"
+                  ariaLabel={`Ver el perfil de ${comment.authorName}`}
+                >
+                  <Avatar url={comment.author.avatarUrl} username={comment.authorName} size="sm" />
+                </GatedLink>
+              ) : (
+                <Avatar url={null} username={comment.authorName} size="sm" />
+              )}
 
               <div className="review-comments__body">
                 <p className="review-comments__meta">
-                  <span className="review-comments__author">{comment.authorName}</span>
+                  {comment.author ? (
+                    <GatedLink
+                      to={`/users/${comment.author.id}`}
+                      className="review-comments__author review-comments__author-link"
+                    >
+                      {comment.authorName}
+                    </GatedLink>
+                  ) : (
+                    <span className="review-comments__author">{comment.authorName}</span>
+                  )}
                   <span className="review-comments__date">{comment.dateLabel}</span>
                 </p>
                 <p className="review-comments__text">{comment.text}</p>

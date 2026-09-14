@@ -200,6 +200,14 @@ export const exploreAlbumsQuerySchema = z.object({
     .int()
     .positive('El id del género debe ser un número positivo.')
     .optional(),
+  // Búsqueda parcial por título. La usa el buscador de la barra de navegación,
+  // que es público: por eso va acá y no solo en el listado, que pide sesión.
+  title: z
+    .string()
+    .trim()
+    .max(200, 'El título a buscar no puede tener más de 200 caracteres.')
+    .transform((value) => (value === '' ? undefined : value))
+    .optional(),
 });
 
 export type AlbumIdParam = z.infer<typeof albumIdParamSchema>;

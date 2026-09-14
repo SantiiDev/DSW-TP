@@ -1,0 +1,396 @@
+// Estilos de los gráficos reutilizables (core/components/charts).
+//
+// Todas las animaciones son transiciones que se disparan al agregar la clase o el
+// valor "visible" cuando el gráfico entra en pantalla (ver useInView). Quien pidió
+// menos movimiento en su sistema ve los gráficos ya dibujados.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+/** Curva de las animaciones de dibujo: arranca con impulso y frena suave. */
+$chart-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+// --- Número grande ------------------------------------------------------------
+
+.stat-number {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+
+  &__value {
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: $color-text;
+    // Los dígitos de ancho fijo evitan que el número "tiemble" mientras cuenta.
+    font-variant-numeric: tabular-nums;
+  }
+
+  &--md &__value {
+    font-size: 1.6rem;
+  }
+
+  &--xl &__value {
+    font-size: 2.8rem;
+
+    @media (min-width: $bp-md) {
+      font-size: 3.6rem;
+    }
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $color-text-secondary;
+  }
+
+  &__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+// --- Área con línea -----------------------------------------------------------
+
+.area-chart {
+  color: $color-primary;
+
+  &__plot {
+    position: relative;
+    height: 180px;
+    // Deja lugar a la izquierda para los valores de las líneas guía.
+    margin-left: 1.75rem;
+
+    @media (min-width: $bp-md) {
+      height: 220px;
+    }
+  }
+
+  &__grid {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  &__grid-line {
+    position: relative;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+
+    &::before {
+      content: attr(data-value);
+      position: absolute;
+      right: calc(100% + 0.5rem);
+      top: -0.55rem;
+      font-size: 0.7rem;
+      color: $color-text-secondary;
+    }
+  }
+
+  &__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    // El dibujo se revela de izquierda a derecha recortándolo: funciona igual con
+    // la línea y con el área, sin depender del largo del path.
+    clip-path: inset(-10% 100% -10% 0);
+    transition: clip-path 1.4s $chart-ease;
+  }
+
+  &--visible &__svg {
+    clip-path: inset(-10% -1% -10% 0);
+  }
+
+  &__line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 4px 10px rgba($color-primary, 0.35));
+  }
+
+  &__dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    background-color: $color-bg-light;
+    transform: translate(-50%, -50%) scale(0);
+    transition:
+      transform 0.35s $chart-ease,
+      background-color 0.2s ease;
+    cursor: pointer;
+
+    // Un área de toque más grande que el punto dibujado, para el dedo en mobile.
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+    }
+
+    &--zero {
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    &--active,
+    &:focus-visible {
+      background-color: currentColor;
+      outline: none;
+    }
+  }
+
+  &--visible &__dot {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  &--visible &__dot--active {
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+
+  &__tooltip {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.35rem 0.6rem;
+    border-radius: $radius;
+    background-color: #fff;
+    color: $color-bg;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    // El globo vive dentro del punto activo, que está agrandado a 1.4: se achica
+    // en la misma proporción (1 / 1.4) para que el texto se lea a su tamaño real.
+    transform: translateX(-50%) scale(0.715);
+    transform-origin: bottom center;
+    pointer-events: none;
+
+    strong {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  &__labels {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.6rem 0 0 1.75rem;
+  }
+
+  &__label {
+    // Todas las etiquetas ocupan lo mismo, así la primera y la última quedan
+    // centradas bajo su punto aunque los nombres de los meses midan distinto.
+    width: 0;
+    display: flex;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: $color-text-secondary;
+    transition: color 0.2s ease;
+
+    &--active {
+      color: $color-text;
+      font-weight: 700;
+    }
+  }
+}
+
+// --- Dona ---------------------------------------------------------------------
+
+.donut-chart {
+  // Dona y leyenda van lado a lado si entran; si el contenedor es angosto, la
+  // leyenda baja sola abajo de la dona. Se resuelve con wrap y no con una media
+  // query porque lo que importa es el ancho de la tarjeta, no el de la pantalla.
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md $spacing-lg;
+
+  &__ring {
+    position: relative;
+    flex-shrink: 0;
+    width: 170px;
+    height: 170px;
+  }
+
+  &__svg {
+    width: 100%;
+    height: 100%;
+    // Las porciones arrancan arriba, a las 12, y no a las 3 como un círculo de SVG.
+    transform: rotate(-90deg);
+  }
+
+  &__track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 12;
+  }
+
+  &__arc {
+    fill: none;
+    stroke-width: 12;
+    cursor: pointer;
+    transition:
+      stroke-dasharray 1s $chart-ease,
+      stroke-width 0.2s ease,
+      opacity 0.2s ease;
+
+    &--active {
+      stroke-width: 15;
+    }
+
+    &--dimmed {
+      opacity: 0.3;
+    }
+  }
+
+  &__center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.75rem;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  &__center-value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: $color-text;
+  }
+
+  &__center-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+  }
+
+  &__legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    flex: 1 1 160px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__legend-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.9rem;
+    cursor: default;
+    transition: opacity 0.2s ease;
+
+    &--dimmed {
+      opacity: 0.4;
+    }
+  }
+
+  &__swatch {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  &__legend-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: $color-text;
+  }
+
+  &__legend-value {
+    font-weight: 700;
+    color: $color-text-secondary;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// --- Barras horizontales ------------------------------------------------------
+
+.bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    margin-bottom: 0.35rem;
+    font-size: 0.85rem;
+  }
+
+  &__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: $color-text;
+  }
+
+  &__value {
+    font-weight: 700;
+    color: $color-text-secondary;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__track {
+    height: 8px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+
+  &__fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba($color-primary, 0.6), $color-primary);
+    transform-origin: left center;
+    transition: transform 0.9s $chart-ease;
+  }
+}
+
+// Quien pidió menos movimiento ve todo dibujado de entrada.
+@media (prefers-reduced-motion: reduce) {
+  .area-chart__svg,
+  .area-chart__dot,
+  .donut-chart__arc,
+  .bar-list__fill {
+    transition: none !important;
+  }
+}

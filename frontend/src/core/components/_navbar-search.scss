@@ -1,0 +1,143 @@
+// Estilos del buscador de la barra (core/components/NavbarSearch y SearchResultRow).
+//
+// La caja del input sigue siendo la de .navbar__search (ver _navbar.scss); acá va
+// el desplegable de resultados, con una sección por tipo.
+@use '../../styles/abstracts/variable' as *;
+@use '../../styles/abstracts/breakpoints' as *;
+
+.navbar-search {
+  position: relative;
+
+  // El input de tipo search trae su propia cruz de borrar en Chrome, que no
+  // combina con el resto de la barra.
+  .navbar__search-input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+
+  &__panel {
+    // Mobile: el buscador arranca después del logo, así que un desplegable colgado
+    // de él se salía por la derecha. Se lo fija a la ventana, debajo del navbar,
+    // con el mismo margen a los dos costados.
+    position: fixed;
+    top: calc(#{$navbar-height} + 6px);
+    left: $spacing-md;
+    right: $spacing-md;
+    z-index: 200;
+    max-height: min(520px, 75vh);
+    overflow-y: auto;
+    padding: 0.25rem 0;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+
+    // Desde SM hay lugar: cuelga del buscador, con un ancho cómodo para leer
+    // títulos y artistas sin tapar media página.
+    @media (min-width: $bp-sm) {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: auto;
+      width: 380px;
+    }
+  }
+
+  &__section + &__section {
+    border-top: 1px solid $color-nav-border;
+  }
+
+  &__section-title {
+    margin: 0;
+    padding: 0.6rem 0.75rem 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $color-text-secondary;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 0.25rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__message {
+    margin: 0;
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+
+    &--error {
+      color: $color-error;
+    }
+  }
+
+  // En el desplegable las filas de usuario no llevan fondo propio: se resaltan
+  // solo al pasar o al moverse con las flechas (el hover también resalta, ver
+  // onMouseEnter).
+  .user-row {
+    background-color: transparent;
+
+    &:hover,
+    &--highlighted {
+      background-color: rgba(255, 255, 255, 0.07);
+    }
+  }
+}
+
+// --- Fila de un álbum o una canción -------------------------------------------
+
+.search-result {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.45rem 0.75rem;
+  color: inherit;
+  text-decoration: none;
+
+  &--highlighted {
+    background-color: rgba(255, 255, 255, 0.07);
+  }
+
+  &__cover {
+    display: inline-flex;
+    flex-shrink: 0;
+
+    // La portada chica del sitio mide 56px; en el desplegable va más compacta.
+    .album-cover {
+      width: 40px;
+      height: 40px;
+    }
+
+    .album-cover__initial {
+      font-size: 1rem;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__title,
+  &__subtitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  &__subtitle {
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+  }
+}

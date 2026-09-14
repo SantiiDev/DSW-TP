@@ -213,6 +213,14 @@ export const exploreSongsQuerySchema = z.object({
   // Rango de años, los dos incluidos. Es lo que arma una década: 1990 a 1999.
   year_from: albumYearSchema.optional(),
   year_to: albumYearSchema.optional(),
+  // Búsqueda parcial por título. La usa el buscador de la barra de navegación,
+  // que es público: por eso va acá y no solo en el listado, que pide sesión.
+  title: z
+    .string()
+    .trim()
+    .max(200, 'El título a buscar no puede tener más de 200 caracteres.')
+    .transform((value) => (value === '' ? undefined : value))
+    .optional(),
 });
 
 export type SongIdParam = z.infer<typeof songIdParamSchema>;

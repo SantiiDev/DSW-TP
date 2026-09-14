@@ -1,4 +1,5 @@
-// Estilos del panel "Gente para seguir" (components/SuggestedUsersPanel).
+// Estilos del panel "Gente para seguir" (components/SuggestedUsersPanel). La fila
+// de cada usuario tiene su propia hoja: _user-row.scss.
 //
 // Reemplaza a los bloques .popular-reviewers y .reviewer-item que vivían en
 // _members-explore.scss. La lista es la misma idea visual —filas apiladas sobre
@@ -8,7 +9,6 @@
 //
 // Mobile-first: primero los estilos para pantalla chica y después las media
 // queries que amplían.
-@use 'sass:color';
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
 
@@ -55,7 +55,7 @@
       gap: $spacing-sm;
     }
 
-    .suggested-user {
+    .user-row {
       border-radius: $radius;
     }
   }
@@ -70,60 +70,8 @@
       background-color: rgba($color-bg-light, 0.5);
     }
 
-    .suggested-user {
+    .user-row {
       border-radius: 0;
     }
-  }
-}
-
-.suggested-user {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  padding: $spacing-md;
-  background-color: $color-bg-light;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: color.adjust($color-bg-light, $lightness: 4%);
-  }
-
-  // El nombre y el avatar son el link al perfil; el botón queda afuera para que
-  // apretarlo no navegue.
-  &__identity {
-    display: flex;
-    align-items: center;
-    gap: $spacing-sm;
-    // min-width: 0 sobre el flex item, si no un username largo empuja el botón
-    // fuera de la tarjeta en vez de recortarse.
-    min-width: 0;
-    flex: 1;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  &__info {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-  }
-
-  &__username {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: $color-text;
-    // El nombre se recorta antes que empujar la pastilla del rol.
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__meta {
-    margin-top: 2px;
-    font-size: 0.82rem;
-    color: $color-text-secondary;
   }
 }

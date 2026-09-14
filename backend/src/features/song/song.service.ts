@@ -297,6 +297,7 @@ export const songService = {
       offset: filters.offset,
       yearFrom: filters.year_from,
       yearTo: filters.year_to,
+      title: filters.title,
     });
 
     return songs.map(toPublicSong);

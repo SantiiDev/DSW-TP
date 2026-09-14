@@ -7,6 +7,7 @@ import { ROLE_LABELS, ROLE_TONES } from '../models/User';
 import type { User } from '../models/User';
 import type { ProfileStats } from '../models/ProfileStats';
 import { FollowButton } from './FollowButton';
+import type { FollowListTab } from './FollowListModal';
 
 type ProfileHeaderProps = {
   user: User;
@@ -20,15 +21,18 @@ type ProfileHeaderProps = {
   onEdit: () => void;
   onDelete: () => void;
   onToggleFollow: () => void;
+  /** Abre la lista de seguidores o de seguidos al tocar su contador. */
+  onOpenFollowList: (tab: FollowListTab) => void;
 };
 
 // Los contadores se declaran como data y no como JSX repetido: son cuatro cajas
-// idénticas que solo cambian número y etiqueta.
-const STAT_LABELS: { key: keyof ProfileStats; label: string }[] = [
+// idénticas que solo cambian número y etiqueta. Los dos de seguimiento llevan
+// además qué lista abren.
+const STAT_LABELS: { key: keyof ProfileStats; label: string; list?: FollowListTab }[] = [
   { key: 'reviews', label: 'Reseñas' },
   { key: 'listened', label: 'Escuchados' },
-  { key: 'following', label: 'Siguiendo' },
-  { key: 'followers', label: 'Seguidores' },
+  { key: 'following', label: 'Siguiendo', list: 'following' },
+  { key: 'followers', label: 'Seguidores', list: 'followers' },
 ];
 
 export const ProfileHeader = ({
@@ -40,6 +44,7 @@ export const ProfileHeader = ({
   onEdit,
   onDelete,
   onToggleFollow,
+  onOpenFollowList,
 }: ProfileHeaderProps) => {
   return (
     <header className="profile-header">
@@ -65,10 +70,24 @@ export const ProfileHeader = ({
 
       <div className="profile-header__side">
         <ul className="profile-header__stats">
-          {STAT_LABELS.map(({ key, label }) => (
+          {STAT_LABELS.map(({ key, label, list }) => (
             <li key={key} className="profile-header__stat">
-              <span className="profile-header__stat-value">{stats[key]}</span>
-              <span className="profile-header__stat-label">{label}</span>
+              {list ? (
+                <button
+                  type="button"
+                  className="profile-header__stat-button"
+                  aria-label={`Ver ${label.toLowerCase()}: ${stats[key]}`}
+                  onClick={() => onOpenFollowList(list)}
+                >
+                  <span className="profile-header__stat-value">{stats[key]}</span>
+                  <span className="profile-header__stat-label">{label}</span>
+                </button>
+              ) : (
+                <>
+                  <span className="profile-header__stat-value">{stats[key]}</span>
+                  <span className="profile-header__stat-label">{label}</span>
+                </>
+              )}
             </li>
           ))}
         </ul>

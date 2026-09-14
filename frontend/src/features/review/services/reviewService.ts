@@ -1,6 +1,8 @@
 // Servicio del CRUD de reseñas: centraliza las llamadas HTTP de /api/reviews y
 // mapea la respuesta cruda del backend al modelo Review.
 import { httpClient } from '../../../core/services/httpClient';
+import { AdvancedStats } from '../models/AdvancedStats';
+import type { AdvancedStatsApiResponse } from '../models/AdvancedStats';
 import {
   Review,
   ReviewAlbumRef,
@@ -279,5 +281,63 @@ export const reviewService = {
   async stats(userId: number): Promise<ReviewStats> {
     const data = await httpClient.get<ReviewStatsApiResponse>(`/reviews/stats?id_user=${userId}`);
     return new ReviewStats(data.total, data.distribution, data.albums, data.songs);
+  },
+
+  /**
+   * Estadísticas avanzadas propias de un año ("Tu año en música").
+   *
+   * Solo para PRO y ADMIN: a un FREE, o a un Pro con la membresía vencida, la API
+   * le responde 403, y quien llama decide qué mostrar en ese caso.
+   *
+   * @param year año pedido; sin él, la API usa el año en curso.
+   */
+  async advancedStats(year?: number): Promise<AdvancedStats> {
+    const query = year === undefined ? '' : `?year=${year}`;
+    const data = await httpClient.get<AdvancedStatsApiResponse>(`/reviews/stats/me${query}`);
+
+    return new AdvancedStats(
+      data.year,
+      data.available_years,
+      {
+        reviews: data.summary.reviews,
+        albums: data.summary.albums,
+        songs: data.summary.songs,
+        artists: data.summary.artists,
+        genres: data.summary.genres,
+        averageRating: data.summary.average_rating,
+        writtenReviews: data.summary.written_reviews,
+        minutes: data.summary.minutes,
+      },
+      data.monthly.map((entry) => ({
+        month: entry.month,
+        reviews: entry.reviews,
+        averageRating: entry.average_rating,
+      })),
+      data.top_genres.map((genre) => ({
+        id: genre.id_genre,
+        name: genre.name,
+        count: genre.count,
+        percentage: genre.percentage,
+      })),
+      data.top_artists.map((artist) => ({
+        id: artist.id_artist,
+        name: artist.name,
+        count: artist.count,
+        averageRating: artist.average_rating,
+        coverUrl: artist.url_cover,
+      })),
+      data.top_albums.map((album) => ({
+        id: album.id_album,
+        title: album.title,
+        artist: album.artist,
+        coverUrl: album.url_cover,
+        rating: album.rating,
+      })),
+      data.decades,
+      data.distribution,
+      data.highlights.most_active_month,
+      data.highlights.favorite_genre,
+      data.highlights.most_common_rating
+    );
   },
 };

@@ -12,20 +12,15 @@
 // que es justamente el gancho de la vitrina.
 import { useState } from 'react';
 import { Star } from 'lucide-react';
-import { Avatar } from '../../../core/components/Avatar';
-import { Badge } from '../../../core/components/Badge';
 import { Loader } from '../../../core/components/Loader';
 import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { useGatedNavigation } from '../../../core/hooks/useGatedNavigation';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
-import { Link } from 'react-router-dom';
 import { followService } from '../services/followService';
-import { SuggestedUser } from '../models/Follow';
-import { ROLE_LABELS, ROLE_TONES } from '../models/User';
-import type { UserRole } from '../models/User';
-import { FollowButton } from './FollowButton';
+import type { CommunityUser } from '../models/Follow';
+import { UserRow } from './UserRow';
 import '../styles/_suggested-users.scss';
 
 type SuggestedUsersPanelProps = {
@@ -58,7 +53,7 @@ export const SuggestedUsersPanel = ({ onFollowChange }: SuggestedUsersPanelProps
    * de sugerir a quien ya seguís, así que recargar haría desaparecer de golpe la
    * tarjeta que se acaba de apretar, antes de que se vea que el botón hizo algo.
    */
-  const handleToggleFollow = async (user: SuggestedUser) => {
+  const handleToggleFollow = async (user: CommunityUser) => {
     if (!isAuthenticated) {
       openSignup();
       return;
@@ -103,30 +98,13 @@ export const SuggestedUsersPanel = ({ onFollowChange }: SuggestedUsersPanelProps
       ) : (
         <ul className="suggested-users__list">
           {users.map((user) => (
-            <li key={user.id} className="suggested-user">
-              <Link to={user.profilePath} className="suggested-user__identity">
-                <Avatar url={user.avatarUrl} username={user.username} size="md" />
-
-                <span className="suggested-user__info">
-                  <span className="suggested-user__username">
-                    {user.username}
-                    {/* El rol FREE no lleva pastilla: es el estado normal y
-                        marcarlo en cada tarjeta sería ruido. */}
-                    {user.rol !== 'FREE' && (
-                      <Badge tone={ROLE_TONES[user.rol as UserRole]}>
-                        {ROLE_LABELS[user.rol as UserRole]}
-                      </Badge>
-                    )}
-                  </span>
-                  <span className="suggested-user__meta">{user.reviewsLabel}</span>
-                </span>
-              </Link>
-
-              <FollowButton
-                isFollowing={user.followedByMe}
+            <li key={user.id}>
+              <UserRow
+                user={user}
+                meta={user.reviewsLabel}
+                showFollowButton
                 isBusy={busyUserId === user.id}
-                size="sm"
-                onToggle={() => handleToggleFollow(user)}
+                onToggleFollow={() => handleToggleFollow(user)}
               />
             </li>
           ))}
