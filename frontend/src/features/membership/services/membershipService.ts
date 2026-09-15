@@ -52,7 +52,7 @@ function toSubscription(data: SubscriptionApiResponse): Subscription {
     data.plan?.id_plan ?? null,
     data.plan?.name ?? null,
     data.plan?.amount ?? 0,
-    new Date(data.subscription_date),
+    data.subscription_date ? new Date(data.subscription_date) : null,
     data.end_date ? new Date(data.end_date) : null,
     data.state
   );

@@ -58,8 +58,8 @@
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
   border-radius: $radius;
-  // En mobile se achica el padding: con 2rem a cada lado los cuatro contadores
-  // no entran en una pantalla de 375px.
+  // En mobile se achica el padding: con 2rem a cada lado los contadores quedan
+  // apretados en una pantalla de 375px.
   padding: $spacing-md;
   display: flex;
   flex-direction: column;
@@ -144,10 +144,11 @@
   }
 
   &__stat {
-    flex: 1;
-    // Sin esto los items no bajan del ancho de su etiqueta y la fila desborda
-    // la pantalla en mobile.
-    min-width: 0;
+    // Se reparten el espacio que sobra, pero ninguna baja del ancho de su
+    // etiqueta: con `min-width: 0` la columna de la derecha las apretaba contra
+    // el ancho de los botones y "Seguidores" se cortaba con puntos suspensivos.
+    // Con tres contadores entran enteros incluso en un celular de 375px.
+    flex: 1 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -209,10 +210,7 @@
     font-size: 0.7rem;
     color: $color-text-secondary;
     text-align: center;
-    // Se recorta si no entra, en vez de empujar la fila a lo ancho.
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    // En una sola línea y siempre entera: la caja se ensancha para contenerla.
     white-space: nowrap;
 
     @media (min-width: $bp-sm) {

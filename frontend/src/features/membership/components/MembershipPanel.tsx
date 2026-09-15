@@ -5,7 +5,7 @@
 // privados: el backend ni siquiera los devuelve para otro usuario, porque las dos
 // rutas que los traen son "mine" y sacan el usuario del token.
 import { useState } from 'react';
-import { AlertTriangle, CreditCard } from 'lucide-react';
+import { AlertTriangle, CreditCard, ShieldCheck } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { Button, ButtonLink } from '../../../core/components/Button';
 import { EmptyState } from '../../../core/components/EmptyState';
@@ -23,7 +23,10 @@ function formatDate(date: Date): string {
 }
 
 export const MembershipPanel = () => {
-  const { refreshSession } = useAuth();
+  const {
+    state: { user },
+    refreshSession,
+  } = useAuth();
 
   const {
     data: membership,
@@ -87,10 +90,14 @@ export const MembershipPanel = () => {
           </div>
 
           <dl className="membership-card__facts">
-            <div>
-              <dt>Activa desde</dt>
-              <dd>{formatDate(current.startDate)}</dd>
-            </div>
+            {/* Sin fecha real en la genérica de un PRO asignado a mano por un
+                admin (ver subscriptionService.getMine en el backend). */}
+            {current.startDate && (
+              <div>
+                <dt>Activa desde</dt>
+                <dd>{formatDate(current.startDate)}</dd>
+              </div>
+            )}
             {current.endDate && (
               <div>
                 <dt>Vence el</dt>
@@ -114,17 +121,31 @@ export const MembershipPanel = () => {
             </p>
           )}
 
-          <div className="membership-card__actions">
-            {/* Va directo al resumen y no a la página de venta: el que ya es Pro
-                no necesita que le vendan el plan de nuevo. */}
-            <ButtonLink to="/pro/checkout" size="sm">
-              Renovar
-            </ButtonLink>
-            <Button variant="danger" size="sm" onClick={() => setIsDialogOpen(true)}>
-              Dar de baja
-            </Button>
-          </div>
+          {/* Sin suscripción real no hay nada que renovar ni dar de baja: es un
+              PRO asignado a mano por un admin, sin vencimiento ni pago detrás. */}
+          {current.hasRealSubscription && (
+            <div className="membership-card__actions">
+              {/* Va directo al resumen y no a la página de venta: el que ya es Pro
+                  no necesita que le vendan el plan de nuevo. */}
+              <ButtonLink to="/pro/checkout" size="sm">
+                Renovar
+              </ButtonLink>
+              <Button variant="danger" size="sm" onClick={() => setIsDialogOpen(true)}>
+                Dar de baja
+              </Button>
+            </div>
+          )}
         </div>
+      ) : user?.isAdmin ? (
+        // Un ADMIN no necesita ningún plan: tiene acceso completo por su rol, no
+        // por una suscripción (ver el comentario de subscription.service.ts). Si
+        // en algún momento pagó Pro igual, `current` no sería null y entraría por
+        // la rama de arriba con su suscripción real.
+        <EmptyState
+          icon={<ShieldCheck size={32} />}
+          title="Tenés acceso completo como administrador"
+          message="No necesitás ningún plan: tu rol ya te da todos los beneficios, sin las restricciones de Free ni Pro."
+        />
       ) : (
         <EmptyState
           icon={<CreditCard size={32} />}

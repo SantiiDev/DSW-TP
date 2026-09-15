@@ -1191,6 +1191,11 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
 // ─── Panel de membresía del perfil ──────────────────────────
 .membership-card {
   padding: $spacing-lg;
+  // Antes este espacio salía del margen por defecto del <h3> de abajo
+  // (.profile-panel__subtitle no tiene estilo propio). Con los botones
+  // "Renovar"/"Dar de baja" se disimulaba; sin ellos (PRO asignado a mano, sin
+  // suscripción real) quedaba pegado. Mejor no depender del margen implícito.
+  margin-bottom: $spacing-lg;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
   border-radius: $radius;

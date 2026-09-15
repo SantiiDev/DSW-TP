@@ -63,7 +63,11 @@ export type SubscriptionPlanApiResponse = {
 export type SubscriptionApiResponse = {
   id_subscription: number;
   plan: SubscriptionPlanApiResponse | null;
-  subscription_date: string;
+  /**
+   * null solo en la suscripción "genérica" que arma el backend para un PRO
+   * asignado a mano por un admin, sin pago real detrás (ver subscription.service.ts).
+   */
+  subscription_date: string | null;
   end_date: string | null;
   state: SubscriptionState;
 };
@@ -156,7 +160,8 @@ export class Subscription {
     public readonly planId: number | null,
     public readonly planName: string | null,
     public readonly amount: number,
-    public readonly startDate: Date,
+    /** null en la genérica de un PRO asignado a mano: no hay fecha de alta real. */
+    public readonly startDate: Date | null,
     public readonly endDate: Date | null,
     public readonly state: SubscriptionState
   ) {}
@@ -164,6 +169,17 @@ export class Subscription {
   /** Etiqueta del estado, para la pastilla que se muestra al lado. */
   get stateLabel(): string {
     return SUBSCRIPTION_STATE_LABELS[this.state];
+  }
+
+  /**
+   * ¿Es una suscripción real, con una fila propia en la base? False en la
+   * genérica que arma el backend para un PRO asignado a mano por un admin.
+   *
+   * La usa el panel de membresía para no ofrecer "Renovar" ni "Dar de baja"
+   * sobre algo que no existe como suscripción.
+   */
+  get hasRealSubscription(): boolean {
+    return this.startDate !== null;
   }
 
   /**

@@ -30,13 +30,13 @@ export const StatNumber = ({ value, label, decimals = 0, size = 'md' }: StatNumb
   useEffect(() => {
     if (!inView) return;
 
-    // Quien pidió menos movimiento en su sistema ve el número final de una.
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // El conteo corre siempre, aunque el sistema pida reducir movimiento: fue
+    // una decisión del equipo (ver core/utils/scrollToSection).
     let frame = 0;
     const start = performance.now();
 
     const tick = (now: number) => {
-      const progress = prefersReducedMotion ? 1 : Math.min((now - start) / DURATION_MS, 1);
+      const progress = Math.min((now - start) / DURATION_MS, 1);
       setDisplayed(value * easeOutCubic(progress));
       if (progress < 1) frame = requestAnimationFrame(tick);
     };

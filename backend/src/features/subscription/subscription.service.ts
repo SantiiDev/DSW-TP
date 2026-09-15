@@ -38,7 +38,13 @@ export const PRO_PLAN_NAME = 'Pro';
 type PublicSubscription = {
   id_subscription: number;
   plan: { id_plan: number; name: string; amount: number } | null;
-  subscription_date: Date;
+  /**
+   * null solo en la suscripción "genérica" que arma getMine() para un PRO
+   * asignado a mano por un admin: no hay ninguna fila real, así que tampoco hay
+   * una fecha de alta que mostrar. Es la señal que usa el frontend para no
+   * ofrecer "Renovar" ni "Dar de baja" sobre algo que no existe.
+   */
+  subscription_date: Date | null;
   end_date: Date | null;
   state: SubscriptionState;
   /** El usuario dueño de la suscripción. Solo lo llena el listado de ADMIN. */
@@ -117,6 +123,26 @@ async function downgradeRole(
   await subscriptionRepository.updateUserRole(id_user, 'FREE', transaction);
 }
 
+/**
+ * Suscripción "genérica" para un usuario PRO por rol que no tiene ninguna fila
+ * real en `subscription` (se lo asignó un admin a mano desde el CRUD de
+ * usuarios, en vez de salir de un pago). Sin esto, el panel de membresía lo
+ * mostraría como Free a pesar de que sus beneficios Pro ya están activos.
+ *
+ * Lleva el plan Pro real (nombre y monto), pero ninguna fecha: no hay alta ni
+ * vencimiento reales que mostrar, y no se inventan.
+ */
+async function buildRoleOnlyProSubscription(): Promise<PublicSubscription> {
+  const plan = await subscriptionService.getProPlan();
+  return {
+    id_subscription: 0,
+    plan: { id_plan: plan.id_plan, name: plan.name, amount: plan.amount },
+    subscription_date: null,
+    end_date: null,
+    state: 'active',
+  };
+}
+
 export const subscriptionService = {
   /**
    * La membresía vigente de un usuario, ya con el vencimiento aplicado.
@@ -159,7 +185,14 @@ export const subscriptionService = {
     const history = await subscriptionRepository.findAllByUser(id_user);
 
     return {
-      current: current ? toPublicSubscription(current) : null,
+      // Sin fila real: si el rol es PRO igual (asignado a mano por un admin), se
+      // arma la genérica en vez de mostrarlo como Free. Ver
+      // buildRoleOnlyProSubscription().
+      current: current
+        ? toPublicSubscription(current)
+        : currentRole === 'PRO'
+          ? await buildRoleOnlyProSubscription()
+          : null,
       history: history.map(toPublicSubscription),
     };
   },
@@ -229,6 +262,23 @@ export const subscriptionService = {
     });
 
     return toPublicSubscription(active);
+  },
+
+  /**
+   * Cancela la suscripción activa de un usuario, sin tocar su rol. No hace nada
+   * si no tiene ninguna (el caso del PRO asignado a mano, sin fila real).
+   *
+   * La usa userService.update cuando un ADMIN le cambia el rol a FREE a un
+   * usuario que era PRO: mantiene sincronizada la fila de subscription con el
+   * rol nuevo, dentro de la misma transacción. A diferencia de cancelMine, no
+   * valida quién pide la baja: ese chequeo (ser ADMIN) ya lo hizo userService
+   * antes de llamarla.
+   */
+  async cancelForUser(id_user: number, transaction: Transaction): Promise<void> {
+    const active = await subscriptionRepository.findActiveByUser(id_user, transaction);
+    if (active) {
+      await subscriptionRepository.updateState(active, 'cancelled', transaction);
+    }
   },
 
   /**

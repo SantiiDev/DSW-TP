@@ -242,14 +242,12 @@ export const UserProfilePage = () => {
       );
     }
 
-    // Las cuatro cajas de la cabecera salen de dos endpoints distintos: dos de las
-    // estadísticas de reseñas y dos de los contadores de seguimiento. Cada mitad
+    // Las tres cajas de la cabecera salen de dos endpoints distintos: una de las
+    // estadísticas de reseñas y dos de los contadores de seguimiento. Cada parte
     // queda en cero mientras su respuesta no llegó, sin bloquear a la otra.
     const stats: ProfileStats = {
       ...EMPTY_PROFILE_STATS,
-      ...(reviewStats === null
-        ? {}
-        : { reviews: reviewStats.total, listened: reviewStats.listened }),
+      ...(reviewStats === null ? {} : { reviews: reviewStats.total }),
       ...(followStats === null
         ? {}
         : { following: followStats.following, followers: followStats.followers }),

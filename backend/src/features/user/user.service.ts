@@ -13,7 +13,9 @@ import {
   NotFoundError,
 } from '../../shared/errors/app-error';
 import { TokenPayload } from '../../shared/auth/jwt';
+import { sequelize } from '../../shared/db/sequelize';
 import { UserRole, UserState } from '../../shared/types/enums';
+import { subscriptionService } from '../subscription/subscription.service';
 import { userRepository } from './user.repository';
 import { CreateUserInput, UpdateUserInput } from './user.schema';
 
@@ -179,7 +181,21 @@ export const userService = {
     const user = await findExisting(id_user);
     await assertAvailable({ username: data.username, email: data.email }, id_user);
 
-    const updated = await userRepository.update(user, data);
+    // Si el admin le saca el PRO (lo pasa a FREE) y tenía una suscripción paga
+    // real, hay que cancelarla en la misma transacción que el cambio de rol: si
+    // no, quedaría 'active' en la base con el rol ya en FREE, y el panel de
+    // membresía seguiría mostrando a ese usuario como Pro (cancelForUser no hace
+    // nada si no tenía ninguna real, que es el caso de un PRO asignado a mano).
+    const mustCancelSubscription = user.rol === 'PRO' && data.rol === 'FREE';
+
+    const updated = mustCancelSubscription
+      ? await sequelize.transaction(async (t) => {
+          const result = await userRepository.update(user, data, t);
+          await subscriptionService.cancelForUser(id_user, t);
+          return result;
+        })
+      : await userRepository.update(user, data);
+
     return toPublicUser(updated);
   },
 

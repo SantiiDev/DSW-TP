@@ -79,7 +79,10 @@ export const AlbumDetailPage = () => {
       <Navbar />
 
       <main className="album-detail">
-        {isLoading ? (
+        {/* El cargando va solo en la primera carga. Al refrescar después de una
+            reseña ya hay álbum: si se cambiara la ficha entera por el Loader, la
+            página se quedaría sin alto y el scroll saltaría arriba de todo. */}
+        {isLoading && !album ? (
           <div className="album-detail__state">
             <Loader message="Cargando el álbum..." />
           </div>

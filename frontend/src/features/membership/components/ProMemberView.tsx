@@ -40,7 +40,8 @@ const PRO_SHORTCUTS = [
     icon: PlusCircle,
     title: 'Aportá al catálogo',
     description: 'Cargá artistas, álbumes y canciones que falten. Un admin los aprueba.',
-    to: '/profile',
+    // Abre el perfil directo en la pestaña (ver el ?tab= de UserProfilePage).
+    to: '/profile?tab=contributions',
     label: 'Ver mis aportes',
   },
   {
@@ -146,7 +147,7 @@ export const ProMemberView = ({ user }: ProMemberViewProps) => {
                 El historial de pagos y la baja de la suscripción se gestionan desde tu perfil
                 en cuanto quede conectada la pasarela de MercadoPago.
               </p>
-              <Link to="/profile" className="pro-member__card-link">
+              <Link to="/profile?tab=membership" className="pro-member__card-link">
                 Ver mi membresía &rarr;
               </Link>
             </div>

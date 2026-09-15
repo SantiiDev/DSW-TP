@@ -73,7 +73,10 @@ export const SongDetailPage = () => {
       <Navbar />
 
       <main className="song-detail">
-        {isLoading ? (
+        {/* El cargando va solo en la primera carga. Al refrescar después de una
+            reseña ya hay canción: si se cambiara la ficha entera por el Loader, la
+            página se quedaría sin alto y el scroll saltaría arriba de todo. */}
+        {isLoading && !song ? (
           <div className="song-detail__state">
             <Loader message="Cargando la canción..." />
           </div>

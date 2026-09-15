@@ -1,6 +1,7 @@
 // Acceso a datos de la feature user: consultas a la tabla users para el CRUD de
 // perfiles (no confundir con auth.repository, que es específico del circuito de
 // registro/login). Es la única capa que habla con Sequelize.
+import { Transaction } from 'sequelize';
 import { User } from '../../entities';
 import { UserRole, UserState } from '../../shared/types/enums';
 
@@ -32,7 +33,8 @@ export const userRepository = {
 
   findByUsername: (username: string) => User.findOne({ where: { username } }),
 
-  update: async (user: User, data: UpdateUserData): Promise<User> => user.update(data),
+  update: async (user: User, data: UpdateUserData, transaction?: Transaction): Promise<User> =>
+    user.update(data, { transaction }),
 
   /**
    * Cambia el estado de la cuenta: es la baja (y el alta) lógica.

@@ -57,13 +57,10 @@ $switcher-padding: 4px;
     transform: translateX(calc(var(--switcher-index) * 100%));
     background-color: $color-primary;
     border-radius: $radius;
+    // Se desliza siempre, aunque el sistema pida reducir movimiento: fue una
+    // decisión del equipo (ver core/utils/scrollToSection), porque sin la
+    // animación el cambio de opción se sentía seco.
     transition: transform $switcher-slide;
-
-    // Para quien pidió menos animaciones en su sistema, la pastilla aparece
-    // directamente en su lugar.
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-    }
   }
 
   &__option {

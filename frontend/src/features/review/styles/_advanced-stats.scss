@@ -339,10 +339,6 @@ $stats-two-columns: 620px;
     background-color: $color-primary;
     transform-origin: left center;
     transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-    }
   }
 }
 
@@ -533,10 +529,6 @@ $stats-two-columns: 620px;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .stats-dashboard > *,
-  .stats-albums__item,
-  .stats-locked__card {
-    animation: none;
-  }
-}
+// Las barras, las tarjetas y los fundidos de este tablero se animan siempre,
+// aunque el sistema pida reducir movimiento: fue una decisión del equipo (ver
+// core/utils/scrollToSection).

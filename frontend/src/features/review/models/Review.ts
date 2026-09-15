@@ -109,15 +109,6 @@ export class ReviewStats {
     public readonly albums: number,
     public readonly songs: number
   ) {}
-
-  /**
-   * Ítems escuchados: la suma de álbumes y canciones calificados. Se deriva de las
-   * reseñas porque no hay tabla propia para esto: si alguien reseñó algo, es
-   * porque lo escuchó.
-   */
-  get listened(): number {
-    return this.albums + this.songs;
-  }
 }
 
 /** Diez posiciones en cero: el estado mientras no hay reseñas que contar. */

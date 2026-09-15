@@ -494,48 +494,34 @@
   background-color: rgba($color-bg, 0.92);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid $color-nav-border;
-  // En un celular angosto las pestañas no entran: se scrollean de costado en vez
-  // de bajar de línea y duplicar el alto de la barra.
-  overflow-x: auto;
 
-  &__list {
-    display: flex;
-    gap: $spacing-lg;
+  // Misma caja que el cuerpo de la ficha, para que las pestañas arranquen
+  // alineadas con el contenido. Se le descuenta el padding lateral que ya trae
+  // cada pestaña de Tabs: si no, el texto quedaría corrido a la derecha.
+  &__inner {
     width: 100%;
     max-width: calc(#{$content-width} + #{$spacing-md} * 2);
     margin: 0 auto;
-    padding: 0 $spacing-md;
-    list-style: none;
+    padding: 0;
 
     @media (min-width: $bp-md) {
       max-width: calc(#{$content-width} + #{$spacing-lg} * 2);
-      padding: 0 $spacing-lg;
+      padding: 0 calc(#{$spacing-lg} - #{$spacing-md});
     }
   }
 
-  // Es un <button> y no un enlace porque no navega a ningún lado: mueve el
-  // scroll de esta misma página.
-  &__tab {
-    padding: 0.85rem 0.15rem;
-    background: none;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: $color-text-secondary;
-    font: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: color 0.2s ease, border-color 0.2s ease;
+  // Las pestañas son las de core/components/Tabs. Acá solo se ajusta lo que
+  // cambia en la ficha: la línea de abajo ya la pone .album-nav a todo el ancho,
+  // y la pestaña activa va en verde, como estaba antes esta barra.
+  .tabs {
+    border-bottom: none;
+  }
 
-    &:hover {
-      color: $color-text;
-    }
-
-    &--active {
-      color: $color-primary;
-      border-bottom-color: $color-primary;
-    }
+  // Con :hover incluido: si no, pasar el mouse por la activa la volvía blanca
+  // según el orden en que se cargaran las dos hojas.
+  .tabs__tab--active,
+  .tabs__tab--active:hover {
+    color: $color-primary;
   }
 }
 

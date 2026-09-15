@@ -25,12 +25,11 @@ type ProfileHeaderProps = {
   onOpenFollowList: (tab: FollowListTab) => void;
 };
 
-// Los contadores se declaran como data y no como JSX repetido: son cuatro cajas
+// Los contadores se declaran como data y no como JSX repetido: son tres cajas
 // idénticas que solo cambian número y etiqueta. Los dos de seguimiento llevan
 // además qué lista abren.
 const STAT_LABELS: { key: keyof ProfileStats; label: string; list?: FollowListTab }[] = [
   { key: 'reviews', label: 'Reseñas' },
-  { key: 'listened', label: 'Escuchados' },
   { key: 'following', label: 'Siguiendo', list: 'following' },
   { key: 'followers', label: 'Seguidores', list: 'followers' },
 ];

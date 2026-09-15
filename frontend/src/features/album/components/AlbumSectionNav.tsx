@@ -6,9 +6,12 @@
 // pegada abajo del navbar mientras se baja. Es lo que evita el scroll a ciegas
 // en un disco de veinte pistas con treinta reseñas.
 //
-// Cuál está resaltada se calcula mirando el scroll: la activa es la última
-// sección cuyo comienzo ya pasó por debajo de las dos barras fijas.
+// El dibujo es el de core/components/Tabs, el mismo del perfil y del panel de
+// administración, con su subrayado que se desliza. La pestaña activa no la
+// decide el click sino el scroll: al tocar una pestaña la página baja, y el
+// subrayado la acompaña sección por sección hasta llegar.
 import { useEffect, useState } from 'react';
+import { Tabs } from '../../../core/components/Tabs';
 import { scrollToSection } from '../../../core/utils/scrollToSection';
 import '../styles/_album.scss';
 
@@ -48,49 +51,73 @@ function sectionsFor(showDiscography: boolean): Section[] {
   return showDiscography ? [...BASE_SECTIONS, DISCOGRAPHY_SECTION] : BASE_SECTIONS;
 }
 
+/**
+ * ¿La página ya llegó al final del scroll?
+ *
+ * Se mira el mayor de los tres valores por el mismo motivo que App.tsx resetea
+ * el scroll de los tres: en este proyecto el que scrollea es el <body> y no la
+ * ventana (ver base/_reset.scss).
+ */
+function isAtPageBottom(): boolean {
+  const scrolled = Math.max(
+    window.scrollY,
+    document.documentElement.scrollTop,
+    document.body.scrollTop
+  );
+  const total = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+  return scrolled + window.innerHeight >= total - 2;
+}
+
 export const AlbumSectionNav = ({ showDiscography }: AlbumSectionNavProps) => {
   const sections = sectionsFor(showDiscography);
   const [activeId, setActiveId] = useState(BASE_SECTIONS[0].id);
 
-  // Suscribirse al scroll de la ventana es sincronizar el componente con algo de
-  // afuera de React, que es justamente para lo que sirve un efecto. La
-  // dependencia es un booleano y no el arreglo, que sería nuevo en cada render y
-  // volvería a suscribir sin parar.
+  // Suscribirse al scroll es sincronizar el componente con algo de afuera de
+  // React, que es justamente para lo que sirve un efecto. La dependencia es un
+  // booleano y no el arreglo, que sería nuevo en cada render y volvería a
+  // suscribir sin parar.
   useEffect(() => {
     const handleScroll = () => {
-      let current = BASE_SECTIONS[0].id;
+      const current = sectionsFor(showDiscography);
 
-      for (const section of sectionsFor(showDiscography)) {
-        const element = document.getElementById(section.id);
-        if (element && element.getBoundingClientRect().top <= TOP_OFFSET) current = section.id;
+      // Al final de la página la última sección puede no llegar nunca a la línea
+      // de arriba (queda poco contenido debajo), pero es la que se está viendo.
+      if (isAtPageBottom()) {
+        setActiveId(current[current.length - 1].id);
+        return;
       }
 
-      setActiveId(current);
+      // La activa es la última cuyo comienzo ya pasó por debajo de las barras fijas.
+      let active = current[0].id;
+      for (const section of current) {
+        const element = document.getElementById(section.id);
+        if (element && element.getBoundingClientRect().top <= TOP_OFFSET) active = section.id;
+      }
+
+      setActiveId(active);
     };
 
     // Una primera vez a mano: si se entra con la página ya scrolleada (por
     // ejemplo al volver atrás), el evento todavía no disparó.
     handleScroll();
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // En fase de captura (el `true`): el scroll lo hace el <body>, y su evento no
+    // sube hasta la ventana. Capturando desde window llega igual, venga de donde
+    // venga. Es lo mismo que hace core/components/Select.
+    window.addEventListener('scroll', handleScroll, true);
+    return () => window.removeEventListener('scroll', handleScroll, true);
   }, [showDiscography]);
 
   return (
-    <nav className="album-nav" aria-label="Secciones del álbum">
-      <ul className="album-nav__list">
-        {sections.map((section) => (
-          <li key={section.id}>
-            <button
-              type="button"
-              className={`album-nav__tab ${activeId === section.id ? 'album-nav__tab--active' : ''}`}
-              onClick={() => scrollToSection(section.id)}
-            >
-              {section.label}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <div className="album-nav">
+      <div className="album-nav__inner">
+        <Tabs
+          items={sections}
+          activeId={activeId}
+          onChange={scrollToSection}
+          ariaLabel="Secciones del álbum"
+        />
+      </div>
+    </div>
   );
 };
