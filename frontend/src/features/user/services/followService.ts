@@ -114,4 +114,19 @@ export const followService = {
     const data = await httpClient.get<CommunityUserApiResponse[]>(`/users/suggestions${query}`);
     return data.map(toCommunityUser);
   },
+
+  /**
+   * El ranking de los usuarios más activos de la comunidad, ordenado por el
+   * puntaje que combina reseñas publicadas y seguidores.
+   *
+   * A diferencia de las sugerencias, incluye a todos: también al que mira y a los
+   * que ya sigue. Es una lectura pública.
+   *
+   * @param limit cuántos traer; sin él, los que devuelva la API por defecto.
+   */
+  async ranking(limit?: number): Promise<CommunityUser[]> {
+    const query = limit !== undefined ? `?limit=${limit}` : '';
+    const data = await httpClient.get<CommunityUserApiResponse[]>(`/users/ranking${query}`);
+    return data.map(toCommunityUser);
+  },
 };

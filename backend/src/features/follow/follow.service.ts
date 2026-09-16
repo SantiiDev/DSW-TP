@@ -10,7 +10,12 @@ import { TokenPayload } from '../../shared/auth/jwt';
 import { UserRole } from '../../shared/types/enums';
 import { User } from '../../entities';
 import { followRepository, SuggestedUserRow } from './follow.repository';
-import { FollowListQuery, SearchUsersQuery, SuggestedUsersQuery } from './follow.schema';
+import {
+  FollowListQuery,
+  RankingQuery,
+  SearchUsersQuery,
+  SuggestedUsersQuery,
+} from './follow.schema';
 
 /**
  * Estado del seguimiento sobre un usuario, tal como sale en la API.
@@ -225,6 +230,24 @@ export const followService = {
     // seguidos ya se excluyeron de la consulta. Se pasa igual para que el DTO sea
     // correcto por sí mismo y no dependa de esa exclusión.
     return rows.map((row) => toPublicUserCard(row, followedIds));
+  },
+
+  /**
+   * El ranking de los usuarios más activos de la comunidad.
+   *
+   * Es una sola lista, ordenada por el puntaje que combina reseñas publicadas y
+   * seguidores (ver ACTIVITY_SCORE en el repositorio).
+   *
+   * A diferencia de las sugerencias, no excluye a nadie: un ranking global
+   * incluye al que lo mira y a los que ya sigue, si están entre los primeros.
+   * Por eso alcanza con el helper de listas, que resuelve en paralelo la tanda y
+   * a quiénes sigue el actor para que cada tarjeta sepa qué decir.
+   *
+   * @param query cuántos traer.
+   * @param actor quién pregunta, o null si no hay sesión.
+   */
+  async ranking(query: RankingQuery, actor: TokenPayload | null): Promise<PublicUserCard[]> {
+    return listWithFollowState(followRepository.findRanking(query), actor);
   },
 
   /**

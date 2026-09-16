@@ -1,0 +1,82 @@
+// Estilos del panel "Más activos" (components/UserRankingPanel). La fila de cada
+// usuario tiene su propia hoja: _user-row.scss.
+//
+// La lista es la misma idea visual que la de "Gente para seguir" —filas apiladas
+// sobre un fondo redondeado, separadas por una línea de 2px de hueco— más el
+// número de puesto a la izquierda.
+//
+// A diferencia de aquel panel, esta lista NO pasa a dos columnas en tablet: un
+// ranking numerado se lee de arriba abajo, y en dos columnas el 1 y el 2
+// quedarían uno al lado del otro.
+//
+// Mobile-first: primero los estilos para pantalla chica y después las media
+// queries que amplían.
+@use 'sass:color';
+@use '../../../styles/abstracts/variable' as *;
+
+.user-ranking {
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background-color: rgba($color-bg-light, 0.5);
+    border-radius: $radius;
+    overflow: hidden;
+  }
+
+  // El puesto y la fila comparten una sola franja: el fondo y el hover los pone
+  // el item, y la fila de adentro se vuelve transparente. Si no, al pasar el
+  // mouse se iluminaría la fila pero no su número.
+  &__item {
+    display: flex;
+    align-items: center;
+    background-color: $color-bg-light;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: color.adjust($color-bg-light, $lightness: 4%);
+    }
+
+    .user-row {
+      flex: 1;
+      min-width: 0;
+      background-color: transparent;
+      // El número ya aporta el espacio de la izquierda.
+      padding-left: 0;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+
+  &__rank {
+    flex-shrink: 0;
+    min-width: 28px;
+    padding-left: $spacing-sm;
+    text-align: center;
+    color: $color-primary;
+    font-size: 0.95rem;
+    font-weight: 800;
+    // Los números ocupan todos lo mismo, así la columna no baila entre el 1 y el 10.
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__message {
+    margin: 0;
+    padding: $spacing-md;
+    background-color: rgba($color-bg-light, 0.5);
+    border-radius: $radius;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+
+    &--error {
+      background-color: rgba($color-error, 0.12);
+      border: 1px solid rgba($color-error, 0.4);
+      color: $color-error;
+    }
+  }
+}

@@ -33,6 +33,11 @@ export type SuggestionFilters = {
   excludeIds: number[];
 };
 
+/** Filtros del ranking de usuarios más activos. */
+export type RankingFilters = {
+  limit: number;
+};
+
 // Cuántas reseñas publicadas tiene cada usuario, y cuántos lo siguen.
 //
 // Van como subconsultas correlacionadas y no como includes por dos motivos: dos
@@ -42,18 +47,42 @@ export type SuggestionFilters = {
 //
 // Solo cuenta las reseñas 'published': una oculta por moderación no es un mérito
 // para recomendar a alguien.
-const REVIEWS_COUNT = literal(
+//
+// El SQL se guarda aparte del literal() porque el ranking lo necesita dos veces:
+// una para ordenar y otra dentro del WHERE, para dejar afuera a los que están en
+// cero. Un Literal ya armado no se puede interpolar en otro.
+const REVIEWS_COUNT_SQL =
   '(SELECT COUNT(*) FROM `review` WHERE `review`.`id_user` = `User`.`id_user` ' +
-    "AND `review`.`state` = 'published')"
-);
+  "AND `review`.`state` = 'published')";
+
+const REVIEWS_COUNT = literal(REVIEWS_COUNT_SQL);
 
 // Solo cuenta seguidores con la cuenta activa: es el mismo número que se ve al
 // abrir la lista, que tampoco muestra a los suspendidos.
-const FOLLOWERS_COUNT = literal(
+const FOLLOWERS_COUNT_SQL =
   '(SELECT COUNT(*) FROM `follows` INNER JOIN `users` AS `follower` ' +
-    'ON `follower`.`id_user` = `follows`.`id_follower` ' +
-    "WHERE `follows`.`id_followed` = `User`.`id_user` AND `follower`.`state` = 'active')"
-);
+  'ON `follower`.`id_user` = `follows`.`id_follower` ' +
+  "WHERE `follows`.`id_followed` = `User`.`id_user` AND `follower`.`state` = 'active')";
+
+const FOLLOWERS_COUNT = literal(FOLLOWERS_COUNT_SQL);
+
+// Cuánto pesa una reseña frente a un seguidor en el puntaje del ranking.
+//
+// No son la misma cosa: escribir una reseña es una acción propia y sostenida,
+// mientras que un seguidor es reconocimiento de esa actividad, no actividad en
+// sí. Por eso la reseña vale el doble: el panel se llama "más activos", no "más
+// populares", y sin esa diferencia alguien con muchos seguidores y dos reseñas
+// le ganaría a quien escribe todas las semanas.
+const REVIEW_WEIGHT = 2;
+
+/**
+ * Puntaje de actividad de un usuario: sus reseñas publicadas ponderadas más sus
+ * seguidores. Es la única columna por la que se ordena el ranking, para que sea
+ * una sola lista y no dos lecturas separadas de los mismos usuarios.
+ */
+const ACTIVITY_SCORE_SQL = `(${REVIEWS_COUNT_SQL} * ${REVIEW_WEIGHT} + ${FOLLOWERS_COUNT_SQL})`;
+
+const ACTIVITY_SCORE = literal(ACTIVITY_SCORE_SQL);
 
 /**
  * Columnas de la tarjeta de un usuario. Se enumeran a mano en vez de dejar que
@@ -224,6 +253,40 @@ export const followRepository = {
       },
       order: [
         [REVIEWS_COUNT, 'DESC'],
+        ['id_user', 'ASC'],
+      ],
+      limit,
+    });
+
+    return users as SuggestedUserRow[];
+  },
+
+  /**
+   * El ranking de la comunidad: los usuarios más activos, del primero al último.
+   *
+   * Se parece a findSuggestions pero responde otra pregunta, y por eso es otra
+   * consulta: las sugerencias dejan afuera al que mira y a los que ya sigue
+   * (recomendar a alguien que ya seguís no sirve de nada), mientras que un
+   * ranking global los incluye a todos.
+   *
+   * Para entrar hay que haber publicado al menos una reseña, aunque el orden
+   * mire también los seguidores: el que nunca escribió nada no es un usuario
+   * activo por más que lo sigan, y llenaría el panel apenas haya pocas cuentas
+   * con actividad.
+   *
+   * @param filters cuántos traer.
+   */
+  findRanking: async ({ limit }: RankingFilters) => {
+    const users = await User.findAll({
+      attributes: USER_CARD_ATTRIBUTES,
+      where: {
+        state: 'active',
+        [Op.and]: [literal(`${REVIEWS_COUNT_SQL} > 0`)],
+      },
+      // Mismo desempate que las sugerencias, y por el mismo motivo: con varios
+      // usuarios en el mismo puntaje, sin él MySQL devolvería un orden arbitrario.
+      order: [
+        [ACTIVITY_SCORE, 'DESC'],
         ['id_user', 'ASC'],
       ],
       limit,

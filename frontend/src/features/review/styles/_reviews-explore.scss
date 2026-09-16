@@ -76,6 +76,15 @@
     min-width: 0;
   }
 
+  // La columna lateral lleva dos paneles apilados (gente para seguir y el
+  // ranking). El gap va acá afuera de la media query porque en mobile la
+  // columna existe igual, debajo del feed, y sin él los dos quedarían pegados.
+  &__side {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+  }
+
   // A partir de LG el feed y el panel conviven en dos columnas. Antes no: a 768
   // el feed quedaría demasiado angosto para una tarjeta con avatar, estrellas y
   // barra de acciones.
@@ -98,6 +107,12 @@
       flex-shrink: 0;
       position: sticky;
       top: 80px;
+      // Con los dos paneles apilados la columna mide más que una pantalla baja, y
+      // al estar fija el final del ranking quedaba inalcanzable: por más que se
+      // scrollee la página, la columna no se mueve. Con el tope y su propio
+      // scroll, lo que sobra se alcanza desde adentro.
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
     }
   }
 }

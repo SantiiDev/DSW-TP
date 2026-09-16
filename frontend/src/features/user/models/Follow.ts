@@ -15,8 +15,8 @@ export type FollowStatsApiResponse = {
 };
 
 /**
- * Forma cruda de la tarjeta de un usuario. La devuelven las sugerencias, la
- * búsqueda y las listas de seguidores y seguidos.
+ * Forma cruda de la tarjeta de un usuario. La devuelven las sugerencias, el
+ * ranking, la búsqueda y las listas de seguidores y seguidos.
  */
 export type CommunityUserApiResponse = {
   id_user: number;

@@ -29,6 +29,24 @@ export const suggestedUsersQuerySchema = z.object({
     .default(DEFAULT_SUGGESTIONS_LIMIT),
 });
 
+// GET /api/users/ranking
+//
+// No lleva orden: el ranking es uno solo y combina las dos señales de actividad
+// en un puntaje (ver ACTIVITY_SCORE en follow.repository.ts). Tampoco lleva
+// offset, igual que las sugerencias: es un panel de la columna lateral de
+// /reviews, no un listado del padrón.
+const DEFAULT_RANKING_LIMIT = 5;
+const MAX_RANKING_LIMIT = 20;
+
+export const rankingQuerySchema = z.object({
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1, 'El tope tiene que ser mayor a cero.')
+    .max(MAX_RANKING_LIMIT, `El tope no puede ser mayor a ${MAX_RANKING_LIMIT}.`)
+    .default(DEFAULT_RANKING_LIMIT),
+});
+
 // GET /api/users/search?q=gar
 //
 // El texto se recorta antes de validar: "  " no es una búsqueda, y sin el trim
@@ -69,5 +87,6 @@ export const followListQuerySchema = z.object({
 
 export type FollowParams = z.infer<typeof followParamsSchema>;
 export type SuggestedUsersQuery = z.infer<typeof suggestedUsersQuerySchema>;
+export type RankingQuery = z.infer<typeof rankingQuerySchema>;
 export type SearchUsersQuery = z.infer<typeof searchUsersQuerySchema>;
 export type FollowListQuery = z.infer<typeof followListQuerySchema>;
