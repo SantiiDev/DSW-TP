@@ -8,6 +8,7 @@ import { followService } from './follow.service';
 import {
   FollowListQuery,
   FollowParams,
+  RankingQuery,
   SearchUsersQuery,
   SuggestedUsersQuery,
 } from './follow.schema';
@@ -38,6 +39,12 @@ export const followController = {
   async suggestions(req: Request, res: Response): Promise<void> {
     const query = req.validated.query as SuggestedUsersQuery;
     const users = await followService.suggestions(query, req.user ?? null);
+    res.status(200).json(users);
+  },
+
+  async ranking(req: Request, res: Response): Promise<void> {
+    const query = req.validated.query as RankingQuery;
+    const users = await followService.ranking(query, req.user ?? null);
     res.status(200).json(users);
   },
 

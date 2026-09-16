@@ -675,7 +675,7 @@ export const reviewService = {
    * /reviews, con sus dos solapas.
    *
    * @param filters ítem, tipo de ítem, autor, estado, calificación mínima, feed de
-   *   amigos y paginado.
+   *   amigos, exclusión de las propias y paginado.
    * @param actor usuario autenticado, o null si es un visitante sin sesión.
    *   Define qué estados puede ver y de quién es el feed de amigos.
    */
@@ -705,12 +705,18 @@ export const reviewService = {
       if (idUsers.length === 0) return [];
     }
 
+    // Para un visitante no hay nada que excluir: el filtro se ignora en vez de
+    // cortar con un 401, porque la solapa "Comunidad" es pública y sin sesión
+    // tiene que seguir mostrando todo.
+    const excludeIdUser = filters.exclude_mine && actor !== null ? actor.id_user : undefined;
+
     const reviews = await reviewRepository.findAll({
       idAlbum: filters.id_album,
       idSong: filters.id_song,
       targetKind: filters.target,
       idUser: filters.id_user,
       idUsers,
+      excludeIdUser,
       state,
       minRating: filters.min_rating,
       limit: filters.limit,

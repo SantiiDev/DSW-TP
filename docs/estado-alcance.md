@@ -101,7 +101,7 @@ anterior, que es lo que pide la cátedra.
 |:-|:-:|
 | Interacción social sobre reseñas (likes y comentarios) | ✅ |
 | Listas personalizadas de álbumes | ❌ La página `/lists` existe pero muestra datos fijos |
-| Ranking global de usuarios más activos | ❌ |
+| Ranking global de usuarios más activos | ✅ Panel "Más activos" en la columna lateral de `/reviews`, ordenado por un puntaje que combina reseñas publicadas y seguidores (`GET /api/users/ranking`) |
 | Dashboard de administración con métricas de ingresos | ❌ |
 | Autocompletado de metadatos en el alta de un álbum | ❌ |
 
@@ -133,6 +133,3 @@ Cosas que funcionan pero no están como deberían, ordenadas por prioridad:
    rol, pero el sitio promete "sin anuncios" y "personalización avanzada" y no
    existe ningún componente de anuncios que se le muestre a un `FREE` ni ninguna
    opción de perfil exclusiva de `PRO`.
-3. **El encabezado de página está duplicado** entre `_lists-explore.scss` y
-   `_reviews-explore.scss` (título con degradado, subtítulo y la línea de abajo).
-   Conviene unificarlo en un parcial compartido cuando se rehaga `/lists`.

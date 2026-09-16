@@ -73,6 +73,11 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
   // direcciones sin estar logueado.
   const isFriendsBlocked = scope === 'friends' && !isAuthenticated;
 
+  // La solapa "Comunidad" es para leer al resto: las propias ya se ven en el
+  // perfil. Sin sesión no hay nada que excluir, y el feed de amigos tampoco lo
+  // necesita, porque uno no se sigue a sí mismo.
+  const excludeMine = scope === 'community' && isAuthenticated;
+
   // Si el feed ya mostró una tanda alguna vez. Es un ref y no un estado porque
   // solo decide CÓMO se dibuja la carga siguiente; cambiarlo no tiene que
   // provocar un dibujado de más.
@@ -102,6 +107,7 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
     try {
       const batch = await reviewService.list({
         following: scope === 'friends',
+        excludeMine,
         limit: PAGE_SIZE,
         offset: 0,
       });
@@ -117,7 +123,11 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
     }
     // followVersion no se usa adentro, pero está en las dependencias a propósito:
     // es lo que hace que seguir a alguien recargue el feed.
-  }, [scope, isFriendsBlocked, followVersion]);
+    //
+    // excludeMine sí se usa, y es lo que hace que al iniciar sesión sin recargar
+    // la página el feed se rehaga: desde que la solapa "Comunidad" deja afuera las
+    // reseñas propias, lo que se muestra depende de quién mira.
+  }, [scope, isFriendsBlocked, followVersion, excludeMine]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -130,6 +140,7 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
     try {
       const batch = await reviewService.list({
         following: scope === 'friends',
+        excludeMine,
         limit: PAGE_SIZE,
         offset: reviews.length,
       });
@@ -229,6 +240,18 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
             Seguir a más gente
           </Button>
         ),
+      };
+    }
+
+    // Con sesión, la solapa "Comunidad" deja afuera las reseñas propias, así que
+    // puede volver vacía aunque el usuario tenga las suyas publicadas. Decirle
+    // que no hay ninguna en Musicboxd sería mentirle a quien acaba de escribir una.
+    if (isAuthenticated) {
+      return {
+        title: 'Todavía no hay reseñas de otra gente.',
+        message:
+          'Acá vas a leer lo que califica el resto de la comunidad. Las tuyas están en tu perfil.',
+        action: <Button onClick={() => navigate('/music')}>Explorar música</Button>,
       };
     }
 

@@ -24,6 +24,7 @@ import { useAuth } from '../../../core/context/AuthContext';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { followService } from '../../user/services/followService';
 import { SuggestedUsersPanel } from '../../user/components/SuggestedUsersPanel';
+import { UserRankingPanel } from '../../user/components/UserRankingPanel';
 import { ReviewFeed, SUGGESTIONS_SECTION_ID } from '../components/ReviewFeed';
 import type { FeedScope } from '../components/ReviewFeed';
 import '../styles/_reviews-explore.scss';
@@ -143,6 +144,7 @@ export const ReviewsExplorePage = () => {
 
           <aside className="reviews-explore__side" id={SUGGESTIONS_SECTION_ID}>
             <SuggestedUsersPanel onFollowChange={handleFollowChange} />
+            <UserRankingPanel />
           </aside>
         </div>
       </main>

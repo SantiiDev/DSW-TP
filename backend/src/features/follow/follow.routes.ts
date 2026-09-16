@@ -1,6 +1,7 @@
 // Rutas del seguimiento entre usuarios, montadas en /api/users.
 //
 //   GET    /api/users/suggestions        a quiénes seguir, PÚBLICO
+//   GET    /api/users/ranking            los usuarios más activos, PÚBLICO
 //   GET    /api/users/search?q=          buscar usuarios por nombre, PÚBLICO
 //   POST   /api/users/:id/follow         empieza a seguir, logueado
 //   DELETE /api/users/:id/follow         deja de seguir, logueado
@@ -26,9 +27,9 @@
 // Seguir y dejar de seguir son DOS endpoints y no un toggle como el "me gusta".
 // El motivo está en follow.service.unfollow.
 //
-// "suggestions" y "search" van ANTES que cualquier ruta con :id por la razón de
-// siempre, y además este router se monta antes que userRouter en routes.ts: si
-// no, userRouter.get('/:id') tomaría "search" como si fuera un id.
+// "suggestions", "ranking" y "search" van ANTES que cualquier ruta con :id por la
+// razón de siempre, y además este router se monta antes que userRouter en
+// routes.ts: si no, userRouter.get('/:id') tomaría "search" como si fuera un id.
 import { Router } from 'express';
 import { optionalAuth } from '../../shared/middlewares/optional-auth';
 import { requireAuth } from '../../shared/middlewares/require-auth';
@@ -37,6 +38,7 @@ import { followController } from './follow.controller';
 import {
   followListQuerySchema,
   followParamsSchema,
+  rankingQuerySchema,
   searchUsersQuerySchema,
   suggestedUsersQuerySchema,
 } from './follow.schema';
@@ -48,6 +50,13 @@ followRouter.get(
   optionalAuth,
   validate({ query: suggestedUsersQuerySchema }),
   followController.suggestions
+);
+
+followRouter.get(
+  '/ranking',
+  optionalAuth,
+  validate({ query: rankingQuerySchema }),
+  followController.ranking
 );
 
 followRouter.get(

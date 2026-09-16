@@ -141,6 +141,20 @@ export const listReviewsQuerySchema = z.object({
     .enum(['true', 'false'], { message: 'El filtro de amigos se manda como true o false.' })
     .transform((value) => value === 'true')
     .optional(),
+  // Deja afuera las reseñas propias. Lo usa la solapa "Comunidad" de /reviews:
+  // ahí se va a leer lo que escribió el resto, y las propias ya se ven en el
+  // perfil. El feed de amigos no lo necesita, porque uno no se sigue a sí mismo.
+  //
+  // Es un filtro y no el comportamiento por defecto del listado porque la misma
+  // consulta alimenta la ficha de un álbum, donde la reseña propia SÍ tiene que
+  // aparecer entre las demás.
+  //
+  // Mismo tratamiento que following: los dos literales a mano, porque en un query
+  // string todo llega como texto y coerce daría true incluso para "false".
+  exclude_mine: z
+    .enum(['true', 'false'], { message: 'El filtro se manda como true o false.' })
+    .transform((value) => value === 'true')
+    .optional(),
   // Tope de la tanda y desde qué fila arranca. Juntos arman el paginado: la
   // primera tanda va sin offset y la siguiente con el total ya mostrado. No hace
   // falta devolver un total, igual que en el explorador de álbumes: el botón "Ver
@@ -158,6 +172,13 @@ export const listReviewsQuerySchema = z.object({
   // en silencio a favor de uno de los dos.
   .refine((data) => !(data.following && data.id_user !== undefined), {
     message: 'El feed de amigos no se combina con el filtro por usuario.',
+  })
+  // exclude_mine filtra por autor sobre esa misma columna, así que tampoco se
+  // combina con los otros dos. Además ninguna de las dos combinaciones significa
+  // algo: pedir las de un usuario menos las propias es pedir las de ese usuario,
+  // y el feed de amigos ya deja afuera las propias por definición.
+  .refine((data) => !(data.exclude_mine && (data.following || data.id_user !== undefined)), {
+    message: 'Excluir las reseñas propias no se combina con el filtro por usuario ni con el feed de amigos.',
   });
 
 // GET /api/reviews/mine?id_album=5 — la reseña propia sobre un ítem puntual.

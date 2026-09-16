@@ -147,6 +147,8 @@ type ReviewFilters = {
   idUser?: number;
   /** Feed de amigos: deja solo las reseñas de este conjunto de autores. */
   idUsers?: number[];
+  /** Feed de la comunidad: deja afuera las reseñas de este autor. */
+  excludeIdUser?: number;
   state?: ReviewState;
   /** Deja solo las reseñas de esta calificación para arriba. */
   minRating?: number;
@@ -250,6 +252,11 @@ function buildWhere(filters: ReviewFilters) {
     // schema ya garantiza que id_user y following no lleguen juntos, así que
     // estos dos nunca se pisan sobre la misma columna.
     ...(filters.idUsers !== undefined ? { id_user: { [Op.in]: filters.idUsers } } : {}),
+    // El feed de la comunidad excluye al que mira. Va sobre la misma columna que
+    // los dos de arriba, y por eso el schema no deja que lleguen combinados.
+    ...(filters.excludeIdUser !== undefined
+      ? { id_user: { [Op.ne]: filters.excludeIdUser } }
+      : {}),
     ...(filters.state ? { state: filters.state } : {}),
     // "De 4 estrellas para arriba" es el filtro del listado de reseñas del perfil.
     ...(filters.minRating !== undefined ? { rating: { [Op.gte]: filters.minRating } } : {}),

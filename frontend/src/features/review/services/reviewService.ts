@@ -57,6 +57,15 @@ export type ReviewFilters = {
    * filtran por autor sobre la misma columna.
    */
   following?: boolean;
+  /**
+   * Deja afuera las reseñas propias. Es lo que usa la solapa "Comunidad" de
+   * /reviews: ahí se lee lo que escribió el resto, y las propias ya están en el
+   * perfil. Sin sesión no hace nada.
+   *
+   * No se combina con userId ni con following: la API rechaza esas dos
+   * combinaciones con un 400, porque filtran por autor sobre la misma columna.
+   */
+  excludeMine?: boolean;
   limit?: number;
   offset?: number;
 };
@@ -154,6 +163,9 @@ function buildQuery(filters: ReviewFilters): string {
   // Solo se manda cuando está en true: un following=false sería pedir "el feed de
   // la comunidad", que es justamente lo que devuelve el listado sin el filtro.
   if (filters.following) params.set('following', 'true');
+  // Igual que following: solo se manda en true, porque el listado sin el filtro ya
+  // es "todas, incluidas las propias".
+  if (filters.excludeMine) params.set('exclude_mine', 'true');
   if (filters.limit !== undefined) params.set('limit', String(filters.limit));
   if (filters.offset !== undefined) params.set('offset', String(filters.offset));
 
