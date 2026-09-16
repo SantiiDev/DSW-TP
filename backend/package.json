@@ -9,6 +9,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "seed": "tsx src/seed/run-seeds.ts",
     "seed:fetch": "tsx src/seed/fetch-metadata.ts",
     "seed:plans": "tsx src/seed/seed-plans.ts",
@@ -33,7 +35,10 @@
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.13.2",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.2.2",
     "tsx": "^4.20.6",
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.2",
+    "vitest": "^5.0.1"
   }
 }

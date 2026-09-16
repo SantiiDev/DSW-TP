@@ -4,7 +4,7 @@ Qué está terminado y qué falta, punto por punto, contra el alcance comprometi
 en la [propuesta](../proposal.md) y los requisitos del
 [enunciado](enunciado.md).
 
-Última revisión: **14/09/2026**.
+Última revisión: **16/09/2026**.
 
 ## Requisitos técnicos
 
@@ -28,8 +28,8 @@ en la [propuesta](../proposal.md) y los requisitos del
 | Login propio con al menos 2 niveles de acceso | ✅ | JWT + bcrypt, con `FREE`, `PRO` y `ADMIN` |
 | Rutas protegidas según el nivel de acceso | ✅ | `requireAuth` + `requireRole` |
 | Ambientes definidos | ✅ | `.env` + `.env.example` |
-| 1 test automatizado por integrante (3) | ❌ | No hay ninguno; falta instalar Vitest |
-| 1 test de integración | ❌ | Falta; se haría con Vitest + Supertest sobre `app.ts` |
+| 1 test automatizado por integrante (3) | ✅ | Vitest sobre los schemas de Zod: `auth` (Santino), `album` (Esterri), `review` (Siena), en [`backend/tests/unit`](../backend/tests/unit) |
+| 1 test de integración | ✅ | Vitest + Supertest sobre `app.ts`: el circuito de login contra MySQL, en [`backend/tests/integration/auth.test.ts`](../backend/tests/integration/auth.test.ts) |
 
 ### Frontend — regularidad
 
@@ -55,8 +55,8 @@ en la [propuesta](../proposal.md) y los requisitos del
 |:-|:-:|:-|
 | Login y protección de rutas según el nivel de usuario | ✅ | `ProtectedRoute` + `AuthContext` |
 | Ambientes definidos | ✅ | `.env` con prefijo `VITE_` |
-| 1 test unitario de un componente | ❌ | Falta instalar Vitest + React Testing Library |
-| 1 test end-to-end | ❌ | Falta instalar Playwright |
+| 1 test unitario de un componente | ✅ | Vitest + React Testing Library sobre `SegmentedControl` ([test](../frontend/src/core/components/SegmentedControl.test.tsx)) |
+| 1 test end-to-end | ✅ | Playwright: el login completo desde el navegador ([test](../frontend/e2e/login.spec.ts)) |
 
 ## Requisitos funcionales
 
@@ -133,7 +133,6 @@ Cosas que funcionan pero no están como deberían, ordenadas por prioridad:
    rol, pero el sitio promete "sin anuncios" y "personalización avanzada" y no
    existe ningún componente de anuncios que se le muestre a un `FREE` ni ninguna
    opción de perfil exclusiva de `PRO`.
-3. **No hay ni un test automatizado** en ninguna de las dos apps.
-4. **El encabezado de página está duplicado** entre `_lists-explore.scss` y
+3. **El encabezado de página está duplicado** entre `_lists-explore.scss` y
    `_reviews-explore.scss` (título con degradado, subtítulo y la línea de abajo).
    Conviene unificarlo en un parcial compartido cuando se rehaga `/lists`.

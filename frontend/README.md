@@ -29,6 +29,43 @@ consulta ninguna API externa, todo sale de nuestra propia API.
 | `npm run build`   | Chequeo de tipos (`tsc -b`) + build de Vite |
 | `npm run lint`    | ESLint sobre todo el proyecto               |
 | `npm run preview` | Sirve el build de producción                |
+| `npm test`        | Tests de componentes (Vitest)               |
+| `npm run test:watch` | Los corre y queda escuchando cambios     |
+| `npm run test:e2e` | Test end-to-end (Playwright)               |
+
+## Tests
+
+Son de dos tipos, y la diferencia es qué tan lejos llega cada uno.
+
+**Test de componente** — `src/core/components/SegmentedControl.test.tsx`, con
+Vitest y React Testing Library. Monta el componente solo, en un DOM simulado
+(`jsdom`), y verifica que renderice una opción por cada `option`, que marque con
+`aria-pressed` únicamente la elegida, y que al hacer click avise al padre con el
+valor correcto. Se eligió `SegmentedControl` porque no depende del router, ni del
+`AuthContext`, ni de la API: se monta con un `render()` pelado, sin mocks. No hace
+falta tener nada levantado:
+
+```bash
+npm test
+```
+
+**Test end-to-end** — `e2e/login.spec.ts`, con Playwright. Un navegador real
+abre la aplicación y hace el login como lo haría una persona: entra a la home,
+abre el modal desde la barra de navegación, completa el formulario y comprueba
+que la barra pase a mostrar su cuenta. Un segundo caso verifica que con la
+contraseña incorrecta el error del backend llegue a la pantalla como un mensaje
+legible. Nada está mockeado: el pedido viaja hasta MySQL y vuelve.
+
+Playwright levanta el backend y el frontend por su cuenta (y reutiliza los que ya
+tengas corriendo), pero **MySQL con `npm run seed` hecho es un prerrequisito
+manual**. La primera vez hay que bajar el navegador con
+`npx playwright install chromium`.
+
+```bash
+npm run test:e2e
+```
+
+Con `npm run test:e2e -- --headed` se ve el navegador haciendo el recorrido.
 
 ## Estructura
 
