@@ -2,60 +2,30 @@
 // toggle y el panel de gente para seguir.
 //
 // El bloque del encabezado (título con degradado, subtítulo y la línea de abajo)
-// es el mismo que el de /lists. Está copiado y no compartido a propósito:
-// unificarlo obligaría a rehacer también _lists-explore.scss, que en esta tanda
-// no se toca. Queda anotado como deuda en docs/estado-alcance.md.
+// es el mismo que el de /lists: se comparte a través de los mixins
+// page-explore-header* de abstracts/_mixins.scss.
 //
 // Mobile-first: primero los estilos para pantalla chica y después las media
 // queries que amplían. Las tarjetas de reseña las estila _review.scss; acá va
 // solo el layout de la página.
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 .reviews-explore {
   min-height: 100vh;
   padding-bottom: $spacing-xl;
 
   &__header {
-    padding: $spacing-xl $spacing-md $spacing-lg;
-    text-align: center;
-    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
-    margin: 0 auto;
-    position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, $color-nav-border, transparent);
-    }
+    @include page-explore-header;
   }
 
   &__title {
-    font-size: 1.8rem;
-    font-weight: 800;
-    margin: 0 0 $spacing-sm;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, $color-text 0%, $color-primary 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-
-    @media (min-width: $bp-sm) {
-      font-size: 2.5rem;
-    }
+    @include page-explore-header-title;
   }
 
   &__subtitle {
-    margin: 0 auto;
-    max-width: 640px;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    color: $color-text-secondary;
+    @include page-explore-header-subtitle($max-width: 640px);
   }
 
   &__toggle {

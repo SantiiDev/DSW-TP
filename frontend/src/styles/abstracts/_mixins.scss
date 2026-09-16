@@ -1,5 +1,6 @@
 // Mixins compartidos por los estilos del sitio.
 @use 'variable' as *;
+@use 'breakpoints' as *;
 
 
 // Centra el contenido de un control (su texto, o su texto más un ícono) dentro
@@ -42,4 +43,64 @@
   // Un item de flex no baja del ancho de su contenido salvo que se le diga, y
   // las páginas viven dentro del layout flex de App.tsx.
   min-width: 0;
+}
+
+// Encabezado de una página "explorador" (listado con filtros o un toggle
+// arriba): título con degradado, línea divisoria abajo y subtítulo centrado.
+// Estaba escrito dos veces con el mismo diseño, una en /lists y otra en
+// /reviews.
+//
+//   .mi-pagina__header { @include page-explore-header; }
+//   .mi-pagina__title { @include page-explore-header-title; }
+//   .mi-pagina__subtitle { @include page-explore-header-subtitle($max-width: 640px); }
+@mixin page-explore-header {
+  padding: $spacing-xl $spacing-md $spacing-lg;
+  text-align: center;
+  max-width: calc(#{$content-width} + #{$spacing-md} * 2);
+  margin: 0 auto;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $color-nav-border, transparent);
+  }
+}
+
+// Mobile-first: el título arranca chico y crece a partir de $bp-sm. `color`
+// queda como respaldo del degradado, para los navegadores que no soportan
+// background-clip: text.
+@mixin page-explore-header-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: $color-text;
+  margin: 0 0 $spacing-sm;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, $color-text 0%, $color-primary 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  @media (min-width: $bp-sm) {
+    font-size: 2.5rem;
+  }
+}
+
+// @param $max-width ancho máximo del párrafo, para que no se estire de punta a
+//   punta en pantallas grandes. Cada página lo ajusta según cuánto texto tenga.
+@mixin page-explore-header-subtitle($max-width: 600px) {
+  color: $color-text-secondary;
+  font-size: 0.95rem;
+  max-width: $max-width;
+  margin: 0 auto;
+  line-height: 1.6;
+
+  @media (min-width: $bp-sm) {
+    font-size: 1.05rem;
+  }
 }

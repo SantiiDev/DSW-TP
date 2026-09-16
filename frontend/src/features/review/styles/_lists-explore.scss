@@ -11,50 +11,15 @@
   padding-bottom: $spacing-xl;
 
   &__header {
-    padding: $spacing-xl $spacing-md $spacing-lg;
-    text-align: center;
-    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
-    margin: 0 auto;
-    position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, $color-nav-border, transparent);
-    }
+    @include page-explore-header;
   }
 
   &__title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: $color-text;
-    margin: 0 0 $spacing-sm;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, $color-text 0%, $color-primary 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-
-    @media (max-width: $bp-md) {
-      font-size: 1.8rem;
-    }
+    @include page-explore-header-title;
   }
 
   &__subtitle {
-    color: $color-text-secondary;
-    font-size: 1.05rem;
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.6;
-
-    @media (max-width: $bp-md) {
-      font-size: 0.95rem;
-    }
+    @include page-explore-header-subtitle;
   }
 
   // Layout de dos columnas con efecto parallax
