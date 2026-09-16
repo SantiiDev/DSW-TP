@@ -1,6 +1,9 @@
 node_modules
 dist
 
+# Reporte de cobertura de los tests
+coverage
+
 # Variables de entorno reales: NUNCA se commitean.
 # Lo que se versiona es .env.example
 .env

@@ -127,6 +127,8 @@ Las credenciales del administrador salen de `SEED_ADMIN_*` en el `.env`. Por def
 | `npm run build` | Compila TypeScript a `dist/` |
 | `npm start` | Ejecuta la versión compilada (producción) |
 | `npm run typecheck` | Verifica tipos sin generar archivos |
+| `npm test` | Corre todos los tests una vez |
+| `npm run test:watch` | Los corre y queda escuchando cambios |
 | `npm run seed` | Corre todos los seeds del proyecto |
 | `npm run seed:plans` | Corre solo el seed de planes Free / Pro |
 | `npm run seed:catalog` | Corre solo el seed del catálogo |
@@ -135,6 +137,46 @@ Las credenciales del administrador salen de `SEED_ADMIN_*` en el `.env`. Por def
 | `npm run db:reset` | Borra la base local, la recrea y corre todos los seeds |
 | `npm run db:fix-indexes` | Limpia índices duplicados que puede dejar `sync({ alter: true })` |
 | `npm run db:migrate:patron` | Migración puntual: pasa a `PRO` los usuarios `PATRON` y borra ese plan. Solo hace falta en bases creadas antes de que se eliminara ese nivel |
+
+## Tests
+
+Corren con **Vitest**, y los de integración además usan **Supertest** para pegarle
+a la API sin levantar el servidor en un puerto. Viven en `tests/`, fuera de
+`src/`, para que `npm run build` compile solo la aplicación.
+
+```
+tests/
+├── unit/          una función pura por vez, sin base ni red
+│   ├── auth.schema.test.ts     Santino Gallo
+│   ├── album.schema.test.ts    Juan Ignacio Esterri
+│   └── review.schema.test.ts   Santiago Siena
+└── integration/
+    └── auth.test.ts            la app entera, contra MySQL
+```
+
+**Los unitarios** prueban los schemas de Zod, que son las reglas de validación de
+la API: la normalización del email y el mínimo de la contraseña (`auth`), el año
+vacío que se guarda como `NULL` y el artista obligatorio (`album`), y la escala
+de media estrella más el XOR álbum/canción (`review`). Son funciones puras, así
+que no necesitan base de datos ni variables de entorno:
+
+```bash
+npm test -- tests/unit
+```
+
+**El de integración** recorre las cinco capas de verdad
+(`routes → controller → service → repository → entity`), más MySQL, bcrypt y la
+firma del JWT: inicia sesión con el usuario administrador, verifica que la
+respuesta **no** incluya el hash de la contraseña, que una contraseña incorrecta
+devuelva `401` y un email mal formado `400`, y que el token sirva para entrar a
+una ruta protegida. Todos los casos son de solo lectura, no escriben en la base.
+
+Para correrlo hace falta **MySQL levantado y `npm run seed` ya ejecutado**, y las
+credenciales salen del `SEED_ADMIN_*` del `.env`, no están escritas en el test.
+
+```bash
+npm test
+```
 
 ## Reiniciar la base local
 
