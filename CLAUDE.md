@@ -51,8 +51,11 @@ No modificar ni reescribir código de la feature de otro integrante sin que se p
 - Node + **Express** + **TypeScript**.
 - ORM: **Sequelize v6**, tipando las entidades con `InferAttributes` / `InferCreationAttributes`
   (tipado nativo de Sequelize). No usar `sequelize-typescript` ni decoradores.
-- Base de datos: **MySQL** en servicio cloud gestionado (Aiven). Nunca una DB embebida ni local.
-  La conexión requiere SSL: configurar `dialectOptions.ssl` con el CA que provee el servicio.
+- Base de datos: **MySQL 8** como servicio externo a la aplicación, **nunca embebida**. Hoy se
+  trabaja contra una **instancia local** (`DB_HOST=127.0.0.1`), acordado con la cátedra. El código
+  ya soporta un servicio cloud gestionado (Aiven, Clever Cloud) sin cambios: se pone `DB_SSL=true`
+  y el CA en `DB_SSL_CA`, y `sequelize.ts` arma solo el `dialectOptions.ssl`. No hardcodear ni el
+  host ni el modo SSL: todo sale del `.env`.
 - Validación de entrada: **Zod**, aplicada mediante un middleware antes del controller.
 - Autenticación: JWT propio + bcrypt para el hash de contraseñas.
 - Pasarela de pago: MercadoPago Checkout Pro (sandbox) con webhook. Se le habla con

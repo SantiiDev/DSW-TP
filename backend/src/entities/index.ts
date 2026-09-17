@@ -9,6 +9,9 @@ import { Artist } from './artist.entity';
 import { Follow } from './follow.entity';
 import { Genre } from './genre.entity';
 import { GenreAlbum } from './genre-album.entity';
+import { List } from './list.entity';
+import { ListAlbum } from './list-album.entity';
+import { ListLike } from './list-like.entity';
 import { Payment } from './payment.entity';
 import { Plan } from './plan.entity';
 import { Review } from './review.entity';
@@ -162,6 +165,64 @@ User.hasMany(Follow, { foreignKey: 'id_followed', as: 'followerLinks', onDelete:
 Follow.belongsTo(User, { foreignKey: 'id_follower', as: 'follower' });
 Follow.belongsTo(User, { foreignKey: 'id_followed', as: 'followed' });
 
+// --- Listas personalizadas: USERS 1:N LISTS N:M ALBUMS ----------------------
+//
+// AGREGADO AL DER ORIGINAL (ver el encabezado de list.entity.ts). Sostiene el
+// alcance adicional voluntario "Listas personalizadas" de la propuesta.
+
+// CASCADE: una lista no significa nada sin su dueño. A diferencia de una reseña
+// (que es contenido de la comunidad y usa RESTRICT en el álbum), una lista es
+// una colección personal, así que se va con la cuenta que la armó.
+User.hasMany(List, { foreignKey: 'id_user', as: 'lists', onDelete: 'CASCADE' });
+List.belongsTo(User, { foreignKey: 'id_user', as: 'user' });
+
+// Los álbumes de una lista son una N:M, igual que géneros y álbumes.
+List.belongsToMany(Album, {
+  through: ListAlbum,
+  foreignKey: 'id_list',
+  otherKey: 'id_album',
+  as: 'albums',
+});
+Album.belongsToMany(List, {
+  through: ListAlbum,
+  foreignKey: 'id_album',
+  otherKey: 'id_list',
+  as: 'lists',
+});
+
+// Además del N:M se declara el hasMany contra la tabla intermedia: el service
+// necesita `position` y `added_date` para ordenar el detalle, y esos atributos
+// propios de la relación no viajan si se consulta por el belongsToMany.
+//
+// CASCADE en las dos puntas: el vínculo no sobrevive ni a la lista ni al álbum
+// que borra un ADMIN (los álbumes en uso están protegidos por la FK RESTRICT de
+// REVIEW y de SONG, así que esto solo dispara sobre álbumes que ya no tienen
+// nada más colgado).
+List.hasMany(ListAlbum, { foreignKey: 'id_list', as: 'items', onDelete: 'CASCADE' });
+ListAlbum.belongsTo(List, { foreignKey: 'id_list', as: 'list' });
+Album.hasMany(ListAlbum, { foreignKey: 'id_album', as: 'listEntries', onDelete: 'CASCADE' });
+ListAlbum.belongsTo(Album, { foreignKey: 'id_album', as: 'album' });
+
+// El "me gusta" de una lista, mismo criterio que REVIEW_LIKES: es una N:M entre
+// USERS y LISTS, y además del N:M se declara el hasMany contra la tabla
+// intermedia porque el conteo se hace sobre ella directamente.
+List.belongsToMany(User, {
+  through: ListLike,
+  foreignKey: 'id_list',
+  otherKey: 'id_user',
+  as: 'likedBy',
+});
+User.belongsToMany(List, {
+  through: ListLike,
+  foreignKey: 'id_user',
+  otherKey: 'id_list',
+  as: 'likedLists',
+});
+
+List.hasMany(ListLike, { foreignKey: 'id_list', as: 'likes', onDelete: 'CASCADE' });
+ListLike.belongsTo(List, { foreignKey: 'id_list', as: 'list' });
+ListLike.belongsTo(User, { foreignKey: 'id_user', as: 'user' });
+
 // --- Autoría del contenido de catálogo (created_by) -------------------------
 //
 // SET NULL: si se da de baja al usuario que aportó un álbum, el álbum sobrevive
@@ -182,6 +243,9 @@ export {
   Follow,
   Genre,
   GenreAlbum,
+  List,
+  ListAlbum,
+  ListLike,
   Payment,
   Plan,
   Review,

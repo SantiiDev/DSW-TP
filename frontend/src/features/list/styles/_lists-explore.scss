@@ -42,6 +42,9 @@
   // Columna izquierda con sticky (efecto parallax)
   &__sidebar {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
 
     @media (min-width: $bp-lg) {
       width: 360px;
@@ -137,7 +140,6 @@
 
 // ─── Explore Tags Section ───────────────────────────────────
 .explore-tags {
-  margin-top: $spacing-xl;
 
   &__header {
     display: flex;
@@ -192,9 +194,12 @@
     transform: translateY(-1px);
   }
 
-  &__emoji {
-    font-size: 0.9rem;
-    line-height: 1;
+  // El filtro de género activo: mismo tratamiento visual que el resto de los
+  // chips "activos" del sitio (ver .genre-filters__mode en _genre.scss).
+  &--active {
+    border-color: $color-primary;
+    background-color: rgba($color-primary, 0.14);
+    color: $color-primary;
   }
 
   &__label {
@@ -210,21 +215,46 @@
     flex-direction: column;
     gap: $spacing-lg;
   }
+
+  // Pie del feed: "Ver más" y "Ver menos", que pueden aparecer los dos juntos.
+  &__more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+  }
 }
 
 // ─── Trending List Card ─────────────────────────────────────
+//
+// La tarjeta del feed lleva el degradado verde difuminado del sitio: es LA
+// lista, la unidad de contenido de esta pantalla, y el verde es lo que la separa
+// de un vistazo del fondo y de las tarjetas de reseña de /reviews.
+//
+// Es el mismo degradado del bloque "Tu año en música" de la pestaña de
+// estadísticas (ver .advanced-stats en _advanced-stats.scss): arranca verde
+// arriba a la izquierda y se apaga hacia el fondo de tarjeta de siempre. Al ser
+// oscuro, el texto sigue yendo claro.
 .trending-list-card {
-  background-color: $color-bg-light;
-  border: 1px solid $color-nav-border;
+  display: block;
+  background: linear-gradient(
+    135deg,
+    rgba($color-primary, 0.28) 0%,
+    rgba($color-primary, 0.08) 45%,
+    $color-bg-light 100%
+  );
+  border: 1px solid rgba($color-primary, 0.35);
   border-radius: $radius;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
-    border-color: rgba($color-primary, 0.3);
+    border-color: rgba($color-primary, 0.6);
     transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
   }
 
   // Collage de portadas: 5 imágenes en fila
@@ -239,11 +269,19 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    // Se ve mientras la portada carga.
     background-color: #222;
     transition: transform 0.4s ease;
 
     .trending-list-card:hover & {
       transform: scale(1.05);
+    }
+
+    // Slot vacío: una lista con menos de cinco álbumes no manda portada para
+    // esa posición. Queda como un hueco oscuro, sin la imagen rota del
+    // navegador ni un espacio en blanco.
+    &--empty {
+      background-color: #1a1a1a;
     }
   }
 
@@ -270,19 +308,6 @@
     align-items: center;
     gap: $spacing-sm;
     margin-bottom: $spacing-sm;
-  }
-
-  &__avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #fff;
-    flex-shrink: 0;
   }
 
   &__username {
@@ -316,6 +341,7 @@
     display: flex;
     align-items: center;
     gap: $spacing-md;
+    flex-wrap: wrap;
   }
 
   &__stat {

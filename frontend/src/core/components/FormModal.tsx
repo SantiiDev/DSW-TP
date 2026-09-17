@@ -12,7 +12,17 @@
 //   <FormModal isOpen={...} title="Proponer un álbum" hint="..." error={...} onClose={...}>
 //     <AlbumForm ... />
 //   </FormModal>
+//
+// Se dibuja con un portal directo al <body>, igual que el panel del Select. No es
+// un adorno: el overlay es `position: fixed`, y un `fixed` deja de medirse contra
+// la ventana si algún ancestro tiene `transform`, `filter` o `will-change`. El
+// envoltorio de animación del sitio (.fade-in-section) tiene justamente
+// `will-change: transform`, así que dentro de él el modal se posicionaba respecto
+// de esa caja: aparecía descentrado según el scroll y quedaba tapado por el
+// contenido de al lado, porque `will-change` además abre un stacking context
+// propio donde el z-index del overlay no compite con el de afuera.
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Alert } from './Alert';
@@ -73,7 +83,7 @@ export const FormModal = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     // El click en el fondo cierra; adentro de la tarjeta se frena la propagación
     // para que hacer click en el formulario no cierre el diálogo sin querer.
     <div className="form-modal-overlay" onClick={isBusy ? undefined : onClose}>
@@ -105,6 +115,7 @@ export const FormModal = ({
 
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
