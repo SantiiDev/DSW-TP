@@ -1,0 +1,530 @@
+// Estilos de la feature list: el formulario de alta/edición, "Mis listas", el
+// modal "Agregar a una lista" (con el buscador de álbumes) y la ficha pública de
+// una lista.
+//
+// La grilla de resultados reutiliza `.album-collection`/`.album-item` de
+// _genre.scss (mismo criterio que la ficha de álbum, que también los reusa):
+// es la misma tarjeta de álbum en todo el sitio.
+//
+// Mobile-first: primero los estilos para pantalla chica y después las media
+// queries que amplían.
+@use "sass:color";
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
+
+// --- Formulario de alta y edición -------------------------------------------
+
+.list-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  // Bloque de selección de álbumes del alta: el contador, los ya elegidos y el
+  // buscador. En la edición no se dibuja (ver ListForm).
+  &__albums {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid rgba($color-nav-border, 0.6);
+  }
+
+  &__albums-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  &__albums-hint {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: $color-text-secondary;
+  }
+
+  &__selected {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    // Con muchos álbumes elegidos el bloque scrollea solo, para que el botón de
+    // guardar no quede fuera del modal.
+    max-height: 13rem;
+    overflow-y: auto;
+  }
+
+  &__selected-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0.4rem 0.5rem;
+    background-color: rgba($color-primary, 0.1);
+    border: 1px solid rgba($color-primary, 0.35);
+    border-radius: $radius;
+  }
+
+  &__selected-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__selected-title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__selected-artist {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// --- "Mis listas" (barra lateral de /lists) ---------------------------------
+
+.my-lists {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  // Plegado no lleva tope de alto: son cinco tarjetas como mucho (las recorta el
+  // componente) y entran solas. Poner un max-height acá era justamente lo que
+  // rompía el "Ver más": desplegaba bien, pero la caja seguía capada y las
+  // nuevas quedaban escondidas detrás del scroll, así que parecía no hacer nada.
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  // Desplegado sí: ahí puede haber muchas más, y el scroll tiene que ser de esta
+  // caja y no de la barra lateral, para no empujar el ranking y los géneros
+  // fuera de la pantalla.
+  &__list--expanded {
+    max-height: 22rem;
+    overflow-y: auto;
+    // Aire para que la barra de scroll no se monte sobre las tarjetas.
+    padding-right: 3px;
+  }
+
+  // Es el atajo a una lista propia: solo su nombre y cuántos álbumes tiene. Va
+  // en oscuro, como el resto de la barra lateral; el verde queda para la tarjeta
+  // grande del feed, que es la que muestra la lista en sí.
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    padding: 0.6rem $spacing-md;
+    background-color: $color-bg-light;
+    border-radius: $radius;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: color.adjust($color-bg-light, $lightness: 4%);
+    }
+  }
+
+  &__item-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__item-count {
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+    flex-shrink: 0;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Modal "Agregar a una lista" (ficha del álbum) --------------------------
+
+.add-to-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__lists {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    padding: 0.5rem 0.75rem;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+  }
+
+  &__item-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Buscador de álbumes (ficha de detalle de una lista) --------------------
+
+.list-album-picker {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+
+  // El campo de búsqueda. Repite el look de .search-bar__field pero sin su
+  // <form>, que no se puede anidar dentro del formulario de alta de la lista
+  // (ver el encabezado de ListAlbumPicker).
+  &__field {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon {
+    position: absolute;
+    left: 0.75rem;
+    color: $color-text-secondary;
+    // Sin esto, hacer click justo sobre la lupa no enfoca el campo.
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg-light;
+    // Con qué color se tapa el fondo del navegador si autocompleta el campo
+    // (ver la regla de :-webkit-autofill en base/_reset.scss).
+    --autofill-bg: #{$color-bg-light};
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    // Los paddings dejan lugar a la lupa de la izquierda y a la cruz de la derecha.
+    padding: 0.6rem 2.4rem 0.6rem 2.4rem;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  // Misma cruz que la de cerrar un modal (.form-modal__close): redonda, gris y
+  // blanca al pasar el mouse. Antes acá se veía la cruz nativa del navegador,
+  // que no se puede estilar.
+  &__clear {
+    @include control-centrado;
+    position: absolute;
+    right: 0.5rem;
+    padding: 0.25rem;
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: $color-text;
+    }
+  }
+
+  &__results {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  &__result {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0.5rem;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+  }
+
+  &__result-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__result-title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__result-artist {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Ficha pública de una lista ----------------------------------------------
+
+.list-detail {
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media (min-width: $bp-md) {
+    @include page-container($spacing-lg);
+    padding-top: $spacing-xl;
+    padding-bottom: $spacing-xl;
+  }
+
+  &__state {
+    display: flex;
+    justify-content: center;
+    padding: $spacing-xl 0;
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: $color-text;
+    line-height: 1.1;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.6rem;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+
+    strong {
+      color: $color-primary;
+      font-weight: 600;
+    }
+  }
+
+  &__description {
+    margin: 0;
+    max-width: 640px;
+    color: $color-text-secondary;
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+}
+
+// --- "Más listas de @usuario" (pie de la ficha de una lista) -----------------
+//
+// Mismo rol y mismo lugar que .more-from en la ficha de un álbum: la salida
+// natural de la pantalla. Cada lista se identifica por su collage, igual que en
+// el feed de /lists.
+
+.more-lists {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    padding-bottom: $spacing-sm;
+    border-bottom: 1px solid $color-nav-border;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__note {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // Mobile-first: una sola columna, y se van sumando a medida que hay ancho.
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    // Sin esto, un nombre largo estira su columna y las cuatro dejan de medir
+    // lo mismo.
+    > li {
+      min-width: 0;
+    }
+  }
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+    padding-bottom: $spacing-sm;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+
+  // El mismo collage de cinco celdas del feed, más chato porque acá la tarjeta
+  // es una sugerencia y no la pieza principal.
+  &__collage {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    aspect-ratio: 5 / 1.4;
+    overflow: hidden;
+    border-radius: $radius;
+    border: 1px solid $color-nav-border;
+  }
+
+  &__collage-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #222;
+
+    &--empty {
+      background-color: #1a1a1a;
+    }
+  }
+
+  &__name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+  }
+}
+
+// Cada álbum de una lista cuando además hay que poder sacarlo (solo el dueño):
+// el enlace a la ficha y, debajo, el botón de sacarlo. Sin dueño el <li> se usa
+// igual, solo que sin el botón.
+.list-album-item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}

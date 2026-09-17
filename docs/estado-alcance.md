@@ -4,7 +4,7 @@ Qué está terminado y qué falta, punto por punto, contra el alcance comprometi
 en la [propuesta](../proposal.md) y los requisitos del
 [enunciado](enunciado.md).
 
-Última revisión: **16/09/2026**.
+Última revisión: **17/09/2026**.
 
 ## Requisitos técnicos
 
@@ -100,7 +100,7 @@ anterior, que es lo que pide la cátedra.
 | Ítem | Estado |
 |:-|:-:|
 | Interacción social sobre reseñas (likes y comentarios) | ✅ |
-| Listas personalizadas de álbumes | ❌ La página `/lists` existe pero muestra datos fijos |
+| Listas personalizadas de álbumes | ✅ CRUD completo (`LISTS`, `LIST_ALBUMS`, `LIST_LIKES` en el DER): alta, edición, baja, agregar/sacar álbumes y "me gusta". `/lists` explora por "Top Listas" y "Listas en Tendencia" con filtro por género, y desde la ficha de un álbum se agrega a una lista propia con el botón "Agregar a una lista" |
 | Ranking global de usuarios más activos | ✅ Panel "Más activos" en la columna lateral de `/reviews`, ordenado por un puntaje que combina reseñas publicadas y seguidores (`GET /api/users/ranking`) |
 | Dashboard de administración con métricas de ingresos | ❌ |
 | Autocompletado de metadatos en el alta de un álbum | ❌ |
@@ -123,13 +123,17 @@ anterior, que es lo que pide la cátedra.
 
 Cosas que funcionan pero no están como deberían, ordenadas por prioridad:
 
-1. **`/lists` muestra datos fijos.** Sus tres secciones (`TopListsSection`,
-   `TrendingListsSection`, `ExploreTagsSection`) tienen los datos escritos en el
-   componente en lugar de pedirlos a la API. Hay que conectarlas o sacarlas. Es
-   el último foco de datos inventados del proyecto: la sección `/members`, que era
-   el otro, se eliminó junto con sus cuatro componentes al construir el feed
-   social.
-2. **Los beneficios Pro no se cumplen todos.** Las estadísticas ya dependen del
+1. **Los beneficios Pro no se cumplen todos.** Las estadísticas ya dependen del
    rol, pero el sitio promete "sin anuncios" y "personalización avanzada" y no
    existe ningún componente de anuncios que se le muestre a un `FREE` ni ninguna
    opción de perfil exclusiva de `PRO`.
+
+> **Resuelto (17/09).** `/lists` mostraba datos fijos en sus tres secciones
+> (`TopListsSection`, `TrendingListsSection`, `ExploreTagsSection`), con
+> portadas que además salían de `placehold.co` —una llamada externa en
+> runtime—. Se construyó el CRUD completo de listas personalizadas (entidades
+> `LISTS`, `LIST_ALBUMS` y `LIST_LIKES`, backend en capas y la feature `list`
+> del frontend) y las tres secciones ahora piden datos reales a la API. Era el
+> último foco de datos inventados del proyecto: la sección `/members`, que era
+> el otro, se había eliminado junto con sus cuatro componentes al construir el
+> feed social.

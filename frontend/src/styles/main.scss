@@ -61,8 +61,11 @@
 @use '../features/review/styles/review';
 
 // Lists Explore
-@use '../features/review/styles/lists-explore';
 @use '../features/review/styles/reviews-explore';
+
+// Listas personalizadas
+@use '../features/list/styles/lists-explore';
+@use '../features/list/styles/list';
 
 // Membership / Pro
 @use '../features/membership/styles/membership';

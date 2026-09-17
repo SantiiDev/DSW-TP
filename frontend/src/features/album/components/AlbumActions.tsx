@@ -11,6 +11,10 @@ import { useEffect, useState } from 'react';
 import { Link2, Share2, Star } from 'lucide-react';
 import { Button, ButtonLink } from '../../../core/components/Button';
 import { scrollToSection } from '../../../core/utils/scrollToSection';
+// Único punto de la feature list que vive del lado de otra: agrupa toda la
+// lógica de "sumar este álbum a una lista propia" en su propio componente, así
+// acá solo hace falta importarlo y pasarle el id del álbum.
+import { AddToListButton } from '../../list/components/AddToListButton';
 import type { Album } from '../models/Album';
 import '../styles/_album.scss';
 
@@ -73,6 +77,8 @@ export const AlbumActions = ({
           Más del artista
         </Button>
       )}
+
+      <AddToListButton album={album} />
 
       {mainGenre && (
         <ButtonLink to={`/genres/${mainGenre.id}`} variant="outline" fullWidth>

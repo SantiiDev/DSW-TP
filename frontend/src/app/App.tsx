@@ -17,7 +17,8 @@ import { AdminPage } from '../features/user/pages/AdminPage';
 import { ProCheckoutPage } from '../features/membership/pages/ProCheckoutPage';
 import { ProPage } from '../features/membership/pages/ProPage';
 import { ProReturnPage } from '../features/membership/pages/ProReturnPage';
-import { ListsExplorePage } from '../features/review/pages/ListsExplorePage';
+import { ListsExplorePage } from '../features/list/pages/ListsExplorePage';
+import { ListDetailPage } from '../features/list/pages/ListDetailPage';
 import { ReviewDetailPage } from '../features/review/pages/ReviewDetailPage';
 import { AuthProvider } from '../core/context/AuthContext';
 import { AuthModalProvider } from '../core/context/AuthModalContext';
@@ -117,6 +118,12 @@ export const App = () => {
                 registro (ver ReviewsExplorePage). */}
             <Route path="/reviews" element={<ReviewsExplorePage />} />
             <Route path="/lists" element={<ListsExplorePage />} />
+
+            {/* Ficha de una lista personalizada: es pública, mismo criterio que
+                /reviews/:id, porque es el destino de un enlace que se comparte.
+                La API también es pública; con sesión se suman los controles de
+                dueño (editar, borrar, agregar o sacar álbumes) y liked_by_me. */}
+            <Route path="/lists/:id" element={<ListDetailPage />} />
 
             {/* Página de una reseña: el detalle del listado de reseñas del
                 perfil, y el destino del botón "Compartir".
