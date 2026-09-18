@@ -8,6 +8,7 @@ import {
   listRepository,
   ListAlbumTarget,
   ListItemRow,
+  ListOwner,
   ListUser,
   ListWithRelations,
 } from './list.repository';
@@ -146,8 +147,11 @@ function assertIsOwner(list: ListWithRelations, actor: TokenPayload): void {
 /**
  * Corta con 403 si el actor no es dueño de la lista y tampoco es ADMIN. La baja
  * sí la puede hacer un administrador, con el mismo criterio que reviews y álbumes.
+ *
+ * Recibe `ListOwner` y no la lista entera porque es lo único que mira: así la
+ * baja puede pedirle a la base solo de quién es.
  */
-function assertCanDelete(list: ListWithRelations, actor: TokenPayload): void {
+function assertCanDelete(list: ListOwner, actor: TokenPayload): void {
   if (actor.rol !== 'ADMIN' && list.id_user !== actor.id_user) {
     throw new ForbiddenError('Solo podés eliminar tus propias listas.');
   }
@@ -280,13 +284,20 @@ export const listService = {
 
   /**
    * Elimina una lista. Su dueño, o un ADMIN.
+   *
+   * Es la única operación que NO usa `findExisting`: la respuesta es un 204 sin
+   * cuerpo, así que traer la lista con su autor, sus álbumes y sus "me gusta"
+   * era leer de más. Con saber que existe y de quién es alcanza.
+   *
    * @param id_list lista a eliminar.
    * @param actor usuario autenticado que hace la request.
    */
   async remove(id_list: number, actor: TokenPayload): Promise<void> {
-    const list = await findExisting(id_list);
+    const list = await listRepository.findOwner(id_list);
+    if (!list) throw new NotFoundError('La lista');
+
     assertCanDelete(list, actor);
-    await listRepository.delete(list);
+    await listRepository.delete(id_list);
   },
 
   /**

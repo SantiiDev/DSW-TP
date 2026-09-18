@@ -548,6 +548,9 @@
     color: $color-text-secondary;
   }
 
+  // El aviso de lo último que se agregó o se quitó no tiene estilos propios:
+  // es el InlineNotice compartido de core/components.
+
   // Misma fila que los resultados del buscador (.list-album-picker__result),
   // para que agregar y quitar se vean igual: carátula, título y artista, y el
   // botón contra el borde derecho.

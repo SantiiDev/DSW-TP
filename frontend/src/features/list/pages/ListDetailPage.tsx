@@ -6,7 +6,7 @@
 // La ruta es pública (ver App.tsx), igual que /reviews/:id: una lista se puede
 // compartir con cualquiera, tenga o no cuenta. La API también es pública; lo
 // único que cambia con sesión es `liked_by_me` y los controles de dueño.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Heart, ListMusic, Pencil, Settings2, Trash2 } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
@@ -18,6 +18,7 @@ import { FormModal } from '../../../core/components/FormModal';
 import { Footer } from '../../../core/components/Footer';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { IconButton } from '../../../core/components/IconButton';
+import { InlineNotice } from '../../../core/components/InlineNotice';
 import { Loader } from '../../../core/components/Loader';
 import { Navbar } from '../../../core/components/Navbar';
 import { useAuth } from '../../../core/context/AuthContext';
@@ -28,9 +29,14 @@ import { AlbumCover } from '../../genre/components/AlbumCover';
 import { listService } from '../services/listService';
 import type { ListInput } from '../services/listService';
 import { ListAlbumManager } from '../components/ListAlbumManager';
+import type { ManageNotice } from '../components/ListAlbumManager';
 import { ListForm } from '../components/ListForm';
 import { ListMoreFromUser } from '../components/ListMoreFromUser';
+import type { ListsExploreState } from './ListsExplorePage';
 import '../styles/_list.scss';
+
+/** Cuánto queda en pantalla el aviso de "se agregó / se quitó" antes de borrarse solo. */
+const NOTICE_MS = 4000;
 
 export const ListDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,13 +56,31 @@ export const ListDetailPage = () => {
   const [isManagerOpen, setIsManagerOpen] = useState(false);
   const [busyAlbumId, setBusyAlbumId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  // La baja es lo único que se resuelve navegando a otra pantalla, así que sin
+  // esta bandera la pantalla se quedaba quieta mientras iba el DELETE y parecía
+  // que el botón no había hecho nada.
+  const [isDeleting, setIsDeleting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   // Error de lo que pasa DENTRO del modal de administrar álbumes (tanto al
   // agregar como al quitar). Va aparte del de la cabecera para que se vea sin
   // cerrar el modal, mismo criterio que el formulario de alta.
   const [manageError, setManageError] = useState<string | null>(null);
+  // Aviso de lo último que se agregó o se quitó. Es un objeto nuevo en cada
+  // cambio, y no solo el texto: si fuera texto y se repitiera el mismo mensaje,
+  // el efecto de abajo no volvería a correr y el segundo aviso heredaría lo que
+  // le quedaba de reloj al primero.
+  const [manageNotice, setManageNotice] = useState<ManageNotice | null>(null);
 
   const isOwner = list?.canBeEditedBy(currentUserId) ?? false;
+
+  // El aviso se borra solo: confirma lo que se acaba de hacer y se va, sin que
+  // haya que cerrarlo a mano ni que se acumule con el siguiente cambio.
+  useEffect(() => {
+    if (!manageNotice) return;
+
+    const timer = setTimeout(() => setManageNotice(null), NOTICE_MS);
+    return () => clearTimeout(timer);
+  }, [manageNotice]);
 
   /** Pone o saca el "me gusta". Es un interruptor, igual que en las reseñas. */
   const handleToggleLike = async () => {
@@ -97,12 +121,17 @@ export const ListDetailPage = () => {
 
     setShowDeleteConfirm(false);
     setActionError(null);
+    setIsDeleting(true);
 
     try {
       await listService.remove(list.id);
-      navigate('/lists');
+      // El aviso de que se eliminó se muestra en /lists y no acá, porque esta
+      // pantalla deja de existir: viaja el nombre en el state de la navegación.
+      navigate('/lists', { state: { deletedListName: list.name } satisfies ListsExploreState });
     } catch (err) {
       setActionError(getErrorMessage(err));
+      // Solo hace falta apagarla si falló: si salió bien, la pantalla se va.
+      setIsDeleting(false);
     }
   };
 
@@ -111,7 +140,7 @@ export const ListDetailPage = () => {
    * agregar varios seguidos, y el que se acaba de agregar desaparece solo de los
    * resultados porque pasa a estar en `excludeIds`.
    */
-  const handleAddAlbum = async (albumId: number) => {
+  const handleAddAlbum = async (albumId: number, title: string) => {
     if (!list) return;
 
     setBusyAlbumId(albumId);
@@ -119,6 +148,9 @@ export const ListDetailPage = () => {
 
     try {
       setData(await listService.addAlbum(list.id, albumId));
+      // El aviso se pone recién acá: si la API falló, lo único que se muestra
+      // es el error.
+      setManageNotice({ kind: 'added', title });
     } catch (err) {
       setManageError(getErrorMessage(err));
     } finally {
@@ -127,7 +159,7 @@ export const ListDetailPage = () => {
   };
 
   /** Saca un álbum de la lista. Igual que el alta, se hace desde el modal y sin cerrarlo. */
-  const handleRemoveAlbum = async (albumId: number) => {
+  const handleRemoveAlbum = async (albumId: number, title: string) => {
     if (!list) return;
 
     setBusyAlbumId(albumId);
@@ -135,6 +167,7 @@ export const ListDetailPage = () => {
 
     try {
       setData(await listService.removeAlbum(list.id, albumId));
+      setManageNotice({ kind: 'removed', title });
     } catch (err) {
       setManageError(getErrorMessage(err));
     } finally {
@@ -198,11 +231,16 @@ export const ListDetailPage = () => {
                       icon={<Trash2 size={16} />}
                       label="Eliminar lista"
                       tone="danger"
+                      disabled={isDeleting}
                       onClick={() => setShowDeleteConfirm(true)}
                     />
                   </>
                 )}
               </div>
+
+              {/* Mientras va el DELETE: el aviso de que se eliminó se muestra
+                  recién en /lists, que es a donde lleva la baja. */}
+              {isDeleting && <InlineNotice icon={<Trash2 size={14} />}>Eliminando la lista...</InlineNotice>}
 
               {actionError && <Alert tone="error">{actionError}</Alert>}
             </header>
@@ -214,6 +252,7 @@ export const ListDetailPage = () => {
                   fullWidth
                   onClick={() => {
                     setManageError(null);
+                    setManageNotice(null);
                     setIsManagerOpen(true);
                   }}
                 >
@@ -277,8 +316,10 @@ export const ListDetailPage = () => {
               <ListAlbumManager
                 albums={list.albums}
                 busyAlbumId={busyAlbumId}
-                onAdd={(albumId) => void handleAddAlbum(albumId)}
-                onRemove={(albumId) => void handleRemoveAlbum(albumId)}
+                notice={manageNotice}
+                onDismissNotice={() => setManageNotice(null)}
+                onAdd={(albumId, title) => void handleAddAlbum(albumId, title)}
+                onRemove={(albumId, title) => void handleRemoveAlbum(albumId, title)}
               />
             </FormModal>
 

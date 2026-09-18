@@ -10,9 +10,10 @@
 // Solo decide qué sección se ve: el alta y la baja las resuelve la página, que
 // es la que tiene la lista y habla con la API.
 import { useState } from 'react';
-import { ListMusic, Trash2 } from 'lucide-react';
+import { Check, ListMusic, Minus, Trash2 } from 'lucide-react';
 import { Button } from '../../../core/components/Button';
 import { EmptyState } from '../../../core/components/EmptyState';
+import { InlineNotice } from '../../../core/components/InlineNotice';
 import { SegmentedControl } from '../../../core/components/SegmentedControl';
 import type { SegmentOption } from '../../../core/components/SegmentedControl';
 import { AlbumCover } from '../../genre/components/AlbumCover';
@@ -34,18 +35,35 @@ const HINTS: Record<ManagerSection, string> = {
   remove: 'Sacá los que ya no van. También se aplica al instante.',
 };
 
+/**
+ * Lo último que se hizo, para confirmárselo al usuario. Viaja armado con el
+ * título y no con la frase entera porque cómo se redacta es cosa de esta
+ * pantalla, no de quien la maneja.
+ */
+export type ManageNotice = {
+  kind: 'added' | 'removed';
+  /** Título del álbum agregado o quitado. */
+  title: string;
+};
+
 type ListAlbumManagerProps = {
   /** Los álbumes que hoy tiene la lista: son los que se pueden quitar. */
   albums: ListAlbum[];
   /** Álbum sobre el que hay una operación en curso, o null si no hay ninguna. */
   busyAlbumId: number | null;
-  onAdd: (albumId: number) => void;
-  onRemove: (albumId: number) => void;
+  /** Aviso del último cambio, o null si no hubo ninguno todavía (o si ya se desvaneció). */
+  notice: ManageNotice | null;
+  /** Pide borrar el aviso. Lo usa el cambio de sección. */
+  onDismissNotice: () => void;
+  onAdd: (albumId: number, title: string) => void;
+  onRemove: (albumId: number, title: string) => void;
 };
 
 export const ListAlbumManager = ({
   albums,
   busyAlbumId,
+  notice,
+  onDismissNotice,
   onAdd,
   onRemove,
 }: ListAlbumManagerProps) => {
@@ -53,16 +71,37 @@ export const ListAlbumManager = ({
 
   const isBusy = busyAlbumId !== null;
 
+  /**
+   * Cambia de sección y descarta el aviso: habla de lo que se hizo en la
+   * sección que se está dejando, y leerlo arriba de la otra confundiría.
+   */
+  const handleSectionChange = (next: ManagerSection) => {
+    setSection(next);
+    onDismissNotice();
+  };
+
   return (
     <div className="list-album-manager">
       <SegmentedControl
         options={SECTIONS}
         value={section}
-        onChange={(next) => setSection(next)}
+        onChange={(next) => handleSectionChange(next)}
         ariaLabel="Qué hacer con los álbumes de la lista"
       />
 
       <p className="list-album-manager__hint">{HINTS[section]}</p>
+
+      {/* Confirmación de lo último que se hizo. El reloj que la borra lo lleva
+          ListDetailPage, que es la que sabe cuándo terminó cada operación. */}
+      {notice && (
+        <InlineNotice
+          tone={notice.kind === 'added' ? 'positive' : 'neutral'}
+          icon={notice.kind === 'added' ? <Check size={14} /> : <Minus size={14} />}
+        >
+          {notice.kind === 'added' ? 'Se agregó ' : 'Se quitó '}
+          <strong>{notice.title}</strong>
+        </InlineNotice>
+      )}
 
       {section === 'add' ? (
         <ListAlbumPicker
@@ -70,9 +109,9 @@ export const ListAlbumManager = ({
           // agregar desaparece solo de los resultados.
           excludeIds={albums.map((album) => album.id)}
           isBusy={isBusy}
-          // Acá el álbum se suma en la API al instante, así que del objeto que
-          // manda el buscador solo hace falta su id.
-          onAdd={(album) => onAdd(album.id)}
+          // Del objeto que manda el buscador alcanza con el id, que es lo que
+          // pide la API, y el título, que es lo que después dice el aviso.
+          onAdd={(album) => onAdd(album.id, album.title)}
         />
       ) : albums.length === 0 ? (
         <EmptyState
@@ -93,7 +132,7 @@ export const ListAlbumManager = ({
                 size="sm"
                 variant="subtle"
                 disabled={isBusy}
-                onClick={() => onRemove(album.id)}
+                onClick={() => onRemove(album.id, album.title)}
               >
                 <Trash2 size={14} aria-hidden="true" />
                 Quitar
