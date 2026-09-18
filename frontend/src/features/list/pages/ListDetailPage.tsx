@@ -8,7 +8,7 @@
 // único que cambia con sesión es `liked_by_me` y los controles de dueño.
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Heart, ListMusic, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Heart, ListMusic, Pencil, Settings2, Trash2 } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { Avatar } from '../../../core/components/Avatar';
 import { BackLink } from '../../../core/components/BackLink';
@@ -27,7 +27,7 @@ import { GatedLink } from '../../../core/components/GatedLink';
 import { AlbumCover } from '../../genre/components/AlbumCover';
 import { listService } from '../services/listService';
 import type { ListInput } from '../services/listService';
-import { ListAlbumPicker } from '../components/ListAlbumPicker';
+import { ListAlbumManager } from '../components/ListAlbumManager';
 import { ListForm } from '../components/ListForm';
 import { ListMoreFromUser } from '../components/ListMoreFromUser';
 import '../styles/_list.scss';
@@ -47,14 +47,14 @@ export const ListDetailPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const [isManagerOpen, setIsManagerOpen] = useState(false);
   const [busyAlbumId, setBusyAlbumId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  // Error de lo que pasa DENTRO del modal de agregar álbumes. Va aparte del de
-  // la cabecera para que se vea sin cerrar el modal, mismo criterio que el
-  // formulario de alta.
-  const [pickerError, setPickerError] = useState<string | null>(null);
+  // Error de lo que pasa DENTRO del modal de administrar álbumes (tanto al
+  // agregar como al quitar). Va aparte del de la cabecera para que se vea sin
+  // cerrar el modal, mismo criterio que el formulario de alta.
+  const [manageError, setManageError] = useState<string | null>(null);
 
   const isOwner = list?.canBeEditedBy(currentUserId) ?? false;
 
@@ -115,27 +115,28 @@ export const ListDetailPage = () => {
     if (!list) return;
 
     setBusyAlbumId(albumId);
-    setPickerError(null);
+    setManageError(null);
 
     try {
       setData(await listService.addAlbum(list.id, albumId));
     } catch (err) {
-      setPickerError(getErrorMessage(err));
+      setManageError(getErrorMessage(err));
     } finally {
       setBusyAlbumId(null);
     }
   };
 
+  /** Saca un álbum de la lista. Igual que el alta, se hace desde el modal y sin cerrarlo. */
   const handleRemoveAlbum = async (albumId: number) => {
     if (!list) return;
 
     setBusyAlbumId(albumId);
-    setActionError(null);
+    setManageError(null);
 
     try {
       setData(await listService.removeAlbum(list.id, albumId));
     } catch (err) {
-      setActionError(getErrorMessage(err));
+      setManageError(getErrorMessage(err));
     } finally {
       setBusyAlbumId(null);
     }
@@ -212,12 +213,12 @@ export const ListDetailPage = () => {
                   variant="outline"
                   fullWidth
                   onClick={() => {
-                    setPickerError(null);
-                    setIsPickerOpen(true);
+                    setManageError(null);
+                    setIsManagerOpen(true);
                   }}
                 >
-                  <Plus size={16} aria-hidden="true" />
-                  Agregar álbumes
+                  <Settings2 size={16} aria-hidden="true" />
+                  Administrar álbumes
                 </Button>
               )}
 
@@ -234,7 +235,9 @@ export const ListDetailPage = () => {
               ) : (
                 <ul className="album-collection album-collection--grid">
                   {list.albums.map((album) => (
-                    <li key={album.id} className="list-album-item">
+                    // La tarjeta es solo el enlace a la ficha del álbum: sacarlo
+                    // de la lista se hace desde "Administrar álbumes".
+                    <li key={album.id}>
                       <GatedLink to={`/albums/${album.id}`} className="album-item">
                         <AlbumCover title={album.title} url={album.urlCover} size="lg" />
                         <div className="album-item__info">
@@ -245,19 +248,6 @@ export const ListDetailPage = () => {
                           )}
                         </div>
                       </GatedLink>
-
-                      {isOwner && (
-                        <Button
-                          variant="subtle"
-                          size="sm"
-                          fullWidth
-                          disabled={busyAlbumId === album.id}
-                          onClick={() => handleRemoveAlbum(album.id)}
-                        >
-                          <Trash2 size={14} aria-hidden="true" />
-                          Sacar de la lista
-                        </Button>
-                      )}
                     </li>
                   ))}
                 </ul>
@@ -274,22 +264,21 @@ export const ListDetailPage = () => {
               />
             )}
 
-            {/* El buscador va en un modal, igual que en el alta de una lista: se
-                abre, se suman los que hagan falta de una sentada y se cierra. El
-                modal NO se cierra con cada alta, para poder agregar varios. */}
+            {/* Todo lo que se hace con los álbumes de la lista va en este modal:
+                se abre, se agregan y se quitan los que hagan falta de una
+                sentada y se cierra. NO se cierra con cada cambio, justamente
+                para poder encadenar varios. */}
             <FormModal
-              isOpen={isPickerOpen}
-              title="Agregar álbumes"
-              hint="Buscá por título y sumá los que quieras. Se van agregando a la lista al instante."
-              error={pickerError}
-              onClose={() => setIsPickerOpen(false)}
+              isOpen={isManagerOpen}
+              title="Administrar álbumes"
+              error={manageError}
+              onClose={() => setIsManagerOpen(false)}
             >
-              <ListAlbumPicker
-                excludeIds={list.albums.map((album) => album.id)}
-                isBusy={busyAlbumId !== null}
-                // Acá el álbum se suma en la API al instante, así que del objeto
-                // que manda el buscador solo hace falta su id.
-                onAdd={(album) => void handleAddAlbum(album.id)}
+              <ListAlbumManager
+                albums={list.albums}
+                busyAlbumId={busyAlbumId}
+                onAdd={(albumId) => void handleAddAlbum(albumId)}
+                onRemove={(albumId) => void handleRemoveAlbum(albumId)}
               />
             </FormModal>
 

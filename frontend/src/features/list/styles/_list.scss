@@ -520,11 +520,76 @@
   }
 }
 
-// Cada álbum de una lista cuando además hay que poder sacarlo (solo el dueño):
-// el enlace a la ficha y, debajo, el botón de sacarlo. Sin dueño el <li> se usa
-// igual, solo que sin el botón.
-.list-album-item {
+// --- Modal "Administrar álbumes" (ficha de detalle de una lista) -------------
+//
+// Las dos secciones, "Agregar álbumes" y "Quitar álbumes", con el selector
+// compartido arriba (core/components/SegmentedControl). La de agregar dibuja el
+// buscador de más arriba; la de quitar, la lista de los que ya están.
+
+.list-album-manager {
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+
+  // Verde apenas más claro que el de la marca para la sección elegida. Se
+  // reescribe solo acá, sobre el selector compartido, porque dentro del modal
+  // (fondo más claro que el de una página) el verde puro queda apagado.
+  $section-active: color.adjust($color-primary, $lightness: 5%);
+
+  .segmented__option--active {
+    background-color: rgba($section-active, 0.18);
+    border-color: $section-active;
+    color: $section-active;
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  // Misma fila que los resultados del buscador (.list-album-picker__result),
+  // para que agregar y quitar se vean igual: carátula, título y artista, y el
+  // botón contra el borde derecho.
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0.5rem;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+  }
+
+  &__item-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__item-title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__item-artist {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
