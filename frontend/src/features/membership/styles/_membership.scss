@@ -190,9 +190,9 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
       background-color: $pro-green;
       color: #000;
 
+      // Solo contraste: el verde se aclara, el botón no se agranda.
       &:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 24px rgba($pro-green, 0.4);
+        background-color: color.adjust($pro-green, $lightness: 6%);
       }
     }
 
@@ -238,11 +238,11 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     gap: $spacing-md;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: border-color 0.3s ease;
 
+    // Solo contraste: se enciende el borde. La tarjeta no se levanta.
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      border-color: rgba($pro-green, 0.5);
     }
 
     // Variante PRO con borde verde y stickers decorativos
@@ -377,8 +377,6 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
 
       &:hover {
         background-color: color.adjust($pro-green, $lightness: 5%);
-        box-shadow: 0 6px 20px rgba($pro-green, 0.3);
-        transform: translateY(-2px);
       }
     }
 
@@ -440,12 +438,11 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   flex-direction: column;
   justify-content: space-between;
   min-height: 260px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: border-color 0.3s ease;
 
+  // Solo contraste: se enciende el borde, la tarjeta no se levanta.
   &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-    border-color: rgba($pro-green, 0.25);
+    border-color: rgba($pro-green, 0.5);
   }
 
   &__top {
@@ -477,11 +474,11 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
 
   &__icon {
     color: rgba($pro-green, 0.25);
-    transition: color 0.3s ease, transform 0.3s ease;
+    transition: color 0.3s ease;
 
+    // Solo el color: el ícono no se agranda.
     .pro-feature-card:hover & {
-      color: rgba($pro-green, 0.5);
-      transform: scale(1.1);
+      color: rgba($pro-green, 0.6);
     }
   }
 }
@@ -703,11 +700,11 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     flex-direction: column;
     align-items: center;
     gap: $spacing-md;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: border-color 0.3s ease;
 
+    // Solo contraste: se enciende el borde, la caja no se levanta.
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+      border-color: rgba($pro-green, 0.5);
     }
   }
 
@@ -742,11 +739,11 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     color: #000;
     border: none;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: background-color 0.25s ease;
 
+    // Solo contraste: el verde se aclara, el botón no se agranda.
     &:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 28px rgba($pro-green, 0.35);
+      background-color: color.adjust($pro-green, $lightness: 6%);
     }
   }
 }
@@ -942,11 +939,11 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
     font-weight: 700;
     font-size: 0.9rem;
     text-decoration: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease;
 
+    // Solo contraste: el verde se aclara, el botón no se agranda.
     &:hover {
-      transform: scale(1.04);
-      box-shadow: 0 8px 24px rgba($pro-green, 0.3);
+      background-color: color.adjust($pro-green, $lightness: 6%);
     }
   }
 
@@ -1025,12 +1022,12 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   border-radius: $radius;
   background-color: $color-bg-light;
   text-decoration: none;
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
 
+  // Solo contraste: se enciende el borde y el fondo se aclara apenas.
   &:hover {
-    transform: translateY(-4px);
     border-color: rgba($pro-green, 0.5);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    background-color: color.adjust($color-bg-light, $lightness: 3%);
   }
 
   &__icon {
@@ -1101,7 +1098,6 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
 .pro-pricing__card-btn--outline:disabled:hover {
   cursor: default;
   opacity: 0.75;
-  transform: none;
   border-color: $color-nav-border;
   color: $color-text-secondary;
 }

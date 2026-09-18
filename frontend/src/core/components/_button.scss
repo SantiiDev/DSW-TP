@@ -21,10 +21,10 @@
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  // transform y box-shadow van incluidos para los botones que además se agrandan
-  // al pasar por encima (el submit del modal de acceso).
+  // Solo colores: ningún botón del sitio se agranda ni se levanta al pasar por
+  // encima, así que no hay transform ni box-shadow que animar.
   transition: opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
-    color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    color 0.2s ease;
 
   // Un botón deshabilitado se ve apagado y no responde al hover: cada variante
   // define su hover con :not(:disabled).

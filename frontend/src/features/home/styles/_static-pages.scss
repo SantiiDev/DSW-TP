@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
 
@@ -120,11 +121,11 @@
       border: none;
       align-self: flex-start;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: background-color 0.2s;
 
+      // Solo contraste: el verde se aclara, el botón no se levanta.
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba($color-primary, 0.3);
+        background-color: color.adjust($color-primary, $lightness: 6%);
       }
     }
   }

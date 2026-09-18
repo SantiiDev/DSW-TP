@@ -353,10 +353,11 @@
       flex-direction: column;
       gap: $spacing-sm;
       min-width: 0;
-      transition: transform 0.2s ease;
 
-      &:hover {
-        transform: translateY(-3px);
+      // Se enciende el título, sin moverse: ningún elemento del sitio se levanta
+      // ni se agranda con el mouse encima.
+      &:hover .album-item__title {
+        color: $color-primary;
       }
 
       &__info {
@@ -409,6 +410,7 @@
     font-size: 0.92rem;
     font-weight: 700;
     color: $color-text;
+    transition: color 0.2s ease;
     // Los títulos largos se cortan con puntos suspensivos en vez de estirar la
     // fila o desbordar la tarjeta.
     overflow: hidden;

@@ -212,6 +212,7 @@
     font-size: 0.92rem;
     font-weight: 700;
     color: $color-text;
+    transition: color 0.2s ease;
     // Los títulos largos se cortan con puntos suspensivos.
     max-width: 100%;
     overflow: hidden;
@@ -240,12 +241,11 @@
   }
 
   // Solo las cards de álbumes aprobados navegan: son las únicas que tienen ficha.
-  &--link:hover {
-    transform: translateY(-3px);
-  }
-
-  &--link {
-    transition: transform 0.2s ease;
+  // Al pasar por encima se enciende el título, que es la señal de que se puede
+  // entrar. Antes la card se levantaba; ahora ningún elemento del sitio se mueve
+  // con el mouse encima, solo cambia de color.
+  &--link:hover &__title {
+    color: $color-primary;
   }
 }
 
@@ -892,12 +892,11 @@
   &__chevron {
     flex-shrink: 0;
     color: $color-text-secondary;
-    transition: color 0.2s ease, transform 0.2s ease;
+    transition: color 0.2s ease;
   }
 
   &__row:hover &__chevron {
     color: $color-primary;
-    transform: translateX(2px);
   }
 }
 
@@ -942,17 +941,19 @@
     min-width: 0;
     color: inherit;
     text-decoration: none;
-    transition: transform 0.2s ease;
+  }
 
-    &:hover {
-      transform: translateY(-3px);
-    }
+  // Se enciende el título, sin moverse: es el mismo hover que el de las cards de
+  // álbum del perfil.
+  &__card:hover &__name {
+    color: $color-primary;
   }
 
   &__name {
     font-size: 0.9rem;
     font-weight: 700;
     color: $color-text;
+    transition: color 0.2s ease;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

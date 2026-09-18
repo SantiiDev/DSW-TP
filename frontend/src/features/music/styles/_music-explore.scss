@@ -102,10 +102,11 @@
   flex-direction: column;
   gap: $spacing-sm;
   cursor: pointer;
-  transition: transform 0.2s ease;
 
-  &:hover {
-    transform: translateY(-4px);
+  // Se enciende el título, sin moverse: en todo el sitio el hover es un cambio
+  // de color y nada se levanta ni se agranda.
+  &:hover &__title {
+    color: $color-primary;
   }
 
   &__cover {
@@ -120,11 +121,6 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    &:hover img {
-      transform: scale(1.08);
     }
   }
 
@@ -180,6 +176,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
+    transition: color 0.2s ease;
   }
 
   &__artist {
@@ -331,8 +328,6 @@
   border: none;
   text-align: left;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-
   &::before {
     content: '';
     position: absolute;
@@ -342,13 +337,10 @@
     transition: background 0.2s ease;
   }
 
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-
-    &::before {
-      background: rgba(0, 0, 0, 0);
-    }
+  // Solo contraste: se levanta el velo oscuro y la portada de fondo queda a
+  // pleno color. La tarjeta no se mueve.
+  &:hover::before {
+    background: rgba(0, 0, 0, 0);
   }
 
   &__name {
@@ -394,8 +386,7 @@
   border-radius: $radius;
   cursor: pointer;
   overflow: hidden;
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   text-align: left;
 
   // La barra de acento del borde izquierdo. Va como pseudo-elemento y no como
@@ -409,11 +400,11 @@
     transition: background-color 0.2s ease;
   }
 
+  // Solo contraste: el fondo se aclara y se encienden el borde y la barra de
+  // acento. La tarjeta no se levanta.
   &:hover {
     background-color: color.adjust($color-bg-light, $lightness: 4%);
     border-color: $color-primary;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 
     &::before {
       background-color: $color-primary;

@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../../../styles/abstracts/variable' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
 @use '../../../styles/abstracts/mixins' as *;
@@ -76,12 +77,12 @@
     font-size: 1.15rem;
     padding: 0.8rem 2rem;
     border-radius: $radius;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease;
     pointer-events: auto;
 
+    // Solo contraste: el verde se aclara. Antes el botón se agrandaba.
     &:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 15px rgba($color-primary, 0.4);
+      background-color: color.adjust($color-primary, $lightness: 6%);
     }
   }
 }

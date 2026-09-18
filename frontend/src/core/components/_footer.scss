@@ -122,14 +122,10 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.1s ease;
-    
+    transition: background-color 0.2s ease;
+
     &:hover {
       background-color: color.adjust($color-primary, $lightness: 5%);
-    }
-    
-    &:active {
-      transform: scale(0.95);
     }
   }
   

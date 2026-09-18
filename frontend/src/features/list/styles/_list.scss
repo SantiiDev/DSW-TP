@@ -466,11 +466,12 @@
     gap: 0.35rem;
     min-width: 0;
     padding-bottom: $spacing-sm;
-    transition: transform 0.2s ease;
+  }
 
-    &:hover {
-      transform: translateY(-3px);
-    }
+  // Se enciende el nombre de la lista, sin moverse: ningún elemento del sitio se
+  // levanta ni se agranda con el mouse encima.
+  &__card:hover &__name {
+    color: $color-primary;
   }
 
   // El mismo collage de cinco celdas del feed, más chato porque acá la tarjeta
@@ -499,6 +500,7 @@
     font-size: 0.92rem;
     font-weight: 700;
     color: $color-text;
+    transition: color 0.2s ease;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

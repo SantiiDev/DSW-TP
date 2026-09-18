@@ -191,7 +191,6 @@
     border-color: rgba($color-primary, 0.5);
     background-color: rgba($color-primary, 0.08);
     color: $color-primary;
-    transform: translateY(-1px);
   }
 
   // El filtro de género activo: mismo tratamiento visual que el resto de los
@@ -249,12 +248,12 @@
   border-radius: $radius;
   overflow: hidden;
   cursor: pointer;
-  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease;
 
+  // Solo contraste: se enciende el borde. La tarjeta no se levanta ni proyecta
+  // sombra, igual que el resto del sitio.
   &:hover {
-    border-color: rgba($color-primary, 0.6);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    border-color: $color-primary;
   }
 
   // Collage de portadas: 5 imágenes en fila
@@ -271,11 +270,6 @@
     object-fit: cover;
     // Se ve mientras la portada carga.
     background-color: #222;
-    transition: transform 0.4s ease;
-
-    .trending-list-card:hover & {
-      transform: scale(1.05);
-    }
 
     // Slot vacío: una lista con menos de cinco álbumes no manda portada para
     // esa posición. Queda como un hueco oscuro, sin la imagen rota del

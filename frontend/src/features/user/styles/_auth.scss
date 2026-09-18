@@ -103,10 +103,6 @@
       background-color: rgba(255, 255, 255, 0.05);
       border-color: #666;
     }
-
-    &:active {
-      transform: scale(0.98);
-    }
   }
 
   &__google-icon {
@@ -192,22 +188,12 @@
   }
 
   // Botón principal de submit
-  // La caja la pone el componente Button (primary, size lg, fullWidth). Acá van
-  // solo el realce propio del modal y su separación, que no chocan con ninguna
-  // declaración del botón compartido.
+  // La caja y el hover los pone el componente Button (primary, size lg,
+  // fullWidth). Acá va solo su separación: el realce propio que tenía —se
+  // agrandaba y tiraba sombra— se quitó, porque en todo el sitio el hover es un
+  // cambio de color y nada se mueve.
   &__submit-btn {
     margin-top: $spacing-sm;
-
-    // Los efectos solo cuando el botón está habilitado: mientras se envía el
-    // formulario tiene que quedar claro que no se puede volver a apretar.
-    &:hover:not(:disabled) {
-      transform: scale(1.02);
-      box-shadow: 0 4px 15px rgba($color-primary, 0.4);
-    }
-
-    &:active:not(:disabled) {
-      transform: scale(0.98);
-    }
 
     &:disabled {
       opacity: 0.6;

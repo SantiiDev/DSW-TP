@@ -376,7 +376,6 @@ $stats-two-columns: 620px;
 
     .album-cover {
       display: block;
-      transition: transform 0.35s ease;
     }
 
     // Oscurece el pie de la portada para que el puesto se lea sobre cualquier imagen.
@@ -389,9 +388,12 @@ $stats-two-columns: 620px;
     }
   }
 
-  a.stats-albums__link:hover .album-cover,
-  a.stats-albums__link:focus-visible .album-cover {
-    transform: scale(1.05);
+  // Solo contraste: se enciende un marco verde alrededor de la portada. Antes se
+  // agrandaba, y en todo el sitio el hover pasó a ser un cambio de color.
+  a.stats-albums__link:hover,
+  a.stats-albums__link:focus-visible {
+    box-shadow: 0 0 0 2px $color-primary;
+    outline: none;
   }
 
   &__position {
