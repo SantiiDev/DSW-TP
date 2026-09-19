@@ -21,8 +21,6 @@ $chart-ease: cubic-bezier(0.22, 1, 0.36, 1);
     line-height: 1.05;
     letter-spacing: -0.02em;
     color: $color-text;
-    // Los dígitos de ancho fijo evitan que el número "tiemble" mientras cuenta.
-    font-variant-numeric: tabular-nums;
   }
 
   &--md &__value {
@@ -43,15 +41,6 @@ $chart-ease: cubic-bezier(0.22, 1, 0.36, 1);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: $color-text-secondary;
-  }
-
-  &__sr {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 }
 

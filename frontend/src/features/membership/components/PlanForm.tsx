@@ -143,15 +143,15 @@ export const PlanForm = ({
       </FormField>
 
       <div className="plan-form__actions">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Guardando...' : submitLabel}
-        </Button>
-
         {onCancel && (
           <Button variant="subtle" disabled={isSubmitting} onClick={onCancel}>
             Cancelar
           </Button>
         )}
+
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Guardando...' : submitLabel}
+        </Button>
       </div>
     </form>
   );

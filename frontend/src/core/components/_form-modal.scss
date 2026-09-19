@@ -18,6 +18,14 @@
   align-items: center;
   justify-content: center;
   padding: $spacing-md;
+  // Antes aparecía de golpe. Ahora el fondo entra con un fundido y la tarjeta
+  // sube hasta su lugar: la misma entrada que el diálogo de confirmación.
+  animation: $modal-overlay-in;
+
+  // Para quien pidió menos animaciones en su sistema, aparece directamente.
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 }
 
 .form-modal {
@@ -33,6 +41,12 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+  animation: $modal-card-in;
+
+  // Para quien pidió menos animaciones en su sistema, aparece directamente.
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 
   &__header {
     display: flex;

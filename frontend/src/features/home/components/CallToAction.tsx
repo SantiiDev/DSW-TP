@@ -4,6 +4,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../core/context/AuthContext';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
+import { CtaBackdrop } from './CtaBackdrop';
 import './_call-to-action.scss';
 
 export const CallToAction = () => {
@@ -15,6 +16,9 @@ export const CallToAction = () => {
   return (
     <section className="cta-section">
       <div className="cta-section__container">
+        {/* Fondo animado con motivos musicales: va detrás del texto. */}
+        <CtaBackdrop />
+
         <div className="cta-section__content">
           {isAuthenticated ? (
             <>

@@ -19,6 +19,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+// Quien scrollea la página es el <body>, no la ventana: con `overflow-x` en el
+// <html>, el navegador no le pasa el scroll a la ventana. Por eso la barra de
+// desplazamiento es del body.
+//
+// `scrollbar-gutter: stable` le reserva siempre el lugar a esa barra, esté o no.
+// Sin esto, al abrir un FormModal (que traba el scroll con overflow: hidden) la
+// barra desaparecía, el body ganaba 10px de ancho y todo lo centrado saltaba 5px
+// a la derecha: el "corte" que se veía cada vez que se abría un diálogo.
+body {
+  scrollbar-gutter: stable;
+}
+
 #root {
   min-height: 100vh;
   display: flex;

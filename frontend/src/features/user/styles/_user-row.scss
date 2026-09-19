@@ -14,8 +14,7 @@
   background-color: $color-bg-light;
   transition: background-color 0.2s ease;
 
-  &:hover,
-  &--highlighted {
+  &:hover {
     background-color: color.adjust($color-bg-light, $lightness: 4%);
   }
 

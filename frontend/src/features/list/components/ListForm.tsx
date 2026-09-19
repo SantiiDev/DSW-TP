@@ -181,15 +181,15 @@ export const ListForm = ({
       )}
 
       <div className="list-form__actions">
-        <Button type="submit" disabled={!canSubmit}>
-          {isSubmitting ? 'Guardando...' : submitLabel}
-        </Button>
-
         {onCancel && (
           <Button variant="subtle" disabled={isSubmitting} onClick={onCancel}>
             Cancelar
           </Button>
         )}
+
+        <Button type="submit" disabled={!canSubmit}>
+          {isSubmitting ? 'Guardando...' : submitLabel}
+        </Button>
       </div>
     </form>
   );

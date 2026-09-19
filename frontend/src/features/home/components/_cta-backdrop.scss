@@ -1,0 +1,219 @@
+// Estilos del fondo animado de la llamada a la acción (CtaBackdrop.tsx).
+//
+// Todo va a baja opacidad y en el verde de la marca: es un fondo, no tiene que
+// competir con el título ni con los botones. Por eso además la capa entera lleva
+// una máscara que la apaga en el centro de la caja, que es donde está el texto.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// Cuánto sube una nota antes de desvanecerse. Un poco más que el alto de la caja
+// para que salga por arriba en vez de apagarse a mitad de camino.
+$note-travel: 380px;
+
+@keyframes cta-wave-flow {
+  from {
+    transform: translateX(0);
+  }
+  // La onda mide el doble de la caja: correrla la mitad de su ancho es correrla
+  // exactamente una caja, y ahí el dibujo vuelve a coincidir con el del inicio.
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes cta-vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Cada barra sube y baja entre casi nada y su propia altura, que le llega por
+// una variable CSS: una sola animación sirve para las 48 barras.
+@keyframes cta-bar-bounce {
+  from {
+    transform: scaleY(0.12);
+  }
+  to {
+    transform: scaleY(var(--bar-height));
+  }
+}
+
+@keyframes cta-note-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(-10deg);
+  }
+  15% {
+    opacity: 0.5;
+  }
+  75% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-$note-travel) rotate(12deg);
+  }
+}
+
+.cta-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  // Es decoración: los clicks tienen que pasar a los botones de adelante.
+  pointer-events: none;
+  // Se apaga en el medio, donde está el texto, y se ve entera en los bordes.
+  mask-image: radial-gradient(ellipse 42% 50% at 50% 45%, transparent 35%, #000 80%);
+
+  // Un resplandor verde que sube desde abajo y le da profundidad a la caja.
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -45%;
+    width: 80%;
+    height: 90%;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at center, rgba($color-primary, 0.14), transparent 70%);
+  }
+
+  // --- Ondas de sonido ---------------------------------------------------------
+
+  &__wave {
+    position: absolute;
+    left: 0;
+    bottom: 22%;
+    width: 200%;
+    height: 70px;
+
+    path {
+      fill: none;
+      stroke: $color-primary;
+      stroke-width: 2;
+      // Sin esto el trazo se deformaría: el SVG se estira sin respetar
+      // proporciones (preserveAspectRatio="none") y la línea saldría más gruesa
+      // en las subidas que en los tramos planos.
+      vector-effect: non-scaling-stroke;
+    }
+
+    &--front {
+      opacity: 0.35;
+      animation: cta-wave-flow 9s linear infinite;
+    }
+
+    // La de atrás es más tenue, más lenta y corre para el otro lado: dos ondas
+    // cruzándose se ven como sonido y no como una línea que se desliza.
+    &--back {
+      bottom: 26%;
+      height: 90px;
+      opacity: 0.15;
+      animation: cta-wave-flow 15s linear infinite reverse;
+    }
+  }
+
+  // --- Vinilo ------------------------------------------------------------------
+
+  &__vinyl {
+    position: absolute;
+    top: 50%;
+    right: -60px;
+    width: 160px;
+    height: 160px;
+    margin-top: -80px;
+    opacity: 0.3;
+    animation: cta-vinyl-spin 14s linear infinite;
+
+    @media (min-width: $bp-md) {
+      right: -70px;
+      width: 240px;
+      height: 240px;
+      margin-top: -120px;
+      opacity: 0.55;
+    }
+  }
+
+  &__vinyl-disc {
+    fill: #0e0e0e;
+    stroke: rgba(255, 255, 255, 0.08);
+    stroke-width: 1;
+  }
+
+  &__vinyl-groove {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.07);
+    stroke-width: 1;
+  }
+
+  &__vinyl-label {
+    fill: $color-primary;
+    opacity: 0.85;
+  }
+
+  &__vinyl-mark {
+    fill: #fff;
+    opacity: 0.7;
+  }
+
+  &__vinyl-hole {
+    fill: $color-bg-light;
+  }
+
+  // --- Ecualizador -------------------------------------------------------------
+
+  &__equalizer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 34%;
+    // Las barras se desvanecen hacia arriba: fuertes en el borde, invisibles a
+    // la altura del texto.
+    mask-image: linear-gradient(to top, #000 0%, transparent 100%);
+  }
+
+  &__bar {
+    fill: $color-primary;
+    opacity: 0.22;
+    // Cada barra crece desde su base, no desde el centro. fill-box hace que el
+    // origen se mida sobre la propia barra y no sobre todo el SVG.
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    // Su altura de reposo: es lo que se ve si la animación está apagada.
+    transform: scaleY(var(--bar-height));
+    animation: cta-bar-bounce var(--bar-duration) ease-in-out var(--bar-delay) infinite alternate;
+  }
+
+  // --- Notas -------------------------------------------------------------------
+
+  &__note {
+    position: absolute;
+    bottom: -40px;
+    width: var(--note-size);
+    height: var(--note-size);
+    color: $color-primary;
+    opacity: 0;
+    animation: cta-note-rise var(--note-duration) ease-in var(--note-delay) infinite;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+    }
+  }
+
+  // Para quien pidió menos animaciones en su sistema: el fondo queda quieto. El
+  // ecualizador se ve en su altura de reposo, las ondas y el vinilo parados, y
+  // las notas no aparecen, porque sin moverse no se entenderían.
+  @media (prefers-reduced-motion: reduce) {
+    &__wave,
+    &__vinyl,
+    &__bar {
+      animation: none;
+    }
+
+    &__note {
+      display: none;
+    }
+  }
+}

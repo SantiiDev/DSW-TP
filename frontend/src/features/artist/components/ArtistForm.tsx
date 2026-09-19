@@ -145,15 +145,15 @@ export const ArtistForm = ({
         </FormField>
 
         <div className="artist-form__actions">
-          <Button type="submit" disabled={isBusy}>
-            {isChecking ? 'Revisando...' : isSubmitting ? 'Guardando...' : submitLabel}
-          </Button>
-
           {onCancel && (
             <Button variant="subtle" disabled={isBusy} onClick={onCancel}>
               Cancelar
             </Button>
           )}
+
+          <Button type="submit" disabled={isBusy}>
+            {isChecking ? 'Revisando...' : isSubmitting ? 'Guardando...' : submitLabel}
+          </Button>
         </div>
       </form>
 

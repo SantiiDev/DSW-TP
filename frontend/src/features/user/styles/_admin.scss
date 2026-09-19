@@ -72,6 +72,9 @@
   // que no se estiren a lo ancho del formulario.
   &__form-actions {
     display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el de confirmación (ConfirmDialog).
+    justify-content: flex-end;
     flex-wrap: wrap;
     gap: $spacing-sm;
   }

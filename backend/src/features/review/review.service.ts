@@ -463,14 +463,8 @@ function toPublicComment(comment: ReviewCommentWithUser): PublicComment {
  * @param id_album álbum a recalcular.
  */
 async function recalcAlbumAverage(id_album: number): Promise<void> {
-  const ratings = await reviewRepository.findPublishedRatingsByAlbum(id_album);
-
-  const total = ratings.reduce((sum, review) => sum + review.rating, 0);
-  const average =
-    ratings.length === 0
-      ? 0
-      : Math.round((total / ratings.length) * RATING_PRECISION) / RATING_PRECISION;
-
+  const reviews = await reviewRepository.findPublishedRatingsByAlbum(id_album);
+  const average = averageOf(reviews.map((review) => review.rating));
   await reviewRepository.saveAlbumAverage(id_album, average);
 }
 
@@ -482,9 +476,7 @@ async function recalcAlbumAverage(id_album: number): Promise<void> {
  * el tracklist.
  */
 async function syncAlbumAverage(review: ReviewWithRelations): Promise<void> {
-  if (review.id_album !== null && review.id_album !== undefined) {
-    await recalcAlbumAverage(review.id_album);
-  }
+  if (review.id_album) await recalcAlbumAverage(review.id_album);
 }
 
 /**
@@ -826,7 +818,7 @@ export const reviewService = {
 
     await reviewRepository.delete(review);
 
-    if (idAlbum !== null && idAlbum !== undefined) await recalcAlbumAverage(idAlbum);
+    if (idAlbum) await recalcAlbumAverage(idAlbum);
   },
 
   /**

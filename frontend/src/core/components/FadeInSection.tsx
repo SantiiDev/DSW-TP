@@ -1,6 +1,6 @@
 // Componente envoltorio que aplica una animación de aparición (fade in) a su contenido al hacer scroll.
-import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useInView } from '../hooks/useInView';
 
 type FadeInSectionProps = {
   children: ReactNode;
@@ -9,40 +9,13 @@ type FadeInSectionProps = {
 };
 
 export const FadeInSection = ({ children, delay = 0, className = '' }: FadeInSectionProps) => {
-  const [isVisible, setVisible] = useState(false);
-  const domRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisible(true);
-            // Si queremos que solo se anime una vez, descomentamos la siguiente línea:
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const currentRef = domRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, []);
+  const { ref, inView } = useInView<HTMLDivElement>(0.1);
 
   return (
     <div
-      className={`fade-in-section ${isVisible ? 'is-visible' : ''} ${className}`}
+      ref={ref}
+      className={`fade-in-section ${inView ? 'is-visible' : ''} ${className}`}
       style={{ transitionDelay: `${delay}ms` }}
-      ref={domRef}
     >
       {children}
     </div>

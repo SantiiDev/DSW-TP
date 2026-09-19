@@ -414,37 +414,30 @@ export const reviewRepository = {
    * @param to fin del rango, exclusive.
    */
   findPublishedForStats: async (id_user: number, from: Date, to: Date): Promise<StatsReviewRow[]> => {
-    // El álbum se pide igual en los dos caminos (reseña de álbum o de canción), así
-    // que su include se arma una sola vez.
-    const albumInclude = (): IncludeOptions => ({
+    // El álbum se pide igual en los dos caminos (reseña de álbum o de canción).
+    // Solo el de una reseña de álbum trae sus pistas, para sumar la duración.
+    const statsAlbumInclude = (withSongs: boolean): IncludeOptions => ({
       model: Album,
       as: 'album',
       attributes: ['id_album', 'title', 'url_cover', 'release_year'],
       include: [
         { model: Artist, as: 'artist', attributes: ['id_artist', 'name'] },
-        {
-          model: Genre,
-          as: 'genres',
-          attributes: ['id_genre', 'name'],
-          // Sin esto Sequelize agrega las columnas de la tabla intermedia.
-          through: { attributes: [] },
-        },
+        // through: { attributes: [] } evita que se agreguen las columnas de la tabla intermedia.
+        { model: Genre, as: 'genres', attributes: ['id_genre', 'name'], through: { attributes: [] } },
+        ...(withSongs ? [{ model: Song, as: 'songs', attributes: ['duration'] }] : []),
       ],
     });
-
-    const albumWithSongs = albumInclude();
-    albumWithSongs.include!.push({ model: Song, as: 'songs', attributes: ['duration'] });
 
     const rows = await Review.findAll({
       attributes: ['rating', 'review_date', 'text_review'],
       where: { id_user, state: 'published', review_date: { [Op.gte]: from, [Op.lt]: to } },
       include: [
-        albumWithSongs,
+        statsAlbumInclude(true),
         {
           model: Song,
           as: 'song',
           attributes: ['id_song', 'duration'],
-          include: [albumInclude()],
+          include: [statsAlbumInclude(false)],
         },
       ],
     });

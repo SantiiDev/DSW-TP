@@ -28,8 +28,6 @@ type UserRowProps = {
   onToggleFollow?: () => void;
   /** Aviso al elegir al usuario, para que un modal o un desplegable se cierre. */
   onNavigate?: () => void;
-  /** Resaltada con el teclado dentro del buscador. */
-  isHighlighted?: boolean;
   /** Versión más apretada, para el desplegable del buscador. */
   compact?: boolean;
 };
@@ -41,19 +39,10 @@ export const UserRow = ({
   isBusy = false,
   onToggleFollow,
   onNavigate,
-  isHighlighted = false,
   compact = false,
 }: UserRowProps) => {
-  const classes = [
-    'user-row',
-    compact ? 'user-row--compact' : '',
-    isHighlighted ? 'user-row--highlighted' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
-    <div className={classes}>
+    <div className={compact ? 'user-row user-row--compact' : 'user-row'}>
       <GatedLink to={user.profilePath} className="user-row__identity" onClick={onNavigate}>
         <Avatar url={user.avatarUrl} username={user.username} size={compact ? 'sm' : 'md'} />
 

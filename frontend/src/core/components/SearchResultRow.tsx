@@ -15,8 +15,6 @@ type SearchResultRowProps = {
   cover: ReactNode;
   title: string;
   subtitle: string;
-  /** Resaltada con el teclado. */
-  isHighlighted: boolean;
   /** Aviso al elegirla, para que el buscador se cierre y se limpie. */
   onNavigate: () => void;
 };
@@ -26,15 +24,10 @@ export const SearchResultRow = ({
   cover,
   title,
   subtitle,
-  isHighlighted,
   onNavigate,
 }: SearchResultRowProps) => {
   return (
-    <GatedLink
-      to={to}
-      className={`search-result ${isHighlighted ? 'search-result--highlighted' : ''}`}
-      onClick={onNavigate}
-    >
+    <GatedLink to={to} className="search-result" onClick={onNavigate}>
       <span className="search-result__cover">{cover}</span>
       <span className="search-result__info">
         <span className="search-result__title">{title}</span>

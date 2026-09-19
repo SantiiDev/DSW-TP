@@ -2,8 +2,8 @@
 //
 // Lo usan los gráficos para arrancar su animación recién cuando el usuario llega
 // a verlos: si se animaran al montar, los que están abajo de todo terminarían de
-// dibujarse antes de que alguien haga scroll hasta ellos. Es el mismo mecanismo
-// que usa FadeInSection, sacado a un hook para no repetirlo en cada gráfico.
+// dibujarse antes de que alguien haga scroll hasta ellos. También lo usa
+// FadeInSection para la animación de aparición de las secciones.
 import { useEffect, useRef, useState } from 'react';
 
 /**

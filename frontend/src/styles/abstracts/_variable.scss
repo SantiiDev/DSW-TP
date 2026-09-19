@@ -37,3 +37,10 @@ $spacing-xl: 3rem;
 // Es lo que hace que el borde izquierdo de cualquier sección caiga justo debajo
 // del logo. Para aplicarlo hay un mixin, `page-container` (ver _mixins).
 $content-width: 1150px;
+
+// Cómo entran las ventanas modales (los @keyframes están en base/_animations).
+// Una sola definición para el diálogo de confirmación y el de formulario, así
+// los dos se abren con el mismo tiempo y la misma curva: la tarjeta arranca
+// rápido y frena al llegar, que es lo que la hace sentir fluida.
+$modal-overlay-in: modal-overlay-in 0.25s ease-out;
+$modal-card-in: modal-card-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);

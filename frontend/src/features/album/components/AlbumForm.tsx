@@ -200,16 +200,16 @@ export const AlbumForm = ({
       </fieldset>
 
       <div className="album-form__actions">
-        {/* El artista es obligatorio: sin uno elegido, el backend responde 400. */}
-        <Button type="submit" disabled={isSubmitting || form.id_artist === NO_ARTIST}>
-          {isSubmitting ? 'Guardando...' : submitLabel}
-        </Button>
-
         {onCancel && (
           <Button variant="subtle" disabled={isSubmitting} onClick={onCancel}>
             Cancelar
           </Button>
         )}
+
+        {/* El artista es obligatorio: sin uno elegido, el backend responde 400. */}
+        <Button type="submit" disabled={isSubmitting || form.id_artist === NO_ARTIST}>
+          {isSubmitting ? 'Guardando...' : submitLabel}
+        </Button>
       </div>
     </form>
   );

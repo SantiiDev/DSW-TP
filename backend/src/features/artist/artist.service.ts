@@ -94,81 +94,18 @@ function normalizeName(name: string): string {
 }
 
 /**
- * Distancia de edición (Levenshtein) entre dos textos: cuántas letras hay que
- * agregar, borrar o cambiar para convertir uno en el otro. Es lo que permite
- * detectar un error de tipeo, como "Spinnetta" contra "Spinetta".
- *
- * Se guarda solo la fila anterior de la matriz porque es la única que hace falta
- * para calcular la siguiente.
- */
-function editDistance(a: string, b: string): number {
-  let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
-
-  for (let i = 1; i <= a.length; i++) {
-    const current = [i];
-
-    for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      current[j] = Math.min(
-        current[j - 1] + 1, // agregar una letra
-        previous[j] + 1, // borrar una letra
-        previous[j - 1] + cost // cambiar una letra
-      );
-    }
-
-    previous = current;
-  }
-
-  return previous[b.length];
-}
-
-/** Palabras de un nombre, cada una normalizada por separado. */
-function normalizeWords(name: string): string[] {
-  return name
-    .split(/\s+/)
-    .map(normalizeName)
-    .filter((word) => word !== '');
-}
-
-/**
- * ¿Dos textos ya normalizados están lo bastante cerca? Se cumple en dos casos:
- *
- *   - uno contiene al otro: "spinetta" está adentro de "luisalbertospinetta".
- *     Se pide que el más corto tenga al menos 4 letras, si no cualquier nombre
- *     corto aparecería adentro de medio catálogo.
- *   - están a una o dos letras de distancia: "2pacs" contra "2pac". El margen es
- *     más chico en textos cortos, donde dos letras ya son otra palabra.
- */
-function isCloseEnough(a: string, b: string): boolean {
-  const [shorter, longer] = a.length <= b.length ? [a, b] : [b, a];
-
-  if (shorter.length >= 4 && longer.includes(shorter)) return true;
-
-  return editDistance(a, b) <= (shorter.length <= 6 ? 1 : 2);
-}
-
-/**
  * ¿El nombre que se está por cargar se parece al de un artista que ya existe?
- *
- * Primero compara los dos nombres completos. Si además lo que se escribió es una
- * sola palabra, la compara contra cada palabra del artista existente: así
- * "Spinnetta" encuentra a "Luis Alberto Spinetta" aunque le sobre una letra y no
- * esté contenido en el nombre completo.
- *
- * La comparación palabra por palabra se hace solo con una sola palabra escrita a
- * propósito: si se aplicara a los nombres largos, "Black Sabbath" y "Black Eyed
- * Peas" se avisarían entre ellos por compartir "Black".
+ * Se considera parecido si, ya normalizados, uno contiene al otro: "Spinetta"
+ * está adentro de "Luis Alberto Spinetta". El más corto tiene que tener al menos
+ * 4 letras; si no, cualquier nombre corto aparecería adentro de medio catálogo.
  */
 function looksLikeSameArtist(input: string, candidate: string): boolean {
-  if (isCloseEnough(normalizeName(input), normalizeName(candidate))) return true;
+  const a = normalizeName(input);
+  const b = normalizeName(candidate);
+  const shorter = a.length <= b.length ? a : b;
+  const longer = a.length <= b.length ? b : a;
 
-  const inputWords = normalizeWords(input);
-  // Menos de 4 letras es una palabra demasiado común para arriesgar un aviso.
-  if (inputWords.length !== 1 || inputWords[0].length < 4) return false;
-
-  return normalizeWords(candidate).some(
-    (word) => word.length >= 4 && isCloseEnough(inputWords[0], word)
-  );
+  return shorter.length >= 4 && longer.includes(shorter);
 }
 
 /**
@@ -302,7 +239,7 @@ export const artistService = {
    *
    * No bloquea nada: es el aviso que la interfaz usa para preguntar "¿seguro que
    * es otro artista?" antes de mandar la propuesta, y así no entran dos veces el
-   * mismo con el nombre escrito distinto ("2Pacs" contra "2Pac").
+   * mismo con el nombre escrito distinto ("Spinetta" contra "Luis Alberto Spinetta").
    *
    * Deja afuera a los que tienen exactamente el mismo nombre normalizado, porque
    * esos ya los rechaza el alta con un mensaje claro, y a los rechazados, que no

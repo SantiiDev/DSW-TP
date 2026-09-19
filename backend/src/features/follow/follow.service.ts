@@ -132,6 +132,19 @@ function toPublicUserCard(row: SuggestedUserRow, followedIds: number[]): PublicU
   };
 }
 
+/**
+ * Arma las tarjetas de una tanda de usuarios, marcando a cuáles sigue el que mira.
+ * @param rows usuarios que devolvió la consulta.
+ * @param actor quién mira, o null sin sesión.
+ */
+async function toUserCards(
+  rows: SuggestedUserRow[],
+  actor: TokenPayload | null
+): Promise<PublicUserCard[]> {
+  const followedIds = actor ? await followRepository.findFollowedIds(actor.id_user) : [];
+  return rows.map((row) => toPublicUserCard(row, followedIds));
+}
+
 export const followService = {
   /**
    * Empieza a seguir a un usuario.
@@ -240,14 +253,12 @@ export const followService = {
    *
    * A diferencia de las sugerencias, no excluye a nadie: un ranking global
    * incluye al que lo mira y a los que ya sigue, si están entre los primeros.
-   * Por eso alcanza con el helper de listas, que resuelve en paralelo la tanda y
-   * a quiénes sigue el actor para que cada tarjeta sepa qué decir.
    *
    * @param query cuántos traer.
    * @param actor quién pregunta, o null si no hay sesión.
    */
   async ranking(query: RankingQuery, actor: TokenPayload | null): Promise<PublicUserCard[]> {
-    return listWithFollowState(followRepository.findRanking(query), actor);
+    return toUserCards(await followRepository.findRanking(query), actor);
   },
 
   /**
@@ -260,12 +271,7 @@ export const followService = {
    * @param actor quién busca, o null sin sesión.
    */
   async search(query: SearchUsersQuery, actor: TokenPayload | null): Promise<PublicUserCard[]> {
-    const [rows, followedIds] = await Promise.all([
-      followRepository.searchByUsername(query.q, query.limit),
-      actor ? followRepository.findFollowedIds(actor.id_user) : Promise.resolve([]),
-    ]);
-
-    return rows.map((row) => toPublicUserCard(row, followedIds));
+    return toUserCards(await followRepository.searchByUsername(query.q, query.limit), actor);
   },
 
   /**
@@ -285,7 +291,7 @@ export const followService = {
     actor: TokenPayload | null
   ): Promise<PublicUserCard[]> {
     await findExistingUser(id_user);
-    return listWithFollowState(followRepository.findFollowers({ id_user, ...query }), actor);
+    return toUserCards(await followRepository.findFollowers({ id_user, ...query }), actor);
   },
 
   /**
@@ -298,23 +304,6 @@ export const followService = {
     actor: TokenPayload | null
   ): Promise<PublicUserCard[]> {
     await findExistingUser(id_user);
-    return listWithFollowState(followRepository.findFollowing({ id_user, ...query }), actor);
+    return toUserCards(await followRepository.findFollowing({ id_user, ...query }), actor);
   },
 };
-
-/**
- * Completa una tanda de usuarios con si el que mira sigue a cada uno.
- * @param rowsPromise la consulta de la lista, ya lanzada.
- * @param actor quién mira, o null sin sesión.
- */
-async function listWithFollowState(
-  rowsPromise: Promise<SuggestedUserRow[]>,
-  actor: TokenPayload | null
-): Promise<PublicUserCard[]> {
-  const [rows, followedIds] = await Promise.all([
-    rowsPromise,
-    actor ? followRepository.findFollowedIds(actor.id_user) : Promise.resolve([]),
-  ]);
-
-  return rows.map((row) => toPublicUserCard(row, followedIds));
-}

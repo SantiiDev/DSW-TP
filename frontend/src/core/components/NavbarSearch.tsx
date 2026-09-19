@@ -7,11 +7,8 @@
 // Vive en core porque es parte de la barra y cruza tres features; cada búsqueda
 // la hace el servicio de su feature, con la misma idea con la que AuthContext usa
 // los servicios de user.
-//
-// Se maneja entero con el teclado, como cualquier buscador: flechas para moverse
-// entre todos los resultados, Enter para abrir el resaltado y Escape para cerrar.
 import { useEffect, useId, useRef, useState } from 'react';
-import type { ChangeEvent, KeyboardEvent, ReactNode } from 'react';
+import type { ChangeEvent, KeyboardEvent } from 'react';
 import { Search } from 'lucide-react';
 import { AlbumCover } from '../../features/genre/components/AlbumCover';
 import type { Album } from '../../features/album/models/Album';
@@ -21,7 +18,6 @@ import { songService } from '../../features/song/services/songService';
 import { UserRow } from '../../features/user/components/UserRow';
 import type { CommunityUser } from '../../features/user/models/Follow';
 import { followService } from '../../features/user/services/followService';
-import { useGatedNavigation } from '../hooks/useGatedNavigation';
 import { SearchResultRow } from './SearchResultRow';
 import './_navbar-search.scss';
 
@@ -44,35 +40,16 @@ type SearchResults = {
 
 const EMPTY_RESULTS: SearchResults = { albums: [], songs: [], users: [] };
 
-/**
- * Valor de una búsqueda que pudo haber fallado. Si falla una sola sección (por
- * ejemplo la de usuarios), las otras dos se muestran igual en vez de tirar todo.
- */
-function valueOrEmpty<T>(result: PromiseSettledResult<T[]>): T[] {
-  return result.status === 'fulfilled' ? result.value : [];
-}
-
 export const NavbarSearch = () => {
-  const { goOrSignup } = useGatedNavigation();
   const panelId = useId();
 
   const [text, setText] = useState('');
   const [results, setResults] = useState<SearchResults>(EMPTY_RESULTS);
   const [status, setStatus] = useState<SearchStatus>('idle');
   const [isOpen, setIsOpen] = useState(false);
-  // Posición del resultado resaltado en la lista completa (álbumes, canciones y
-  // usuarios, en ese orden), o -1 si ninguno.
-  const [highlighted, setHighlighted] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const query = text.trim();
-
-  // Todas las rutas en el orden en que se dibujan: es lo que recorren las flechas.
-  const paths = [
-    ...results.albums.map((album) => `/albums/${album.id}`),
-    ...results.songs.map((song) => `/songs/${song.id}`),
-    ...results.users.map((user) => user.profilePath),
-  ];
 
   // Busca un rato después de la última tecla. Si se sigue escribiendo, el
   // temporizador anterior se cancela; si llega una respuesta vieja, se descarta.
@@ -81,31 +58,21 @@ export const NavbarSearch = () => {
 
     let isCurrent = true;
     const timer = setTimeout(() => {
-      Promise.allSettled([
+      Promise.all([
         albumService.explore({ title: query, limit: RESULTS_PER_SECTION, sort: 'reviews' }),
         songService.explore({ title: query, limit: RESULTS_PER_SECTION, sort: 'reviews' }),
         followService.search(query, RESULTS_PER_SECTION),
-      ]).then(([albums, songs, users]) => {
-        if (!isCurrent) return;
-
-        // Solo es un error si fallaron las tres: con una que responda hay algo que mostrar.
-        if ([albums, songs, users].every((result) => result.status === 'rejected')) {
+      ])
+        .then(([albums, songs, users]) => {
+          if (!isCurrent) return;
+          setResults({ albums, songs, users });
+          setStatus('done');
+        })
+        .catch(() => {
+          if (!isCurrent) return;
           setResults(EMPTY_RESULTS);
           setStatus('error');
-          return;
-        }
-
-        const next = {
-          albums: valueOrEmpty(albums),
-          songs: valueOrEmpty(songs),
-          users: valueOrEmpty(users),
-        };
-        const total = next.albums.length + next.songs.length + next.users.length;
-
-        setResults(next);
-        setHighlighted(total > 0 ? 0 : -1);
-        setStatus('done');
-      });
+        });
     }, DEBOUNCE_MS);
 
     return () => {
@@ -136,7 +103,6 @@ export const NavbarSearch = () => {
     if (next.trim() === '') {
       setResults(EMPTY_RESULTS);
       setStatus('idle');
-      setHighlighted(-1);
     } else {
       setStatus('loading');
     }
@@ -147,7 +113,6 @@ export const NavbarSearch = () => {
     setText('');
     setResults(EMPTY_RESULTS);
     setStatus('idle');
-    setHighlighted(-1);
     setIsOpen(false);
   };
 
@@ -155,59 +120,10 @@ export const NavbarSearch = () => {
     if (e.key === 'Escape') {
       setIsOpen(false);
       e.currentTarget.blur();
-      return;
-    }
-
-    if (paths.length === 0) return;
-
-    if (e.key === 'ArrowDown') {
-      // preventDefault: si no, la flecha además mueve el cursor dentro del texto.
-      e.preventDefault();
-      setIsOpen(true);
-      setHighlighted((index) => (index + 1) % paths.length);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setHighlighted((index) => (index <= 0 ? paths.length - 1 : index - 1));
-    } else if (e.key === 'Enter' && highlighted >= 0) {
-      e.preventDefault();
-      goOrSignup(paths[highlighted]);
-      handleReset();
     }
   };
 
-  /**
-   * Dibuja una sección del desplegable, o nada si no tiene resultados.
-   * @param title encabezado de la sección.
-   * @param offset cuántos resultados hay en las secciones de arriba, para ubicar
-   *   cada fila en la lista completa que recorren las flechas.
-   * @param rows filas ya armadas; cada una recibe si está resaltada.
-   */
-  const renderSection = (
-    title: string,
-    offset: number,
-    rows: ((isHighlighted: boolean) => { key: string; node: ReactNode })[]
-  ) => {
-    if (rows.length === 0) return null;
-
-    return (
-      <section className="navbar-search__section">
-        <h3 className="navbar-search__section-title">{title}</h3>
-        <ul className="navbar-search__list">
-          {rows.map((buildRow, index) => {
-            const position = offset + index;
-            const row = buildRow(position === highlighted);
-            return (
-              <li key={row.key} onMouseEnter={() => setHighlighted(position)}>
-                {row.node}
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-    );
-  };
-
-  const totalResults = paths.length;
+  const totalResults = results.albums.length + results.songs.length + results.users.length;
   const showPanel = isOpen && query !== '';
 
   return (
@@ -239,64 +155,67 @@ export const NavbarSearch = () => {
             <p className="navbar-search__message">No encontramos nada con "{query}".</p>
           ) : (
             <>
-              {renderSection(
-                'Álbumes',
-                0,
-                results.albums.map((album) => (isHighlighted: boolean) => ({
-                  key: `album-${album.id}`,
-                  node: (
-                    <SearchResultRow
-                      to={`/albums/${album.id}`}
-                      cover={<AlbumCover title={album.title} url={album.urlCover} size="sm" />}
-                      title={album.title}
-                      subtitle={`${album.artistName} · ${album.yearLabel}`}
-                      isHighlighted={isHighlighted}
-                      onNavigate={handleReset}
-                    />
-                  ),
-                }))
-              )}
-
-              {renderSection(
-                'Canciones',
-                results.albums.length,
-                results.songs.map((song) => (isHighlighted: boolean) => ({
-                  key: `song-${song.id}`,
-                  node: (
-                    <SearchResultRow
-                      to={`/songs/${song.id}`}
-                      // Una canción no tiene portada propia: usa la de su álbum.
-                      cover={
-                        <AlbumCover
-                          title={song.title}
-                          url={song.album?.urlCover ?? null}
-                          size="sm"
+              {results.albums.length > 0 && (
+                <section className="navbar-search__section">
+                  <h3 className="navbar-search__section-title">Álbumes</h3>
+                  <ul className="navbar-search__list">
+                    {results.albums.map((album) => (
+                      <li key={album.id}>
+                        <SearchResultRow
+                          to={`/albums/${album.id}`}
+                          cover={<AlbumCover title={album.title} url={album.urlCover} size="sm" />}
+                          title={album.title}
+                          subtitle={`${album.artistName} · ${album.yearLabel}`}
+                          onNavigate={handleReset}
                         />
-                      }
-                      title={song.title}
-                      subtitle={song.locationLabel}
-                      isHighlighted={isHighlighted}
-                      onNavigate={handleReset}
-                    />
-                  ),
-                }))
+                      </li>
+                    ))}
+                  </ul>
+                </section>
               )}
 
-              {renderSection(
-                'Usuarios',
-                results.albums.length + results.songs.length,
-                results.users.map((user) => (isHighlighted: boolean) => ({
-                  key: `user-${user.id}`,
-                  node: (
-                    <UserRow
-                      user={user}
-                      meta={`${user.reviewsLabel} · ${user.followersLabel}`}
-                      isHighlighted={isHighlighted}
-                      onNavigate={handleReset}
-                      compact
-                    />
-                  ),
-                }))
+              {results.songs.length > 0 && (
+                <section className="navbar-search__section">
+                  <h3 className="navbar-search__section-title">Canciones</h3>
+                  <ul className="navbar-search__list">
+                    {results.songs.map((song) => (
+                      <li key={song.id}>
+                        <SearchResultRow
+                          to={`/songs/${song.id}`}
+                          // Una canción no tiene portada propia: usa la de su álbum.
+                          cover={
+                            <AlbumCover
+                              title={song.title}
+                              url={song.album?.urlCover ?? null}
+                              size="sm"
+                            />
+                          }
+                          title={song.title}
+                          subtitle={song.locationLabel}
+                          onNavigate={handleReset}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {results.users.length > 0 && (
+                <section className="navbar-search__section">
+                  <h3 className="navbar-search__section-title">Usuarios</h3>
+                  <ul className="navbar-search__list">
+                    {results.users.map((user) => (
+                      <li key={user.id}>
+                        <UserRow
+                          user={user}
+                          meta={`${user.reviewsLabel} · ${user.followersLabel}`}
+                          onNavigate={handleReset}
+                          compact
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
               )}
             </>
           )}

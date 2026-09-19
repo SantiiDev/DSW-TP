@@ -93,12 +93,12 @@ export const CreateUserForm = ({ isSubmitting, onSubmit, onCancel }: CreateUserF
 
       {/* Mismo par de botones que el resto de los formularios del panel. */}
       <div className="admin-users__form-actions">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Creando...' : 'Crear usuario'}
-        </Button>
-
         <Button variant="subtle" disabled={isSubmitting} onClick={onCancel}>
           Cancelar
+        </Button>
+
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Creando...' : 'Crear usuario'}
         </Button>
       </div>
     </form>

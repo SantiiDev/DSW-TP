@@ -154,16 +154,16 @@ export const SongForm = ({
       </div>
 
       <div className="song-form__actions">
-        {/* Sin álbum elegido el backend responde 400, así que no se deja enviar. */}
-        <Button type="submit" disabled={isSubmitting || form.id_album === NO_ALBUM}>
-          {isSubmitting ? 'Guardando...' : submitLabel}
-        </Button>
-
         {onCancel && (
           <Button variant="subtle" disabled={isSubmitting} onClick={onCancel}>
             Cancelar
           </Button>
         )}
+
+        {/* Sin álbum elegido el backend responde 400, así que no se deja enviar. */}
+        <Button type="submit" disabled={isSubmitting || form.id_album === NO_ALBUM}>
+          {isSubmitting ? 'Guardando...' : submitLabel}
+        </Button>
       </div>
     </form>
   );
