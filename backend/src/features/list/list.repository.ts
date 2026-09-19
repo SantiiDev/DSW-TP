@@ -54,6 +54,12 @@ export type ListWithRelations = List & {
   likes?: ListLikeRow[];
 };
 
+/** Una lista reducida a de quién es: alcanza para autorizar una baja. */
+export type ListOwner = {
+  id_list: number;
+  id_user: number;
+};
+
 /** El álbum al que se quiere agregar, reducido a lo que hace falta para validarlo. */
 export type ListAlbumTarget = {
   id: number;
@@ -233,6 +239,21 @@ export const listRepository = {
     return list as ListWithRelations | null;
   },
 
+  /**
+   * La lista reducida a de quién es. Es todo lo que necesita la baja: traerla
+   * con `findById` significaba cuatro consultas (la lista, su autor, sus álbumes
+   * con artista y sus "me gusta") para armar un objeto que se iba a descartar
+   * enseguida, porque un DELETE no devuelve nada.
+   *
+   * @returns null si esa lista no existe.
+   */
+  findOwner: async (id_list: number): Promise<ListOwner | null> => {
+    const list = await List.findByPk(id_list, { attributes: ['id_list', 'id_user'] });
+    if (!list) return null;
+
+    return { id_list: list.id_list, id_user: list.id_user };
+  },
+
   create: (data: CreateListData): Promise<ListWithRelations> => List.create(data),
 
   update: async (list: ListWithRelations, data: UpdateListData): Promise<ListWithRelations> => {
@@ -242,7 +263,13 @@ export const listRepository = {
     return list;
   },
 
-  delete: (list: ListWithRelations): Promise<void> => list.destroy(),
+  /**
+   * Borra la lista. Sus álbumes y sus "me gusta" se van con ella por el CASCADE
+   * de la base (ver entities/index.ts), así que es un solo DELETE.
+   */
+  delete: async (id_list: number): Promise<void> => {
+    await List.destroy({ where: { id_list } });
+  },
 
   /**
    * El álbum al que se quiere agregar, con su estado de moderación: sin el

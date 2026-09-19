@@ -1,0 +1,37 @@
+// Estilos del aviso al pasar (core/components/InlineNotice.tsx).
+//
+// Va deliberadamente discreto —una línea chica con su ícono, sin caja ni fondo—
+// porque confirma algo que salió bien: el recuadro del Alert queda reservado
+// para los errores. Entra con el mismo `fadeIn` que usa el resto del sitio (ver
+// base/_reset.scss).
+@use "sass:color";
+@use '../../styles/abstracts/variable' as *;
+
+.inline-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.8rem;
+  animation: fadeIn 0.25s ease;
+
+  // Lo que se resalte dentro del aviso (el nombre del álbum o de la lista) es lo
+  // único que se lee en blanco: es el dato que se está confirmando.
+  strong {
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  &--positive {
+    color: color.adjust($color-primary, $lightness: 5%);
+  }
+
+  &--neutral {
+    color: $color-text-secondary;
+  }
+}
