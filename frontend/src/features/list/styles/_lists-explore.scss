@@ -247,8 +247,16 @@
   border: 1px solid rgba($color-primary, 0.35);
   border-radius: $radius;
   overflow: hidden;
-  cursor: pointer;
   transition: border-color 0.3s ease;
+
+  // El enlace cubre el collage y el cuerpo, no la tarjeta entera: al pie está el
+  // botón de compartir, y un <button> adentro de un <a> es HTML inválido (ver el
+  // encabezado de TrendingListCard). El puntero de mano va acá y no en la
+  // tarjeta, para que el pie no parezca clickeable.
+  &__link {
+    display: block;
+    cursor: pointer;
+  }
 
   // Solo contraste: se enciende el borde. La tarjeta no se levanta ni proyecta
   // sombra, igual que el resto del sitio.
@@ -321,13 +329,19 @@
     overflow: hidden;
   }
 
-  // Footer con stats
+  // Footer: los datos a la izquierda y el botón de compartir a la derecha.
+  //
+  // Quedó FUERA del cuerpo (antes era un hijo más de __body), así que ya no
+  // hereda su padding: se lo pone él. El separador de arriba y el aire con la
+  // descripción quedan igual que antes, porque __body sigue cerrando con su
+  // propio padding inferior.
   &__footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-top: $spacing-md;
-    padding-top: $spacing-sm;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md $spacing-md;
     border-top: 1px solid rgba($color-nav-border, 0.5);
   }
 
@@ -348,6 +362,34 @@
     svg {
       width: 14px;
       height: 14px;
+    }
+  }
+
+  // Compartir: mismo peso visual que los datos de al lado (no compite con el
+  // resto de la tarjeta) y se enciende en verde al pasar por encima, como el
+  // resto del sitio.
+  &__share {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    // margin-left: auto lo mantiene a la derecha aun si los datos se van a dos
+    // líneas en pantallas chicas y el space-between deja de alcanzar.
+    margin-left: auto;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid transparent;
+    border-radius: $radius;
+    background-color: transparent;
+    color: $color-text-secondary;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+      border-color: rgba($color-primary, 0.45);
+      background-color: rgba($color-primary, 0.1);
     }
   }
 }

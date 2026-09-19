@@ -12,6 +12,7 @@ import { GenreAlbum } from './genre-album.entity';
 import { List } from './list.entity';
 import { ListAlbum } from './list-album.entity';
 import { ListLike } from './list-like.entity';
+import { ListSong } from './list-song.entity';
 import { Payment } from './payment.entity';
 import { Plan } from './plan.entity';
 import { Review } from './review.entity';
@@ -165,10 +166,14 @@ User.hasMany(Follow, { foreignKey: 'id_followed', as: 'followerLinks', onDelete:
 Follow.belongsTo(User, { foreignKey: 'id_follower', as: 'follower' });
 Follow.belongsTo(User, { foreignKey: 'id_followed', as: 'followed' });
 
-// --- Listas personalizadas: USERS 1:N LISTS N:M ALBUMS ----------------------
+// --- Listas personalizadas: USERS 1:N LISTS N:M ALBUMS / SONG ---------------
 //
 // AGREGADO AL DER ORIGINAL (ver el encabezado de list.entity.ts). Sostiene el
 // alcance adicional voluntario "Listas personalizadas" de la propuesta.
+//
+// Una lista es de álbumes O de canciones, según su columna `type`, y por eso
+// tiene DOS relaciones N:M en vez de una: la que corresponda a su tipo es la
+// única que llega a tener filas. No hay forma de mezclar.
 
 // CASCADE: una lista no significa nada sin su dueño. A diferencia de una reseña
 // (que es contenido de la comunidad y usa RESTRICT en el álbum), una lista es
@@ -198,10 +203,31 @@ Album.belongsToMany(List, {
 // que borra un ADMIN (los álbumes en uso están protegidos por la FK RESTRICT de
 // REVIEW y de SONG, así que esto solo dispara sobre álbumes que ya no tienen
 // nada más colgado).
-List.hasMany(ListAlbum, { foreignKey: 'id_list', as: 'items', onDelete: 'CASCADE' });
+List.hasMany(ListAlbum, { foreignKey: 'id_list', as: 'albumItems', onDelete: 'CASCADE' });
 ListAlbum.belongsTo(List, { foreignKey: 'id_list', as: 'list' });
 Album.hasMany(ListAlbum, { foreignKey: 'id_album', as: 'listEntries', onDelete: 'CASCADE' });
 ListAlbum.belongsTo(Album, { foreignKey: 'id_album', as: 'album' });
+
+// Las canciones de una lista, exactamente igual que los álbumes de arriba: el
+// N:M declara la relación del DER y el hasMany contra la tabla intermedia es por
+// el que consulta el service, porque `position` solo viaja por ahí.
+List.belongsToMany(Song, {
+  through: ListSong,
+  foreignKey: 'id_list',
+  otherKey: 'id_song',
+  as: 'songs',
+});
+Song.belongsToMany(List, {
+  through: ListSong,
+  foreignKey: 'id_song',
+  otherKey: 'id_list',
+  as: 'lists',
+});
+
+List.hasMany(ListSong, { foreignKey: 'id_list', as: 'songItems', onDelete: 'CASCADE' });
+ListSong.belongsTo(List, { foreignKey: 'id_list', as: 'list' });
+Song.hasMany(ListSong, { foreignKey: 'id_song', as: 'listEntries', onDelete: 'CASCADE' });
+ListSong.belongsTo(Song, { foreignKey: 'id_song', as: 'song' });
 
 // El "me gusta" de una lista, mismo criterio que REVIEW_LIKES: es una N:M entre
 // USERS y LISTS, y además del N:M se declara el hasMany contra la tabla
@@ -246,6 +272,7 @@ export {
   List,
   ListAlbum,
   ListLike,
+  ListSong,
   Payment,
   Plan,
   Review,

@@ -10,16 +10,15 @@
 // feed se ordena por fecha: al volver a desplegar conviene que lo que aparezca
 // esté al día y no sea una foto de hace cinco minutos.
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Calendar, ChevronDown, ChevronUp, Heart, Music, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ChevronDown, ChevronUp, Music, TrendingUp } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
-import { Avatar } from '../../../core/components/Avatar';
 import { Button } from '../../../core/components/Button';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { Loader } from '../../../core/components/Loader';
 import { SectionHeader } from '../../../core/components/SectionHeader';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { listService } from '../services/listService';
+import { TrendingListCard } from './TrendingListCard';
 import type { List } from '../models/List';
 
 /**
@@ -125,59 +124,7 @@ export const TrendingListsSection = ({ genreId }: TrendingListsSectionProps) => 
         <>
           <div className="trending-lists__feed">
             {lists.map((list) => (
-              <Link key={list.id} to={`/lists/${list.id}`} className="trending-list-card">
-                <div className="trending-list-card__collage">
-                  {list.covers.map((cover, index) =>
-                    cover ? (
-                      <img
-                        key={index}
-                        src={cover}
-                        alt={`Portada ${index + 1} de ${list.name}`}
-                        className="trending-list-card__collage-img"
-                        loading="lazy"
-                      />
-                    ) : (
-                      // Slot vacío para las listas con menos de cinco álbumes: la
-                      // grilla del collage es fija en cinco columnas.
-                      <span
-                        key={index}
-                        className="trending-list-card__collage-img trending-list-card__collage-img--empty"
-                        aria-hidden="true"
-                      />
-                    )
-                  )}
-                </div>
-
-                <div className="trending-list-card__body">
-                  <h3 className="trending-list-card__title">{list.name}</h3>
-
-                  <div className="trending-list-card__author">
-                    <Avatar url={list.user?.urlAvatar ?? null} username={list.authorName} size="sm" />
-                    <span className="trending-list-card__username">@{list.authorName}</span>
-                  </div>
-
-                  {list.description && (
-                    <p className="trending-list-card__description">{list.description}</p>
-                  )}
-
-                  <div className="trending-list-card__footer">
-                    <div className="trending-list-card__stats">
-                      <span className="trending-list-card__stat">
-                        <Music size={14} aria-hidden="true" />
-                        {list.albumsLabel}
-                      </span>
-                      <span className="trending-list-card__stat">
-                        <Heart size={14} aria-hidden="true" />
-                        {list.likesLabel}
-                      </span>
-                      <span className="trending-list-card__stat">
-                        <Calendar size={14} aria-hidden="true" />
-                        {list.dateLabel}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+              <TrendingListCard key={list.id} list={list} />
             ))}
           </div>
 

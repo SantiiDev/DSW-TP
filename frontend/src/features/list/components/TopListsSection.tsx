@@ -38,7 +38,7 @@ export const TopListsSection = () => {
               <div className="top-list-item__info">
                 <h3 className="top-list-item__title">{list.name}</h3>
                 <p className="top-list-item__meta">
-                  {list.albumsLabel} · por{' '}
+                  {list.itemsLabel} · por{' '}
                   <span className="top-list-item__author">@{list.authorName}</span>
                 </p>
               </div>

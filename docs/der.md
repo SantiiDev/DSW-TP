@@ -7,7 +7,7 @@ Está en Mermaid y no como imagen a propósito: se versiona en git junto al cód
 se revisa en un pull request como cualquier otro archivo y no se desincroniza del
 modelo real. [`docs.md`](../docs.md) admite Mermaid para los diagramas.
 
-Última revisión: **17/09/2026** — 16 tablas.
+Última revisión: **19/09/2026** — 17 tablas.
 
 ## Diagrama
 
@@ -124,6 +124,7 @@ erDiagram
         int id_list PK "autoincremental"
         varchar name "100 caracteres"
         varchar description "500, nullable"
+        enum type "album o song. Default album"
         datetime creation_date "Default NOW"
         int id_user FK
     }
@@ -131,6 +132,13 @@ erDiagram
     LIST_ALBUMS {
         int id_list PK,FK "parte de la PK compuesta"
         int id_album PK,FK "parte de la PK compuesta"
+        int position "orden dentro de la lista, asignado por el service"
+        datetime added_date "Default NOW"
+    }
+
+    LIST_SONGS {
+        int id_list PK,FK "parte de la PK compuesta"
+        int id_song PK,FK "parte de la PK compuesta"
         int position "orden dentro de la lista, asignado por el service"
         datetime added_date "Default NOW"
     }
@@ -169,6 +177,8 @@ erDiagram
     USERS ||--o{ LISTS : "arma"
     LISTS ||--o{ LIST_ALBUMS : "contiene"
     ALBUMS ||--o{ LIST_ALBUMS : ""
+    LISTS ||--o{ LIST_SONGS : "contiene"
+    SONG ||--o{ LIST_SONGS : ""
     USERS ||--o{ LIST_LIKES : ""
     LISTS ||--o{ LIST_LIKES : "recibe me gusta"
 ```
@@ -188,7 +198,8 @@ Son reglas que viven en la base pero que ninguna notación de DER dibuja:
 | `SUBSCRIPTION` | Único `(id_user, id_plan, subscription_date)` | Clave natural: el mismo usuario no contrata dos veces el mismo plan en el mismo instante |
 | `PAYMENTS` | Único `id_gateway` | Evita registrar dos veces el mismo pago si MercadoPago reintenta el webhook |
 | `FOLLOWS` | La PK compuesta impide seguir dos veces a la misma persona | No hace falta una restricción extra: la propia clave primaria lo garantiza |
-| `LIST_ALBUMS` | La PK compuesta impide agregar el mismo álbum dos veces a una lista | Mismo criterio que `FOLLOWS` |
+| `LIST_ALBUMS` · `LIST_SONGS` | La PK compuesta impide agregar el mismo ítem dos veces a una lista | Mismo criterio que `FOLLOWS` |
+| `LISTS` | Una lista es de álbumes **o** de canciones, nunca de las dos | Lo dice `type`, y esa columna decide en qué tabla intermedia van sus ítems: una lista `album` solo puede tener filas en `LIST_ALBUMS` y una `song` solo en `LIST_SONGS`. No hace falta ninguna restricción extra, porque no hay forma de escribir una fila mezclada |
 | `LIST_LIKES` | La PK compuesta impide que un usuario le dé "me gusta" dos veces a la misma lista | Mismo criterio que `REVIEW_LIKES` |
 
 ## Comportamiento ante borrados
@@ -203,8 +214,9 @@ Son reglas que viven en la base pero que ninguna notación de DER dibuja:
 | `REVIEW` → `REVIEW_COMMENTS`, `REVIEW_LIKES` | CASCADE | `REVIEW_COMMENTS` es una entidad débil: no existe sin su reseña |
 | `USERS` → `ARTIST`, `ALBUMS`, `SONG` (`created_by`) | SET NULL | El aporte sobrevive a la baja de quien lo cargó y queda sin autor registrado |
 | `USERS` → `LISTS` | CASCADE | Una lista es una colección personal, no contenido de la comunidad: no sobrevive a la baja de quien la armó (a diferencia de `ALBUMS` → `REVIEW`, que es RESTRICT) |
-| `LISTS` → `LIST_ALBUMS`, `LISTS` → `LIST_LIKES` | CASCADE | Ninguna de las dos significa algo sin la lista |
+| `LISTS` → `LIST_ALBUMS`, `LIST_SONGS`, `LIST_LIKES` | CASCADE | Ninguna de las tres significa algo sin la lista |
 | `ALBUMS` → `LIST_ALBUMS` | CASCADE | El vínculo no sobrevive al álbum; en la práctica no compite con la baja de un álbum en uso, que ya está bloqueada por el RESTRICT de `REVIEW` y de `SONG` |
+| `SONG` → `LIST_SONGS` | CASCADE | Mismo criterio: el vínculo no sobrevive a la canción. Acá sí puede dispararse, porque una canción se puede dar de baja aunque tenga reseñas |
 | `USERS` → `LIST_LIKES` | CASCADE | Mismo criterio que `REVIEW_LIKES` |
 
 En la práctica el CASCADE sobre `USERS` casi nunca dispara: la baja de un usuario
@@ -222,8 +234,9 @@ justificación de cada uno están en [`proposal.md`](../proposal.md).
 | `REVIEW_LIKES` | N:M entre `USERS` y `REVIEW`, con PK compuesta y `liked_date` | PR #11 |
 | `REVIEW_COMMENTS` | Entidad **débil** dependiente de `REVIEW`, con clave subrogada `id_comment` | PR #11 |
 | `FOLLOWS` | N:M **recursiva** de `USERS` consigo misma, con PK compuesta y `follow_date` | CUU 4 |
-| `LISTS` | Entidad nueva: colección personal de álbumes armada por un usuario | Alcance adicional voluntario |
+| `LISTS` | Entidad nueva: colección personal de álbumes **o** de canciones armada por un usuario | Alcance adicional voluntario |
 | `LIST_ALBUMS` | N:M entre `LISTS` y `ALBUMS`, con PK compuesta, `position` y `added_date` | Alcance adicional voluntario |
+| `LIST_SONGS` | N:M entre `LISTS` y `SONG`, idéntica a la anterior cambiando el álbum por la canción | Alcance adicional voluntario |
 | `LIST_LIKES` | N:M entre `USERS` y `LISTS`, con PK compuesta y `liked_date` | Alcance adicional voluntario |
 
 `FOLLOWS` es la única relación recursiva del modelo: sus dos claves foráneas
@@ -233,11 +246,28 @@ relación (`id_follower` y `id_followed`) y no el de la tabla. El seguimiento es
 no existe.
 
 `LISTS` es siempre pública, tal como quedó definido en la propuesta ("agrupaciones
-de álbumes públicas"): no lleva ninguna columna de visibilidad. `LIST_ALBUMS`
-agrega `position`, que no está en `GENRES_ALBUMS` ni en ninguna otra tabla
-intermedia del modelo: es lo que le da a una lista un orden propio, distinto del
-alfabético o del de alta. Lo asigna el service como el siguiente entero libre; no
-hay pantalla para reordenar a mano.
+de álbumes públicas"): no lleva ninguna columna de visibilidad. `LIST_ALBUMS` y
+`LIST_SONGS` agregan `position`, que no está en `GENRES_ALBUMS` ni en ninguna otra
+tabla intermedia del modelo: es lo que le da a una lista un orden propio, distinto
+del alfabético o del de alta. Lo asigna el service como el siguiente entero libre;
+no hay pantalla para reordenar a mano.
+
+**Por qué dos tablas intermedias y no una sola.** Una lista es de álbumes o de
+canciones, y esa exclusión se podría haber resuelto como en `REVIEW`, con
+`id_album` e `id_song` excluyentes en la misma fila. No se hizo por dos motivos.
+El primero es de pasaje a tablas: una PK compuesta no admite columnas NULL, así
+que una tabla única necesitaría una clave subrogada y dos índices UNIQUE, un
+desvío que el resto de las intermedias del modelo no tiene. El segundo es más
+fuerte: con dos tablas, que una lista no pueda mezclar **no depende de ninguna
+validación**. `LISTS.type` decide en cuál de las dos se escribe, y no existe la
+fila que mezcle un álbum y una canción bajo la misma lista. En `REVIEW` la regla
+se valida a nivel de fila porque ahí no hay alternativa; acá sí la hay.
+
+`type` es además la respuesta a una pregunta que `REVIEW` no tiene que contestar:
+una reseña apunta a un ítem desde que nace, así que a qué tipo apunta se deduce
+mirando cuál de los dos ids quedó cargado. Una lista, en cambio, existe antes que
+sus ítems y puede quedarse vacía si su dueño los saca a todos: si de qué es no
+estuviera guardado en una columna, una lista vacía dejaría de tener tipo.
 
 ### Atributos agregados
 
@@ -247,6 +277,7 @@ hay pantalla para reordenar a mano.
 | `ARTIST`, `ALBUMS`, `SONG` | `state` y `created_by`, para el circuito de aporte y moderación del CUU 3 |
 | `ALBUMS` | `average_rating`, atributo **derivado**: se recalcula al crear, editar, borrar, ocultar o restaurar una reseña |
 | `REVIEW` | `edited_date` y `state` |
+| `LISTS` | `type` (`album / song`), que dice de qué está hecha la lista |
 | `SUBSCRIPTION` | `end_date` y `state` |
 | `PAYMENTS` | `id_gateway`, el id del pago en MercadoPago |
 
