@@ -1,6 +1,10 @@
-// Estilos de la feature list: el formulario de alta/edición, "Mis listas", el
-// modal "Agregar a una lista" (con el buscador de álbumes) y la ficha pública de
-// una lista.
+﻿// Estilos de la feature list: el formulario de alta/edición, "Mis listas", el
+// modal "Agregar a una lista" (con el buscador de ítems), el aviso de que armar
+// listas es un beneficio Pro y la ficha pública de una lista.
+//
+// Los mismos estilos sirven para una lista de álbumes y para una de canciones:
+// las dos se dibujan igual, con la portada del disco (una canción no tiene una
+// propia). Por eso los bloques hablan de "ítems" y no de álbumes.
 //
 // La grilla de resultados reutiliza `.album-collection`/`.album-item` de
 // _genre.scss (mismo criterio que la ficha de álbum, que también los reusa):
@@ -29,9 +33,23 @@
     gap: $spacing-sm;
   }
 
-  // Bloque de selección de álbumes del alta: el contador, los ya elegidos y el
+  // Selector de "Álbumes / Canciones" del alta, con su aclaración debajo. En la
+  // edición no se dibuja: el tipo de una lista no se puede cambiar.
+  &__type {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__type-hint {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+  }
+
+  // Bloque de selección de ítems del alta: el contador, los ya elegidos y el
   // buscador. En la edición no se dibuja (ver ListForm).
-  &__albums {
+  &__items {
     display: flex;
     flex-direction: column;
     gap: $spacing-sm;
@@ -39,7 +57,7 @@
     border-top: 1px solid rgba($color-nav-border, 0.6);
   }
 
-  &__albums-label {
+  &__items-label {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -50,7 +68,7 @@
     color: $color-text;
   }
 
-  &__albums-hint {
+  &__items-hint {
     font-size: 0.78rem;
     font-weight: 400;
     color: $color-text-secondary;
@@ -168,7 +186,59 @@
   }
 }
 
-// --- Modal "Agregar a una lista" (ficha del álbum) --------------------------
+// --- Aviso "armar listas es de Pro" -----------------------------------------
+//
+// Es la tarjeta de .stats-locked__card de _advanced-stats.scss, pero suelta:
+// acá no hay nada difuminado atrás porque va dentro de un modal, así que no
+// necesita ni el escenario ni el overlay. Los dos beneficios Pro del sitio se
+// anuncian con la misma cara.
+
+.pro-only {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: $spacing-md $spacing-sm;
+  text-align: center;
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: rgba($color-primary, 0.15);
+    color: $color-primary;
+  }
+
+  &__badge {
+    padding: 2px 8px;
+    border-radius: $radius;
+    background-color: $color-primary;
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: $color-text;
+  }
+
+  &__text {
+    margin: 0;
+    max-width: 38ch;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Modal "Agregar a una lista" (ficha del álbum o de la canción) ----------
 
 .add-to-list {
   display: flex;
@@ -212,7 +282,7 @@
 
 // --- Buscador de álbumes (ficha de detalle de una lista) --------------------
 
-.list-album-picker {
+.list-item-picker {
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
@@ -220,7 +290,7 @@
 
   // El campo de búsqueda. Repite el look de .search-bar__field pero sin su
   // <form>, que no se puede anidar dentro del formulario de alta de la lista
-  // (ver el encabezado de ListAlbumPicker).
+  // (ver el encabezado de ListItemPicker).
   &__field {
     position: relative;
     display: flex;
@@ -402,6 +472,15 @@
     gap: $spacing-sm;
   }
 
+  // Enlace a /pro dentro del aviso que ve el dueño que dejó de ser Pro. Va
+  // subrayado porque vive en medio de una oración: sin eso no se lee como un
+  // enlace, solo como una palabra de otro color.
+  &__pro-link {
+    color: $color-primary;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
   &__body {
     display: flex;
     flex-direction: column;
@@ -531,7 +610,7 @@
 // compartido arriba (core/components/SegmentedControl). La de agregar dibuja el
 // buscador de más arriba; la de quitar, la lista de los que ya están.
 
-.list-album-manager {
+.list-item-manager {
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
@@ -556,7 +635,7 @@
   // El aviso de lo último que se agregó o se quitó no tiene estilos propios:
   // es el InlineNotice compartido de core/components.
 
-  // Misma fila que los resultados del buscador (.list-album-picker__result),
+  // Misma fila que los resultados del buscador (.list-item-picker__result),
   // para que agregar y quitar se vean igual: carátula, título y artista, y el
   // botón contra el borde derecho.
   &__items {

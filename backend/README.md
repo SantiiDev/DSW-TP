@@ -147,16 +147,22 @@ tests/
 ├── unit/          una función pura por vez, sin base ni red
 │   ├── auth.schema.test.ts     Santino Gallo
 │   ├── album.schema.test.ts    Juan Ignacio Esterri
-│   └── review.schema.test.ts   Santiago Siena
+│   ├── review.schema.test.ts   Santiago Siena
+│   ├── follow.schema.test.ts
+│   └── list.schema.test.ts     Santiago Siena
 └── integration/
     └── auth.test.ts            la app entera, contra MySQL
 ```
 
+Los tres primeros son el test por integrante que pide la cátedra; los dos últimos
+se sumaron después, con las features que los estrenaron.
+
 **Los unitarios** prueban los schemas de Zod, que son las reglas de validación de
 la API: la normalización del email y el mínimo de la contraseña (`auth`), el año
-vacío que se guarda como `NULL` y el artista obligatorio (`album`), y la escala
-de media estrella más el XOR álbum/canción (`review`). Son funciones puras, así
-que no necesitan base de datos ni variables de entorno:
+vacío que se guarda como `NULL` y el artista obligatorio (`album`), la escala de
+media estrella más el XOR álbum/canción (`review`), y el tipo obligatorio de una
+lista con el tope de su paginado (`list`). Son funciones puras, así que no
+necesitan base de datos ni variables de entorno:
 
 ```bash
 npm test -- tests/unit
@@ -315,6 +321,13 @@ src/
     health/          Health check (además, ejemplo del patrón de capas)
     auth/            Registro, inicio de sesión y usuario logueado
     user/            CRUD de usuarios y cambio de rol
+    follow/          Seguimiento entre usuarios, búsqueda y sugerencias
+    artist/          CRUD de artista
+    album/  song/    CRUD de álbum y de canción, con sus exploradores
+    genre/           CRUD de género
+    review/          CRUD de reseña, likes, comentarios y estadísticas
+    list/            CRUD de listas personalizadas
+    plan/  subscription/  payment/   Membresías y pasarela de pago
 
   entities/          Modelos de Sequelize (uno por tabla del DER) +
                      index.ts con TODAS las asociaciones
@@ -690,6 +703,89 @@ avatar, rol, cantidad de reseñas y de seguidores, y `followed_by_me`), nunca el
 - **La búsqueda escapa los comodines de `LIKE`**: buscar `%` no trae a todos. Primero
   van los nombres que empiezan con el texto y después los que lo contienen.
 
+## Listas personalizadas
+
+La feature `list` maneja las cuatro tablas de listas (`LISTS`, `LIST_ALBUMS`,
+`LIST_SONGS` y `LIST_LIKES`): armar una colección, editarla, agregarle y sacarle
+ítems, y el "me gusta" sobre una lista ajena. Es alcance adicional voluntario.
+
+Una lista es **de álbumes o de canciones**, nunca de las dos. De qué es lo dice
+su columna `type`, y esa columna decide en cuál de las dos tablas intermedias van
+sus ítems: por eso la mezcla no se valida en ningún lado, directamente no se
+puede representar. El detalle del modelado está en
+[`docs/der.md`](../docs/der.md).
+
+### Endpoints
+
+| Método | Ruta | Acceso |
+|:-|:-|:-|
+| GET | `/api/lists?genre=&q=&id_user=&type=&sort=&limit=&offset=` | **público**, con `optionalAuth` |
+| GET | `/api/lists/mine` | logueado |
+| GET | `/api/lists/:id` | **público**, con `optionalAuth` |
+| POST | `/api/lists` | **PRO o ADMIN** |
+| PATCH | `/api/lists/:id` | su dueño, **PRO o ADMIN** |
+| DELETE | `/api/lists/:id` | su dueño o un ADMIN |
+| POST · DELETE | `/api/lists/:id/items` · `/api/lists/:id/items/:idItem` | su dueño, **PRO o ADMIN** |
+| POST | `/api/lists/:id/like` | logueado |
+
+`sort` ordena por `recent` (la sección "Listas en Tendencia") o por cantidad de
+"me gusta" con `top` (la sección "Top Listas"); `genre` deja solo las listas que
+tengan al menos un ítem de ese género; `type` acota a un tipo de lista, y sin él
+vienen las dos mezcladas. Con esos filtros, una sola consulta alimenta las tres
+secciones de la pantalla y el bloque "Más listas de @usuario".
+
+### Decisiones de esta parte
+
+- **Armar listas es un beneficio de Pro.** Un `FREE` las ve, las abre, las
+  comparte y les da "me gusta", pero no las crea ni las cura: es el mismo
+  criterio que las estadísticas avanzadas. El `like` es la única escritura que
+  sigue abierta a cualquier usuario registrado, porque reaccionar a una lista
+  ajena es consumirla, no armarla.
+- **El corte de Pro vive en el service y no en un `requireRole` de la ruta.**
+  `requireRole` lee el rol del JWT, y un token emitido antes de que venciera la
+  membresía sigue diciendo `PRO` hasta que expira. Para un `PRO`, `assertCanWrite`
+  aplica el vencimiento con `subscriptionService.getActive` y vuelve a leer el rol
+  de la base; si ya no es Pro, responde 403. No exige una suscripción activa
+  porque un `PRO` asignado desde el panel de administración no tiene ninguna.
+  Poner la mitad de la regla en la ruta y la otra mitad en el service la dejaría
+  repartida en dos lugares.
+- **Las rutas de ítems no nombran la entidad** (`/items`, no `/albums` ni
+  `/songs`): la lista ya sabe de qué es. Tenerlas separadas obligaría al frontend
+  a elegir la ruta según el tipo y dejaría abierta la puerta a mandarle un álbum
+  a una lista de canciones.
+- **No hay circuito de moderación.** Una lista no es contenido de catálogo —no
+  lleva `state` en el DER—: es una colección personal sobre álbumes y canciones
+  que ya están aprobados.
+- **Solo se agregan ítems `approved`**, con el mismo criterio que una reseña. En
+  el alta se valida **el lote entero antes** de crear la lista: si el tercer ítem
+  fallara a mitad de la inserción, la lista ya existiría y quedaría a medio armar
+  sin que el usuario se entere.
+- **Una lista nunca nace vacía**: el alta exige al menos un ítem. Un nombre suelto
+  no es una agrupación. La regla vive en el schema de Zod y no solo en el
+  formulario, porque la validación real es siempre la del backend.
+- **El tipo de una lista no se puede cambiar.** El `PATCH` no acepta `type`: los
+  ítems viven en la tabla intermedia de su tipo, así que pasar de álbumes a
+  canciones obligaría a vaciarla primero. Quien quiera una del otro tipo, arma
+  otra.
+- **El "me gusta" es un solo endpoint** que pone y saca, no un alta y una baja
+  separadas: el corazón es un interruptor y el frontend no tiene que saber en qué
+  estado está para poder apretarlo. Después de tocarlo, el conteo se vuelve a leer
+  de la base en vez de sumarle o restarle uno a mano, que se desincroniza si dos
+  personas reaccionan a la vez.
+- **Editar y borrar no los resuelve un middleware.** Dependen de comparar el
+  `id_user` de la lista contra el del token, así que viven en el service, igual
+  que en `review` y en `album`. Editar es solo del dueño; borrar, del dueño o de
+  un `ADMIN`.
+- **Las listas son siempre públicas**, tal como quedó definido en la propuesta.
+  Ninguna ruta devuelve algo distinto según quién pregunta, salvo `liked_by_me`:
+  eso es lo único que justifica el `optionalAuth` de las dos rutas de lectura.
+- **El filtro por género salta un nivel más en las listas de canciones.** Los
+  géneros del modelo cuelgan del álbum, así que para una lista de álbumes el
+  camino es lista → álbum → género y para una de canciones, lista → canción →
+  álbum → género. Se resuelve con una consulta por tabla, cuyos ids se unen: un
+  include anidado con `required: true` dejaría en la lista solo los ítems de ese
+  género en vez de la lista completa.
+
 ## Buscador de la barra
 
 El buscador del frontend encuentra álbumes, canciones y usuarios con tres pedidos
@@ -802,15 +898,19 @@ con un `localhost` rechaza la preference entera.
 
 ## Modelo de datos
 
-Trece tablas. Las diez primeras salen del pasaje a tablas del DER original:
+Diecisiete tablas. Las diez primeras salen del pasaje a tablas del DER original:
 
 `users`, `plan`, `subscription`, `payments`, `artist`, `albums`, `genres`,
 `genres_albums`, `song`, `review`.
 
-Las tres últimas son los agregados al DER, documentados y justificados uno por
+Las siete últimas son los agregados al DER, documentados y justificados uno por
 uno en la [propuesta](../proposal.md#modelo):
 
-`review_likes`, `review_comments`, `follows`.
+`review_likes`, `review_comments`, `follows`, `lists`, `list_albums`,
+`list_songs`, `list_likes`.
+
+El diagrama completo, con las restricciones y el comportamiento ante borrados,
+está en [`docs/der.md`](../docs/der.md).
 
 ### Desvíos respecto del pasaje a tablas original
 
@@ -850,6 +950,18 @@ En los tres casos la regla de unicidad del modelo original se conserva mediante 
   Su PK compuesta `(id_follower, id_followed)` es lo que garantiza que no se pueda
   seguir dos veces a la misma persona, y nadie puede seguirse a sí mismo (lo corta
   el service con un 400).
+- Una lista es **siempre pública** y no lleva `state`: no es contenido de catálogo,
+  así que no pasa por moderación. La PK compuesta de sus tablas intermedias impide
+  que el mismo ítem entre dos veces, y `position` —el único atributo de orden propio
+  del modelo— lo asigna el service como el siguiente entero libre. A diferencia de
+  las reseñas, la baja de un usuario **sí** se lleva sus listas en cascada: son una
+  colección personal, no contenido de la comunidad.
+- Una lista es de álbumes **o** de canciones, según su columna `type`, y no puede
+  tener las dos cosas. No es una validación: `type` decide en cuál de las dos
+  tablas intermedias (`list_albums` o `list_songs`) van sus ítems, así que la fila
+  mezclada no se puede ni escribir. Es la diferencia con `REVIEW`, donde la
+  exclusión álbum/canción sí se valida a nivel de fila porque las dos claves
+  foráneas conviven en la misma tabla.
 
 ## Pasaje a producción
 

@@ -36,6 +36,20 @@ export const REVIEW_TARGETS = ['album', 'song'] as const;
 export type ReviewTargetKind = (typeof REVIEW_TARGETS)[number];
 
 /**
+ * De qué está hecha una lista personalizada (LISTS.type).
+ *
+ * A diferencia de REVIEW_TARGETS, acá SÍ es una columna, y esa es la diferencia
+ * de fondo entre las dos reglas: una reseña apunta a un ítem y se sabe cuál
+ * mirando qué id quedó cargado, pero una lista existe antes que sus ítems y
+ * puede quedarse vacía, así que de qué es tiene que estar guardado.
+ *
+ * Es además lo que hace imposible mezclar: una lista 'album' solo puede tener
+ * filas en LIST_ALBUMS y una 'song' solo en LIST_SONGS.
+ */
+export const LIST_TYPES = ['album', 'song'] as const;
+export type ListType = (typeof LIST_TYPES)[number];
+
+/**
  * Estado de una suscripción (SUBSCRIPTION.state).
  * - active:    es la membresía vigente del usuario.
  * - expired:   se cumplió su end_date sin renovarse.

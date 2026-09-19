@@ -64,7 +64,12 @@ está en [tracking.md](tracking.md).
 | 27/08 – 28/08 | CRUD de álbum y canción, colas de solicitudes y explorador conectado a datos reales (PR #10) | `ad4cd77`, `b27a4fe` |
 | 28/08/2026 | CRUD de reseña con likes y comentarios (PR #11) | `186f5e4` |
 | 01/09/2026 | Epic de membresía completo: planes, suscripciones y pago con MercadoPago | `21da334` |
-| 09/09/2026 | Documentación del proyecto (`docs/`), README del proyecto y UI de administración de planes | esta entrega |
+| 09/09/2026 | Documentación del proyecto (`docs/`), README del proyecto y UI de administración de planes | `fde6c23` |
+| 10/09/2026 | Seguimiento entre usuarios y CUU 4 (parte 1): feed social de reseñas (PR #13) | `823532f`, `95634d3` |
+| 14/09 – 16/09 | CUU 4 (parte 2): estadísticas avanzadas, buscador y seguidores funcionales, y los tests automatizados de las dos apps (PR #15) | `b83ccfb`, `84c2323`, `8466989` |
+| 16/09/2026 | Ranking global de usuarios más activos (PR #16) | `4a103cf` |
+| 17/09/2026 | CRUD completo de listas personalizadas, backend y frontend, con `/lists` conectada a la API (PR #17) | `5e6f1de` |
+| 18/09/2026 | Correcciones sobre el CRUD de listas (PR #18) y retoques de estilos | `005e7ef`, `68cc11b` |
 
 ## Decisiones tomadas
 

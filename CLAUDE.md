@@ -28,10 +28,16 @@ Consecuencias obligatorias:
 ### División de trabajo por feature (evitar conflictos de merge)
 
 - Santino → `user`, `membership` (plan, subscription, payment), auth
-- Esterri → `artist`, `album`
-- Siena → `genre`, `review`
+- Esterri → `artist`, `album`, `song`
+- Siena → `genre`, `review`, `list`
 
 No modificar ni reescribir código de la feature de otro integrante sin que se pida explícitamente.
+
+**El reparto formal ya está cumplido**: esas features cubren el alcance comprometido en la
+propuesta y están todas cerradas. Lo que se desarrolla ahora es alcance adicional voluntario,
+que no se reparte por entidad: lo toma quien lo trabaje y se anota en
+[`docs/tracking.md`](docs/tracking.md). La feature `list` (listas personalizadas) entró así y
+quedó a cargo de Siena.
 
 ## Stack obligatorio (no cambiar sin pedido explícito del usuario)
 

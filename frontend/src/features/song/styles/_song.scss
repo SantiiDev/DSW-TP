@@ -444,6 +444,13 @@
     min-width: 0;
   }
 
+  // Las acciones de la canción, hoy solo "Agregar a una lista". El ancho se
+  // acota para que el botón no cruce toda la columna en desktop: la ficha del
+  // álbum lo tiene en una barra lateral angosta y así se ven parecidos.
+  &__actions {
+    max-width: 320px;
+  }
+
   &__aside {
     min-width: 0;
   }
