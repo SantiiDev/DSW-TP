@@ -135,8 +135,6 @@ Las credenciales del administrador salen de `SEED_ADMIN_*` en el `.env`. Por def
 | `npm run seed:admin` | Corre solo el seed del usuario administrador |
 | `npm run seed:fetch` | **Descarga el catálogo de Deezer.** Es el único script que sale a internet, y no hace falta correrlo para levantar el proyecto |
 | `npm run db:reset` | Borra la base local, la recrea y corre todos los seeds |
-| `npm run db:fix-indexes` | Limpia índices duplicados que puede dejar `sync({ alter: true })` |
-| `npm run db:migrate:patron` | Migración puntual: pasa a `PRO` los usuarios `PATRON` y borra ese plan. Solo hace falta en bases creadas antes de que se eliminara ese nivel |
 
 ## Tests
 
@@ -199,24 +197,6 @@ la máquina de un integrante.
 
 El script se niega a correr si `NODE_ENV=production`, y antes de borrar imprime a qué
 host, puerto y base se está conectando.
-
-### Bases creadas antes de que se eliminara el nivel PATRON
-
-El sistema tenía cuatro niveles de acceso (`FREE | PRO | PATRON | ADMIN`) y pasó a
-tener tres: lo que era exclusivo de Patron —aportar al catálogo— ahora entra en Pro.
-
-Una base creada antes de ese cambio todavía guarda el rol `PATRON` y el plan del
-mismo nombre, y eso rompe el arranque: con `DB_SYNC=true` Sequelize achica el ENUM
-de `users.rol` y falla si quedan filas con un valor que ya no existe. Antes de
-levantar el backend hay que limpiarla:
-
-```bash
-npm run db:migrate:patron
-```
-
-Pasa a `PRO` los usuarios que eran `PATRON`, reapunta sus suscripciones al plan Pro
-y borra el plan Patron. Es idempotente: sobre una base ya migrada no hace nada.
-Si la base local es descartable, `npm run db:reset` logra lo mismo desde cero.
 
 ## Catálogo inicial
 
@@ -349,7 +329,7 @@ src/
     types/           Enumerados del dominio + extensión global de Request
 
   seed/              Carga inicial de datos + data/*.json descargados
-  scripts/           Mantenimiento de la base (reset, índices, migraciones)
+  scripts/           Mantenimiento de la base (reset)
 ```
 
 La organización es la misma que la del frontend: **`features/` es el dominio y
@@ -374,9 +354,9 @@ no un descuido.
 | Carpeta | Qué contiene | Cuándo se corre |
 |:-|:-|:-|
 | `seed/` | Todo lo que **carga datos iniciales**: los cargadores (`run-seeds`, `seed-*.ts`), los JSON de `data/` y el descargador de Deezer que los generó | Al preparar una base nueva |
-| `scripts/` | Tareas de **mantenimiento de la base**: `reset-db`, `fix-indexes`, `migrate-patron-to-pro` | Puntualmente, cuando hace falta |
+| `scripts/` | Tareas de **mantenimiento de la base**: `reset-db` | Puntualmente, cuando hace falta |
 
-No son seeds: un `reset-db` borra tablas y una migración corrige datos existentes.
+No son seeds: `reset-db` borra las tablas y las vuelve a crear.
 Tenerlos mezclados hacía que `seed/` pareciera un cajón de sastre.
 
 ## Arquitectura en capas

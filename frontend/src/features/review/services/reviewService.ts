@@ -151,10 +151,8 @@ function targetParams(target: ReviewTarget): Record<string, number> {
 function buildQuery(filters: ReviewFilters): string {
   const params = new URLSearchParams();
 
-  if (filters.target) {
-    const [key, value] = Object.entries(targetParams(filters.target))[0];
-    params.set(key, String(value));
-  }
+  if (filters.target?.kind === 'album') params.set('id_album', String(filters.target.id));
+  if (filters.target?.kind === 'song') params.set('id_song', String(filters.target.id));
 
   if (filters.targetKind) params.set('target', filters.targetKind);
   if (filters.userId !== undefined) params.set('id_user', String(filters.userId));

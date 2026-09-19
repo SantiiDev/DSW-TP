@@ -136,38 +136,26 @@ export const ListDetailPage = () => {
   };
 
   /**
-   * Suma un álbum a la lista. El modal NO se cierra: la idea es poder buscar y
-   * agregar varios seguidos, y el que se acaba de agregar desaparece solo de los
-   * resultados porque pasa a estar en `excludeIds`.
+   * Suma o saca un álbum de la lista. El modal NO se cierra: la idea es poder
+   * encadenar varios cambios seguidos, y el que se acaba de agregar desaparece
+   * solo de los resultados porque pasa a estar en `excludeIds`.
+   * @param kind 'added' para sumarlo, 'removed' para sacarlo.
    */
-  const handleAddAlbum = async (albumId: number, title: string) => {
+  const handleChangeAlbum = async (albumId: number, title: string, kind: ManageNotice['kind']) => {
     if (!list) return;
 
     setBusyAlbumId(albumId);
     setManageError(null);
 
     try {
-      setData(await listService.addAlbum(list.id, albumId));
+      const updated =
+        kind === 'added'
+          ? await listService.addAlbum(list.id, albumId)
+          : await listService.removeAlbum(list.id, albumId);
+      setData(updated);
       // El aviso se pone recién acá: si la API falló, lo único que se muestra
       // es el error.
-      setManageNotice({ kind: 'added', title });
-    } catch (err) {
-      setManageError(getErrorMessage(err));
-    } finally {
-      setBusyAlbumId(null);
-    }
-  };
-
-  /** Saca un álbum de la lista. Igual que el alta, se hace desde el modal y sin cerrarlo. */
-  const handleRemoveAlbum = async (albumId: number, title: string) => {
-    if (!list) return;
-
-    setBusyAlbumId(albumId);
-    setManageError(null);
-
-    try {
-      setData(await listService.removeAlbum(list.id, albumId));
-      setManageNotice({ kind: 'removed', title });
+      setManageNotice({ kind, title });
     } catch (err) {
       setManageError(getErrorMessage(err));
     } finally {
@@ -318,8 +306,8 @@ export const ListDetailPage = () => {
                 busyAlbumId={busyAlbumId}
                 notice={manageNotice}
                 onDismissNotice={() => setManageNotice(null)}
-                onAdd={(albumId, title) => void handleAddAlbum(albumId, title)}
-                onRemove={(albumId, title) => void handleRemoveAlbum(albumId, title)}
+                onAdd={(albumId, title) => void handleChangeAlbum(albumId, title, 'added')}
+                onRemove={(albumId, title) => void handleChangeAlbum(albumId, title, 'removed')}
               />
             </FormModal>
 

@@ -60,16 +60,11 @@ export const SongContributionsList = ({
   // Error de una baja: va afuera del modal, arriba de la lista.
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const handleOpenModal = () => {
-    setEditing(null);
-    setSubmitError(null);
-    setFeedback(null);
-    setActionError(null);
-    setIsModalOpen(true);
-  };
-
-  /** Abre el mismo modal, pero con los datos del aporte que se quiere corregir. */
-  const handleEdit = (song: Song) => {
+  /**
+   * Abre el modal: vacío para proponer, o con los datos del aporte a corregir.
+   * @param song aporte a corregir, o null para proponer uno nuevo.
+   */
+  const handleOpenModal = (song: Song | null) => {
     setEditing(song);
     setSubmitError(null);
     setFeedback(null);
@@ -78,52 +73,31 @@ export const SongContributionsList = ({
   };
 
   /**
-   * Envía la propuesta.
+   * Envía la propuesta nueva o guarda los cambios de una propia.
    * @param input datos cargados en el modal.
-   * @returns true si se creó; si falla, el modal queda abierto con el error para
-   *   que el usuario corrija (por ejemplo, si esa pista ya está ocupada).
+   * @returns true si salió bien; si falla, el modal queda abierto con el error
+   *   para que el usuario corrija (por ejemplo, si esa pista ya está ocupada).
    */
-  const handlePropose = async (input: SongInput): Promise<boolean> => {
+  const handleSubmit = async (input: SongInput): Promise<boolean> => {
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      const created = await songService.create(input);
+      if (editing) {
+        const updated = await songService.update(editing.id, input);
+        setFeedback(`Se guardaron los cambios de "${updated.title}".`);
+      } else {
+        const created = await songService.create(input);
+        // Un ADMIN también propone desde acá, y lo que carga entra ya aprobado: el
+        // aviso lo dice según cómo quedó de verdad, no según lo que pasa siempre.
+        setFeedback(
+          created.isApproved
+            ? `"${created.title}" se agregó al catálogo.`
+            : `Gracias por tu aporte: "${created.title}" queda pendiente hasta que un administrador lo apruebe.`
+        );
+      }
       setIsModalOpen(false);
       await loadContributions();
-      // Un ADMIN también propone desde acá, y lo que carga entra ya aprobado: el
-      // aviso lo dice según cómo quedó de verdad, no según lo que pasa siempre.
-      setFeedback(
-        created.isApproved
-          ? `"${created.title}" se agregó al catálogo.`
-          : `Gracias por tu aporte: "${created.title}" queda pendiente hasta que un administrador lo apruebe.`
-      );
-      return true;
-    } catch (err) {
-      setSubmitError(getErrorMessage(err));
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  /**
-   * Guarda los cambios de una propuesta propia.
-   * @param input datos corregidos en el modal.
-   * @returns true si se guardó; si falla, el modal queda abierto con el error.
-   */
-  const handleUpdate = async (input: SongInput): Promise<boolean> => {
-    if (!editing) return false;
-
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const updated = await songService.update(editing.id, input);
-      setIsModalOpen(false);
-      setEditing(null);
-      await loadContributions();
-      setFeedback(`Se guardaron los cambios de "${updated.title}".`);
       return true;
     } catch (err) {
       setSubmitError(getErrorMessage(err));
@@ -176,7 +150,7 @@ export const SongContributionsList = ({
           }
           action={
             isOwnProfile ? (
-              <Button onClick={handleOpenModal}>Proponer una canción</Button>
+              <Button onClick={() => handleOpenModal(null)}>Proponer una canción</Button>
             ) : undefined
           }
         />
@@ -188,7 +162,7 @@ export const SongContributionsList = ({
         <div className="song-contributions__head">
           <h3 className="song-contributions__title">Canciones ({songs.length})</h3>
 
-          {isOwnProfile && <Button onClick={handleOpenModal}>Proponer otra canción</Button>}
+          {isOwnProfile && <Button onClick={() => handleOpenModal(null)}>Proponer otra canción</Button>}
         </div>
 
         {/* Sobre sus propios aportes el autor puede: corregir mientras no estén
@@ -202,7 +176,7 @@ export const SongContributionsList = ({
                 song={song}
                 showState={isOwnProfile}
                 isBusy={busySongId === song.id}
-                onEdit={isOwnProfile && !song.isApproved ? handleEdit : undefined}
+                onEdit={isOwnProfile && !song.isApproved ? handleOpenModal : undefined}
                 onDelete={isOwnProfile && song.isPending ? setToDelete : undefined}
               />
             </li>
@@ -228,7 +202,7 @@ export const SongContributionsList = ({
             song={editing}
             isSubmitting={isSubmitting}
             error={submitError}
-            onSubmit={editing ? handleUpdate : handlePropose}
+            onSubmit={handleSubmit}
             onClose={() => setIsModalOpen(false)}
           />
 

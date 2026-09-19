@@ -132,62 +132,40 @@ export const SongAdminSection = () => {
     setVisibleCount(PAGE_SIZE);
   };
 
-  /** Abre el modal vacío, para cargar una canción nueva. */
-  const handleOpenCreate = () => {
-    setEditingSong(null);
-    setFormError(null);
-    setFeedback(null);
-    setIsFormOpen(true);
-  };
-
-  /** Abre el modal con los datos de la canción elegida. */
-  const handleEdit = (song: Song) => {
+  /**
+   * Abre el modal del formulario.
+   * @param song canción a editar, o null para cargar una nueva.
+   */
+  const handleOpenForm = (song: Song | null) => {
     setEditingSong(song);
     setFormError(null);
     setFeedback(null);
     setIsFormOpen(true);
   };
 
-  const handleCreate = async (input: SongInput): Promise<boolean> => {
+  /** Guarda el formulario: edita si hay una canción elegida, si no da de alta una nueva. */
+  const handleSubmit = async (input: SongInput): Promise<boolean> => {
     setIsSubmitting(true);
     setError(null);
     setFormError(null);
     setFeedback(null);
 
     try {
-      const created = await songService.create(input);
-      // Se recarga en vez de agregar a mano: la API devuelve el listado ordenado
-      // por álbum y pista, y así la canción nueva aparece en su lugar.
+      if (editingSong) {
+        await songService.update(editingSong.id, input);
+        setFeedback('Los cambios se guardaron.');
+      } else {
+        const created = await songService.create(input);
+        setFeedback(`Se agregó "${created.title}" al catálogo.`);
+      }
+      // Se recarga en vez de tocar la lista a mano: la API la devuelve ordenada
+      // por álbum y pista, y así la canción aparece en su lugar.
       await loadSongs();
       setIsFormOpen(false);
-      setFeedback(`Se agregó "${created.title}" al catálogo.`);
       return true;
     } catch (err) {
       // El modal queda abierto con lo que se había escrito: cerrarlo obligaría a
       // cargar todo de nuevo por un número de pista ya usado.
-      setFormError(getErrorMessage(err));
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleUpdate = async (input: SongInput): Promise<boolean> => {
-    if (!editingSong) return false;
-
-    setIsSubmitting(true);
-    setError(null);
-    setFormError(null);
-    setFeedback(null);
-
-    try {
-      await songService.update(editingSong.id, input);
-      setEditingSong(null);
-      await loadSongs();
-      setIsFormOpen(false);
-      setFeedback('Los cambios se guardaron.');
-      return true;
-    } catch (err) {
       setFormError(getErrorMessage(err));
       return false;
     } finally {
@@ -267,7 +245,7 @@ export const SongAdminSection = () => {
           />
         </span>
 
-        <Button onClick={handleOpenCreate}>
+        <Button onClick={() => handleOpenForm(null)}>
           <Plus size={16} aria-hidden="true" />
           Agregar canción
         </Button>
@@ -297,7 +275,7 @@ export const SongAdminSection = () => {
             currentUserId={authState.user?.id ?? 0}
             isAdmin={isAdmin}
             busySongId={busySongId}
-            onEdit={handleEdit}
+            onEdit={handleOpenForm}
             onDelete={setSongToDelete}
             onApprove={(song) => void handleModerate(song, 'approve')}
             onReject={(song) => void handleModerate(song, 'reject')}
@@ -334,7 +312,7 @@ export const SongAdminSection = () => {
           initialValues={editingSong ? toFormValues(editingSong) : undefined}
           isSubmitting={isSubmitting}
           submitLabel={editingSong ? 'Guardar cambios' : undefined}
-          onSubmit={editingSong ? handleUpdate : handleCreate}
+          onSubmit={handleSubmit}
           onCancel={() => setIsFormOpen(false)}
         />
       </FormModal>

@@ -44,9 +44,8 @@ export const UserProfilePage = () => {
   const { openSignup } = useAuthModal();
   const navigate = useNavigate();
 
-  // Perfil que se está mirando. En el propio se usa el usuario del contexto, así
-  // los cambios de la edición se reflejan sin volver a pedirlo a la API.
-  const [viewedUser, setViewedUser] = useState<User | null>(null);
+  // Perfil de OTRO usuario, pedido a la API. El propio no se pide (ver viewedUser).
+  const [fetchedUser, setFetchedUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -79,32 +78,32 @@ export const UserProfilePage = () => {
   const profileId = id ? Number(id) : authState.user?.id;
   const isOwnProfile = profileId !== undefined && profileId === authState.user?.id;
 
+  // Perfil que se está mirando. En el propio se usa el usuario del contexto, así
+  // los cambios de la edición se reflejan sin volver a pedirlo a la API.
+  const viewedUser = isOwnProfile ? authState.user : fetchedUser;
+
   const loadUser = useCallback(async (userId: number) => {
     setIsLoading(true);
     setLoadError(null);
 
     try {
-      setViewedUser(await userService.getById(userId));
+      setFetchedUser(await userService.getById(userId));
     } catch (error) {
       setLoadError(getErrorMessage(error));
-      setViewedUser(null);
+      setFetchedUser(null);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    if (profileId === undefined) return;
-
     // El perfil propio ya está en el contexto: pedirlo de nuevo sería una request
-    // al pedo y encima haría parpadear la pantalla después de cada edición.
-    if (isOwnProfile && authState.user) {
-      setViewedUser(authState.user);
-      return;
-    }
+    // de más y encima haría parpadear la pantalla después de cada edición.
+    if (profileId === undefined || isOwnProfile) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadUser(profileId);
-  }, [profileId, isOwnProfile, authState.user, loadUser]);
+  }, [profileId, isOwnProfile, loadUser]);
 
   // Trae las estadísticas de reseñas del perfil que se está mirando.
   // Se declara con useCallback porque también se llama a mano cuando el usuario
@@ -144,15 +143,11 @@ export const UserProfilePage = () => {
     void loadFollowStats();
   }, [loadFollowStats]);
 
-  // Al pasar del perfil propio al de otro, la pestaña activa puede dejar de
-  // existir (Membresía y Aportes no siempre están). En ese caso se vuelve a la
-  // primera visible en vez de mostrar una pantalla en blanco.
-  useEffect(() => {
-    if (!viewedUser) return;
-
-    const visible = getVisibleTabs(viewedUser, isOwnProfile);
-    if (!visible.includes(activeTab)) setActiveTab(visible[0]);
-  }, [viewedUser, isOwnProfile, activeTab]);
+  // Al pasar del perfil propio al de otro, la pestaña elegida puede dejar de
+  // existir (Membresía y Aportes no siempre están). En ese caso se muestra la
+  // primera visible en vez de una pantalla en blanco.
+  const visibleTabs = viewedUser ? getVisibleTabs(viewedUser, isOwnProfile) : [];
+  const currentTab = visibleTabs.includes(activeTab) ? activeTab : (visibleTabs[0] ?? 'resumen');
 
   const handleStartEdit = () => {
     clearError();
@@ -284,7 +279,7 @@ export const UserProfilePage = () => {
         <ProfileTabs
           user={viewedUser}
           isOwnProfile={isOwnProfile}
-          activeTab={activeTab}
+          activeTab={currentTab}
           onChange={setActiveTab}
         />
 
@@ -293,7 +288,7 @@ export const UserProfilePage = () => {
             <ProfileTabContent
               user={viewedUser}
               isOwnProfile={isOwnProfile}
-              activeTab={activeTab}
+              activeTab={currentTab}
               // Al borrar una reseña hay que rehacer los contadores y el histograma.
               onReviewsChange={loadReviewStats}
               onShowAllReviews={() => setActiveTab('reviews')}

@@ -16,7 +16,6 @@ export type ReviewState = (typeof REVIEW_STATES)[number];
 export type ReviewTargetKind = 'album' | 'song';
 
 /** Escala de calificación: de media estrella a cinco, de a media. */
-export const MIN_RATING = 0.5;
 export const MAX_RATING = 5;
 export const RATING_STEP = 0.5;
 
@@ -195,11 +194,7 @@ export class Review {
     public readonly commentsCount: number = 0
   ) {}
 
-  /** ¿Se está mostrando al público? Una oculta solo la ven su autor y un ADMIN. */
-  get isPublished(): boolean {
-    return this.state === 'published';
-  }
-
+  /** Una oculta solo la ven su autor y un ADMIN. */
   get isHidden(): boolean {
     return this.state === 'hidden';
   }

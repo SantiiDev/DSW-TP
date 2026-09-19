@@ -71,9 +71,7 @@ Follow.init(
       //
       // Nunca `unique: true` en la definición de una columna: sync({ alter: true })
       // crearía un índice nuevo sin nombre en cada arranque hasta que MySQL corte
-      // con ER_TOO_MANY_KEYS. Por el mismo motivo esta tabla no hace falta
-      // agregarla al mapa de scripts/fix-indexes.ts: ese script desduplica índices
-      // únicos de una sola columna, y acá no hay ninguno.
+      // con ER_TOO_MANY_KEYS.
       { name: 'ix_follows_followed', fields: ['id_followed'] },
     ],
   }

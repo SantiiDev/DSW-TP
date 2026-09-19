@@ -118,62 +118,40 @@ export const ArtistAdminSection = () => {
     setVisibleCount(PAGE_SIZE);
   };
 
-  /** Abre el modal vacío, para cargar un artista nuevo. */
-  const handleOpenCreate = () => {
-    setEditingArtist(null);
-    setFormError(null);
-    setFeedback(null);
-    setIsFormOpen(true);
-  };
-
-  /** Abre el modal con los datos del artista elegido. */
-  const handleEdit = (artist: Artist) => {
+  /**
+   * Abre el modal del formulario.
+   * @param artist artista a editar, o null para cargar uno nuevo.
+   */
+  const handleOpenForm = (artist: Artist | null) => {
     setEditingArtist(artist);
     setFormError(null);
     setFeedback(null);
     setIsFormOpen(true);
   };
 
-  const handleCreate = async (input: ArtistInput): Promise<boolean> => {
+  /** Guarda el formulario: edita si hay un artista elegido, si no da de alta uno nuevo. */
+  const handleSubmit = async (input: ArtistInput): Promise<boolean> => {
     setIsSubmitting(true);
     setError(null);
     setFormError(null);
     setFeedback(null);
 
     try {
-      const created = await artistService.create(input);
-      // Se recarga en vez de agregar a mano: la API devuelve el listado ordenado
-      // por nombre y así el artista nuevo aparece en su lugar.
+      if (editingArtist) {
+        await artistService.update(editingArtist.id, input);
+        setFeedback('Los cambios se guardaron.');
+      } else {
+        const created = await artistService.create(input);
+        setFeedback(`Se agregó "${created.name}" al catálogo.`);
+      }
+      // Se recarga en vez de tocar la lista a mano: la API la devuelve ordenada
+      // por nombre y así el artista aparece en su lugar.
       await loadArtists();
       setIsFormOpen(false);
-      setFeedback(`Se agregó "${created.name}" al catálogo.`);
       return true;
     } catch (err) {
       // El modal queda abierto con lo que se había escrito: cerrarlo obligaría a
       // tipear todo de nuevo por un nombre repetido.
-      setFormError(getErrorMessage(err));
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleUpdate = async (input: ArtistInput): Promise<boolean> => {
-    if (!editingArtist) return false;
-
-    setIsSubmitting(true);
-    setError(null);
-    setFormError(null);
-    setFeedback(null);
-
-    try {
-      await artistService.update(editingArtist.id, input);
-      setEditingArtist(null);
-      await loadArtists();
-      setIsFormOpen(false);
-      setFeedback('Los cambios se guardaron.');
-      return true;
-    } catch (err) {
       setFormError(getErrorMessage(err));
       return false;
     } finally {
@@ -254,7 +232,7 @@ export const ArtistAdminSection = () => {
           />
         </span>
 
-        <Button onClick={handleOpenCreate}>
+        <Button onClick={() => handleOpenForm(null)}>
           <Plus size={16} aria-hidden="true" />
           Agregar artista
         </Button>
@@ -284,7 +262,7 @@ export const ArtistAdminSection = () => {
             currentUserId={authState.user?.id ?? 0}
             isAdmin={isAdmin}
             busyArtistId={busyArtistId}
-            onEdit={handleEdit}
+            onEdit={handleOpenForm}
             onDelete={setArtistToDelete}
             onApprove={(artist) => void handleModerate(artist, 'approve')}
             onReject={(artist) => void handleModerate(artist, 'reject')}
@@ -326,7 +304,7 @@ export const ArtistAdminSection = () => {
           excludeArtistId={editingArtist?.id}
           isSubmitting={isSubmitting}
           submitLabel={editingArtist ? 'Guardar cambios' : undefined}
-          onSubmit={editingArtist ? handleUpdate : handleCreate}
+          onSubmit={handleSubmit}
           onCancel={() => setIsFormOpen(false)}
         />
       </FormModal>

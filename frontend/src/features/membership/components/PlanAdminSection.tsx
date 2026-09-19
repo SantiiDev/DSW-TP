@@ -95,67 +95,45 @@ export const PlanAdminSection = () => {
   // propio formulario.
   const [formError, setFormError] = useState<string | null>(null);
 
-  /** Abre el modal vacío, para cargar un plan nuevo. */
-  const handleOpenCreate = () => {
-    setEditingPlan(null);
-    setFormError(null);
-    setFeedback(null);
-    setIsFormOpen(true);
-  };
-
-  /** Abre el modal con los datos del plan elegido. */
-  const handleEdit = (plan: Plan) => {
+  /**
+   * Abre el modal del formulario.
+   * @param plan plan a editar, o null para cargar uno nuevo.
+   */
+  const handleOpenForm = (plan: Plan | null) => {
     setEditingPlan(plan);
     setFormError(null);
     setFeedback(null);
     setIsFormOpen(true);
   };
 
-  const handleCreate = async (input: PlanInput): Promise<boolean> => {
+  /** Guarda el formulario: edita si hay un plan elegido, si no da de alta uno nuevo. */
+  const handleSubmit = async (input: PlanInput): Promise<boolean> => {
     setIsSubmitting(true);
     setError(null);
     setFormError(null);
     setFeedback(null);
 
     try {
-      const created = await membershipService.createPlan(input);
-      // Se recarga en vez de agregar a mano: la API devuelve el listado ordenado
-      // por monto y así el plan nuevo aparece en su lugar.
+      if (editingPlan) {
+        await membershipService.updatePlan(editingPlan.id, input);
+        // Cambiar el precio no toca lo ya cobrado: cada pago quedó registrado con
+        // el importe del momento. Se aclara acá porque es lo primero que se
+        // pregunta al editar un plan que ya tiene suscriptores.
+        setFeedback(
+          'Los cambios se guardaron. El monto nuevo rige para las próximas contrataciones: los pagos ya registrados no se modifican.'
+        );
+      } else {
+        const created = await membershipService.createPlan(input);
+        setFeedback(`Se agregó el plan "${created.name}".`);
+      }
+      // Se recarga en vez de tocar la lista a mano: la API la devuelve ordenada
+      // por monto y así el plan aparece en su lugar.
       await loadPlans();
       setIsFormOpen(false);
-      setFeedback(`Se agregó el plan "${created.name}".`);
       return true;
     } catch (err) {
       // El modal queda abierto con lo que se había escrito: cerrarlo obligaría a
       // tipear todo de nuevo por un nombre repetido.
-      setFormError(getErrorMessage(err));
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleUpdate = async (input: PlanInput): Promise<boolean> => {
-    if (!editingPlan) return false;
-
-    setIsSubmitting(true);
-    setError(null);
-    setFormError(null);
-    setFeedback(null);
-
-    try {
-      await membershipService.updatePlan(editingPlan.id, input);
-      setEditingPlan(null);
-      await loadPlans();
-      setIsFormOpen(false);
-      // Cambiar el precio no toca lo ya cobrado: cada pago quedó registrado con
-      // el importe del momento. Se aclara acá porque es lo primero que se
-      // pregunta al editar un plan que ya tiene suscriptores.
-      setFeedback(
-        'Los cambios se guardaron. El monto nuevo rige para las próximas contrataciones: los pagos ya registrados no se modifican.'
-      );
-      return true;
-    } catch (err) {
       setFormError(getErrorMessage(err));
       return false;
     } finally {
@@ -203,7 +181,7 @@ export const PlanAdminSection = () => {
         <div className="plan-admin__toolbar">
           <h3 className="plan-admin__list-title">Planes del sistema ({plans.length})</h3>
 
-          <Button onClick={handleOpenCreate}>
+          <Button onClick={() => handleOpenForm(null)}>
             <Plus size={16} aria-hidden="true" />
             Agregar plan
           </Button>
@@ -219,7 +197,7 @@ export const PlanAdminSection = () => {
           <PlanAdminTable
             plans={plans}
             busyPlanId={busyPlanId}
-            onEdit={handleEdit}
+            onEdit={handleOpenForm}
             onDelete={setPlanToDelete}
           />
         )}
@@ -239,7 +217,7 @@ export const PlanAdminSection = () => {
             initialValues={editingPlan ? toFormValues(editingPlan) : undefined}
             isSubmitting={isSubmitting}
             submitLabel={editingPlan ? 'Guardar cambios' : undefined}
-            onSubmit={editingPlan ? handleUpdate : handleCreate}
+            onSubmit={handleSubmit}
             onCancel={() => setIsFormOpen(false)}
           />
         </FormModal>

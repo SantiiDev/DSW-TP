@@ -2,7 +2,7 @@
 // Es un componente controlado: no llama a la API directamente, delega el submit
 // al padre a través de la prop onSubmit (que en UserProfilePage usa el
 // updateProfile del AuthContext).
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Alert } from '../../../core/components/Alert';
 import { Avatar } from '../../../core/components/Avatar';
@@ -38,16 +38,11 @@ export const UserForm = ({
   const [email, setEmail] = useState(initialEmail);
   // El input siempre maneja string: null (sin foto) se representa como vacío.
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl ?? '');
-  // La URL es válida pero el navegador no pudo cargarla como imagen. Pasa sobre
-  // todo cuando se pega el link de la página donde está la foto en vez del de la
-  // foto misma.
-  const [avatarFailed, setAvatarFailed] = useState(false);
-
-  // Cada vez que cambia la URL se vuelve a intentar: si no, un link roto dejaría
-  // el aviso puesto para siempre aunque después se escriba uno bueno.
-  useEffect(() => {
-    setAvatarFailed(false);
-  }, [avatarUrl]);
+  // URL válida que el navegador no pudo cargar como imagen. Pasa sobre todo
+  // cuando se pega el link de la página donde está la foto en vez del de la foto
+  // misma. Se guarda cuál falló: si después se escribe otra, el aviso se va solo.
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
+  const avatarFailed = avatarUrl === failedAvatarUrl;
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -66,7 +61,7 @@ export const UserForm = ({
           url={avatarUrl.trim() || null}
           username={username}
           size="lg"
-          onLoadError={() => setAvatarFailed(true)}
+          onLoadError={() => setFailedAvatarUrl(avatarUrl)}
         />
         <p className="user-form__avatar-hint">
           Pegá el link de una imagen. Si lo dejás vacío se usa el avatar por defecto.

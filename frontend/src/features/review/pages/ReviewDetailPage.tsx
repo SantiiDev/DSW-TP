@@ -37,7 +37,6 @@ import { ReviewComments } from '../components/ReviewComments';
 import { ReviewEditModal } from '../components/ReviewEditModal';
 import { StarRating } from '../components/StarRating';
 import { reviewService } from '../services/reviewService';
-import type { Review } from '../models/Review';
 import '../styles/_review.scss';
 
 export const ReviewDetailPage = () => {
@@ -60,20 +59,15 @@ export const ReviewDetailPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  /**
-   * Guarda la reseña que devolvió la API sin volver a pedirla. Todas las
-   * operaciones de esta pantalla la devuelven ya actualizada, así que recargar
-   * sería una request al pedo y encima haría parpadear la página.
-   */
-  const handleUpdated = (updated: Review) => {
-    setData(updated);
-  };
+  // Todas las operaciones de esta pantalla devuelven la reseña ya actualizada, así
+  // que se guarda con setData en vez de volver a pedirla: recargar sería una
+  // request de más y encima haría parpadear la página.
 
   const handleToggleLike = async () => {
     if (!review) return;
 
     try {
-      handleUpdated(await reviewService.toggleLike(review.id));
+      setData(await reviewService.toggleLike(review.id));
     } catch (err) {
       setError(getErrorMessage(err));
     }
@@ -83,7 +77,7 @@ export const ReviewDetailPage = () => {
     if (!review) return;
 
     try {
-      handleUpdated(
+      setData(
         review.isHidden
           ? await reviewService.restore(review.id)
           : await reviewService.hide(review.id)
@@ -326,7 +320,7 @@ export const ReviewDetailPage = () => {
           isOpen={isFormOpen}
           review={review}
           onClose={() => setIsFormOpen(false)}
-          onSaved={handleUpdated}
+          onSaved={setData}
         />
 
         <ConfirmDialog

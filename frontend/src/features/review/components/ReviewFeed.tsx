@@ -121,18 +121,17 @@ export const ReviewFeed = ({ scope, followingCount, followVersion }: ReviewFeedP
       setIsLoading(false);
       setIsSwitching(false);
     }
-    // followVersion no se usa adentro, pero está en las dependencias a propósito:
-    // es lo que hace que seguir a alguien recargue el feed.
-    //
-    // excludeMine sí se usa, y es lo que hace que al iniciar sesión sin recargar
-    // la página el feed se rehaga: desde que la solapa "Comunidad" deja afuera las
-    // reseñas propias, lo que se muestra depende de quién mira.
-  }, [scope, isFriendsBlocked, followVersion, excludeMine]);
+    // excludeMine es lo que hace que al iniciar sesión sin recargar la página el
+    // feed se rehaga: la solapa "Comunidad" deja afuera las reseñas propias, así
+    // que lo que se muestra depende de quién mira.
+  }, [scope, isFriendsBlocked, excludeMine]);
 
+  // followVersion cambia cada vez que se sigue a alguien: es lo que hace que el
+  // feed se recargue en ese caso.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadFirstPage();
-  }, [loadFirstPage]);
+  }, [loadFirstPage, followVersion]);
 
   const handleLoadMore = async () => {
     setIsLoadingMore(true);

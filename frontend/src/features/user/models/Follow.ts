@@ -44,9 +44,6 @@ export class FollowStats {
   ) {}
 }
 
-/** Contadores en cero, para mostrar mientras la respuesta no llegó. */
-export const EMPTY_FOLLOW_STATS = new FollowStats(0, 0, 0, false);
-
 /**
  * Un usuario de la comunidad, tal como se lo lista: en el panel "Gente para
  * seguir", en los resultados del buscador y en las listas de seguidores y seguidos.

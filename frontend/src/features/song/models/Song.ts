@@ -129,11 +129,6 @@ export class Song {
     public readonly creator: SongCreator | null = null
   ) {}
 
-  /** Título del álbum, o el texto que corresponde a una canción suelta. */
-  get albumTitle(): string {
-    return this.album?.title ?? 'Sin álbum';
-  }
-
   /** Nombre del artista del álbum, o un texto de reemplazo si no lo tiene. */
   get artistName(): string {
     return this.album?.artist?.name ?? 'Artista desconocido';

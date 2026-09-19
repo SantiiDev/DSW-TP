@@ -61,16 +61,11 @@ export const ArtistContributionsList = ({
   // Error de una baja: va afuera del modal, arriba de la lista.
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const handleOpenModal = () => {
-    setEditing(null);
-    setSubmitError(null);
-    setFeedback(null);
-    setActionError(null);
-    setIsModalOpen(true);
-  };
-
-  /** Abre el mismo modal, pero con los datos del aporte que se quiere corregir. */
-  const handleEdit = (artist: Artist) => {
+  /**
+   * Abre el modal: vacío para proponer, o con los datos del aporte a corregir.
+   * @param artist aporte a corregir, o null para proponer uno nuevo.
+   */
+  const handleOpenModal = (artist: Artist | null) => {
     setEditing(artist);
     setSubmitError(null);
     setFeedback(null);
@@ -79,48 +74,31 @@ export const ArtistContributionsList = ({
   };
 
   /**
-   * Envía la propuesta.
-   * @param input nombre y biografía cargados en el modal.
-   * @returns true si se creó; si falla, el modal queda abierto con el error para
-   *   que el usuario corrija (por ejemplo, si ese artista ya existe).
+   * Envía la propuesta nueva o guarda los cambios de una propia.
+   * @param input datos cargados en el modal.
+   * @returns true si salió bien; si falla, el modal queda abierto con el error
+   *   para que el usuario corrija (por ejemplo, si ese artista ya existe).
    */
-  const handlePropose = async (input: ArtistInput): Promise<boolean> => {
+  const handleSubmit = async (input: ArtistInput): Promise<boolean> => {
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      const created = await artistService.create(input);
+      if (editing) {
+        const updated = await artistService.update(editing.id, input);
+        setFeedback(`Se guardaron los cambios de "${updated.name}".`);
+      } else {
+        const created = await artistService.create(input);
+        // Un ADMIN también propone desde acá, y lo que carga entra ya aprobado: el
+        // aviso lo dice según cómo quedó de verdad, no según lo que pasa siempre.
+        setFeedback(
+          created.isApproved
+            ? `"${created.name}" se agregó al catálogo.`
+            : `Gracias por tu aporte: "${created.name}" queda pendiente hasta que un administrador lo apruebe.`
+        );
+      }
       setIsModalOpen(false);
       await loadContributions();
-      setFeedback(
-        `Gracias por tu aporte: "${created.name}" queda pendiente hasta que un administrador lo apruebe.`
-      );
-      return true;
-    } catch (err) {
-      setSubmitError(getErrorMessage(err));
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  /**
-   * Guarda los cambios de una propuesta propia.
-   * @param input nombre y biografía corregidos en el modal.
-   * @returns true si se guardó; si falla, el modal queda abierto con el error.
-   */
-  const handleUpdate = async (input: ArtistInput): Promise<boolean> => {
-    if (!editing) return false;
-
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const updated = await artistService.update(editing.id, input);
-      setIsModalOpen(false);
-      setEditing(null);
-      await loadContributions();
-      setFeedback(`Se guardaron los cambios de "${updated.name}".`);
       return true;
     } catch (err) {
       setSubmitError(getErrorMessage(err));
@@ -173,7 +151,7 @@ export const ArtistContributionsList = ({
           }
           action={
             isOwnProfile ? (
-              <Button onClick={handleOpenModal}>Proponer un artista</Button>
+              <Button onClick={() => handleOpenModal(null)}>Proponer un artista</Button>
             ) : undefined
           }
         />
@@ -185,7 +163,7 @@ export const ArtistContributionsList = ({
         <div className="artist-contributions__head">
           <h3 className="artist-contributions__title">Artistas ({artists.length})</h3>
 
-          {isOwnProfile && <Button onClick={handleOpenModal}>Proponer otro artista</Button>}
+          {isOwnProfile && <Button onClick={() => handleOpenModal(null)}>Proponer otro artista</Button>}
         </div>
 
         {/* Sobre sus propios aportes el autor puede: corregir mientras no estén
@@ -199,7 +177,7 @@ export const ArtistContributionsList = ({
                 artist={artist}
                 showState={isOwnProfile}
                 isBusy={busyArtistId === artist.id}
-                onEdit={isOwnProfile && !artist.isApproved ? handleEdit : undefined}
+                onEdit={isOwnProfile && !artist.isApproved ? handleOpenModal : undefined}
                 onDelete={isOwnProfile && artist.isPending ? setToDelete : undefined}
               />
             </li>
@@ -225,7 +203,7 @@ export const ArtistContributionsList = ({
             artist={editing}
             isSubmitting={isSubmitting}
             error={submitError}
-            onSubmit={editing ? handleUpdate : handlePropose}
+            onSubmit={handleSubmit}
             onClose={() => setIsModalOpen(false)}
           />
 

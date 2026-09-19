@@ -77,62 +77,40 @@ export const GenreAdminSection = () => {
   // propio formulario.
   const [formError, setFormError] = useState<string | null>(null);
 
-  /** Abre el modal vacío, para cargar un género nuevo. */
-  const handleOpenCreate = () => {
-    setEditingGenre(null);
-    setFormError(null);
-    setFeedback(null);
-    setIsFormOpen(true);
-  };
-
-  /** Abre el modal con los datos del género elegido. */
-  const handleEdit = (genre: Genre) => {
+  /**
+   * Abre el modal del formulario.
+   * @param genre género a editar, o null para cargar uno nuevo.
+   */
+  const handleOpenForm = (genre: Genre | null) => {
     setEditingGenre(genre);
     setFormError(null);
     setFeedback(null);
     setIsFormOpen(true);
   };
 
-  const handleCreate = async (input: GenreInput): Promise<boolean> => {
+  /** Guarda el formulario: edita si hay un género elegido, si no da de alta uno nuevo. */
+  const handleSubmit = async (input: GenreInput): Promise<boolean> => {
     setIsSubmitting(true);
     setError(null);
     setFormError(null);
     setFeedback(null);
 
     try {
-      const created = await genreService.create(input);
-      // Se recarga en vez de agregar a mano: la API devuelve el listado ordenado
-      // por nombre y así el género nuevo aparece en su lugar.
+      if (editingGenre) {
+        await genreService.update(editingGenre.id, input);
+        setFeedback('Los cambios se guardaron.');
+      } else {
+        const created = await genreService.create(input);
+        setFeedback(`Se agregó el género "${created.name}".`);
+      }
+      // Se recarga en vez de tocar la lista a mano: la API la devuelve ordenada
+      // por nombre y así el género aparece en su lugar.
       await loadGenres();
       setIsFormOpen(false);
-      setFeedback(`Se agregó el género "${created.name}".`);
       return true;
     } catch (err) {
       // El modal queda abierto con lo que se había escrito: cerrarlo obligaría a
       // tipear todo de nuevo por un nombre repetido.
-      setFormError(getErrorMessage(err));
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleUpdate = async (input: GenreInput): Promise<boolean> => {
-    if (!editingGenre) return false;
-
-    setIsSubmitting(true);
-    setError(null);
-    setFormError(null);
-    setFeedback(null);
-
-    try {
-      await genreService.update(editingGenre.id, input);
-      setEditingGenre(null);
-      await loadGenres();
-      setIsFormOpen(false);
-      setFeedback('Los cambios se guardaron.');
-      return true;
-    } catch (err) {
       setFormError(getErrorMessage(err));
       return false;
     } finally {
@@ -172,7 +150,7 @@ export const GenreAdminSection = () => {
       <div className="genre-admin__toolbar">
         <h3 className="genre-admin__list-title">Géneros del catálogo ({genres.length})</h3>
 
-        <Button onClick={handleOpenCreate}>
+        <Button onClick={() => handleOpenForm(null)}>
           <Plus size={16} aria-hidden="true" />
           Agregar género
         </Button>
@@ -188,7 +166,7 @@ export const GenreAdminSection = () => {
         <GenreAdminTable
           genres={genres}
           busyGenreId={busyGenreId}
-          onEdit={handleEdit}
+          onEdit={handleOpenForm}
           onDelete={setGenreToDelete}
         />
       )}
@@ -208,7 +186,7 @@ export const GenreAdminSection = () => {
           initialValues={editingGenre ? { name: editingGenre.name } : undefined}
           isSubmitting={isSubmitting}
           submitLabel={editingGenre ? 'Guardar cambios' : undefined}
-          onSubmit={editingGenre ? handleUpdate : handleCreate}
+          onSubmit={handleSubmit}
           onCancel={() => setIsFormOpen(false)}
         />
       </FormModal>

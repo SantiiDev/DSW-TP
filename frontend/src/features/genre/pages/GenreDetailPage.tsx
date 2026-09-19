@@ -173,7 +173,12 @@ export const GenreDetailPage = () => {
                     }
                   />
                 ) : (
-                  <GenreAlbumList albums={visibleAlbums} view={view} />
+                  // La key reinicia el "Ver más" cada vez que cambia lo que se mira.
+                  <GenreAlbumList
+                    key={`${id}|${view}|${selectedYear}|${yearMode}`}
+                    albums={visibleAlbums}
+                    view={view}
+                  />
                 )}
               </section>
 

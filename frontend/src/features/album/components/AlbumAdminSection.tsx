@@ -140,62 +140,40 @@ export const AlbumAdminSection = () => {
     setVisibleCount(PAGE_SIZE);
   };
 
-  /** Abre el modal vacío, para cargar un álbum nuevo. */
-  const handleOpenCreate = () => {
-    setEditingAlbum(null);
-    setFormError(null);
-    setFeedback(null);
-    setIsFormOpen(true);
-  };
-
-  /** Abre el modal con los datos del álbum elegido. */
-  const handleEdit = (album: Album) => {
+  /**
+   * Abre el modal del formulario.
+   * @param album álbum a editar, o null para cargar uno nuevo.
+   */
+  const handleOpenForm = (album: Album | null) => {
     setEditingAlbum(album);
     setFormError(null);
     setFeedback(null);
     setIsFormOpen(true);
   };
 
-  const handleCreate = async (input: AlbumInput): Promise<boolean> => {
+  /** Guarda el formulario: edita si hay un álbum elegido, si no da de alta uno nuevo. */
+  const handleSubmit = async (input: AlbumInput): Promise<boolean> => {
     setIsSubmitting(true);
     setError(null);
     setFormError(null);
     setFeedback(null);
 
     try {
-      const created = await albumService.create(input);
-      // Se recarga en vez de agregar a mano: la API devuelve el listado ordenado
-      // por título y así el álbum nuevo aparece en su lugar.
+      if (editingAlbum) {
+        await albumService.update(editingAlbum.id, input);
+        setFeedback('Los cambios se guardaron.');
+      } else {
+        const created = await albumService.create(input);
+        setFeedback(`Se agregó "${created.title}" al catálogo.`);
+      }
+      // Se recarga en vez de tocar la lista a mano: la API la devuelve ordenada
+      // por título y así el álbum aparece en su lugar.
       await loadAlbums();
       setIsFormOpen(false);
-      setFeedback(`Se agregó "${created.title}" al catálogo.`);
       return true;
     } catch (err) {
       // El modal queda abierto con lo que se había escrito: cerrarlo obligaría a
       // cargar todo de nuevo por un título repetido.
-      setFormError(getErrorMessage(err));
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleUpdate = async (input: AlbumInput): Promise<boolean> => {
-    if (!editingAlbum) return false;
-
-    setIsSubmitting(true);
-    setError(null);
-    setFormError(null);
-    setFeedback(null);
-
-    try {
-      await albumService.update(editingAlbum.id, input);
-      setEditingAlbum(null);
-      await loadAlbums();
-      setIsFormOpen(false);
-      setFeedback('Los cambios se guardaron.');
-      return true;
-    } catch (err) {
       setFormError(getErrorMessage(err));
       return false;
     } finally {
@@ -276,7 +254,7 @@ export const AlbumAdminSection = () => {
           />
         </span>
 
-        <Button onClick={handleOpenCreate}>
+        <Button onClick={() => handleOpenForm(null)}>
           <Plus size={16} aria-hidden="true" />
           Agregar álbum
         </Button>
@@ -306,7 +284,7 @@ export const AlbumAdminSection = () => {
             currentUserId={authState.user?.id ?? 0}
             isAdmin={isAdmin}
             busyAlbumId={busyAlbumId}
-            onEdit={handleEdit}
+            onEdit={handleOpenForm}
             onDelete={setAlbumToDelete}
             onApprove={(album) => void handleModerate(album, 'approve')}
             onReject={(album) => void handleModerate(album, 'reject')}
@@ -343,7 +321,7 @@ export const AlbumAdminSection = () => {
           initialValues={editingAlbum ? toFormValues(editingAlbum) : undefined}
           isSubmitting={isSubmitting}
           submitLabel={editingAlbum ? 'Guardar cambios' : undefined}
-          onSubmit={editingAlbum ? handleUpdate : handleCreate}
+          onSubmit={handleSubmit}
           onCancel={() => setIsFormOpen(false)}
         />
       </FormModal>

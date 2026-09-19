@@ -7,6 +7,9 @@
 // Vive en core porque es parte de la barra y cruza tres features; cada búsqueda
 // la hace el servicio de su feature, con la misma idea con la que AuthContext usa
 // los servicios de user.
+//
+// Se maneja con el teclado como cualquier buscador: flechas para moverse entre
+// los resultados, Enter para abrir el resaltado y Escape para cerrar.
 import { useEffect, useId, useRef, useState } from 'react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { Search } from 'lucide-react';
@@ -18,6 +21,7 @@ import { songService } from '../../features/song/services/songService';
 import { UserRow } from '../../features/user/components/UserRow';
 import type { CommunityUser } from '../../features/user/models/Follow';
 import { followService } from '../../features/user/services/followService';
+import { useGatedNavigation } from '../hooks/useGatedNavigation';
 import { SearchResultRow } from './SearchResultRow';
 import './_navbar-search.scss';
 
@@ -41,15 +45,26 @@ type SearchResults = {
 const EMPTY_RESULTS: SearchResults = { albums: [], songs: [], users: [] };
 
 export const NavbarSearch = () => {
+  const { goOrSignup } = useGatedNavigation();
   const panelId = useId();
 
   const [text, setText] = useState('');
   const [results, setResults] = useState<SearchResults>(EMPTY_RESULTS);
   const [status, setStatus] = useState<SearchStatus>('idle');
   const [isOpen, setIsOpen] = useState(false);
+  // Posición del resultado resaltado con las flechas, contando álbumes, canciones
+  // y usuarios en ese orden, o -1 si no hay ninguno.
+  const [highlighted, setHighlighted] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const query = text.trim();
+
+  // Todas las rutas en el orden en que se dibujan: es lo que recorren las flechas.
+  const paths = [
+    ...results.albums.map((album) => `/albums/${album.id}`),
+    ...results.songs.map((song) => `/songs/${song.id}`),
+    ...results.users.map((user) => user.profilePath),
+  ];
 
   // Busca un rato después de la última tecla. Si se sigue escribiendo, el
   // temporizador anterior se cancela; si llega una respuesta vieja, se descarta.
@@ -66,6 +81,7 @@ export const NavbarSearch = () => {
         .then(([albums, songs, users]) => {
           if (!isCurrent) return;
           setResults({ albums, songs, users });
+          setHighlighted(0);
           setStatus('done');
         })
         .catch(() => {
@@ -99,6 +115,7 @@ export const NavbarSearch = () => {
     const next = e.target.value;
     setText(next);
     setIsOpen(true);
+    setHighlighted(-1);
 
     if (next.trim() === '') {
       setResults(EMPTY_RESULTS);
@@ -113,6 +130,7 @@ export const NavbarSearch = () => {
     setText('');
     setResults(EMPTY_RESULTS);
     setStatus('idle');
+    setHighlighted(-1);
     setIsOpen(false);
   };
 
@@ -120,10 +138,23 @@ export const NavbarSearch = () => {
     if (e.key === 'Escape') {
       setIsOpen(false);
       e.currentTarget.blur();
+    } else if (e.key === 'ArrowDown' && paths.length > 0) {
+      // preventDefault: si no, la flecha además mueve el cursor dentro del texto.
+      e.preventDefault();
+      setHighlighted((index) => (index + 1) % paths.length);
+    } else if (e.key === 'ArrowUp' && paths.length > 0) {
+      e.preventDefault();
+      setHighlighted((index) => (index <= 0 ? paths.length - 1 : index - 1));
+    } else if (e.key === 'Enter' && paths[highlighted]) {
+      e.preventDefault();
+      goOrSignup(paths[highlighted]);
+      handleReset();
     }
   };
 
-  const totalResults = results.albums.length + results.songs.length + results.users.length;
+  // Dónde arranca cada sección en la lista que recorren las flechas.
+  const songsOffset = results.albums.length;
+  const usersOffset = songsOffset + results.songs.length;
   const showPanel = isOpen && query !== '';
 
   return (
@@ -151,7 +182,7 @@ export const NavbarSearch = () => {
             <p className="navbar-search__message navbar-search__message--error">
               No pudimos buscar en este momento. Intentá de nuevo en unos segundos.
             </p>
-          ) : totalResults === 0 ? (
+          ) : paths.length === 0 ? (
             <p className="navbar-search__message">No encontramos nada con "{query}".</p>
           ) : (
             <>
@@ -159,13 +190,14 @@ export const NavbarSearch = () => {
                 <section className="navbar-search__section">
                   <h3 className="navbar-search__section-title">Álbumes</h3>
                   <ul className="navbar-search__list">
-                    {results.albums.map((album) => (
-                      <li key={album.id}>
+                    {results.albums.map((album, index) => (
+                      <li key={album.id} onMouseEnter={() => setHighlighted(index)}>
                         <SearchResultRow
                           to={`/albums/${album.id}`}
                           cover={<AlbumCover title={album.title} url={album.urlCover} size="sm" />}
                           title={album.title}
                           subtitle={`${album.artistName} · ${album.yearLabel}`}
+                          isHighlighted={highlighted === index}
                           onNavigate={handleReset}
                         />
                       </li>
@@ -178,8 +210,8 @@ export const NavbarSearch = () => {
                 <section className="navbar-search__section">
                   <h3 className="navbar-search__section-title">Canciones</h3>
                   <ul className="navbar-search__list">
-                    {results.songs.map((song) => (
-                      <li key={song.id}>
+                    {results.songs.map((song, index) => (
+                      <li key={song.id} onMouseEnter={() => setHighlighted(songsOffset + index)}>
                         <SearchResultRow
                           to={`/songs/${song.id}`}
                           // Una canción no tiene portada propia: usa la de su álbum.
@@ -192,6 +224,7 @@ export const NavbarSearch = () => {
                           }
                           title={song.title}
                           subtitle={song.locationLabel}
+                          isHighlighted={highlighted === songsOffset + index}
                           onNavigate={handleReset}
                         />
                       </li>
@@ -204,11 +237,12 @@ export const NavbarSearch = () => {
                 <section className="navbar-search__section">
                   <h3 className="navbar-search__section-title">Usuarios</h3>
                   <ul className="navbar-search__list">
-                    {results.users.map((user) => (
-                      <li key={user.id}>
+                    {results.users.map((user, index) => (
+                      <li key={user.id} onMouseEnter={() => setHighlighted(usersOffset + index)}>
                         <UserRow
                           user={user}
                           meta={`${user.reviewsLabel} · ${user.followersLabel}`}
+                          isHighlighted={highlighted === usersOffset + index}
                           onNavigate={handleReset}
                           compact
                         />

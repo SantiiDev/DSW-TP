@@ -60,16 +60,11 @@ export const AlbumContributionsList = ({
   // Error de una baja: va afuera del modal, arriba de la lista.
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const handleOpenModal = () => {
-    setEditing(null);
-    setSubmitError(null);
-    setFeedback(null);
-    setActionError(null);
-    setIsModalOpen(true);
-  };
-
-  /** Abre el mismo modal, pero con los datos del aporte que se quiere corregir. */
-  const handleEdit = (album: Album) => {
+  /**
+   * Abre el modal: vacío para proponer, o con los datos del aporte a corregir.
+   * @param album aporte a corregir, o null para proponer uno nuevo.
+   */
+  const handleOpenModal = (album: Album | null) => {
     setEditing(album);
     setSubmitError(null);
     setFeedback(null);
@@ -78,52 +73,31 @@ export const AlbumContributionsList = ({
   };
 
   /**
-   * Envía la propuesta.
+   * Envía la propuesta nueva o guarda los cambios de una propia.
    * @param input datos cargados en el modal.
-   * @returns true si se creó; si falla, el modal queda abierto con el error para
-   *   que el usuario corrija (por ejemplo, si ese álbum ya existe).
+   * @returns true si salió bien; si falla, el modal queda abierto con el error
+   *   para que el usuario corrija (por ejemplo, si ese álbum ya existe).
    */
-  const handlePropose = async (input: AlbumInput): Promise<boolean> => {
+  const handleSubmit = async (input: AlbumInput): Promise<boolean> => {
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
-      const created = await albumService.create(input);
+      if (editing) {
+        const updated = await albumService.update(editing.id, input);
+        setFeedback(`Se guardaron los cambios de "${updated.title}".`);
+      } else {
+        const created = await albumService.create(input);
+        // Un ADMIN también propone desde acá, y lo que carga entra ya aprobado: el
+        // aviso lo dice según cómo quedó de verdad, no según lo que pasa siempre.
+        setFeedback(
+          created.isApproved
+            ? `"${created.title}" se agregó al catálogo.`
+            : `Gracias por tu aporte: "${created.title}" queda pendiente hasta que un administrador lo apruebe.`
+        );
+      }
       setIsModalOpen(false);
       await loadContributions();
-      // Un ADMIN también propone desde acá, y lo que carga entra ya aprobado: el
-      // aviso lo dice según cómo quedó de verdad, no según lo que pasa siempre.
-      setFeedback(
-        created.isApproved
-          ? `"${created.title}" se agregó al catálogo.`
-          : `Gracias por tu aporte: "${created.title}" queda pendiente hasta que un administrador lo apruebe.`
-      );
-      return true;
-    } catch (err) {
-      setSubmitError(getErrorMessage(err));
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  /**
-   * Guarda los cambios de una propuesta propia.
-   * @param input datos corregidos en el modal.
-   * @returns true si se guardó; si falla, el modal queda abierto con el error.
-   */
-  const handleUpdate = async (input: AlbumInput): Promise<boolean> => {
-    if (!editing) return false;
-
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      const updated = await albumService.update(editing.id, input);
-      setIsModalOpen(false);
-      setEditing(null);
-      await loadContributions();
-      setFeedback(`Se guardaron los cambios de "${updated.title}".`);
       return true;
     } catch (err) {
       setSubmitError(getErrorMessage(err));
@@ -175,7 +149,7 @@ export const AlbumContributionsList = ({
               : 'Los álbumes que aporte van a listarse acá una vez aprobados.'
           }
           action={
-            isOwnProfile ? <Button onClick={handleOpenModal}>Proponer un álbum</Button> : undefined
+            isOwnProfile ? <Button onClick={() => handleOpenModal(null)}>Proponer un álbum</Button> : undefined
           }
         />
       );
@@ -186,7 +160,7 @@ export const AlbumContributionsList = ({
         <div className="album-contributions__head">
           <h3 className="album-contributions__title">Álbumes ({albums.length})</h3>
 
-          {isOwnProfile && <Button onClick={handleOpenModal}>Proponer otro álbum</Button>}
+          {isOwnProfile && <Button onClick={() => handleOpenModal(null)}>Proponer otro álbum</Button>}
         </div>
 
         {/* Sobre sus propios aportes el autor puede: corregir mientras no estén
@@ -200,7 +174,7 @@ export const AlbumContributionsList = ({
                 album={album}
                 showState={isOwnProfile}
                 isBusy={busyAlbumId === album.id}
-                onEdit={isOwnProfile && !album.isApproved ? handleEdit : undefined}
+                onEdit={isOwnProfile && !album.isApproved ? handleOpenModal : undefined}
                 onDelete={isOwnProfile && album.isPending ? setToDelete : undefined}
               />
             </li>
@@ -226,7 +200,7 @@ export const AlbumContributionsList = ({
             album={editing}
             isSubmitting={isSubmitting}
             error={submitError}
-            onSubmit={editing ? handleUpdate : handlePropose}
+            onSubmit={handleSubmit}
             onClose={() => setIsModalOpen(false)}
           />
 

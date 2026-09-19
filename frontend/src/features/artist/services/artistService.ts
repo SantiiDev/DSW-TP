@@ -86,12 +86,6 @@ export const artistService = {
     return httpClient.get<SimilarArtist[]>(`/artists/similar?${params.toString()}`);
   },
 
-  /** Trae la ficha de un artista puntual, con sus álbumes. */
-  async getById(id: number): Promise<Artist> {
-    const data = await httpClient.get<ArtistApiResponse>(`/artists/${id}`);
-    return toArtist(data);
-  },
-
   /**
    * Da de alta un artista. El backend lo restringe a PRO y ADMIN, y decide su
    * estado: aprobado si lo carga un ADMIN, pendiente si lo carga un PRO.

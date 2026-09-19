@@ -114,15 +114,12 @@ export const GenreAlbumList = ({ albums, view }: GenreAlbumListProps) => {
   // columnas entren; en la lista es un número fijo.
   const pageSize = view === 'grid' ? columns * GRID_ROWS_PER_PAGE : LIST_PAGE_SIZE;
 
-  const [visibleCount, setVisibleCount] = useState(pageSize);
-
-  // Se vuelve a la primera tanda cuando cambia la vista, cuando cambia el filtro
-  // (llega otro array de álbumes) o cuando la ventana cruza un breakpoint y la
-  // grilla pasa a tener otra cantidad de columnas: en los tres casos el "Ver más"
-  // anterior ya no aplica al listado que se está mirando.
-  useEffect(() => {
-    setVisibleCount(pageSize);
-  }, [pageSize, albums]);
+  // Cuántas tandas del "Ver más" se desplegaron. Se cuentan tandas y no álbumes
+  // para que, si la ventana cruza un breakpoint y la grilla cambia de columnas,
+  // lo visible se acomode solo a filas completas. Al cambiar la vista o el filtro
+  // la página remonta este componente (ver su key) y se vuelve a la primera.
+  const [pages, setPages] = useState(1);
+  const visibleCount = pages * pageSize;
 
   const visibleAlbums = albums.slice(0, visibleCount);
   const hasMore = albums.length > visibleCount;
@@ -177,7 +174,7 @@ export const GenreAlbumList = ({ albums, view }: GenreAlbumListProps) => {
             {hasMore && (
               <Button
                 variant="outline"
-                onClick={() => setVisibleCount((current) => current + pageSize)}
+                onClick={() => setPages((current) => current + 1)}
               >
                 Ver más álbumes
               </Button>

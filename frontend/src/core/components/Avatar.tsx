@@ -2,7 +2,7 @@
 // Muestra su foto de perfil, y si no tiene (o si la URL está rota) cae en un
 // ícono por defecto. Lo usan el navbar, la página de perfil y la tabla del panel
 // de administración.
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { User as UserIcon } from 'lucide-react';
 import './_avatar.scss';
 
@@ -31,16 +31,11 @@ const ICON_SIZES: Record<AvatarSize, number> = {
 
 export const Avatar = ({ url, username, size = 'sm', onLoadError }: AvatarProps) => {
   // Una URL puede apuntar a algo que no existe o dejar de responder. Si la imagen
-  // falla se dibuja el ícono, para no dejar el círculo roto o vacío.
-  const [hasFailed, setHasFailed] = useState(false);
+  // falla se dibuja el ícono, para no dejar el círculo roto o vacío. Se guarda
+  // QUÉ url falló: si el usuario cambia su foto, la nueva se vuelve a intentar.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
 
-  // Si el usuario cambia su foto hay que volver a intentar: sin esto, una URL
-  // rota anterior dejaría el avatar en el ícono para siempre.
-  useEffect(() => {
-    setHasFailed(false);
-  }, [url]);
-
-  const showImage = url !== null && url !== '' && !hasFailed;
+  const showImage = url !== null && url !== '' && url !== failedUrl;
 
   return (
     <span className={`avatar avatar--${size}`}>
@@ -50,7 +45,7 @@ export const Avatar = ({ url, username, size = 'sm', onLoadError }: AvatarProps)
           src={url}
           alt={`Foto de perfil de ${username}`}
           onError={() => {
-            setHasFailed(true);
+            setFailedUrl(url);
             onLoadError?.();
           }}
         />
