@@ -26,6 +26,9 @@ import { Loader } from '../../../core/components/Loader';
 import { Navbar } from '../../../core/components/Navbar';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { ReviewsSection } from '../../review/components/ReviewsSection';
+// Mismo componente que usa la ficha de un álbum: solo cambia el ítem que
+// recibe, y con eso ofrece las listas de canciones en vez de las de álbumes.
+import { AddToListButton } from '../../list/components/AddToListButton';
 import { songService } from '../services/songService';
 import { SongAlbumTracklist } from '../components/SongAlbumTracklist';
 import { SongHero } from '../components/SongHero';
@@ -99,6 +102,22 @@ export const SongDetailPage = () => {
             <div className="song-detail__body">
               <div className="song-detail__main">
                 <SongInfoPanel song={song} />
+
+                {/* La ficha de canción no tiene un panel de acciones como el de
+                    la de álbum: por ahora esta es la única, así que va suelta
+                    debajo de los datos. */}
+                <div className="song-detail__actions">
+                  <AddToListButton
+                    item={{
+                      kind: 'song',
+                      id: song.id,
+                      title: song.title,
+                      // Una canción no tiene portada propia: se usa la de su álbum.
+                      urlCover: song.album?.urlCover ?? null,
+                      artistName: song.artistName,
+                    }}
+                  />
+                </div>
 
                 {/* Cada canción se califica por separado del álbum, por eso tiene
                     su propia sección y no alcanza con la del disco. Su promedio no

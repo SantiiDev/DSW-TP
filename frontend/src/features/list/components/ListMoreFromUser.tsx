@@ -7,6 +7,10 @@
 //
 // Cada una se dibuja con su collage de portadas, que es lo que identifica a una
 // lista de un vistazo, igual que en el feed de /lists.
+//
+// NO filtra por tipo a propósito: acá aparecen todas las listas de esa persona,
+// sean de álbumes o de canciones. Lo que se está mostrando es qué más armó, y
+// partirlo en dos bloques por tipo sería esconder la mitad sin ningún motivo.
 import { Link } from 'react-router-dom';
 import { Heart, Music } from 'lucide-react';
 import { Loader } from '../../../core/components/Loader';
@@ -77,7 +81,7 @@ export const ListMoreFromUser = ({ userId, username, currentListId }: ListMoreFr
                 <span className="more-lists__meta">
                   <span className="more-lists__stat">
                     <Music size={13} aria-hidden="true" />
-                    {list.albumsLabel}
+                    {list.itemsLabel}
                   </span>
                   <span className="more-lists__stat">
                     <Heart size={13} aria-hidden="true" />

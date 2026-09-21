@@ -6,10 +6,10 @@
 import { Request, Response } from 'express';
 import { listService } from './list.service';
 import {
-  AddAlbumToListInput,
+  AddItemToListInput,
   CreateListInput,
-  ListAlbumParams,
   ListIdParam,
+  ListItemParams,
   ListListsQuery,
   UpdateListInput,
 } from './list.schema';
@@ -56,16 +56,16 @@ export const listController = {
     res.status(204).send();
   },
 
-  async addAlbum(req: Request, res: Response): Promise<void> {
+  async addItem(req: Request, res: Response): Promise<void> {
     const { id } = req.validated.params as ListIdParam;
-    const data = req.validated.body as AddAlbumToListInput;
-    const list = await listService.addAlbum(id, data, req.user!);
+    const data = req.validated.body as AddItemToListInput;
+    const list = await listService.addItem(id, data, req.user!);
     res.status(201).json(list);
   },
 
-  async removeAlbum(req: Request, res: Response): Promise<void> {
-    const { id, idAlbum } = req.validated.params as ListAlbumParams;
-    const list = await listService.removeAlbum(id, idAlbum, req.user!);
+  async removeItem(req: Request, res: Response): Promise<void> {
+    const { id, idItem } = req.validated.params as ListItemParams;
+    const list = await listService.removeItem(id, idItem, req.user!);
     res.status(200).json(list);
   },
 

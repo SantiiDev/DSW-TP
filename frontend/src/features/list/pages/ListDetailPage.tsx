@@ -1,14 +1,18 @@
-// Ficha pública de una lista personalizada: su descripción, sus álbumes en
-// orden y, si sos su dueño, los controles para editarla, borrarla y sumar o
-// sacar álbumes. Es a donde llevan las tarjetas de /lists y el botón "Agregar a
-// una lista" de la ficha de un álbum.
+// Ficha pública de una lista personalizada: su descripción, sus ítems en orden
+// y, si sos su dueño, los controles para editarla, borrarla y sumar o sacar
+// ítems. Es a donde llevan las tarjetas de /lists y el botón "Agregar a una
+// lista" de la ficha de un álbum o de una canción.
+//
+// Una lista es de álbumes O de canciones (su columna `type`), así que esta
+// pantalla es la misma para las dos y lo único que cambia son los textos y a
+// dónde enlaza cada tarjeta.
 //
 // La ruta es pública (ver App.tsx), igual que /reviews/:id: una lista se puede
 // compartir con cualquiera, tenga o no cuenta. La API también es pública; lo
 // único que cambia con sesión es `liked_by_me` y los controles de dueño.
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Heart, ListMusic, Pencil, Settings2, Trash2 } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Check, Heart, ListMusic, Lock, Pencil, Settings2, Share2, Trash2 } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { Avatar } from '../../../core/components/Avatar';
 import { BackLink } from '../../../core/components/BackLink';
@@ -22,14 +26,15 @@ import { InlineNotice } from '../../../core/components/InlineNotice';
 import { Loader } from '../../../core/components/Loader';
 import { Navbar } from '../../../core/components/Navbar';
 import { useAuth } from '../../../core/context/AuthContext';
+import { useCopyLink } from '../../../core/hooks/useCopyLink';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { GatedLink } from '../../../core/components/GatedLink';
 import { AlbumCover } from '../../genre/components/AlbumCover';
 import { listService } from '../services/listService';
 import type { ListInput } from '../services/listService';
-import { ListAlbumManager } from '../components/ListAlbumManager';
-import type { ManageNotice } from '../components/ListAlbumManager';
+import { ListItemManager } from '../components/ListItemManager';
+import type { ManageNotice } from '../components/ListItemManager';
 import { ListForm } from '../components/ListForm';
 import { ListMoreFromUser } from '../components/ListMoreFromUser';
 import type { ListsExploreState } from './ListsExplorePage';
@@ -43,25 +48,32 @@ export const ListDetailPage = () => {
   const navigate = useNavigate();
   const { state: authState } = useAuth();
   const currentUserId = authState.user?.id ?? null;
+  // Editar, borrar y administrar los ítems son escrituras, y escribir listas es
+  // un beneficio Pro: no alcanza con ser el dueño.
+  const isPro = authState.user?.isPro ?? false;
 
   const { data: list, isLoading, error, setData } = useFetch(
     () => listService.getById(Number(id)),
     id
   );
 
+  // Copia el enlace de la lista al portapapeles. La ficha es pública, así que
+  // quien lo reciba la puede abrir aunque no tenga cuenta.
+  const { copied, copy } = useCopyLink();
+
   const [isLiking, setIsLiking] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isManagerOpen, setIsManagerOpen] = useState(false);
-  const [busyAlbumId, setBusyAlbumId] = useState<number | null>(null);
+  const [busyItemId, setBusyItemId] = useState<number | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   // La baja es lo único que se resuelve navegando a otra pantalla, así que sin
   // esta bandera la pantalla se quedaba quieta mientras iba el DELETE y parecía
   // que el botón no había hecho nada.
   const [isDeleting, setIsDeleting] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  // Error de lo que pasa DENTRO del modal de administrar álbumes (tanto al
+  // Error de lo que pasa DENTRO del modal de administrar ítems (tanto al
   // agregar como al quitar). Va aparte del de la cabecera para que se vea sin
   // cerrar el modal, mismo criterio que el formulario de alta.
   const [manageError, setManageError] = useState<string | null>(null);
@@ -72,6 +84,11 @@ export const ListDetailPage = () => {
   const [manageNotice, setManageNotice] = useState<ManageNotice | null>(null);
 
   const isOwner = list?.canBeEditedBy(currentUserId) ?? false;
+  // Ser el dueño alcanza para ver de quién es la lista, pero no para tocarla: el
+  // backend exige además membresía Pro vigente (ver assertCanWrite en
+  // list.service.ts). Sin esto, a alguien que dejó de ser Pro le quedaban a la
+  // vista los botones de editar, borrar y administrar, y los tres respondían 403.
+  const canManage = isOwner && isPro;
 
   // El aviso se borra solo: confirma lo que se acaba de hacer y se va, sin que
   // haya que cerrarlo a mano ni que se acumule con el siguiente cambio.
@@ -136,22 +153,26 @@ export const ListDetailPage = () => {
   };
 
   /**
-   * Suma o saca un álbum de la lista. El modal NO se cierra: la idea es poder
+   * Suma o saca un ítem de la lista. El modal NO se cierra: la idea es poder
    * encadenar varios cambios seguidos, y el que se acaba de agregar desaparece
    * solo de los resultados porque pasa a estar en `excludeIds`.
+   *
+   * Si el ítem es un álbum o una canción no se decide acá: lo sabe la lista por
+   * su tipo, y la API resuelve contra la tabla que corresponda.
+   *
    * @param kind 'added' para sumarlo, 'removed' para sacarlo.
    */
-  const handleChangeAlbum = async (albumId: number, title: string, kind: ManageNotice['kind']) => {
+  const handleChangeItem = async (itemId: number, title: string, kind: ManageNotice['kind']) => {
     if (!list) return;
 
-    setBusyAlbumId(albumId);
+    setBusyItemId(itemId);
     setManageError(null);
 
     try {
       const updated =
         kind === 'added'
-          ? await listService.addAlbum(list.id, albumId)
-          : await listService.removeAlbum(list.id, albumId);
+          ? await listService.addItem(list.id, itemId)
+          : await listService.removeItem(list.id, itemId);
       setData(updated);
       // El aviso se pone recién acá: si la API falló, lo único que se muestra
       // es el error.
@@ -159,7 +180,7 @@ export const ListDetailPage = () => {
     } catch (err) {
       setManageError(getErrorMessage(err));
     } finally {
-      setBusyAlbumId(null);
+      setBusyItemId(null);
     }
   };
 
@@ -181,13 +202,17 @@ export const ListDetailPage = () => {
             <BackLink fallbackTo="/lists" />
 
             <header className="list-detail__header">
-              <p className="list-detail__eyebrow">Lista</p>
+              {/* El encabezado dice de qué es la lista: es lo primero que hay
+                  que saber para entender qué se está mirando. */}
+              <p className="list-detail__eyebrow">
+                {list.isSongList ? 'Lista de canciones' : 'Lista de álbumes'}
+              </p>
               <h1 className="list-detail__title">{list.name}</h1>
 
               <div className="list-detail__meta">
                 <Avatar url={list.user?.urlAvatar ?? null} username={list.authorName} size="sm" />
                 <span>
-                  por <strong>@{list.authorName}</strong> · {list.dateLabel} · {list.albumsLabel}
+                  por <strong>@{list.authorName}</strong> · {list.dateLabel} · {list.itemsLabel}
                 </span>
               </div>
 
@@ -203,7 +228,20 @@ export const ListDetailPage = () => {
                   {list.likesLabel}
                 </Button>
 
-                {isOwner && (
+                {/* Al lado del corazón porque son las dos acciones que puede
+                    hacer cualquiera que entre, sea o no el dueño. Compartir no
+                    pide sesión: la ficha es pública y es justamente el enlace
+                    que se comparte. */}
+                <Button variant="outline" onClick={() => void copy(list.sharePath)}>
+                  {copied ? (
+                    <Check size={16} aria-hidden="true" />
+                  ) : (
+                    <Share2 size={16} aria-hidden="true" />
+                  )}
+                  {copied ? '¡Enlace copiado!' : 'Compartir'}
+                </Button>
+
+                {canManage && (
                   <>
                     <Button
                       variant="subtle"
@@ -226,6 +264,19 @@ export const ListDetailPage = () => {
                 )}
               </div>
 
+              {/* Al dueño que ya no es Pro se le explica por qué no están los
+                  controles, en vez de dejarlo sin ellos y sin motivo. La lista
+                  sigue publicada y visible para todos. */}
+              {isOwner && !isPro && (
+                <InlineNotice icon={<Lock size={14} />}>
+                  Tu lista sigue publicada, pero para editarla necesitás la membresía{' '}
+                  <Link to="/pro" className="list-detail__pro-link">
+                    Pro
+                  </Link>
+                  .
+                </InlineNotice>
+              )}
+
               {/* Mientras va el DELETE: el aviso de que se eliminó se muestra
                   recién en /lists, que es a donde lleva la baja. */}
               {isDeleting && <InlineNotice icon={<Trash2 size={14} />}>Eliminando la lista...</InlineNotice>}
@@ -234,7 +285,7 @@ export const ListDetailPage = () => {
             </header>
 
             <section className="list-detail__body">
-              {isOwner && (
+              {canManage && (
                 <Button
                   variant="outline"
                   fullWidth
@@ -245,33 +296,38 @@ export const ListDetailPage = () => {
                   }}
                 >
                   <Settings2 size={16} aria-hidden="true" />
-                  Administrar álbumes
+                  {list.isSongList ? 'Administrar canciones' : 'Administrar álbumes'}
                 </Button>
               )}
 
-              {list.albums.length === 0 ? (
+              {list.items.length === 0 ? (
                 <EmptyState
                   icon={<ListMusic size={22} />}
-                  title="Esta lista todavía no tiene álbumes."
+                  title={
+                    list.isSongList
+                      ? 'Esta lista todavía no tiene canciones.'
+                      : 'Esta lista todavía no tiene álbumes.'
+                  }
                   message={
-                    isOwner
-                      ? 'Usá el botón de arriba para empezar a sumarlos.'
-                      : 'Su dueño todavía no le agregó ninguno.'
+                    canManage
+                      ? 'Usá el botón de arriba para empezar a sumarlas.'
+                      : 'Su dueño todavía no le agregó ninguna.'
                   }
                 />
               ) : (
                 <ul className="album-collection album-collection--grid">
-                  {list.albums.map((album) => (
-                    // La tarjeta es solo el enlace a la ficha del álbum: sacarlo
-                    // de la lista se hace desde "Administrar álbumes".
-                    <li key={album.id}>
-                      <GatedLink to={`/albums/${album.id}`} className="album-item">
-                        <AlbumCover title={album.title} url={album.urlCover} size="lg" />
+                  {list.items.map((item) => (
+                    // La tarjeta es solo el enlace a la ficha del ítem —del
+                    // álbum o de la canción, según el tipo de la lista—: sacarlo
+                    // se hace desde "Administrar".
+                    <li key={item.id}>
+                      <GatedLink to={item.path} className="album-item">
+                        <AlbumCover title={item.title} url={item.urlCover} size="lg" />
                         <div className="album-item__info">
-                          <p className="album-item__title">{album.title}</p>
-                          <p className="album-item__artist">{album.artistName}</p>
-                          {album.releaseYear !== null && (
-                            <p className="album-item__year">{album.releaseYear}</p>
+                          <p className="album-item__title">{item.title}</p>
+                          <p className="album-item__artist">{item.artistName}</p>
+                          {item.releaseYear !== null && (
+                            <p className="album-item__year">{item.releaseYear}</p>
                           )}
                         </div>
                       </GatedLink>
@@ -291,23 +347,24 @@ export const ListDetailPage = () => {
               />
             )}
 
-            {/* Todo lo que se hace con los álbumes de la lista va en este modal:
+            {/* Todo lo que se hace con los ítems de la lista va en este modal:
                 se abre, se agregan y se quitan los que hagan falta de una
                 sentada y se cierra. NO se cierra con cada cambio, justamente
                 para poder encadenar varios. */}
             <FormModal
               isOpen={isManagerOpen}
-              title="Administrar álbumes"
+              title={list.isSongList ? 'Administrar canciones' : 'Administrar álbumes'}
               error={manageError}
               onClose={() => setIsManagerOpen(false)}
             >
-              <ListAlbumManager
-                albums={list.albums}
-                busyAlbumId={busyAlbumId}
+              <ListItemManager
+                type={list.type}
+                items={list.items}
+                busyItemId={busyItemId}
                 notice={manageNotice}
                 onDismissNotice={() => setManageNotice(null)}
-                onAdd={(albumId, title) => void handleChangeAlbum(albumId, title, 'added')}
-                onRemove={(albumId, title) => void handleChangeAlbum(albumId, title, 'removed')}
+                onAdd={(itemId, title) => void handleChangeItem(itemId, title, 'added')}
+                onRemove={(itemId, title) => void handleChangeItem(itemId, title, 'removed')}
               />
             </FormModal>
 

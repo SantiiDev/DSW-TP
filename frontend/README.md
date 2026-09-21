@@ -165,7 +165,7 @@ que el usuario no va a poder usar. La validación que importa es la del backend
 (`requireAuth` y `requireRole`), porque el estado del navegador se puede editar pero
 la firma de un token no se puede falsificar.
 
-### La excepción: `/reviews/:id`
+### Las excepciones: `/reviews/:id` y `/lists/:id`
 
 Casi todo el catálogo pide sesión, pero la página de una reseña es **pública**, y a
 propósito: es el destino del botón "Compartir", así que el enlace lo tiene que poder
@@ -178,6 +178,35 @@ vez de rebotar contra una pantalla de login.
 
 Las columnas de "más reseñas" son la única parte que no se muestra sin sesión: el
 listado de reseñas sí exige token. En su lugar va la invitación a registrarse.
+
+La ficha de una lista (`/lists/:id`) es pública por el mismo motivo: también tiene
+botón "Compartir". Lo que cambia con sesión son los controles del dueño y el
+estado del corazón.
+
+### Listas personalizadas: qué ve cada usuario
+
+Una lista es de **álbumes o de canciones**, nunca de las dos. De qué es lo decide
+el selector del modal de alta, y a partir de ahí la pantalla entera se adapta:
+qué busca el buscador, qué dicen los contadores ("3 álbumes" / "5 canciones") y si
+cada ítem enlaza a `/albums/:id` o a `/songs/:id`.
+
+**Armar listas es un beneficio Pro.** El reparto quedó así:
+
+| | Visitante | `FREE` | `PRO` / `ADMIN` |
+| :-- | :-- | :-- | :-- |
+| Ver `/lists` y la ficha de una lista | sí | sí | sí |
+| Compartir el enlace | sí | sí | sí |
+| "Me gusta" | abre el registro | sí | sí |
+| Crear, editar, borrar y administrar ítems | — | cartel `ProOnlyNotice` | sí |
+
+Al `FREE` no se le esconde la función: el botón "Crear lista" sigue ahí y, al
+apretarlo, el modal muestra el cartel con el candado y el acceso a `/pro`, igual
+que la pestaña "Estadísticas". Al dueño de una lista que **dejó de ser Pro** se le
+ocultan los controles de gestión y se le explica por qué con un aviso en la ficha,
+en vez de dejarle botones que responden 403.
+
+Como siempre, esto es solo para no ofrecer lo que va a fallar: el corte real lo
+hace el backend, que además revalida contra la base si la membresía sigue vigente.
 
 ### Pantallas que cambian según la sesión
 

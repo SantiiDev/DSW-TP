@@ -4,7 +4,7 @@ Qué está terminado y qué falta, punto por punto, contra el alcance comprometi
 en la [propuesta](../proposal.md) y los requisitos del
 [enunciado](enunciado.md).
 
-Última revisión: **17/09/2026**.
+Última revisión: **19/09/2026**.
 
 ## Requisitos técnicos
 
@@ -100,7 +100,7 @@ anterior, que es lo que pide la cátedra.
 | Ítem | Estado |
 |:-|:-:|
 | Interacción social sobre reseñas (likes y comentarios) | ✅ |
-| Listas personalizadas de álbumes | ✅ CRUD completo (`LISTS`, `LIST_ALBUMS`, `LIST_LIKES` en el DER): alta, edición, baja, agregar/sacar álbumes y "me gusta". `/lists` explora por "Top Listas" y "Listas en Tendencia" con filtro por género, y desde la ficha de un álbum se agrega a una lista propia con el botón "Agregar a una lista" |
+| Listas personalizadas de álbumes **y de canciones** | ✅ CRUD completo (`LISTS`, `LIST_ALBUMS`, `LIST_SONGS`, `LIST_LIKES` en el DER): alta, edición, baja, agregar/sacar ítems y "me gusta". Una lista es de álbumes **o** de canciones, nunca de las dos: lo dice `LISTS.type`, que decide en qué tabla intermedia van sus ítems. Armar y curar listas es un **beneficio Pro**; un `FREE` las ve, las comparte y les da "me gusta", y si intenta crear una ve el cartel que lo invita a `/pro`. `/lists` explora por "Top Listas" y "Listas en Tendencia" con filtro por género, y desde la ficha de un álbum **o de una canción** se agrega a una lista propia del tipo que corresponda. El CRUD base entró por los PR #17 y #18; las listas de canciones y el gate Pro, después |
 | Ranking global de usuarios más activos | ✅ Panel "Más activos" en la columna lateral de `/reviews`, ordenado por un puntaje que combina reseñas publicadas y seguidores (`GET /api/users/ranking`) |
 | Dashboard de administración con métricas de ingresos | ❌ |
 | Autocompletado de metadatos en el alta de un álbum | ❌ |
@@ -123,12 +123,17 @@ anterior, que es lo que pide la cátedra.
 
 Cosas que funcionan pero no están como deberían, ordenadas por prioridad:
 
-1. **Los beneficios Pro no se cumplen todos.** Las estadísticas ya dependen del
-   rol, pero el sitio promete "sin anuncios" y "personalización avanzada" y no
-   existe ningún componente de anuncios que se le muestre a un `FREE` ni ninguna
-   opción de perfil exclusiva de `PRO`.
+1. **Los beneficios Pro no se cumplen todos.** Las estadísticas y, desde ahora,
+   armar listas dependen del rol; pero el sitio promete además "sin anuncios" y
+   "personalización avanzada", y no existe ningún componente de anuncios que se le
+   muestre a un `FREE` ni ninguna opción de perfil exclusiva de `PRO`.
 
-> **Resuelto (17/09).** `/lists` mostraba datos fijos en sus tres secciones
+   > La propuesta se actualizó para que la descripción del plan Pro nombre las
+   > listas, que es un beneficio que ahora sí está implementado de punta a punta
+   > (backend y frontend), en lugar de la "personalización avanzada" que no
+   > existe.
+
+> **Resuelto (17/09, PR #17 y #18).** `/lists` mostraba datos fijos en sus tres secciones
 > (`TopListsSection`, `TrendingListsSection`, `ExploreTagsSection`), con
 > portadas que además salían de `placehold.co` —una llamada externa en
 > runtime—. Se construyó el CRUD completo de listas personalizadas (entidades

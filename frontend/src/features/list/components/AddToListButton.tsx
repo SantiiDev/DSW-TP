@@ -1,10 +1,17 @@
-// Botón "Agregar a una lista" de la ficha del álbum.
+// Botón "Agregar a una lista" de la ficha de un álbum o de una canción.
 //
-// Es el único punto de esta feature que vive del lado de otra (se usa desde
-// AlbumActions, en features/album): abre un modal con las listas propias, para
-// sumar o sacar este álbum de cada una, y una opción para crear una lista nueva
-// sin salir de la ficha. Sin sesión, abre el modal de registro, igual que
-// cualquier otra acción que pide cuenta en Musicboxd.
+// Es el único punto de esta feature que vive del lado de otras (se usa desde
+// AlbumActions, en features/album, y desde SongDetailPage, en features/song):
+// abre un modal con las listas propias DEL MISMO TIPO que el ítem, para sumarlo
+// o sacarlo de cada una, y una opción para crear una lista nueva sin salir de la
+// ficha.
+//
+// Filtrar por tipo no es cosmético: una lista de canciones no puede recibir un
+// álbum, así que ofrecerla sería ofrecer algo que la API va a rechazar.
+//
+// Sin sesión, abre el modal de registro, igual que cualquier otra acción que
+// pide cuenta en Musicboxd. Con sesión pero sin Pro, muestra el aviso de
+// ProOnlyNotice: armar listas es un beneficio de la membresía.
 import { useState } from 'react';
 import { Check, ListPlus, Plus } from 'lucide-react';
 import { Button } from '../../../core/components/Button';
@@ -16,25 +23,39 @@ import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { listService } from '../services/listService';
 import type { ListInput } from '../services/listService';
-import type { Album } from '../../album/models/Album';
+import type { ListType } from '../models/List';
 import { ListForm } from './ListForm';
+import { ProOnlyNotice } from './ProOnlyNotice';
 import '../styles/_list.scss';
 
-type AddToListButtonProps = {
-  /**
-   * El álbum entero y no solo su id: al crear una lista desde acá, el
-   * formulario arranca con este disco ya elegido y necesita su título y su
-   * portada para dibujarlo.
-   */
-  album: Album;
+/**
+ * El ítem que se quiere agregar, reducido a lo que hace falta acá: su tipo (para
+ * filtrar las listas), su id (para la API) y con qué dibujarlo en el formulario
+ * de alta, que lo muestra ya elegido.
+ */
+export type AddToListItem = {
+  kind: ListType;
+  id: number;
+  title: string;
+  urlCover: string | null;
+  artistName: string;
 };
 
-export const AddToListButton = ({ album }: AddToListButtonProps) => {
-  const albumId = album.id;
+/** Los textos que cambian según qué se está agregando. */
+const COPY: Record<ListType, { empty: string }> = {
+  album: { empty: 'Todavía no tenés ninguna lista de álbumes.' },
+  song: { empty: 'Todavía no tenés ninguna lista de canciones.' },
+};
 
+type AddToListButtonProps = {
+  item: AddToListItem;
+};
+
+export const AddToListButton = ({ item }: AddToListButtonProps) => {
   const { state: authState } = useAuth();
   const { openSignup } = useAuthModal();
   const isAuthenticated = authState.status === 'authenticated';
+  const canCreate = authState.user?.isPro ?? false;
 
   const [isOpen, setIsOpen] = useState(false);
   // 'browse' es el modo por defecto (agregar/sacar de una lista existente);
@@ -50,7 +71,10 @@ export const AddToListButton = ({ album }: AddToListButtonProps) => {
     () => (isOpen ? listService.listMine() : Promise.resolve([])),
     isOpen ? 'open' : 'closed'
   );
-  const lists = data ?? [];
+  // Se filtra acá y no con el parámetro `type` de la API porque listMine() no lo
+  // acepta: trae siempre todas las propias, que es lo que también necesita la
+  // barra lateral de /lists.
+  const lists = (data ?? []).filter((list) => list.type === item.kind);
 
   const handleOpen = () => {
     if (!isAuthenticated) {
@@ -63,14 +87,14 @@ export const AddToListButton = ({ album }: AddToListButtonProps) => {
     setIsOpen(true);
   };
 
-  /** Agrega o saca el álbum de una lista, según si ya estaba. */
+  /** Agrega o saca el ítem de una lista, según si ya estaba. */
   const handleToggle = async (listId: number, alreadyIn: boolean) => {
     setBusyListId(listId);
     setError(null);
 
     try {
-      if (alreadyIn) await listService.removeAlbum(listId, albumId);
-      else await listService.addAlbum(listId, albumId);
+      if (alreadyIn) await listService.removeItem(listId, item.id);
+      else await listService.addItem(listId, item.id);
       await reload();
     } catch (err) {
       setError(getErrorMessage(err));
@@ -80,9 +104,9 @@ export const AddToListButton = ({ album }: AddToListButtonProps) => {
   };
 
   /**
-   * Crea la lista con los álbumes elegidos, que ya incluyen a este: es para lo
+   * Crea la lista con los ítems elegidos, que ya incluyen a este: es para lo
    * que se abrió el modal. Va en una sola request porque el alta acepta los
-   * álbumes (ver createListSchema); antes eran dos, y si la segunda fallaba
+   * ítems (ver createListSchema); antes eran dos, y si la segunda fallaba
    * quedaba una lista vacía dando vueltas.
    */
   const handleCreate = async (input: ListInput): Promise<boolean> => {
@@ -116,18 +140,26 @@ export const AddToListButton = ({ album }: AddToListButtonProps) => {
         isBusy={isCreating}
         onClose={() => setIsOpen(false)}
       >
-        {mode === 'create' ? (
+        {/* Un FREE no puede armar listas, así que no tiene sentido mostrarle ni
+            el formulario ni sus propias listas: va directo el aviso. */}
+        {!canCreate ? (
+          <ProOnlyNotice />
+        ) : mode === 'create' ? (
           <ListForm
-            // Arranca con este álbum ya elegido: es el que se estaba mirando, y
-            // así el alta cumple de entrada la regla de "al menos un álbum".
-            initialAlbums={[
+            // Arranca con este ítem ya elegido y con su tipo fijado: es el que
+            // se estaba mirando, así que el alta cumple de entrada la regla de
+            // "al menos un ítem" y no hay nada que elegir sobre de qué va la
+            // lista.
+            initialType={item.kind}
+            initialItems={[
               {
-                id: album.id,
-                title: album.title,
-                urlCover: album.urlCover,
-                artistName: album.artistName,
+                id: item.id,
+                title: item.title,
+                urlCover: item.urlCover,
+                artistName: item.artistName,
               },
             ]}
+            canChooseType={false}
             isSubmitting={isCreating}
             submitLabel="Crear y agregar"
             onSubmit={handleCreate}
@@ -138,11 +170,11 @@ export const AddToListButton = ({ album }: AddToListButtonProps) => {
         ) : (
           <div className="add-to-list">
             {lists.length === 0 ? (
-              <p className="add-to-list__empty">Todavía no tenés ninguna lista.</p>
+              <p className="add-to-list__empty">{COPY[item.kind].empty}</p>
             ) : (
               <ul className="add-to-list__lists">
                 {lists.map((list) => {
-                  const alreadyIn = list.hasAlbum(albumId);
+                  const alreadyIn = list.hasItem(item.id);
 
                   return (
                     <li key={list.id} className="add-to-list__item">

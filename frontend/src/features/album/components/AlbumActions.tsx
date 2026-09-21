@@ -78,7 +78,15 @@ export const AlbumActions = ({
         </Button>
       )}
 
-      <AddToListButton album={album} />
+      <AddToListButton
+        item={{
+          kind: 'album',
+          id: album.id,
+          title: album.title,
+          urlCover: album.urlCover,
+          artistName: album.artistName,
+        }}
+      />
 
       {mainGenre && (
         <ButtonLink to={`/genres/${mainGenre.id}`} variant="outline" fullWidth>

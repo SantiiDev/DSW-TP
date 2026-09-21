@@ -1,8 +1,9 @@
-// Buscador para agregar álbumes a una lista, con resultados en vivo.
+// Buscador para agregar ítems a una lista, con resultados en vivo. Busca álbumes
+// o canciones según de qué sea la lista.
 //
-// Busca por título contra el catálogo aprobado con el servicio de álbumes que ya
-// existe, igual que el buscador de la barra de navegación, en vez de traer todo
-// el catálogo para filtrarlo en el cliente.
+// Busca por título contra el catálogo aprobado con los servicios que ya existen
+// (los mismos que usa el buscador de la barra de navegación), en vez de traer
+// todo el catálogo para filtrarlo en el cliente.
 //
 // NO usa el SearchBar de core/components, y no es un descuido: ese componente es
 // un <form>, y este buscador se dibuja adentro del <form> de ListForm. Un
@@ -19,8 +20,9 @@ import { Button } from '../../../core/components/Button';
 import { Loader } from '../../../core/components/Loader';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { albumService } from '../../album/services/albumService';
-import type { Album } from '../../album/models/Album';
+import { songService } from '../../song/services/songService';
 import { AlbumCover } from '../../genre/components/AlbumCover';
+import type { ListType } from '../models/List';
 import '../styles/_list.scss';
 
 /** Cuántos resultados trae cada búsqueda: alcanza para elegir sin scrollear demasiado. */
@@ -32,27 +34,82 @@ const RESULT_LIMIT = 8;
  */
 const SEARCH_DELAY_MS = 350;
 
-type ListAlbumPickerProps = {
-  /** Ids de los álbumes que ya están en la lista, para no ofrecerlos de nuevo. */
-  excludeIds: number[];
-  /** true mientras se está agregando un álbum: deshabilita los botones de la lista. */
-  isBusy: boolean;
-  /**
-   * Avisa qué álbum se eligió. Va el álbum entero y no solo su id porque los
-   * dos usos lo necesitan: la ficha de la lista manda el id a la API, y el
-   * formulario de alta tiene que dibujar el elegido antes de que exista la lista.
-   */
-  onAdd: (album: Album) => void;
+/**
+ * Un resultado del buscador, ya sea un álbum o una canción.
+ *
+ * Se define esta forma común en vez de manejar los modelos Album y Song por
+ * separado porque el buscador dibuja las dos cosas igual: portada, título y
+ * artista debajo. Una canción no tiene portada propia, así que usa la de su
+ * álbum.
+ */
+export type PickedItem = {
+  id: number;
+  title: string;
+  urlCover: string | null;
+  artistName: string;
 };
 
-export const ListAlbumPicker = ({ excludeIds, isBusy, onAdd }: ListAlbumPickerProps) => {
+/** Los textos que cambian según de qué sea la lista. */
+const COPY: Record<ListType, { placeholder: string; empty: string }> = {
+  album: {
+    placeholder: 'Buscar un álbum por título...',
+    empty: 'No encontramos álbumes con ese título, o ya están todos en la lista.',
+  },
+  song: {
+    placeholder: 'Buscar una canción por título...',
+    empty: 'No encontramos canciones con ese título, o ya están todas en la lista.',
+  },
+};
+
+/**
+ * Busca en el catálogo aprobado y devuelve los resultados ya en la forma común.
+ * @param type de qué es la lista: decide a qué servicio se le pregunta.
+ * @param title texto a buscar, ya sin espacios sobrantes.
+ */
+async function search(type: ListType, title: string): Promise<PickedItem[]> {
+  if (type === 'album') {
+    const albums = await albumService.explore({ title, limit: RESULT_LIMIT });
+    return albums.map((album) => ({
+      id: album.id,
+      title: album.title,
+      urlCover: album.urlCover,
+      artistName: album.artistName,
+    }));
+  }
+
+  const songs = await songService.explore({ title, limit: RESULT_LIMIT });
+  return songs.map((song) => ({
+    id: song.id,
+    title: song.title,
+    urlCover: song.album?.urlCover ?? null,
+    artistName: song.artistName,
+  }));
+}
+
+type ListItemPickerProps = {
+  /** De qué es la lista: decide si se buscan álbumes o canciones. */
+  type: ListType;
+  /** Ids de los ítems que ya están en la lista, para no ofrecerlos de nuevo. */
+  excludeIds: number[];
+  /** true mientras se está agregando un ítem: deshabilita los botones de la lista. */
+  isBusy: boolean;
+  /**
+   * Avisa qué ítem se eligió. Va el ítem entero y no solo su id porque los dos
+   * usos lo necesitan: la ficha de la lista manda el id a la API, y el
+   * formulario de alta tiene que dibujar el elegido antes de que exista la lista.
+   */
+  onAdd: (item: PickedItem) => void;
+};
+
+export const ListItemPicker = ({ type, excludeIds, isBusy, onAdd }: ListItemPickerProps) => {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Album[]>([]);
+  const [results, setResults] = useState<PickedItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Busca cada vez que cambia el texto, después de la pausa. Es sincronizar el
-  // componente con la API, que es para lo que sirve un efecto.
+  // Busca cada vez que cambia el texto (o el tipo de lista), después de la
+  // pausa. Es sincronizar el componente con la API, que es para lo que sirve un
+  // efecto.
   useEffect(() => {
     const trimmed = query.trim();
 
@@ -74,10 +131,10 @@ export const ListAlbumPicker = ({ excludeIds, isBusy, onAdd }: ListAlbumPickerPr
 
     const timer = setTimeout(async () => {
       try {
-        const albums = await albumService.explore({ title: trimmed, limit: RESULT_LIMIT });
+        const items = await search(type, trimmed);
         if (cancelled) return;
 
-        setResults(albums);
+        setResults(items);
         setError(null);
       } catch (err) {
         if (cancelled) return;
@@ -93,24 +150,24 @@ export const ListAlbumPicker = ({ excludeIds, isBusy, onAdd }: ListAlbumPickerPr
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [query]);
+  }, [query, type]);
 
-  const visibleResults = results.filter((album) => !excludeIds.includes(album.id));
+  const visibleResults = results.filter((item) => !excludeIds.includes(item.id));
   const hasQuery = query.trim() !== '';
 
   return (
-    <div className="list-album-picker">
-      <div className="list-album-picker__field">
-        <Search className="list-album-picker__icon" size={16} aria-hidden="true" />
+    <div className="list-item-picker">
+      <div className="list-item-picker__field">
+        <Search className="list-item-picker__icon" size={16} aria-hidden="true" />
 
         {/* type="text" y no type="search": el segundo trae la cruz de limpiar
             propia del navegador, que no se puede estilar y desentona con el
             resto del sitio. La de al lado es la nuestra. */}
         <input
           type="text"
-          className="list-album-picker__input"
-          placeholder="Buscar un álbum por título..."
-          aria-label="Buscar un álbum por título"
+          className="list-item-picker__input"
+          placeholder={COPY[type].placeholder}
+          aria-label={COPY[type].placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           // Este campo vive dentro del formulario de alta de la lista, y un
@@ -125,7 +182,7 @@ export const ListAlbumPicker = ({ excludeIds, isBusy, onAdd }: ListAlbumPickerPr
         {hasQuery && (
           <button
             type="button"
-            className="list-album-picker__clear"
+            className="list-item-picker__clear"
             aria-label="Limpiar la búsqueda"
             title="Limpiar la búsqueda"
             onClick={() => setQuery('')}
@@ -140,20 +197,18 @@ export const ListAlbumPicker = ({ excludeIds, isBusy, onAdd }: ListAlbumPickerPr
       ) : error ? (
         <Alert tone="error">{error}</Alert>
       ) : hasQuery && visibleResults.length === 0 ? (
-        <p className="list-album-picker__empty">
-          No encontramos álbumes con ese título, o ya están todos en la lista.
-        </p>
+        <p className="list-item-picker__empty">{COPY[type].empty}</p>
       ) : (
         visibleResults.length > 0 && (
-          <ul className="list-album-picker__results">
-            {visibleResults.map((album) => (
-              <li key={album.id} className="list-album-picker__result">
-                <AlbumCover title={album.title} url={album.urlCover} size="sm" />
-                <div className="list-album-picker__result-info">
-                  <p className="list-album-picker__result-title">{album.title}</p>
-                  <p className="list-album-picker__result-artist">{album.artistName}</p>
+          <ul className="list-item-picker__results">
+            {visibleResults.map((item) => (
+              <li key={item.id} className="list-item-picker__result">
+                <AlbumCover title={item.title} url={item.urlCover} size="sm" />
+                <div className="list-item-picker__result-info">
+                  <p className="list-item-picker__result-title">{item.title}</p>
+                  <p className="list-item-picker__result-artist">{item.artistName}</p>
                 </div>
-                <Button size="sm" variant="outline" disabled={isBusy} onClick={() => onAdd(album)}>
+                <Button size="sm" variant="outline" disabled={isBusy} onClick={() => onAdd(item)}>
                   <Plus size={14} aria-hidden="true" />
                   Agregar
                 </Button>

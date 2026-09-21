@@ -29,7 +29,14 @@ de merge (está también en [`CLAUDE.md`](../CLAUDE.md)):
 |:-|:-|
 | Santino Gallo | `user`, `auth`, `membership` (plan, subscription, payment), seed del catálogo |
 | Juan Ignacio Esterri | `artist`, `album`, `song` |
-| Santiago Siena | `genre`, `review` |
+| Santiago Siena | `genre`, `review`, `list` |
+
+> **El reparto formal ya está cumplido**: las features de la tabla son las del
+> alcance comprometido en la [propuesta](../proposal.md) y están todas cerradas.
+> Lo que se trabaja de acá en adelante es **alcance adicional voluntario**, que
+> no se reparte por entidad: lo toma quien lo desarrolle y se anota en la tabla
+> de issues como cualquier otra fila. `list` entró así y quedó a cargo de
+> Santiago Siena.
 
 ## Issues
 
@@ -54,10 +61,12 @@ Los títulos son los de las ramas que salieron de cada issue.
 | — | CUU 4 (parte 2) — Estadísticas avanzadas y bloqueo para `FREE` | Santino Gallo | Cerrado (entró por el PR #15; falta abrir el issue) |
 | #11 | Tests automatizados de backend y frontend | Juan Ignacio Esterri | Cerrado |
 | #12 | Ranking global de usuarios más activos | Juan Ignacio Esterri | Cerrado |
-| — | Listas personalizadas de álbumes (CRUD completo) | Santiago Siena | En curso, rama `custom-lists`, sin PR todavía (falta abrir el issue) |
+| — | Listas personalizadas de álbumes (CRUD completo) | Santiago Siena | Cerrado (entró por los PR #17 y #18; falta abrir el issue) |
+| — | Listas de canciones (`LISTS.type` + `LIST_SONGS`) y alta de listas restringida a `PRO`/`ADMIN` | Santiago Siena | En curso, sin PR todavía (falta abrir el issue) |
 
-> Las cinco filas sin número de más arriba se trabajaron antes de abrir su issue:
-> cuatro entraron juntas por el PR #13 y la quinta (CUU 4 parte 2) por el PR #15.
+> Las siete filas sin número de más arriba se trabajaron antes de abrir su issue:
+> cuatro entraron juntas por el PR #13, la de CUU 4 parte 2 por el PR #15, la de
+> listas personalizadas por los PR #17 y #18, y la última todavía no tiene PR.
 > Hay que crearlas en el GitHub Project y vincularlas a esos pull requests, para
 > que la trazabilidad quede completa antes de la entrega.
 
@@ -83,8 +92,9 @@ Lo que falta del alcance y todavía no tiene issue. El detalle de cada uno está
 > entraron por el PR #15. Lo que falta de ese ítem es la *evidencia de ejecución*,
 > que es un entregable de documentación aparte.
 >
-> "Conectar `/lists` a la API" también estaba en esta lista y se sacó: está
-> resuelto en la rama `custom-lists` (ver la fila de arriba), pendiente de PR.
+> "Conectar `/lists` a la API" también estaba en esta lista y se sacó: se
+> resolvió con el CRUD de listas personalizadas, que entró por los PR #17 y #18
+> (ver la fila de arriba).
 
 ## Pull requests
 
@@ -108,6 +118,11 @@ Gallo.
 | [#14](https://github.com/SantiiDev/DSW-TP/pull/14) | `docs/tracking-update` | Actualización del tracking con lo que realmente entró por el PR #13 | 10/09 | Santino Gallo |
 | [#15](https://github.com/SantiiDev/DSW-TP/pull/15) | `feature/11-testing-setup` | Seis commits: los tests automatizados de las dos apps (3 unitarios + integración en backend, unitario de componente + E2E en frontend), CUU 4 (parte 2) con las estadísticas avanzadas, buscador y seguidores funcionales, panel de membresía y mejoras de interfaz del panel de administración | 16/09 | Juan Ignacio Esterri y Santino Gallo |
 | [#16](https://github.com/SantiiDev/DSW-TP/pull/16) | `feature/12-user-ranking` | Ranking global de usuarios más activos y unificación del encabezado duplicado de `/lists` y `/reviews` | 16/09 | Juan Ignacio Esterri |
+| [#17](https://github.com/SantiiDev/DSW-TP/pull/17) | `custom-lists` | CRUD completo de listas personalizadas (backend + frontend): entidades `LISTS`, `LIST_ALBUMS` y `LIST_LIKES`, la feature `list` en las dos apps y las tres secciones de `/lists` conectadas a la API | 17/09 | Santiago Siena |
+| [#18](https://github.com/SantiiDev/DSW-TP/pull/18) | `fixed-list` | Correcciones sobre el CRUD de listas | 18/09 | Santiago Siena |
+
+> Las ramas `custom-lists` y `fixed-list` se borraron después de mergearse, así
+> que el trabajo se sigue por su pull request y no por la rama.
 
 > El PR #5 del historial del repositorio pertenece al repositorio original
 > `utnfrrodsw/tp`, anterior al fork, y no es trabajo del grupo.
@@ -147,19 +162,25 @@ trazabilidad del trabajo:
   alcance del epic, para que el trabajo quede vinculado al issue #3.
 - **Otros seis commits fueron directos a `develop`** sin pasar por PR:
   `09afad5`, `64f2f3f`, `cad8b1b`, `cb3164a`, `21da334` y `1fc048d`.
+- **Después del PR #17 entraron cuatro commits directos más a `develop`**:
+  `4a1a3a1` y `ff6f741` (17/09, efectos de hover reemplazados por contraste de
+  color) y `d5e7e48` y `8e208f2` (18/09, correcciones de estilos y simplificación
+  de código). Son retoques transversales, no una feature, pero igual tendrían que
+  haber salido por una rama.
 - **`main` está 40 commits atrás de `develop`.** La entrega de regularidad tiene
   que salir de un merge de `develop` a `main`.
 - **La carga de trabajo está repartida de forma despareja** en el historial: de
-  los 45 commits del desarrollo (sin contar merges ni el historial heredado del
-  fork), 32 son de Santino Gallo, 9 de Juan Ignacio Esterri y 4 de Santiago
+  los 52 commits del desarrollo (sin contar merges ni el historial heredado del
+  fork), 36 son de Santino Gallo, 9 de Juan Ignacio Esterri y 7 de Santiago
   Siena. La cátedra evalúa la participación de cada integrante, así que conviene
   repartir lo que falta de manera que el historial lo refleje.
 
-  > Medición al 17/09/2026. La cifra anterior (36 commits: 27 / 5 / 4) era del
-  > 10/09 y quedó vieja: entre el 14/09 y el 16/09 entraron los PR #15 y #16.
-  > Para recalcularla:
+  > Medición al 19/09/2026. La cifra anterior (45 commits: 32 / 9 / 4) era del
+  > 17/09 y quedó vieja: entre el 17/09 y el 18/09 entraron los PR #17 y #18 más
+  > cuatro commits directos. Para recalcularla:
   > `git log --no-merges --format="%an" --since=2026-07-01 | sort | uniq -c`
-  > (las identidades `SantiiDev` y `Santino Gallo` son la misma persona).
+  > (en PowerShell, `... | Group-Object | Select-Object Count, Name`).
+  > Las identidades `SantiiDev` y `Santino Gallo` son la misma persona.
 - **El PR #13 juntó cuatro commits de dos áreas distintas.** Se había separado en
   tres ramas para poder revisarlo por partes, pero al estar encadenadas se mergeó
   todo junto (ver la nota de la tabla de pull requests). Para lo que queda
