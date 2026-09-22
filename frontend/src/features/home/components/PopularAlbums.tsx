@@ -44,15 +44,15 @@ export const PopularAlbums = () => {
         ) : (
           <div className="popular-albums__grid">
             {albums.map((album) => (
-              <GatedLink key={album.id} to={`/albums/${album.id}`} className="album-card">
-                <div className="album-card__cover">
+              <GatedLink key={album.id} to={`/albums/${album.id}`} className="popular-album-card">
+                <div className="popular-album-card__cover">
                   {/* AlbumCover dibuja un degradado con la inicial cuando el
                       álbum no tiene portada cargada. */}
                   <AlbumCover title={album.title} url={album.urlCover} size="lg" />
                 </div>
-                <div className="album-card__info">
-                  <h3 className="album-card__title">{album.title}</h3>
-                  <p className="album-card__artist">{album.artistName}</p>
+                <div className="popular-album-card__info">
+                  <h3 className="popular-album-card__title">{album.title}</h3>
+                  <p className="popular-album-card__artist">{album.artistName}</p>
                 </div>
               </GatedLink>
             ))}

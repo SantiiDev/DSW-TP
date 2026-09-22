@@ -79,17 +79,19 @@ export const ReviewsSection = ({ targetKind, targetId, onReviewChange }: Reviews
     setError(null);
 
     try {
+      // Se pide una de más para saber si hay más sin necesitar el total: si
+      // vuelven PAGE_SIZE + 1, la de más se descarta y "hay más" es verdad. Sin
+      // esto, cuando el total es justo un múltiplo de PAGE_SIZE, "Ver más"
+      // aparece igual aunque no quede nada, y el click de más parece no hacer nada.
       const batch = await reviewService.list({
         target: { kind: targetKind, id: targetId },
         minRating: minRating > 0 ? minRating : undefined,
-        limit: PAGE_SIZE,
+        limit: PAGE_SIZE + 1,
         offset: 0,
       });
 
-      setReviews(batch);
-      // Si la tanda volvió completa puede haber más: es el mismo criterio del
-      // explorador de álbumes, que tampoco necesita saber el total.
-      setHasMore(batch.length === PAGE_SIZE);
+      setReviews(batch.slice(0, PAGE_SIZE));
+      setHasMore(batch.length > PAGE_SIZE);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -138,13 +140,13 @@ export const ReviewsSection = ({ targetKind, targetId, onReviewChange }: Reviews
       const batch = await reviewService.list({
         target,
         minRating: minRating > 0 ? minRating : undefined,
-        limit: PAGE_SIZE,
+        limit: PAGE_SIZE + 1,
         // Se arranca donde terminó lo ya listado.
         offset: reviews.length,
       });
 
-      setReviews((current) => [...current, ...batch]);
-      setHasMore(batch.length === PAGE_SIZE);
+      setReviews((current) => [...current, ...batch.slice(0, PAGE_SIZE)]);
+      setHasMore(batch.length > PAGE_SIZE);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

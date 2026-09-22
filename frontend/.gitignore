@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Variables de entorno reales: NUNCA se commitean.
+# Lo que se versiona es .env.example (mismo criterio que backend/.gitignore).
+.env
+.env.local
+.env.*.local
+
 # Reportes y artefactos que generan los tests
 coverage
 test-results

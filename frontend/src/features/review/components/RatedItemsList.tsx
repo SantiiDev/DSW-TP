@@ -64,17 +64,19 @@ export const RatedItemsList = ({ userId, username, kind, isOwnProfile }: RatedIt
     setError(null);
 
     try {
+      // Se pide uno de más para saber si hay más sin necesitar el total: si
+      // vuelven PAGE_SIZE + 1, el de más se descarta y "hay más" es verdad. Sin
+      // esto, cuando el total es justo un múltiplo de PAGE_SIZE, "Ver más"
+      // aparece igual aunque no quede nada, y el click de más parece no hacer nada.
       const batch = await reviewService.list({
         userId,
         targetKind: kind,
-        limit: PAGE_SIZE,
+        limit: PAGE_SIZE + 1,
         offset: 0,
       });
 
-      setItems(batch);
-      // Si la tanda volvió completa puede haber más: mismo criterio que el resto
-      // de los listados, que tampoco necesitan saber el total.
-      setHasMore(batch.length === PAGE_SIZE);
+      setItems(batch.slice(0, PAGE_SIZE));
+      setHasMore(batch.length > PAGE_SIZE);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -94,13 +96,13 @@ export const RatedItemsList = ({ userId, username, kind, isOwnProfile }: RatedIt
       const batch = await reviewService.list({
         userId,
         targetKind: kind,
-        limit: PAGE_SIZE,
+        limit: PAGE_SIZE + 1,
         // Se arranca donde terminó lo ya listado.
         offset: items.length,
       });
 
-      setItems((current) => [...current, ...batch]);
-      setHasMore(batch.length === PAGE_SIZE);
+      setItems((current) => [...current, ...batch.slice(0, PAGE_SIZE)]);
+      setHasMore(batch.length > PAGE_SIZE);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

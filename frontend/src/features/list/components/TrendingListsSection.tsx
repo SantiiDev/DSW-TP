@@ -40,10 +40,17 @@ export const TrendingListsSection = ({ genreId }: TrendingListsSectionProps) => 
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
 
-  /** Trae una tanda desde el offset indicado, ya con el filtro de género vigente. */
+  /**
+   * Trae una tanda desde el offset indicado, ya con el filtro de género vigente.
+   *
+   * Pide PAGE_SIZE + 1: la de más no se muestra, solo sirve para saber si hay más
+   * sin necesitar el total. Sin esto, cuando el total es justo un múltiplo de
+   * PAGE_SIZE, "Ver más" aparece igual aunque no quede nada, y ese click de más
+   * no trae ninguna lista nueva.
+   */
   const fetchPage = useCallback(
     (offset: number) =>
-      listService.list({ sort: 'recent', genre: genreId ?? undefined, limit: PAGE_SIZE, offset }),
+      listService.list({ sort: 'recent', genre: genreId ?? undefined, limit: PAGE_SIZE + 1, offset }),
     [genreId]
   );
 
@@ -61,8 +68,8 @@ export const TrendingListsSection = ({ genreId }: TrendingListsSectionProps) => 
 
     try {
       const page = await fetchPageRef.current(0);
-      setLists(page);
-      setHasMore(page.length === PAGE_SIZE);
+      setLists(page.slice(0, PAGE_SIZE));
+      setHasMore(page.length > PAGE_SIZE);
     } catch (err) {
       setError(getErrorMessage(err));
       setLists([]);
@@ -78,8 +85,8 @@ export const TrendingListsSection = ({ genreId }: TrendingListsSectionProps) => 
 
     try {
       const page = await fetchPageRef.current(lists.length);
-      setLists((current) => [...current, ...page]);
-      setHasMore(page.length === PAGE_SIZE);
+      setLists((current) => [...current, ...page.slice(0, PAGE_SIZE)]);
+      setHasMore(page.length > PAGE_SIZE);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

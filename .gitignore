@@ -1,0 +1,23 @@
+# .gitignore de la raíz del monorepo: cubre lo que puede aparecer fuera de
+# frontend/ y backend/, que ya tienen el suyo propio para lo específico de cada
+# app (node_modules, dist, .env, etc.).
+
+# Variables de entorno reales, por si alguna vez se crea un .env a este nivel.
+.env
+.env.local
+.env.*.local
+
+# Configuración personal de Claude Code: settings.local.json es por usuario y
+# nunca se comparte (launch.json sí se versiona a propósito, es la config de
+# los dev servers que usa todo el equipo).
+.claude/settings.local.json
+
+# Sistema operativo y editor.
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Por si alguna vez se instala algo en la raíz en lugar de frontend/backend.
+node_modules

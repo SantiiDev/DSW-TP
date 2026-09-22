@@ -41,7 +41,10 @@
   }
 }
 
-.album-card {
+// Nombre propio (no ".album-card") a propósito: esa clase ya la usa AlbumCard
+// (features/album), y las dos hojas se cargan globales — con el mismo nombre,
+// la que entra después en main.scss pisaba el tamaño y el peso del título acá.
+.popular-album-card {
   // Ancho fijo y no elástico: es una fila de siete tarjetas parejas, no una
   // grilla. flex-shrink en 0 para que no se aplasten al achicar la ventana; si
   // no entran, el wrap las baja de fila.
