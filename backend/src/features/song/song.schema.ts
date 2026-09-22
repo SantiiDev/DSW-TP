@@ -160,12 +160,14 @@ export const listSongsQuerySchema = z.object({
  * (ver ALBUM_SORTS), menos `year`: la canción no tiene año propio, lo hereda de
  * su álbum, y ordenar por él dejaría el tracklist entero pegado en bloque.
  *
- *   rating   las mejor calificadas.
- *   reviews  las más reseñadas.
- *   recent   las últimas agregadas al catálogo.
- *   title    alfabético; es el orden por defecto de un listado sin criterio.
+ *   rating    las mejor calificadas.
+ *   reviews   las más reseñadas (histórico, todas las reseñas).
+ *   trending  "Tendencia Ahora": las más reseñadas en los últimos días (ver
+ *             TRENDING_WINDOW_DAYS en song.repository.ts).
+ *   recent    las últimas agregadas al catálogo.
+ *   title     alfabético; es el orden por defecto de un listado sin criterio.
  */
-export const SONG_SORTS = ['rating', 'reviews', 'recent', 'title'] as const;
+export const SONG_SORTS = ['rating', 'reviews', 'trending', 'recent', 'title'] as const;
 export type SongSort = (typeof SONG_SORTS)[number];
 
 // Techo de cuántas canciones puede pedir una sola request al explorador. Las

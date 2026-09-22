@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Alert } from '../../../core/components/Alert';
+import { Button } from '../../../core/components/Button';
 import { Loader } from '../../../core/components/Loader';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { useFetch } from '../../../core/hooks/useFetch';
@@ -29,6 +30,10 @@ type AlbumRequestsSectionProps = {
   emptyTitle: string;
   emptyMessage: string;
 };
+
+// Cuántas solicitudes se ven de entrada y cuántas suma cada "Ver más". Mismo
+// criterio que ArtistRequestsSection, su hermana.
+const PAGE_SIZE = 12;
 
 /** Cómo se llama cada decisión ya tomada, para el mensaje de confirmación. */
 const DECISION_LABELS: Record<'approve' | 'reject', string> = {
@@ -57,6 +62,10 @@ export const AlbumRequestsSection = ({
   const [feedback, setFeedback] = useState<string | null>(null);
   // Solicitud con una operación en curso: deshabilita solo sus botones.
   const [busyAlbumId, setBusyAlbumId] = useState<number | null>(null);
+  // Cuántas solicitudes se muestran (paginado del lado del cliente). No hace
+  // falta resetearlo al cambiar de filtro: AdminRequestsPanel remonta esta
+  // sección con una `key` distinta por cada estado, así que arranca de nuevo solo.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   /**
    * Resuelve una solicitud.
@@ -83,6 +92,9 @@ export const AlbumRequestsSection = ({
     }
   };
 
+  const visibleRequests = requests.slice(0, visibleCount);
+  const hasMore = requests.length > visibleCount;
+
   return (
     <div className="request-section">
       {error && <Alert tone="error">{error}</Alert>}
@@ -97,7 +109,7 @@ export const AlbumRequestsSection = ({
           <h3 className="request-section__title">Álbumes ({requests.length})</h3>
 
           <ul className="request-list">
-            {requests.map((album) => (
+            {visibleRequests.map((album) => (
               <AlbumRequestCard
                 key={album.id}
                 album={album}
@@ -107,6 +119,17 @@ export const AlbumRequestsSection = ({
               />
             ))}
           </ul>
+
+          {hasMore && (
+            <div className="request-section__more">
+              <p className="request-section__more-count">
+                Mostrando {visibleRequests.length} de {requests.length} solicitudes.
+              </p>
+              <Button variant="outline" onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}>
+                Ver más álbumes
+              </Button>
+            </div>
+          )}
         </>
       )}
     </div>

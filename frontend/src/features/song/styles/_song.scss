@@ -132,6 +132,25 @@
     flex-direction: column;
     gap: $spacing-sm;
   }
+
+  // Pie del listado paginado: cuántos aportes se ven y el botón "Ver más".
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__more-count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
 }
 
 // Mismo caso que .album-contributions en _album.scss: en la pestaña "Aportes"

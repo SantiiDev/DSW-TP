@@ -36,7 +36,7 @@ export const STATE_TONES: Record<ContentState, BadgeTone> = {
  * No incluye `year` como el de álbum: la canción no tiene año propio, lo hereda
  * de su álbum, y ordenar por él dejaría cada tracklist pegado en bloque.
  */
-export type SongSort = 'rating' | 'reviews' | 'recent' | 'title';
+export type SongSort = 'rating' | 'reviews' | 'trending' | 'recent' | 'title';
 
 /** Artista del álbum de la canción, tal como viaja en la API. */
 export type SongArtistApiResponse = {

@@ -33,6 +33,10 @@ type AlbumContributionsListProps = {
   isOwnProfile: boolean;
 };
 
+// Cuántos aportes se ven de entrada y cuántos suma cada "Ver más". Mismo
+// criterio que ArtistContributionsList, su hermana.
+const PAGE_SIZE = 12;
+
 export const AlbumContributionsList = ({
   userId,
   username,
@@ -59,6 +63,11 @@ export const AlbumContributionsList = ({
   const [busyAlbumId, setBusyAlbumId] = useState<number | null>(null);
   // Error de una baja: va afuera del modal, arriba de la lista.
   const [actionError, setActionError] = useState<string | null>(null);
+  // Cuántos aportes se muestran (paginado del lado del cliente). No hace falta
+  // resetearlo: ProfileTabContent remonta este componente al cambiar de pestaña
+  // (Artistas/Álbumes/Canciones son tres componentes distintos), así que arranca
+  // de nuevo solo.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   /**
    * Abre el modal: vacío para proponer, o con los datos del aporte a corregir.
@@ -155,6 +164,9 @@ export const AlbumContributionsList = ({
       );
     }
 
+    const visibleAlbums = albums.slice(0, visibleCount);
+    const hasMore = albums.length > visibleCount;
+
     return (
       <>
         <div className="album-contributions__head">
@@ -168,7 +180,7 @@ export const AlbumContributionsList = ({
             baja solo los que siguen pendientes, que es lo que la API permite.
             Un rechazo es una decisión de moderación y no se borra solo. */}
         <ul className="album-contributions__grid">
-          {albums.map((album) => (
+          {visibleAlbums.map((album) => (
             <li key={album.id}>
               <AlbumCard
                 album={album}
@@ -180,6 +192,17 @@ export const AlbumContributionsList = ({
             </li>
           ))}
         </ul>
+
+        {hasMore && (
+          <div className="album-contributions__more">
+            <p className="album-contributions__more-count">
+              Mostrando {visibleAlbums.length} de {albums.length} álbumes.
+            </p>
+            <Button variant="outline" onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}>
+              Ver más álbumes
+            </Button>
+          </div>
+        )}
       </>
     );
   };

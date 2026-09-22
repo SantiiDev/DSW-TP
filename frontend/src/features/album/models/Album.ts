@@ -33,7 +33,7 @@ export const STATE_TONES: Record<ContentState, BadgeTone> = {
  * Cómo se ordena el explorador. Son los mismos valores que acepta la API en
  * `GET /albums/explore?sort=` (ver ALBUM_SORTS en album.schema.ts del backend).
  */
-export type AlbumSort = 'rating' | 'reviews' | 'recent' | 'year' | 'title';
+export type AlbumSort = 'rating' | 'reviews' | 'trending' | 'recent' | 'year' | 'title';
 
 /** Una década del explorador, tal como viaja en la API. */
 export type DecadeApiResponse = {

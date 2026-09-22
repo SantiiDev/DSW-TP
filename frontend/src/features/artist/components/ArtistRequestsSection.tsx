@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Alert } from '../../../core/components/Alert';
+import { Button } from '../../../core/components/Button';
 import { Loader } from '../../../core/components/Loader';
 import { EmptyState } from '../../../core/components/EmptyState';
 import { useFetch } from '../../../core/hooks/useFetch';
@@ -30,6 +31,11 @@ type ArtistRequestsSectionProps = {
   emptyTitle: string;
   emptyMessage: string;
 };
+
+// Cuántas solicitudes se ven de entrada y cuántas suma cada "Ver más". Sin esto,
+// una cola con muchos aportes pendientes hace una página larguísima de una sola
+// vez (mismo criterio que ArtistAdminSection, la tabla del catálogo completo).
+const PAGE_SIZE = 12;
 
 /** Cómo se llama cada decisión ya tomada, para el mensaje de confirmación. */
 const DECISION_LABELS: Record<'approve' | 'reject', string> = {
@@ -58,6 +64,10 @@ export const ArtistRequestsSection = ({
   const [feedback, setFeedback] = useState<string | null>(null);
   // Solicitud con una operación en curso: deshabilita solo sus botones.
   const [busyArtistId, setBusyArtistId] = useState<number | null>(null);
+  // Cuántas solicitudes se muestran (paginado del lado del cliente). No hace
+  // falta resetearlo al cambiar de filtro: AdminRequestsPanel remonta esta
+  // sección con una `key` distinta por cada estado, así que arranca de nuevo solo.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   /**
    * Resuelve una solicitud.
@@ -84,6 +94,9 @@ export const ArtistRequestsSection = ({
     }
   };
 
+  const visibleRequests = requests.slice(0, visibleCount);
+  const hasMore = requests.length > visibleCount;
+
   return (
     <div className="request-section">
       {error && <Alert tone="error">{error}</Alert>}
@@ -98,7 +111,7 @@ export const ArtistRequestsSection = ({
           <h3 className="request-section__title">Artistas ({requests.length})</h3>
 
           <ul className="request-list">
-            {requests.map((artist) => (
+            {visibleRequests.map((artist) => (
               <ArtistRequestCard
                 key={artist.id}
                 artist={artist}
@@ -108,6 +121,17 @@ export const ArtistRequestsSection = ({
               />
             ))}
           </ul>
+
+          {hasMore && (
+            <div className="request-section__more">
+              <p className="request-section__more-count">
+                Mostrando {visibleRequests.length} de {requests.length} solicitudes.
+              </p>
+              <Button variant="outline" onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}>
+                Ver más artistas
+              </Button>
+            </div>
+          )}
         </>
       )}
     </div>

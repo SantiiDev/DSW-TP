@@ -198,6 +198,26 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     }
   }
+
+  // Pie del listado paginado: cuántos aportes se ven y el botón "Ver más".
+  // Mismo criterio que __more en ArtistAdminSection (la tabla del catálogo).
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__more-count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
 }
 
 // En la pestaña "Aportes" del perfil la lista va debajo del selector de

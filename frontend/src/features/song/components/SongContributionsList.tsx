@@ -33,6 +33,10 @@ type SongContributionsListProps = {
   isOwnProfile: boolean;
 };
 
+// Cuántos aportes se ven de entrada y cuántos suma cada "Ver más". Mismo
+// criterio que ArtistContributionsList, su hermana.
+const PAGE_SIZE = 12;
+
 export const SongContributionsList = ({
   userId,
   username,
@@ -59,6 +63,11 @@ export const SongContributionsList = ({
   const [busySongId, setBusySongId] = useState<number | null>(null);
   // Error de una baja: va afuera del modal, arriba de la lista.
   const [actionError, setActionError] = useState<string | null>(null);
+  // Cuántos aportes se muestran (paginado del lado del cliente). No hace falta
+  // resetearlo: ProfileTabContent remonta este componente al cambiar de pestaña
+  // (Artistas/Álbumes/Canciones son tres componentes distintos), así que arranca
+  // de nuevo solo.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   /**
    * Abre el modal: vacío para proponer, o con los datos del aporte a corregir.
@@ -157,6 +166,9 @@ export const SongContributionsList = ({
       );
     }
 
+    const visibleSongs = songs.slice(0, visibleCount);
+    const hasMore = songs.length > visibleCount;
+
     return (
       <>
         <div className="song-contributions__head">
@@ -170,7 +182,7 @@ export const SongContributionsList = ({
             baja solo los que siguen pendientes, que es lo que la API permite.
             Un rechazo es una decisión de moderación y no se borra solo. */}
         <ul className="song-contributions__list">
-          {songs.map((song) => (
+          {visibleSongs.map((song) => (
             <li key={song.id}>
               <SongCard
                 song={song}
@@ -182,6 +194,17 @@ export const SongContributionsList = ({
             </li>
           ))}
         </ul>
+
+        {hasMore && (
+          <div className="song-contributions__more">
+            <p className="song-contributions__more-count">
+              Mostrando {visibleSongs.length} de {songs.length} canciones.
+            </p>
+            <Button variant="outline" onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}>
+              Ver más canciones
+            </Button>
+          </div>
+        )}
       </>
     );
   };

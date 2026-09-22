@@ -149,14 +149,17 @@ export const listAlbumsQuerySchema = z.object({
 /**
  * Cómo se ordena el explorador. Cada valor corresponde a una sección de /music:
  *
- *   rating   los mejor calificados (columna average_rating, que mantiene el CRUD
- *            de reseñas).
- *   reviews  los más reseñados.
- *   recent   los últimos agregados al catálogo.
- *   year     los lanzamientos más nuevos.
- *   title    alfabético; es el orden por defecto de un listado sin criterio.
+ *   rating    los mejor calificados (columna average_rating, que mantiene el CRUD
+ *             de reseñas).
+ *   reviews   los más reseñados (histórico, todas las reseñas).
+ *   trending  "Tendencia Ahora": los más reseñados en los últimos días (ver
+ *             TRENDING_WINDOW_DAYS en album.repository.ts). A diferencia de
+ *             `reviews`, que es histórico, este mira actividad reciente.
+ *   recent    los últimos agregados al catálogo.
+ *   year      los lanzamientos más nuevos.
+ *   title     alfabético; es el orden por defecto de un listado sin criterio.
  */
-export const ALBUM_SORTS = ['rating', 'reviews', 'recent', 'year', 'title'] as const;
+export const ALBUM_SORTS = ['rating', 'reviews', 'trending', 'recent', 'year', 'title'] as const;
 export type AlbumSort = (typeof ALBUM_SORTS)[number];
 
 // Techo de cuántos álbumes puede pedir una sola request al explorador. Las

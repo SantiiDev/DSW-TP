@@ -25,6 +25,7 @@ import '../styles/_album.scss';
 const SORT_TITLES: Record<AlbumSort, string> = {
   rating: 'Mejores calificados',
   reviews: 'Más reseñados',
+  trending: 'Tendencia ahora',
   recent: 'Últimos agregados',
   year: 'Nuevos lanzamientos',
   title: 'Todos los álbumes',
@@ -33,7 +34,8 @@ const SORT_TITLES: Record<AlbumSort, string> = {
 /** Qué explica cada criterio, para el subtítulo. */
 const SORT_SUBTITLES: Record<AlbumSort, string> = {
   rating: 'Ordenados por la calificación promedio que les puso la comunidad.',
-  reviews: 'Ordenados por cuántas reseñas recibieron.',
+  reviews: 'Ordenados por cuántas reseñas recibieron en total.',
+  trending: 'Los que más reseñas sumaron en los últimos días.',
   recent: 'Los últimos álbumes que se sumaron al catálogo de Musicboxd.',
   year: 'Del año de lanzamiento más nuevo al más viejo.',
   title: 'Todo el catálogo, en orden alfabético.',
@@ -44,7 +46,7 @@ const SORT_SUBTITLES: Record<AlbumSort, string> = {
  * alfabético: la URL la escribe cualquiera y no puede romper la página.
  */
 function readSort(raw: string | null): AlbumSort {
-  const sorts: AlbumSort[] = ['rating', 'reviews', 'recent', 'year', 'title'];
+  const sorts: AlbumSort[] = ['rating', 'reviews', 'trending', 'recent', 'year', 'title'];
   return sorts.find((sort) => sort === raw) ?? 'title';
 }
 

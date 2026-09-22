@@ -21,6 +21,28 @@
     font-weight: 700;
     color: $color-text;
   }
+
+  // Pie del listado paginado: cuántas solicitudes se ven y el botón "Ver más".
+  // Mismo criterio que __more en _artist.scss, _album.scss y _song.scss (las
+  // tablas del ABM de catálogo), pero uno solo acá porque las tres colas de
+  // solicitudes comparten esta misma clase.
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__more-count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
 }
 
 // Una solicitud por fila en mobile; desde tablet entran de a dos, que es donde el

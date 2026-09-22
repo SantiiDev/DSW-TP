@@ -266,6 +266,11 @@ async function findAlbumListIdsByGenre(idGenre: number): Promise<number[]> {
         model: Album,
         as: 'album',
         attributes: [],
+        // Sin esto, Sequelize solo pone INNER JOIN en el tramo de adentro (hacia
+        // Genre) y deja este en LEFT OUTER: el GROUP BY termina agrupando el
+        // id_list de TODAS las filas de list_albums, no solo las que matchean el
+        // género, y el filtro no filtra nada.
+        required: true,
         include: [
           {
             model: Genre,
@@ -298,6 +303,9 @@ async function findSongListIdsByGenre(idGenre: number): Promise<number[]> {
         model: Song,
         as: 'song',
         attributes: [],
+        // Mismo motivo que en findAlbumListIdsByGenre: sin required acá, el join
+        // ListSong -> Song queda LEFT OUTER y el filtro no descarta nada.
+        required: true,
         include: [
           {
             model: Album,

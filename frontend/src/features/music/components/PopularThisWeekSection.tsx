@@ -1,13 +1,13 @@
-// Sección "Populares Esta Semana" del explorador: lo más reseñado por la
-// comunidad.
+// Sección "Más Reseñados" del explorador: lo más reseñado por la comunidad,
+// histórico (sort='reviews', todas las reseñas, sin ventana de tiempo).
 //
-// El diseño mostraba "oyentes", un dato que no existe en el modelo: Musicboxd
-// registra reseñas, no reproducciones. Se reemplaza por la cantidad de reseñas,
-// que es lo que la sección puede medir de verdad.
-//
-// La ventana de "esta semana" tampoco se puede aplicar todavía: filtrar por fecha
-// necesita REVIEW.review_date, y esa feature no existe. Cuando exista, se le suma
-// el filtro por fecha al mismo `sort` y la sección queda completa.
+// El diseño original mostraba "oyentes", un dato que no existe en el modelo:
+// Musicboxd registra reseñas, no reproducciones. Se reemplaza por la cantidad de
+// reseñas, que es lo que la sección puede medir de verdad. También se iba a
+// llamar "Populares Esta Semana", acotada a los últimos días, pero eso quedaría
+// casi idéntico a "Tendencia Ahora" (sort='trending', ver TrendingSection.tsx),
+// que ya cubre la actividad reciente: por eso esta se queda como el ranking
+// histórico y no se le suma una ventana de fecha.
 import { Flame } from 'lucide-react';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { albumService } from '../../album/services/albumService';

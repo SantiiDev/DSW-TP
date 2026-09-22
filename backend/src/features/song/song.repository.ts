@@ -169,10 +169,14 @@ type ExploreOptions = {
   title?: string;
 };
 
+// Ventana de "Tendencia Ahora": cuántos días atrás cuentan como actividad
+// reciente. Mismo valor que TRENDING_WINDOW_DAYS en album.repository.ts.
+const TRENDING_WINDOW_DAYS = 14;
+
 /**
  * Traduce el orden pedido a la cláusula ORDER BY de Sequelize.
  *
- * Los dos criterios que miran reseñas usan una subconsulta correlacionada, porque
+ * Los criterios que miran reseñas usan una subconsulta correlacionada, porque
  * SONG no guarda ni el promedio ni la cantidad (a diferencia de ALBUMS, que sí
  * tiene la columna derivada average_rating) y el include que trae las reseñas va
  * con `separate: true`, en una consulta aparte.
@@ -205,6 +209,21 @@ function buildExploreOrder(sort: SongSort = 'title'): Order {
           literal(
             "(SELECT COUNT(*) FROM `review` `r` " +
               "WHERE `r`.`id_song` = `Song`.`id_song` AND `r`.`state` = 'published')"
+          ),
+          'DESC',
+        ],
+        byTitle,
+      ];
+    // Misma subconsulta que 'reviews', acotada a los últimos TRENDING_WINDOW_DAYS
+    // días: es lo que hace real a "Tendencia Ahora" en vez de mostrar lo último
+    // agregado al catálogo (ver el mismo criterio en album.repository.ts).
+    case 'trending':
+      return [
+        [
+          literal(
+            "(SELECT COUNT(*) FROM `review` `r` " +
+              "WHERE `r`.`id_song` = `Song`.`id_song` AND `r`.`state` = 'published' " +
+              `AND \`r\`.\`review_date\` >= NOW() - INTERVAL ${TRENDING_WINDOW_DAYS} DAY)`
           ),
           'DESC',
         ],

@@ -26,6 +26,7 @@ import '../styles/_song.scss';
 const SORT_TITLES: Record<SongSort, string> = {
   rating: 'Mejores calificadas',
   reviews: 'Más reseñadas',
+  trending: 'Tendencia ahora',
   recent: 'Últimas agregadas',
   title: 'Todas las canciones',
 };
@@ -33,7 +34,8 @@ const SORT_TITLES: Record<SongSort, string> = {
 /** Qué explica cada criterio, para el subtítulo. */
 const SORT_SUBTITLES: Record<SongSort, string> = {
   rating: 'Ordenadas por la calificación promedio que les puso la comunidad.',
-  reviews: 'Ordenadas por cuántas reseñas recibieron.',
+  reviews: 'Ordenadas por cuántas reseñas recibieron en total.',
+  trending: 'Las que más reseñas sumaron en los últimos días.',
   recent: 'Las últimas canciones que se sumaron al catálogo de Musicboxd.',
   title: 'Todo el catálogo, en orden alfabético.',
 };
@@ -43,7 +45,7 @@ const SORT_SUBTITLES: Record<SongSort, string> = {
  * alfabético: la URL la escribe cualquiera y no puede romper la página.
  */
 function readSort(raw: string | null): SongSort {
-  const sorts: SongSort[] = ['rating', 'reviews', 'recent', 'title'];
+  const sorts: SongSort[] = ['rating', 'reviews', 'trending', 'recent', 'title'];
   return sorts.find((sort) => sort === raw) ?? 'title';
 }
 

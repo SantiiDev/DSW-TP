@@ -180,6 +180,25 @@
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     }
   }
+
+  // Pie del listado paginado: cuántos aportes se ven y el botón "Ver más".
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__more-count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
 }
 
 // En la pestaña "Aportes" del perfil la lista va debajo del selector de

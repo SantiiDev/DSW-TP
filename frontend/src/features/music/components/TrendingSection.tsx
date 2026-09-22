@@ -1,9 +1,9 @@
-// Sección "Tendencia Ahora" del explorador: lo último que se sumó al catálogo.
+// Sección "Tendencia Ahora" del explorador: lo que más reseñas sumó en los
+// últimos días (sort='trending', ver TRENDING_WINDOW_DAYS en
+// album.repository.ts y song.repository.ts del backend).
 //
-// El criterio definitivo sería la actividad de reseñas de los últimos días, pero
-// eso necesita la feature review, que todavía no existe. Mientras tanto muestra
-// los últimos agregados, que SÍ es un dato real y distinto del de las otras
-// secciones. Cuando exista Review, lo único que hay que cambiar es el `sort`.
+// Se diferencia de "Más Reseñados" (sort='reviews', al lado) en que ese es
+// histórico —cuenta TODAS las reseñas— y este mira solo actividad reciente.
 import { TrendingUp } from 'lucide-react';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { albumService } from '../../album/services/albumService';
@@ -24,16 +24,16 @@ export const TrendingSection = ({ type }: TrendingSectionProps) => {
   // endpoints distintos.
   const { data, isLoading, error } = useFetch(async () => {
     if (type === 'albums') {
-      const albums = await albumService.explore({ sort: 'recent', limit: SECTION_SIZE });
+      const albums = await albumService.explore({ sort: 'trending', limit: SECTION_SIZE });
       return albums.map(albumToExploreItem);
     }
 
-    const songs = await songService.explore({ sort: 'recent', limit: SECTION_SIZE });
+    const songs = await songService.explore({ sort: 'trending', limit: SECTION_SIZE });
     return songs.map(songToExploreItem);
   }, type);
 
   const items = data ?? [];
-  const seeAllTo = type === 'albums' ? '/albums?sort=recent' : '/songs?sort=recent';
+  const seeAllTo = type === 'albums' ? '/albums?sort=trending' : '/songs?sort=trending';
 
   return (
     <ExploreSectionShell

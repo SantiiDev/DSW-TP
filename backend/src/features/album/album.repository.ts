@@ -207,13 +207,23 @@ type ExploreOptions = {
   title?: string;
 };
 
+// Ventana de "Tendencia Ahora": cuántos días atrás cuentan como actividad
+// reciente. Se define acá y no en el schema porque es un detalle de cómo se
+// arma la consulta, no un dato que valide la entrada.
+const TRENDING_WINDOW_DAYS = 14;
+
 /**
  * Traduce el orden pedido a la cláusula ORDER BY de Sequelize.
  *
- * Los dos que cuentan reseñas usan una subconsulta correlacionada: la cantidad de
+ * Los que cuentan reseñas usan una subconsulta correlacionada: la cantidad de
  * reseñas no es una columna de ALBUMS, y el include que las trae va con
  * `separate: true` (una consulta aparte), así que no se puede ordenar por él. La
  * subconsulta la resuelve MySQL fila por fila dentro del mismo SELECT.
+ *
+ * `trending` es la misma subconsulta que `reviews`, pero acotada a las reseñas
+ * publicadas de los últimos TRENDING_WINDOW_DAYS días: es lo que la distingue de
+ * "Más Reseñados" (histórico) y lo que hace real a "Tendencia Ahora", que hasta
+ * ahora eran los últimos agregados al catálogo, no una tendencia.
  *
  * El desempate siempre es por título, para que dos consultas iguales devuelvan
  * las filas en el mismo orden (hoy, sin reseñas cargadas, TODOS los álbumes
@@ -231,6 +241,18 @@ function buildOrder(sort: AlbumSort = 'title'): Order {
       return [
         [
           literal('(SELECT COUNT(*) FROM `review` WHERE `review`.`id_album` = `Album`.`id_album`)'),
+          'DESC',
+        ],
+        byTitle,
+      ];
+    case 'trending':
+      return [
+        [
+          literal(
+            '(SELECT COUNT(*) FROM `review` WHERE `review`.`id_album` = `Album`.`id_album` ' +
+              "AND `review`.`state` = 'published' " +
+              `AND \`review\`.\`review_date\` >= NOW() - INTERVAL ${TRENDING_WINDOW_DAYS} DAY)`
+          ),
           'DESC',
         ],
         byTitle,

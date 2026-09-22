@@ -127,6 +127,26 @@
     margin: 0;
   }
 
+  // Pie del listado paginado: cuántos usuarios se ven y el botón "Ver más".
+  // Mismo criterio que __more en _artist.scss (la tabla del catálogo).
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__more-count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+
   // El select y la etiqueta de "antes: X" van juntos en la celda de rol.
   &__role-cell {
     display: flex;

@@ -29,6 +29,11 @@ import type { User, UserRole } from '../models/User';
 /** Roles elegidos y todavía sin guardar, indexados por id de usuario. */
 type PendingRoles = Record<number, UserRole>;
 
+// Cuántas filas se muestran de entrada y cuántas suma cada "Ver más". Mismo
+// criterio que ArtistAdminSection: sin esto, una base con muchos usuarios hace
+// una tabla larguísima de una sola vez.
+const PAGE_SIZE = 15;
+
 export const AdminUsersPanel = () => {
   const { state: authState } = useAuth();
 
@@ -49,6 +54,10 @@ export const AdminUsersPanel = () => {
   // Cambios de rol en borrador: se aplican recién al apretar "Guardar cambios".
   const [pendingRoles, setPendingRoles] = useState<PendingRoles>({});
   const [isSavingRoles, setIsSavingRoles] = useState(false);
+  // Cuántas filas se muestran (paginado del lado del cliente). No hay filtro que
+  // la reinicie: el panel no tiene buscador ni selector de estado, así que crece
+  // solo con "Ver más" mientras dure la sesión en esta pestaña.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const pendingCount = Object.keys(pendingRoles).length;
   // Las cuentas dadas de baja siguen en el listado, así que se cuentan aparte
@@ -195,6 +204,9 @@ export const AdminUsersPanel = () => {
     }
   };
 
+  const visibleUsers = users.slice(0, visibleCount);
+  const hasMoreUsers = users.length > visibleCount;
+
   return (
     <>
       {error && <Alert tone="error">{error}</Alert>}
@@ -223,7 +235,7 @@ export const AdminUsersPanel = () => {
         ) : (
           <>
             <UserAdminTable
-              users={users}
+              users={visibleUsers}
               currentUserId={authState.user?.id ?? 0}
               busyUserId={busyUserId}
               pendingRoles={pendingRoles}
@@ -232,6 +244,17 @@ export const AdminUsersPanel = () => {
               onSuspend={setUserToSuspend}
               onActivate={handleActivate}
             />
+
+            {hasMoreUsers && (
+              <div className="admin-users__more">
+                <p className="admin-users__more-count">
+                  Mostrando {visibleUsers.length} de {users.length} usuarios.
+                </p>
+                <Button variant="outline" onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}>
+                  Ver más usuarios
+                </Button>
+              </div>
+            )}
 
             <RoleChangesBar
               count={pendingCount}

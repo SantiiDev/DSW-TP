@@ -34,6 +34,11 @@ type ArtistContributionsListProps = {
   isOwnProfile: boolean;
 };
 
+// Cuántos aportes se ven de entrada y cuántos suma cada "Ver más". Sin esto, un
+// usuario con muchos aportes hace una página larguísima de una sola vez (mismo
+// criterio que ArtistAdminSection, la tabla del catálogo completo).
+const PAGE_SIZE = 12;
+
 export const ArtistContributionsList = ({
   userId,
   username,
@@ -60,6 +65,11 @@ export const ArtistContributionsList = ({
   const [busyArtistId, setBusyArtistId] = useState<number | null>(null);
   // Error de una baja: va afuera del modal, arriba de la lista.
   const [actionError, setActionError] = useState<string | null>(null);
+  // Cuántos aportes se muestran (paginado del lado del cliente). No hace falta
+  // resetearlo: ProfileTabContent remonta este componente al cambiar de pestaña
+  // (Artistas/Álbumes/Canciones son tres componentes distintos), así que arranca
+  // de nuevo solo.
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   /**
    * Abre el modal: vacío para proponer, o con los datos del aporte a corregir.
@@ -158,6 +168,9 @@ export const ArtistContributionsList = ({
       );
     }
 
+    const visibleArtists = artists.slice(0, visibleCount);
+    const hasMore = artists.length > visibleCount;
+
     return (
       <>
         <div className="artist-contributions__head">
@@ -171,7 +184,7 @@ export const ArtistContributionsList = ({
             baja solo los que siguen pendientes, que es lo que la API permite.
             Un rechazo es una decisión de moderación y no se borra solo. */}
         <ul className="artist-contributions__grid">
-          {artists.map((artist) => (
+          {visibleArtists.map((artist) => (
             <li key={artist.id}>
               <ArtistCard
                 artist={artist}
@@ -183,6 +196,17 @@ export const ArtistContributionsList = ({
             </li>
           ))}
         </ul>
+
+        {hasMore && (
+          <div className="artist-contributions__more">
+            <p className="artist-contributions__more-count">
+              Mostrando {visibleArtists.length} de {artists.length} artistas.
+            </p>
+            <Button variant="outline" onClick={() => setVisibleCount((current) => current + PAGE_SIZE)}>
+              Ver más artistas
+            </Button>
+          </div>
+        )}
       </>
     );
   };
