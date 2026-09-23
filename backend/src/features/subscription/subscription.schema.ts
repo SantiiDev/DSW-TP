@@ -5,10 +5,9 @@ import { SUBSCRIPTION_STATES } from '../../shared/types/enums';
 
 // Filtros del listado de administración (GET /api/subscriptions?state=active).
 //
-// No hay schema para "mi membresía" ni para la baja: las dos sacan el usuario del
-// token, así que no reciben nada del cliente. Que el id_user no se pueda mandar
-// por parámetro es justamente lo que impide que alguien dé de baja la membresía
-// de otro.
+// No hay schema para "mi membresía": saca el usuario del token, así que no recibe
+// nada del cliente. Que el id_user no se pueda mandar por parámetro es justamente
+// lo que impide que alguien mire la membresía de otro.
 export const listSubscriptionsQuerySchema = z.object({
   id_user: z.coerce
     .number()

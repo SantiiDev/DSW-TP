@@ -1,10 +1,17 @@
 // Tabla comparativa Free vs Pro de la página Pro.
 // Es presentacional y sin estado: solo dibuja la grilla de funciones.
+//
+// El precio llega por props y no está escrito acá: es un dato de negocio que
+// vive en la tabla PLAN y lo trae quien usa el componente.
 import { Check, X } from 'lucide-react';
 
 // Cada fila es una función del producto. `pro` marca si Pro la incluye; cuando
 // en vez de un tilde hay que mostrar un texto (por ejemplo "Ilimitadas"), se usa
 // `proText`, que tiene prioridad sobre `pro`.
+type ProComparisonProps = {
+  proPrice: string;
+};
+
 type ComparisonRow = {
   feature: string;
   free: boolean;
@@ -26,7 +33,8 @@ const COMPARISON_ROWS: ComparisonRow[] = [
   { feature: 'Soporte prioritario', free: false, pro: true },
 ];
 
-export const ProComparison = () => {
+/** @param proPrice precio del plan Pro ya formateado; '—' mientras no cargó. */
+export const ProComparison = ({ proPrice }: ProComparisonProps) => {
   return (
     <section className="pro-comparison">
       <h2 className="pro-comparison__heading">Funciones y precios</h2>
@@ -42,7 +50,9 @@ export const ProComparison = () => {
             <tr className="pro-comparison__price-row">
               <td className="pro-comparison__td pro-comparison__td--feature">Precio</td>
               <td className="pro-comparison__td">Gratis</td>
-              <td className="pro-comparison__td pro-comparison__td--pro-cell">$4.99 / mes</td>
+              <td className="pro-comparison__td pro-comparison__td--pro-cell">
+                {proPrice}, pago único
+              </td>
             </tr>
           </thead>
           <tbody>

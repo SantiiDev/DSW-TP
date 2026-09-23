@@ -4,7 +4,7 @@ Qué está terminado y qué falta, punto por punto, contra el alcance comprometi
 en la [propuesta](../proposal.md) y los requisitos del
 [enunciado](enunciado.md).
 
-Última revisión: **19/09/2026**.
+Última revisión: **22/09/2026**.
 
 ## Requisitos técnicos
 
@@ -28,7 +28,7 @@ en la [propuesta](../proposal.md) y los requisitos del
 | Login propio con al menos 2 niveles de acceso | ✅ | JWT + bcrypt, con `FREE`, `PRO` y `ADMIN` |
 | Rutas protegidas según el nivel de acceso | ✅ | `requireAuth` + `requireRole` |
 | Ambientes definidos | ✅ | `.env` + `.env.example` |
-| 1 test automatizado por integrante (3) | ✅ | Vitest sobre los schemas de Zod: `auth` (Santino), `album` (Esterri), `review` (Siena), en [`backend/tests/unit`](../backend/tests/unit) |
+| 1 test automatizado por integrante (3) | ✅ | Vitest sobre los schemas de Zod: `auth` (Santino), `album` (Esterri), `review` (Siena), más `follow` y `list` que se sumaron después — cinco en total, en [`backend/tests/unit`](../backend/tests/unit) |
 | 1 test de integración | ✅ | Vitest + Supertest sobre `app.ts`: el circuito de login contra MySQL, en [`backend/tests/integration/auth.test.ts`](../backend/tests/integration/auth.test.ts) |
 
 ### Frontend — regularidad
@@ -55,7 +55,7 @@ en la [propuesta](../proposal.md) y los requisitos del
 |:-|:-:|:-|
 | Login y protección de rutas según el nivel de usuario | ✅ | `ProtectedRoute` + `AuthContext` |
 | Ambientes definidos | ✅ | `.env` con prefijo `VITE_` |
-| 1 test unitario de un componente | ✅ | Vitest + React Testing Library sobre `SegmentedControl` ([test](../frontend/src/core/components/SegmentedControl.test.tsx)) |
+| 1 test unitario de un componente | ✅ | Vitest + React Testing Library sobre `SegmentedControl` ([test](../frontend/src/core/components/SegmentedControl.test.tsx)) y sobre `MembershipPanel` ([test](../frontend/src/features/membership/components/MembershipPanel.test.tsx)), que fija la regla del pago único: el panel no ofrece renovar ni dar de baja |
 | 1 test end-to-end | ✅ | Playwright: el login completo desde el navegador ([test](../frontend/e2e/login.spec.ts)) |
 
 ## Requisitos funcionales
@@ -84,7 +84,7 @@ en la [propuesta](../proposal.md) y los requisitos del
 | CUU | Estado | Detalle |
 |:-|:-:|:-|
 | 1 — Sistema de reseñas (álbumes y canciones) | ✅ | Alta, edición, baja, likes y comentarios |
-| 2 — Pasarela de pagos y membresías | ✅ | Checkout Pro en sandbox, webhook y confirmación al volver |
+| 2 — Pasarela de pagos y membresías | ✅ | Checkout Pro en sandbox, webhook y confirmación al volver. Desde el 22/09 la membresía es un **pago único**: se paga una vez, el acceso no vence y no hay renovación ni baja voluntaria (ver la minuta del 22/09) |
 | 3 — Aporte y moderación de catálogo | ✅ | Alta en estado `pending` por un `PRO`, aprobación por un `ADMIN` |
 | 4 — Feed social y estadísticas avanzadas | ✅ | **Feed social**: la sección `/reviews` con su toggle Comunidad / Amigos, el seguimiento unidireccional entre usuarios (relación `FOLLOWS`) y el panel "Gente para seguir". Desde el perfil se abren las listas de seguidores y seguidos (con seguir/dejar de seguir en cada fila), el buscador de la barra encuentra álbumes, canciones y usuarios, el autor de cada reseña y comentario lleva a su perfil, y la pestaña "Resumen" muestra la actividad reciente. **Estadísticas avanzadas** ("Tu año en música"): pestaña "Estadísticas" del perfil propio con horas de música calificada, actividad mes a mes, géneros más escuchados, top de artistas y álbumes, décadas y distribución de notas, con selector de año. Salen de `GET /api/reviews/stats/me`, restringido a `PRO`/`ADMIN`; el service además relee el rol de la base para cortar un token viejo de una membresía vencida. Un `FREE` ve una vista previa bloqueada con acceso a `/pro`. Gráficos en SVG propio, sin dependencias nuevas (`core/components/charts`). |
 

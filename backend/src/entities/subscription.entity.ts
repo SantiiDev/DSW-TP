@@ -14,8 +14,14 @@
 //
 // DESVÍO 2: se agregan `end_date` y `state`. El DER original solo registraba la fecha
 // de alta, con lo cual no había forma de saber si una membresía sigue vigente ni de
-// distinguir una baja de un vencimiento. Sin esto el CUU de membresías queda incompleto:
-// un usuario que pagó una vez sería PRO para siempre.
+// distinguir una baja de un alta.
+//
+// Con el pago único, `end_date` es SIEMPRE NULL en una membresía nacida de un pago:
+// se paga una vez y el acceso Pro no vence. La columna se conserva —y con ella la
+// validación de abajo— porque es parte del pasaje a tablas aprobado y porque es lo
+// que deja abierta la puerta a un plan con vigencia acotada sin volver a tocar el
+// modelo. El estado, en cambio, sigue haciendo falta: es lo que distingue la
+// membresía vigente de una que un ADMIN dio de baja al cambiarle el rol al usuario.
 import {
   CreationOptional,
   DataTypes,
@@ -60,7 +66,8 @@ Subscription.init(
       defaultValue: DataTypes.NOW,
     },
     end_date: {
-      // Fecha de vencimiento. NULL en el plan Free, que no vence.
+      // Fecha de vencimiento. NULL cuando la membresía no vence, que hoy es
+      // siempre: el plan Free no vence y el Pro es un pago único vitalicio.
       type: DataTypes.DATE,
       allowNull: true,
     },

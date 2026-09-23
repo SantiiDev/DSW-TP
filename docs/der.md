@@ -36,8 +36,8 @@ erDiagram
         int id_user FK
         int id_plan FK
         datetime subscription_date "Default NOW"
-        datetime end_date "nullable, null en el plan gratuito"
-        enum state "active, expired o cancelled. Default active"
+        datetime end_date "nullable. Siempre null: ni el plan gratuito ni el Pro, que es un pago único, vencen"
+        enum state "active o cancelled. Default active"
     }
 
     PAYMENTS {

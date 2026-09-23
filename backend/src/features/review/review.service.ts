@@ -18,9 +18,8 @@ import { TokenPayload } from '../../shared/auth/jwt';
 // tabla follows desde acá: service -> service, sin saltear capas.
 import { followService } from '../follow/follow.service';
 // Las estadísticas avanzadas son un beneficio de Pro: para confirmar que la
-// membresía siga vigente se le pregunta a la feature de suscripciones (que aplica
-// el vencimiento) y se relee el rol del usuario, igual que hace payment.service.
-import { subscriptionService } from '../subscription/subscription.service';
+// membresía siga activa se relee el rol del usuario de la base en vez de creerle
+// al token, igual que hace listService con el alta de listas.
 import { userRepository } from '../user/user.repository';
 import { ReviewState } from '../../shared/types/enums';
 import {
@@ -857,10 +856,10 @@ export const reviewService = {
    * Estadísticas avanzadas propias de un año: "Tu año en música".
    *
    * Es el beneficio de Pro, así que antes de calcular nada se confirma que la
-   * membresía siga vigente. requireRole ya cortó a un FREE, pero lee el rol del
-   * token, y un token emitido antes de que venciera la membresía sigue diciendo PRO
-   * hasta que expira. Por eso acá se aplica el vencimiento y se relee el rol de la
-   * base. No se exige una suscripción activa: un PRO asignado desde el panel de
+   * membresía siga activa. requireRole ya cortó a un FREE, pero lee el rol del
+   * token, y un token emitido antes de que un ADMIN le bajara el rol al usuario
+   * sigue diciendo PRO hasta que expira. Por eso acá se relee el rol de la base.
+   * No se exige una suscripción activa: un PRO asignado desde el panel de
    * administración no tiene ninguna, y es Pro igual.
    *
    * @param actor usuario autenticado; las estadísticas son siempre las suyas.
@@ -868,11 +867,12 @@ export const reviewService = {
    */
   async advancedStats(actor: TokenPayload, year?: number): Promise<PublicAdvancedStats> {
     if (actor.rol === 'PRO') {
-      await subscriptionService.getActive(actor.id_user, actor.rol);
       const user = await userRepository.findById(actor.id_user);
 
       if (!user || (user.rol !== 'PRO' && user.rol !== 'ADMIN')) {
-        throw new ForbiddenError('Tu membresía Pro venció. Renovala para ver tus estadísticas.');
+        throw new ForbiddenError(
+          'Tu membresía Pro ya no está activa, así que no podés ver tus estadísticas.'
+        );
       }
     }
 

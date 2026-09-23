@@ -53,7 +53,7 @@ https://drive.google.com/drive/folders/1popRH9AojPdvK1NS7iWrenMltxDe6gXC
 Ajustes sobre el DER original:
 * `USERS.rol` se define como `FREE | PRO | ADMIN`, cubriendo los niveles de acceso del sistema.
 * `ARTIST`, `ALBUMS` y `SONGS` incorporan los atributos `state` (`pending | approved | rejected`) y `created_by`, necesarios para el circuito de aporte de catálogo por parte de usuarios Pro y su moderación por parte de un administrador.
-* `SUBSCRIPTION` incorpora los atributos `end_date` y `state` (`active | expired | cancelled`), que permiten determinar la membresía vigente de un usuario y distinguir una baja voluntaria de un vencimiento.
+* `SUBSCRIPTION` incorpora los atributos `end_date` y `state` (`active | cancelled`), que permiten determinar la membresía vigente de un usuario y registrar su baja. La membresía Pro es un **pago único**, así que `end_date` queda siempre en NULL: se conserva igual, porque es lo que permitiría sumar un plan con vigencia acotada sin volver a tocar el modelo.
 * `ALBUMS.average_rating` es un atributo derivado, recalculado al crear, modificar o eliminar una reseña.
 * `REVIEW` incorpora una restricción de unicidad por usuario e ítem: un usuario publica a lo sumo una reseña por álbum y una por canción, con posibilidad de modificarla o eliminarla.
 * `REVIEW` incorpora el atributo `edited_date`, nulo mientras la reseña no se haya modificado desde su publicación. Permite advertir en la interfaz que el contenido fue editado con posterioridad. Se modela como atributo propio y no mediante las columnas de auditoría del ORM porque el proyecto las tiene deshabilitadas: las fechas persistidas son únicamente las previstas en el DER. Las acciones de moderación no lo modifican, ya que no alteran el contenido escrito por el autor.
@@ -74,14 +74,14 @@ Regularidad:
 |CRUD simple|1. CRUD Usuario<br>2. CRUD Artista<br>3. CRUD Género|
 |CRUD dependiente|1. CRUD Álbum {depende de} CRUD Artista y CRUD Género<br>2. CRUD Reseña {depende de} CRUD Usuario y CRUD Álbum|
 |Listado<br>+<br>detalle| 1. Listado de álbumes filtrado por género y/o año → detalle muestra datos del álbum, tracklist de canciones (cada una con su propia calificación promedio) y reseñas paginadas del álbum.<br> 2. Listado de reseñas en el perfil público de un usuario, filtrado por calificación (estrellas) => detalle de la reseña y link al álbum asociado.|
-|CUU/Epic|1. Publicar y gestionar una reseña con calificación para un álbum o una canción específica<br>2. Realizar el upgrade de cuenta a plan PRO mediante pasarela de pago.|
+|CUU/Epic|1. Publicar y gestionar una reseña con calificación para un álbum o una canción específica<br>2. Realizar el upgrade de cuenta a plan PRO mediante un pago único con pasarela de pago.|
 
 
 Adicionales para Aprobación
 |Req|Detalle|
 |:-|:-|
 |CRUD |1. CRUD Usuario<br>2. CRUD Artista<br>3. CRUD Género<br>4. CRUD Álbum<br>5. CRUD Reseña<br>6. CRUD Canción<br>7. CRUD Plan de membresía|
-|CUU/Epic|1. **Sistema de Reseñas**: publicar y gestionar calificación y reseña tanto de álbumes como de canciones individuales.<br>2. **Pasarela de Pagos y Membresías**: integración con API de pagos (MercadoPago). Gestión de webhooks para actualizar el plan del usuario a PRO automáticamente. Esto elimina los anuncios en el frontend, habilita la personalización de perfil y desbloquea las estadísticas.<br>3. **Aporte y moderación de catálogo**: un usuario con membresía PRO puede dar de alta artistas, álbumes y canciones, que ingresan en estado `pending`; un usuario ADMIN los revisa y aprueba o rechaza, momento en el cual pasan a ser visibles y reseñables por toda la comunidad.<br>4. **Feed Social y Estadísticas Avanzadas**: generación de timeline global y cálculo de estadísticas analíticas (ej. "Tu año en música", "Géneros más escuchados"). Nota: las estadísticas están bloqueadas para usuarios FREE.|
+|CUU/Epic|1. **Sistema de Reseñas**: publicar y gestionar calificación y reseña tanto de álbumes como de canciones individuales.<br>2. **Pasarela de Pagos y Membresías**: integración con API de pagos (MercadoPago Checkout Pro) mediante un **pago único** que no vence ni se renueva. Gestión de webhooks para actualizar el plan del usuario a PRO automáticamente. Esto elimina los anuncios en el frontend, habilita la personalización de perfil y desbloquea las estadísticas.<br>3. **Aporte y moderación de catálogo**: un usuario con membresía PRO puede dar de alta artistas, álbumes y canciones, que ingresan en estado `pending`; un usuario ADMIN los revisa y aprueba o rechaza, momento en el cual pasan a ser visibles y reseñables por toda la comunidad.<br>4. **Feed Social y Estadísticas Avanzadas**: generación de timeline global y cálculo de estadísticas analíticas (ej. "Tu año en música", "Géneros más escuchados"). Nota: las estadísticas están bloqueadas para usuarios FREE.|
 
 **Relación entre los casos de uso** (requisito de que la data de un CUU sirva de input a otro):
 

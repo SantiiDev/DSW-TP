@@ -19,7 +19,7 @@ const PLANS = [
     name: 'Pro',
     amount: 3500,
     description:
-      'Sin anuncios, estadísticas avanzadas, personalización del perfil y aporte de catálogo.',
+      'Pago único: estadísticas avanzadas, listas personalizadas y aporte de catálogo, para siempre.',
   },
 ];
 

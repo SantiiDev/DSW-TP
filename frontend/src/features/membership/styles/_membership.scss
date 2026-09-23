@@ -1251,12 +1251,6 @@ $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
   border-radius: $radius;
 }
 
-.membership-card__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-}
-
 .membership-payments {
   width: 100%;
   margin-top: $spacing-md;

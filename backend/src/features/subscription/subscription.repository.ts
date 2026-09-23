@@ -39,8 +39,11 @@ export type SubscriptionWithPlan = Subscription & {
 type CreateSubscriptionData = {
   id_user: number;
   id_plan: number;
-  /** Fecha de vencimiento. null en un plan que no vence, como el Free. */
-  end_date: Date | null;
+  /**
+   * Fecha de vencimiento. Se omite —queda NULL— en una membresía que no vence,
+   * que hoy es siempre: el plan Free no vence y el Pro es un pago único.
+   */
+  end_date?: Date | null;
 };
 
 /** Filtros del listado de administración. */
@@ -125,7 +128,7 @@ export const subscriptionRepository = {
       {
         id_user: data.id_user,
         id_plan: data.id_plan,
-        end_date: data.end_date,
+        end_date: data.end_date ?? null,
         state: 'active',
       },
       { transaction }
@@ -134,7 +137,7 @@ export const subscriptionRepository = {
     return subscription as SubscriptionWithPlan;
   },
 
-  /** Cambia el estado de una suscripción (a 'cancelled' o a 'expired'). */
+  /** Cambia el estado de una suscripción (hoy, siempre a 'cancelled'). */
   updateState: async (
     subscription: SubscriptionWithPlan,
     state: SubscriptionState,

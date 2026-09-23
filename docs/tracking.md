@@ -62,13 +62,15 @@ Los títulos son los de las ramas que salieron de cada issue.
 | #11 | Tests automatizados de backend y frontend | Juan Ignacio Esterri | Cerrado |
 | #12 | Ranking global de usuarios más activos | Juan Ignacio Esterri | Cerrado |
 | — | Listas personalizadas de álbumes (CRUD completo) | Santiago Siena | Cerrado (entró por los PR #17 y #18; falta abrir el issue) |
-| — | Listas de canciones (`LISTS.type` + `LIST_SONGS`) y alta de listas restringida a `PRO`/`ADMIN` | Santiago Siena | En curso, sin PR todavía (falta abrir el issue) |
+| — | Listas de canciones (`LISTS.type` + `LIST_SONGS`) y alta de listas restringida a `PRO`/`ADMIN` | Santiago Siena | Cerrado (entró por el PR #19; falta abrir el issue) |
+| — | Correcciones de listas, paginado del panel de administración y de las contribuciones del perfil | Juan Ignacio Esterri | Cerrado (entró por commits directos a `develop`; falta abrir el issue) |
 
-> Las siete filas sin número de más arriba se trabajaron antes de abrir su issue:
+> Las ocho filas sin número de más arriba se trabajaron antes de abrir su issue:
 > cuatro entraron juntas por el PR #13, la de CUU 4 parte 2 por el PR #15, la de
-> listas personalizadas por los PR #17 y #18, y la última todavía no tiene PR.
-> Hay que crearlas en el GitHub Project y vincularlas a esos pull requests, para
-> que la trazabilidad quede completa antes de la entrega.
+> listas personalizadas por los PR #17 y #18, la de listas de canciones por el
+> PR #19, y la última por dos commits directos a `develop`. Hay que crearlas en
+> el GitHub Project y vincularlas a esos pull requests, para que la trazabilidad
+> quede completa antes de la entrega.
 
 > Los números #11 y #12 salen del nombre de las ramas
 > (`feature/11-testing-setup` y `feature/12-user-ranking`), que por convención
@@ -82,15 +84,26 @@ Lo que falta del alcance y todavía no tiene issue. El detalle de cada uno está
 
 | Ítem | Responsable propuesto | Prioridad |
 |:-|:-|:-|
-| Documentación de la API | A definir | Alta (aprobación) |
-| Evidencia de ejecución de los tests automáticos | A definir | Alta (aprobación) |
-| Video demo de la aplicación | A definir | Alta (aprobación) |
-| Deploy y credenciales de la app publicada | A definir | Alta (aprobación) |
+| Documentación de la API | Santiago Siena | Alta (aprobación) |
+| Evidencia de ejecución de los tests automáticos | Juan Ignacio Esterri | Alta (aprobación) |
+| Video demo de la aplicación | Santiago Siena | Alta (aprobación) |
+| Deploy y credenciales de la app publicada | Santino Gallo | Alta (aprobación) |
+| Merge de la entrega (`develop` → `main`) y apertura de los issues faltantes | Santino Gallo | Alta (regularidad) |
+| Membresía Pro como **pago único** en lugar de suscripción mensual | Santino Gallo | Alta |
 
-> Los tests automatizados (3 unitarios + integración en el backend, unitario de
+> **Reparto de lo que queda.** Se asigna así a propósito: el historial de commits
+> está desparejo (ver [Deuda de proceso](#deuda-de-proceso)), y estos entregables
+> son la última oportunidad de equilibrarlo antes de la defensa. Esterri toma la
+> evidencia de tests porque es el autor del setup de testing (PR #15), Siena la
+> documentación de la API y el video, y Santino el deploy y el merge de la
+> entrega, que dependen de `.env` y de las credenciales de MercadoPago que él
+> configuró.
+
+> Los tests automatizados (5 unitarios + integración en el backend, unitario de
 > componente + E2E en el frontend) estaban en esta lista y **ya están hechos**:
-> entraron por el PR #15. Lo que falta de ese ítem es la *evidencia de ejecución*,
-> que es un entregable de documentación aparte.
+> entraron por el PR #15 y se sumaron los de `follow` y `list` después. Lo que
+> falta de ese ítem es la *evidencia de ejecución*, que es un entregable de
+> documentación aparte.
 >
 > "Conectar `/lists` a la API" también estaba en esta lista y se sacó: se
 > resolvió con el CRUD de listas personalizadas, que entró por los PR #17 y #18
@@ -120,9 +133,10 @@ Gallo.
 | [#16](https://github.com/SantiiDev/DSW-TP/pull/16) | `feature/12-user-ranking` | Ranking global de usuarios más activos y unificación del encabezado duplicado de `/lists` y `/reviews` | 16/09 | Juan Ignacio Esterri |
 | [#17](https://github.com/SantiiDev/DSW-TP/pull/17) | `custom-lists` | CRUD completo de listas personalizadas (backend + frontend): entidades `LISTS`, `LIST_ALBUMS` y `LIST_LIKES`, la feature `list` en las dos apps y las tres secciones de `/lists` conectadas a la API | 17/09 | Santiago Siena |
 | [#18](https://github.com/SantiiDev/DSW-TP/pull/18) | `fixed-list` | Correcciones sobre el CRUD de listas | 18/09 | Santiago Siena |
+| [#19](https://github.com/SantiiDev/DSW-TP/pull/19) | `fixed-list2` | Listas de canciones (`LISTS.type` + `LIST_SONGS`), alta de listas restringida a `PRO`/`ADMIN` con el cartel `ProOnlyNotice`, gestor y selector de ítems genéricos (`ListItemManager` / `ListItemPicker`), `useCopyLink` para compartir, y la actualización de `der.md`, `proposal.md`, `estado-alcance.md` y este archivo | 21/09 | Santiago Siena |
 
-> Las ramas `custom-lists` y `fixed-list` se borraron después de mergearse, así
-> que el trabajo se sigue por su pull request y no por la rama.
+> Las ramas `custom-lists`, `fixed-list` y `fixed-list2` se borraron después de
+> mergearse, así que el trabajo se sigue por su pull request y no por la rama.
 
 > El PR #5 del historial del repositorio pertenece al repositorio original
 > `utnfrrodsw/tp`, anterior al fork, y no es trabajo del grupo.
@@ -167,17 +181,24 @@ trazabilidad del trabajo:
   color) y `d5e7e48` y `8e208f2` (18/09, correcciones de estilos y simplificación
   de código). Son retoques transversales, no una feature, pero igual tendrían que
   haber salido por una rama.
-- **`main` está 40 commits atrás de `develop`.** La entrega de regularidad tiene
+- **Después del PR #19 entraron dos commits directos más a `develop`**:
+  `34a713a` y `323e3f0` (22/09, filtro de género de listas, criterio real de "en
+  tendencia", paginado del panel de administración y de las contribuciones del
+  perfil, colisión de clases CSS en la home y reglas faltantes del `.gitignore`).
+  Mismo caso que los anteriores: son correcciones, pero tendrían que haber salido
+  por una rama.
+- **`main` está 53 commits atrás de `develop`.** La entrega de regularidad tiene
   que salir de un merge de `develop` a `main`.
 - **La carga de trabajo está repartida de forma despareja** en el historial: de
-  los 52 commits del desarrollo (sin contar merges ni el historial heredado del
-  fork), 36 son de Santino Gallo, 9 de Juan Ignacio Esterri y 7 de Santiago
+  los 55 commits del desarrollo (sin contar merges ni el historial heredado del
+  fork), 36 son de Santino Gallo, 11 de Juan Ignacio Esterri y 8 de Santiago
   Siena. La cátedra evalúa la participación de cada integrante, así que conviene
-  repartir lo que falta de manera que el historial lo refleje.
+  repartir lo que falta de manera que el historial lo refleje: ese es el criterio
+  con el que se asignaron los [pendientes de abrir](#pendientes-de-abrir).
 
-  > Medición al 19/09/2026. La cifra anterior (45 commits: 32 / 9 / 4) era del
-  > 17/09 y quedó vieja: entre el 17/09 y el 18/09 entraron los PR #17 y #18 más
-  > cuatro commits directos. Para recalcularla:
+  > Medición al 22/09/2026. La cifra anterior (52 commits: 36 / 9 / 7) era del
+  > 19/09 y quedó vieja: entre el 21/09 y el 22/09 entraron el PR #19 y dos
+  > commits directos. Para recalcularla:
   > `git log --no-merges --format="%an" --since=2026-07-01 | sort | uniq -c`
   > (en PowerShell, `... | Group-Object | Select-Object Count, Name`).
   > Las identidades `SantiiDev` y `Santino Gallo` son la misma persona.

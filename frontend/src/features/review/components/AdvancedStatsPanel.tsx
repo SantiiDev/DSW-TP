@@ -1,9 +1,9 @@
 // Pestaña "Estadísticas" del perfil propio para un usuario Pro: pide sus
 // estadísticas avanzadas del año elegido y las dibuja.
 //
-// Además de cargando, error y vacío, maneja un cuarto estado: el 403. Pasa si la
-// membresía venció mientras la sesión seguía abierta (el token todavía dice PRO,
-// pero la API ya relee el rol de la base). En ese caso se renueva la sesión para
+// Además de cargando, error y vacío, maneja un cuarto estado: el 403. Pasa si un
+// ADMIN le bajó el rol mientras la sesión seguía abierta (el token todavía dice
+// PRO, pero la API ya relee el rol de la base). En ese caso se renueva la sesión para
 // que el resto de la app se entere de que volvió a ser Free, y se muestra la
 // vista bloqueada.
 import { useEffect, useState } from 'react';

@@ -9,10 +9,8 @@
 import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../../shared/errors/app-error';
 import { TokenPayload } from '../../shared/auth/jwt';
 // Armar listas es un beneficio de Pro, así que para confirmar que la membresía
-// siga vigente se le pregunta a la feature de suscripciones (que aplica el
-// vencimiento) y se relee el rol del usuario, igual que hace reviewService con
-// las estadísticas avanzadas.
-import { subscriptionService } from '../subscription/subscription.service';
+// siga activa se relee el rol del usuario de la base en vez de creerle al token,
+// igual que hace reviewService con las estadísticas avanzadas.
 import { userRepository } from '../user/user.repository';
 import { ListType } from '../../shared/types/enums';
 import {
@@ -191,11 +189,11 @@ async function findExisting(id_list: number): Promise<ListWithRelations> {
  * comparte y les da "me gusta", pero no las arma. Es lo mismo que ya pasa con
  * las estadísticas avanzadas.
  *
- * No alcanza con mirar el rol del token: un token emitido antes de que venciera
- * la membresía sigue diciendo PRO hasta que expira. Por eso, para un PRO, se
- * aplica el vencimiento con subscriptionService.getActive y se vuelve a leer el
- * rol de la base. No se exige una suscripción activa: un PRO asignado desde el
- * panel de administración no tiene ninguna, y es Pro igual.
+ * No alcanza con mirar el rol del token: un token emitido antes de que un ADMIN
+ * le bajara el rol al usuario sigue diciendo PRO hasta que expira. Por eso, para
+ * un PRO, se vuelve a leer el rol de la base. No se exige una suscripción
+ * activa: un PRO asignado desde el panel de administración no tiene ninguna, y
+ * es Pro igual.
  *
  * @param actor usuario autenticado que quiere escribir.
  */
@@ -206,11 +204,10 @@ async function assertCanWrite(actor: TokenPayload): Promise<void> {
     throw new ForbiddenError('Armar listas es un beneficio de la membresía Pro.');
   }
 
-  await subscriptionService.getActive(actor.id_user, actor.rol);
   const user = await userRepository.findById(actor.id_user);
 
   if (!user || (user.rol !== 'PRO' && user.rol !== 'ADMIN')) {
-    throw new ForbiddenError('Tu membresía Pro venció. Renovala para volver a armar listas.');
+    throw new ForbiddenError('Tu membresía Pro ya no está activa, así que no podés armar listas.');
   }
 }
 

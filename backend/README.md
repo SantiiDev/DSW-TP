@@ -651,10 +651,9 @@ destacados del año. Sin `year`, usa el año en curso.
 Son siempre **las propias**: la ruta no recibe un id de usuario, lo saca del token.
 
 **Por qué el service relee el rol**, si `requireRole('PRO', 'ADMIN')` ya cortó a
-un `FREE`: `requireRole` lee el rol del JWT, y un token emitido antes de que venciera
-la membresía sigue diciendo `PRO` hasta que expira. Para un `PRO`, el service aplica
-el vencimiento con `subscriptionService.getActive` y vuelve a leer el rol de la base;
-si ya no es Pro, responde 403. No exige una suscripción activa porque un `PRO`
+un `FREE`: `requireRole` lee el rol del JWT, y un token emitido antes de que un ADMIN
+le bajara el rol al usuario sigue diciendo `PRO` hasta que expira. Para un `PRO`, el
+service vuelve a leer el rol de la base; si ya no es Pro, responde 403. No exige una suscripción activa porque un `PRO`
 asignado desde el panel de administración no tiene ninguna.
 
 Los cálculos se hacen en el service, sobre una sola consulta con includes (álbum o
@@ -742,10 +741,9 @@ secciones de la pantalla y el bloque "Más listas de @usuario".
   sigue abierta a cualquier usuario registrado, porque reaccionar a una lista
   ajena es consumirla, no armarla.
 - **El corte de Pro vive en el service y no en un `requireRole` de la ruta.**
-  `requireRole` lee el rol del JWT, y un token emitido antes de que venciera la
-  membresía sigue diciendo `PRO` hasta que expira. Para un `PRO`, `assertCanWrite`
-  aplica el vencimiento con `subscriptionService.getActive` y vuelve a leer el rol
-  de la base; si ya no es Pro, responde 403. No exige una suscripción activa
+  `requireRole` lee el rol del JWT, y un token emitido antes de que un ADMIN le
+  bajara el rol al usuario sigue diciendo `PRO` hasta que expira. Para un `PRO`,
+  `assertCanWrite` vuelve a leer el rol de la base; si ya no es Pro, responde 403. No exige una suscripción activa
   porque un `PRO` asignado desde el panel de administración no tiene ninguna.
   Poner la mitad de la regla en la ruta y la otra mitad en el service la dejaría
   repartida en dos lugares.
@@ -821,7 +819,7 @@ El CUU de upgrade a `PRO`. Tres features trabajan juntas: `plan` (qué se vende)
      - POST /api/payments/confirm   lo llama la pantalla /pro/return del frontend
 4. confirmPayment() le PREGUNTA a MercadoPago cómo terminó el pago y, si está
    aprobado, en UNA transacción:
-     cancela la suscripción anterior -> crea la nueva por un mes
+     crea la suscripción (sin vencimiento: es un pago único)
      -> sube users.rol a 'PRO' -> registra el pago
 5. El frontend pide POST /api/auth/refresh para tener un token con el rol nuevo.
 ```
@@ -845,26 +843,36 @@ El CUU de upgrade a `PRO`. Tres features trabajan juntas: `plan` (qué se vende)
   obligaría a crear una suscripción que nunca estuvo vigente. Un rechazo no deja
   fila: el usuario lo ve en la pantalla de retorno y puede reintentar.
 
-### Renovación manual, no débito automático
+### Pago único, no suscripción recurrente
 
-La membresía dura **un mes** (`subscription.end_date`) y **no se renueva sola**.
-Se usa Checkout Pro, que es para pagos únicos; el cobro recurrente en MercadoPago
-es otro producto (`preapproval`) y habría que guardar el id de la suscripción
-externa, columna que el DER no tiene. Sin ese dato, dar de baja cancelaría la
-membresía en nuestra base mientras MercadoPago le sigue cobrando al usuario.
+La membresía Pro se paga **una sola vez** y **no vence**: `subscription.end_date`
+queda siempre en NULL. No hay renovación, no hay vencimiento y no hay ningún
+proceso corriendo en el tiempo para aplicarlo.
 
-El vencimiento se aplica de forma **perezosa**: cada lectura de la membresía
-(`subscriptionService.getActive`) chequea si venció, y si venció la pasa a
-`expired` y baja el rol a `FREE`. No hace falta ningún proceso corriendo en el
-tiempo.
+Es lo que se corresponde con la herramienta que se usa: Checkout Pro es el
+producto de MercadoPago **para pagos únicos**. El cobro recurrente es otro
+(`preapproval`) y habría que guardar el id de la suscripción externa, columna que
+el DER no tiene; sin ese dato, dar de baja cancelaría la membresía en nuestra
+base mientras MercadoPago le sigue cobrando al usuario. Antes la membresía duraba
+un mes con renovación manual, que era la forma de acercarse a una suscripción sin
+usar `preapproval`; el pago único saca esa aproximación del medio y deja el
+circuito alineado con lo que la pasarela realmente hace.
+
+Consecuencias en el código:
+
+- `createCheckout` corta con 400 si el usuario ya tiene la membresía activa: no
+  hay nada que volver a comprar.
+- No existe la baja voluntaria. La única baja posible la aplica un ADMIN al
+  cambiarle el rol a FREE a un usuario, y ahí `subscriptionService.cancelForUser`
+  deja la fila como `cancelled`.
+- El estado `expired` se eliminó del enum: era inalcanzable.
 
 ### El rol vive dentro del token
 
 `requireRole` lee el rol del JWT, no de la base. Entonces, después de pagar, el
 token guardado sigue diciendo `FREE` y el backend rechazaría las rutas que el
 usuario acaba de comprar. Por eso existe `POST /api/auth/refresh`: relee el
-usuario y emite un token nuevo. El frontend lo llama al confirmar un pago y al
-dar de baja una membresía.
+usuario y emite un token nuevo. El frontend lo llama al confirmar un pago.
 
 ### Endpoints
 
@@ -874,7 +882,6 @@ dar de baja una membresía.
 | GET | `/api/plans/:id` | público |
 | POST · PATCH · DELETE | `/api/plans` · `/api/plans/:id` | ADMIN |
 | GET | `/api/subscriptions/mine` | logueado |
-| PATCH | `/api/subscriptions/mine/cancel` | logueado |
 | GET | `/api/subscriptions` | ADMIN |
 | POST | `/api/payments/checkout` | logueado |
 | POST | `/api/payments/confirm` | logueado |
@@ -918,7 +925,7 @@ está en [`docs/der.md`](../docs/der.md).
 |:-|:-|:-|
 | `subscription` | Se agrega PK subrogada `id_subscription`; la clave natural `(id_user, id_plan, subscription_date)` queda como índice UNIQUE | Sequelize 6 no soporta claves foráneas compuestas en asociaciones, y `payments` referencia a esta tabla |
 | `payments` | La FK compuesta a `subscription` se reemplaza por `id_subscription` | Consecuencia del punto anterior |
-| `subscription` | Se agregan las columnas `end_date` (NULL) y `state` (`active / expired / cancelled`) | Con solo la fecha de alta no había forma de saber si una membresía sigue vigente, ni de distinguir una baja de un vencimiento: un usuario que pagó una vez sería PRO para siempre |
+| `subscription` | Se agregan las columnas `end_date` (siempre NULL con el pago único) y `state` (`active / cancelled`) | Con solo la fecha de alta no había forma de saber si una membresía sigue vigente ni de registrar una baja. `end_date` se conserva aunque hoy no se use: es lo que dejaría agregar un plan con vigencia acotada sin volver a tocar el modelo |
 | `song` | Se agrega PK subrogada `id_song`; `(id_album, number_track)` queda como índice UNIQUE | `number_track` es el número de pista dentro del álbum: se repite entre álbumes y no identifica una canción por sí solo |
 | `review` | La FK `number_track` pasa a llamarse `id_song` | Consecuencia del punto anterior |
 | `genres` | La PK es `id_genre` | El pasaje a tablas decía `id_album`, error de tipeo |

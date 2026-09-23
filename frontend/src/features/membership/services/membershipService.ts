@@ -133,10 +133,4 @@ export const membershipService = {
       payment_id: paymentId,
     });
   },
-
-  /** Da de baja mi membresía. La baja es inmediata: el rol vuelve a FREE. */
-  async cancelMembership(): Promise<Subscription> {
-    const data = await httpClient.patch<SubscriptionApiResponse>('/subscriptions/mine/cancel');
-    return toSubscription(data);
-  },
 };

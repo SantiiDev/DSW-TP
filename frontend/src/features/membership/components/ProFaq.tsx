@@ -5,9 +5,9 @@ import { ChevronDown } from 'lucide-react';
 
 const FAQ_ITEMS = [
   {
-    question: '¿Puedo cancelar en cualquier momento?',
+    question: '¿Se renueva sola? ¿Me la van a cobrar de nuevo?',
     answer:
-      'Sí, podés cancelar tu suscripción Pro cuando quieras desde la configuración de tu cuenta. Seguirás teniendo acceso hasta que finalice tu período de facturación.',
+      'No. La membresía Pro es un pago único: se paga una sola vez y el acceso no vence. No hay renovación, no hay cobros más adelante y no guardamos los datos de tu tarjeta.',
   },
   {
     question: '¿Qué métodos de pago aceptan?',
@@ -15,14 +15,14 @@ const FAQ_ITEMS = [
       'Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express), PayPal y MercadoPago.',
   },
   {
-    question: '¿Pierdo mis datos si vuelvo a Free?',
+    question: '¿Puedo perder el acceso Pro?',
     answer:
-      'No perdés ningún dato. Tus reseñas, calificaciones y listas se mantienen. Solo perderás acceso a las funciones exclusivas de Pro.',
+      'No por el paso del tiempo: lo que pagaste no vence. Un administrador solo puede quitarlo si la cuenta incumple las reglas de la comunidad, y en ese caso tus reseñas, calificaciones y listas se mantienen igual.',
   },
   {
     question: '¿Qué pasa con los artistas y álbumes que aporté?',
     answer:
-      'Los aportes aprobados quedan en el catálogo de Musicboxd para toda la comunidad, aunque después vuelvas al plan Free. Lo que dejás de poder hacer es cargar contenido nuevo.',
+      'Los aportes aprobados quedan en el catálogo de Musicboxd para toda la comunidad, pase lo que pase con tu cuenta.',
   },
   {
     question: '¿Hay descuento para estudiantes?',

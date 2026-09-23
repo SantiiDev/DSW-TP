@@ -63,10 +63,11 @@ quedó a cargo de Siena.
 - Autenticación: JWT propio + bcrypt para el hash de contraseñas.
 - Pasarela de pago: MercadoPago Checkout Pro (sandbox) con webhook. Se le habla con
   `fetch` (viene con Node), sin el SDK: son dos llamadas y así se ve qué se manda.
-  La membresía es mensual con **renovación manual**, no débito automático: el cobro
-  recurrente es otro producto de MercadoPago (`preapproval`) y necesitaría una
-  columna en el DER para el id de la suscripción externa. Ver la sección
-  "Membresías y pasarela de pago" del README del backend.
+  La membresía Pro es un **pago único**: se paga una vez, el acceso no vence y no
+  hay renovación ni baja voluntaria. Es lo que hace Checkout Pro, que es el producto
+  de MercadoPago para pagos únicos; el cobro recurrente es otro (`preapproval`) y
+  necesitaría una columna en el DER para el id de la suscripción externa. Ver la
+  sección "Membresías y pasarela de pago" del README del backend.
 
 ### Regla común
 

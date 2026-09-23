@@ -141,11 +141,11 @@ export const ProMemberView = ({ user }: ProMemberViewProps) => {
             <div className="pro-member__card">
               <h3 className="pro-member__card-title">
                 <Sparkles size={18} aria-hidden="true" />
-                Facturación y renovación
+                Tu pago
               </h3>
               <p className="pro-member__card-text">
-                El historial de pagos y la baja de la suscripción se gestionan desde tu perfil
-                en cuanto quede conectada la pasarela de MercadoPago.
+                Pagaste una sola vez y el acceso Pro no vence: no hay nada que renovar ni que dar
+                de baja. El comprobante queda en el historial de pagos de tu perfil.
               </p>
               <Link to="/profile?tab=membership" className="pro-member__card-link">
                 Ver mi membresía &rarr;

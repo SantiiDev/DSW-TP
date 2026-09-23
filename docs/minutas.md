@@ -70,6 +70,8 @@ está en [tracking.md](tracking.md).
 | 16/09/2026 | Ranking global de usuarios más activos (PR #16) | `4a103cf` |
 | 17/09/2026 | CRUD completo de listas personalizadas, backend y frontend, con `/lists` conectada a la API (PR #17) | `5e6f1de` |
 | 18/09/2026 | Correcciones sobre el CRUD de listas (PR #18) y retoques de estilos | `005e7ef`, `68cc11b` |
+| 21/09/2026 | Listas de canciones (`LISTS.type` + `LIST_SONGS`) y alta de listas restringida a `PRO`/`ADMIN` (PR #19) | `d28a56e` |
+| 22/09/2026 | Filtro de género y criterio real de "en tendencia" en listas, paginado del panel de administración y de las contribuciones del perfil, y corrección de la colisión de clases CSS en la home | `34a713a`, `323e3f0` |
 
 ## Decisiones tomadas
 
@@ -89,11 +91,65 @@ oralmente.
 | 21/08 | La baja de usuario es **lógica** (`state = 'suspended'`), no física | Borrar la fila se llevaba puestas las reseñas del usuario, que son contenido de la comunidad | [backend/README](../backend/README.md#reglas-de-negocio-en-el-modelo) |
 | 22/08 | El contenido aportado por un `PRO` entra en estado `pending` y lo aprueba un `ADMIN` | Es lo que convierte el alta de catálogo en un caso de uso con valor de negocio y no en un formulario suelto | [propuesta](../proposal.md#alcance-mínimo) |
 | 28/08 | `REVIEW_LIKES` como relación N:M y `REVIEW_COMMENTS` como entidad débil, en vez de un contador dentro de `REVIEW` | Un contador no registra *quién* reaccionó: sin ese dato no se puede impedir el doble "me gusta" ni retirarlo | [propuesta](../proposal.md#modelo) |
-| 01/09 | La membresía es mensual con **renovación manual**, no débito automático | El cobro recurrente es otro producto de MercadoPago (`preapproval`) y exigiría agregar al DER una columna para el id de la suscripción externa | [backend/README](../backend/README.md#renovación-manual-no-débito-automático) |
+| 01/09 | La membresía es mensual con **renovación manual**, no débito automático | El cobro recurrente es otro producto de MercadoPago (`preapproval`) y exigiría agregar al DER una columna para el id de la suscripción externa | Reemplazada el 22/09 (ver la fila de abajo) |
+| 22/09 | La membresía Pro pasa a ser un **pago único**: se paga una vez, el acceso no vence y no hay renovación ni baja voluntaria | La renovación manual era una aproximación a una suscripción con una herramienta que no es para eso: Checkout Pro es el producto de MercadoPago para pagos únicos. El pago único deja el circuito alineado con lo que la pasarela realmente hace y saca del medio el vencimiento, la renovación y el estado `expired`, que sumaban código sin sumar alcance evaluado | [backend/README](../backend/README.md#pago-único-no-suscripción-recurrente) |
 | 01/09 | A MercadoPago se le habla con `fetch`, sin el SDK | Son dos llamadas y así queda a la vista qué se manda y qué se recibe | [CLAUDE.md](../CLAUDE.md) |
 | 09/09 | La base de datos se mantiene en **MySQL local**, acordado con la cátedra | — | [README del proyecto](../README.md#requisitos) |
 
 ## Minutas
+
+### 22/09/2026 — Reparto de los entregables de aprobación
+
+> ⚠️ **Borrador.** El reparto y las decisiones de abajo son los que se
+> acordaron trabajando sobre el repositorio; falta que el equipo confirme la
+> fecha real, quiénes estuvieron y la duración, y complete lo que se haya
+> conversado y no esté asentado acá.
+
+**Participantes:** Santino Gallo, Juan Ignacio Esterri, Santiago Siena
+**Duración:** —
+
+**Temas tratados**
+
+- Revisión del alcance contra la [propuesta](../proposal.md): el alcance
+  comprometido está **completo**, incluido el adicional voluntario de listas
+  personalizadas de álbumes y canciones (PR #17, #18 y #19).
+- Lo único que falta para la entrega es **documentación**: API, evidencia de
+  tests, video demo y deploy con credenciales.
+- Desbalance del historial de commits (36 / 11 / 8 al 22/09), que la cátedra
+  evalúa como participación de cada integrante.
+- Modelo de cobro de la membresía Pro: la renovación mensual manual agrega un
+  circuito (vencimiento, reactivación) que no aporta al alcance evaluado.
+
+**Decisiones**
+
+- Los cuatro entregables de aprobación se reparten entre los tres integrantes,
+  priorizando a quienes tienen menos commits en el historial. El detalle está en
+  [tracking.md](tracking.md#pendientes-de-abrir).
+- La membresía Pro pasa de **suscripción mensual con renovación manual** a un
+  **pago único** con MercadoPago: se paga una vez y el acceso `PRO` no vence.
+- El merge de la entrega (`develop` → `main`) sale después de cerrar esos ítems,
+  y en ese pull request se describe el epic de membresía, que entró sin PR.
+
+**Tareas asignadas**
+
+| Tarea | Responsable | Issue |
+|:-|:-|:-|
+| Documentación de la API | Santiago Siena | A abrir |
+| Evidencia de ejecución de los tests automáticos | Juan Ignacio Esterri | A abrir |
+| Video demo de la aplicación | Santiago Siena | A abrir |
+| Deploy y credenciales | Santino Gallo | A abrir |
+| Membresía Pro como pago único | Santino Gallo | A abrir |
+| Merge `develop` → `main` y apertura de los issues faltantes | Santino Gallo | — |
+
+**Pendientes para la próxima**
+
+- Completar las minutas de las reuniones anteriores al 09/09 con el registro
+  propio del equipo.
+- Crear en el GitHub Project los ocho issues que se trabajaron sin abrirlos y
+  vincularlos a sus pull requests.
+- Definir la plataforma de deploy.
+
+---
 
 ### 09/09/2026 — Planificación de la entrega de regularidad
 

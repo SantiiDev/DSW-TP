@@ -80,8 +80,8 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
               Potenciá tu experiencia<br />en Musicboxd con <span className="pro-hero__title-accent">Pro</span>
             </h1>
             <p className="pro-hero__subtitle">
-              {proPlan ? `${proPlan.priceLabel} por mes.` : 'Membresía mensual.'} Cancelá cuando
-              quieras.
+              {proPlan ? `${proPlan.priceLabel}, un solo pago.` : 'Un solo pago.'} Sin
+              renovaciones ni vencimiento.
             </p>
             <div className="pro-hero__actions">
               <a href="#pricing" className="pro-hero__cta pro-hero__cta--primary">
@@ -111,7 +111,7 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
                 <span className="pro-pricing__card-amount">
                   {freePlan ? freePlan.priceLabel : '—'}
                 </span>
-                <span className="pro-pricing__card-period"> / mes</span>
+                <span className="pro-pricing__card-period"> para siempre</span>
               </div>
               <p className="pro-pricing__card-tagline">Todo lo esencial, y...</p>
               <ul className="pro-pricing__card-list">
@@ -146,7 +146,7 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
                 <span className="pro-pricing__card-amount">
                   {proPlan ? proPlan.priceLabel : '—'}
                 </span>
-                <span className="pro-pricing__card-period"> / mes</span>
+                <span className="pro-pricing__card-period"> pago único</span>
               </div>
               <p className="pro-pricing__card-tagline">Todo lo de Free, y...</p>
               <ul className="pro-pricing__card-list">
@@ -167,8 +167,8 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
               </button>
 
               <p className="pro-pricing__card-note">
-                Es un pago por un mes. No se renueva solo: cuando venza, lo activás de nuevo
-                desde tu perfil.
+                Es un pago único: se paga una sola vez y el acceso Pro no vence. No hay
+                renovaciones ni cobros más adelante.
               </p>
             </div>
           </div>
@@ -182,7 +182,7 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
 
       {/* ── Comparativa Free vs Pro ──────────────── */}
       <FadeInSection delay={200}>
-        <ProComparison />
+        <ProComparison proPrice={proPlan ? proPlan.priceLabel : '—'} />
       </FadeInSection>
 
       {/* ── FAQ ──────────────────────────────────── */}

@@ -1,31 +1,29 @@
-// Lógica de negocio de las membresías: cuál es la vigente de un usuario, cómo se
-// activa una nueva y cómo se da de baja. No conoce req ni res.
+// Lógica de negocio de las membresías: cuál es la vigente de un usuario y cómo se
+// activa una nueva. No conoce req ni res.
+//
+// La membresía Pro es un PAGO ÚNICO: se paga una vez y el acceso no vence. Eso
+// saca del circuito el vencimiento (no hay nada que expire) y la renovación (no
+// hay nada que renovar), y deja la baja en manos del ADMIN, que la aplica
+// cambiándole el rol al usuario desde el CRUD de usuarios.
 //
 // Este service es el ÚNICO lugar donde cambia el rol de un usuario por motivos de
 // membresía. La regla que sostiene todo el circuito es:
 //
 //   el rol del usuario refleja su suscripción vigente.
 //
-// Por eso activar, cancelar y vencer una suscripción tocan siempre las dos cosas
-// juntas y dentro de una transacción: si se guardara solo una, quedaría un Pro
-// sin suscripción o un Free pagando.
+// Por eso activar una suscripción y cambiar el rol van siempre juntos y dentro de
+// una transacción: si se guardara solo una de las dos cosas, quedaría un Pro sin
+// suscripción o un Free que pagó.
 //
-// El rol ADMIN queda afuera de esa regla: no se compra ni se pierde por vencer
-// una membresía, se asigna desde el seed o desde el panel. Un ADMIN puede tener
-// una suscripción como cualquiera, pero su rol no lo determina ella.
+// El rol ADMIN queda afuera de esa regla: no se compra ni se pierde con una
+// membresía, se asigna desde el seed o desde el panel. Un ADMIN puede tener una
+// suscripción como cualquiera, pero su rol no lo determina ella.
 import { Transaction } from 'sequelize';
-import { sequelize } from '../../shared/db/sequelize';
-import { BadRequestError, NotFoundError } from '../../shared/errors/app-error';
+import { NotFoundError } from '../../shared/errors/app-error';
 import { SubscriptionState, UserRole } from '../../shared/types/enums';
 import { planRepository, PlanWithSubscriptions } from '../plan/plan.repository';
 import { subscriptionRepository, SubscriptionWithPlan } from './subscription.repository';
 import { ListSubscriptionsQuery } from './subscription.schema';
-
-/**
- * Cuánto dura una membresía paga. Un mes calendario, que es lo que se le cobra al
- * usuario en el checkout.
- */
-const MEMBERSHIP_MONTHS = 1;
 
 /**
  * Nombre del plan pago. El id NO se hardcodea porque depende de en qué orden se
@@ -41,8 +39,8 @@ type PublicSubscription = {
   /**
    * null solo en la suscripción "genérica" que arma getMine() para un PRO
    * asignado a mano por un admin: no hay ninguna fila real, así que tampoco hay
-   * una fecha de alta que mostrar. Es la señal que usa el frontend para no
-   * ofrecer "Renovar" ni "Dar de baja" sobre algo que no existe.
+   * una fecha de alta que mostrar. El frontend la usa para distinguir una
+   * membresía comprada de un Pro asignado a mano.
    */
   subscription_date: Date | null;
   end_date: Date | null;
@@ -88,42 +86,6 @@ function toPublicSubscription(subscription: SubscriptionWithPlan): PublicSubscri
 }
 
 /**
- * Calcula hasta cuándo vale una membresía que arranca ahora.
- * @returns la fecha de vencimiento, un mes más adelante.
- */
-function calculateEndDate(from: Date): Date {
-  const end = new Date(from);
-  // setMonth resuelve solo los meses de distinto largo: un alta el 31 de enero
-  // vence el 28 (o 29) de febrero, no el 3 de marzo.
-  end.setMonth(end.getMonth() + MEMBERSHIP_MONTHS);
-  return end;
-}
-
-/**
- * ¿Esta suscripción ya venció?
- *
- * Una membresía sin end_date no vence nunca: es el caso del plan Free.
- */
-function isDue(subscription: SubscriptionWithPlan): boolean {
-  return subscription.end_date !== null && subscription.end_date <= new Date();
-}
-
-/**
- * Baja el rol de un usuario a FREE, salvo que sea ADMIN.
- *
- * Es el cuidado que evita que perder una membresía degrade a un administrador:
- * si un ADMIN contrata Pro y después lo cancela, tiene que seguir siendo ADMIN.
- */
-async function downgradeRole(
-  id_user: number,
-  currentRole: UserRole,
-  transaction?: Transaction
-): Promise<void> {
-  if (currentRole === 'ADMIN') return;
-  await subscriptionRepository.updateUserRole(id_user, 'FREE', transaction);
-}
-
-/**
  * Suscripción "genérica" para un usuario PRO por rol que no tiene ninguna fila
  * real en `subscription` (se lo asignó un admin a mano desde el CRUD de
  * usuarios, en vez de salir de un pago). Sin esto, el panel de membresía lo
@@ -145,43 +107,26 @@ async function buildRoleOnlyProSubscription(): Promise<PublicSubscription> {
 
 export const subscriptionService = {
   /**
-   * La membresía vigente de un usuario, ya con el vencimiento aplicado.
+   * La membresía vigente de un usuario.
    *
-   * El vencimiento se resuelve acá, de forma perezosa, y no con una tarea que
-   * corra sola en el tiempo: el sistema no tiene un scheduler, y agregarlo por
-   * esto sería desproporcionado. Como toda lectura de la membresía pasa por esta
-   * función, una suscripción vencida nunca llega a mostrarse como activa.
+   * Con el pago único no hay vencimiento que aplicar: una membresía activa lo
+   * sigue siendo hasta que un ADMIN la dé de baja. La lectura es, entonces, una
+   * lectura y nada más.
    *
    * @param id_user usuario dueño de la membresía, sacado del token.
-   * @param currentRole rol que tiene hoy, para no degradar a un ADMIN.
-   * @returns la suscripción vigente, o null si no tiene o si la que tenía venció.
+   * @returns la suscripción vigente, o null si no tiene ninguna.
    */
-  async getActive(id_user: number, currentRole: UserRole): Promise<SubscriptionWithPlan | null> {
-    const active = await subscriptionRepository.findActiveByUser(id_user);
-    if (!active) return null;
-
-    if (isDue(active)) {
-      // Venció: se registra como 'expired' (y no 'cancelled', que es la baja
-      // voluntaria) y el usuario vuelve a FREE.
-      await sequelize.transaction(async (t) => {
-        await subscriptionRepository.updateState(active, 'expired', t);
-        await downgradeRole(id_user, currentRole, t);
-      });
-      return null;
-    }
-
-    return active;
+  async getActive(id_user: number): Promise<SubscriptionWithPlan | null> {
+    return subscriptionRepository.findActiveByUser(id_user);
   },
 
   /**
    * "Mi membresía": la vigente más el historial completo.
    * @param id_user usuario sacado del token.
-   * @param currentRole rol actual, para el chequeo de vencimiento.
+   * @param currentRole rol actual, para resolver el caso del PRO asignado a mano.
    */
   async getMine(id_user: number, currentRole: UserRole): Promise<MyMembership> {
-    // Se pide primero la vigente porque es la que puede vencer, y el vencimiento
-    // cambia el estado que después va a leer el historial.
-    const current = await subscriptionService.getActive(id_user, currentRole);
+    const current = await subscriptionService.getActive(id_user);
     const history = await subscriptionRepository.findAllByUser(id_user);
 
     return {
@@ -198,17 +143,21 @@ export const subscriptionService = {
   },
 
   /**
-   * Activa una membresía paga para un usuario y lo deja como PRO.
+   * Activa la membresía de un usuario y lo deja como PRO.
    *
    * Es el corazón del CUU de upgrade, y lo llama el circuito de pago una vez que
    * la pasarela confirmó la operación. Recibe la transacción desde afuera porque
    * el pago se registra en la misma: o queda todo (suscripción + rol + pago) o no
    * queda nada.
    *
-   * La suscripción anterior se pasa a 'cancelled' dentro de la misma transacción.
-   * Es lo que garantiza que haya UNA SOLA activa por usuario: MySQL no soporta
-   * índices únicos parciales, así que esa regla no la puede sostener la base y la
-   * tiene que sostener este código (ver la nota en subscription.entity.ts).
+   * La suscripción nace SIN `end_date`: es un pago único y el acceso no vence.
+   *
+   * Si quedara una suscripción anterior activa, se pasa a 'cancelled' dentro de
+   * la misma transacción. Es lo que garantiza que haya UNA SOLA activa por
+   * usuario: MySQL no soporta índices únicos parciales, así que esa regla no la
+   * puede sostener la base y la tiene que sostener este código (ver la nota en
+   * subscription.entity.ts). Con el pago único ese caso solo se da si un ADMIN
+   * bajó al usuario a FREE y este volvió a comprar.
    *
    * @param id_user usuario que contrató.
    * @param id_plan plan contratado.
@@ -225,43 +174,11 @@ export const subscriptionService = {
       await subscriptionRepository.updateState(previous, 'cancelled', transaction);
     }
 
-    const now = new Date();
-    const subscription = await subscriptionRepository.create(
-      { id_user, id_plan, end_date: calculateEndDate(now) },
-      transaction
-    );
+    const subscription = await subscriptionRepository.create({ id_user, id_plan }, transaction);
 
     await subscriptionRepository.updateUserRole(id_user, 'PRO', transaction);
 
     return subscription;
-  },
-
-  /**
-   * Da de baja la membresía vigente de un usuario.
-   *
-   * La baja es inmediata: la suscripción queda 'cancelled' y el usuario vuelve a
-   * FREE en el acto, sin conservar los beneficios hasta el vencimiento. Es la
-   * regla más simple de explicar y la que no necesita ningún proceso corriendo en
-   * el tiempo para hacerse efectiva.
-   *
-   * @param id_user usuario sacado del token.
-   * @param currentRole rol actual, para no degradar a un ADMIN.
-   */
-  async cancelMine(id_user: number, currentRole: UserRole): Promise<PublicSubscription> {
-    const active = await subscriptionService.getActive(id_user, currentRole);
-
-    // Si no hay ninguna activa no hay nada que dar de baja. Es un 400 y no un 404
-    // porque el recurso "mi membresía" existe: lo que no se puede es la acción.
-    if (!active) {
-      throw new BadRequestError('No tenés ninguna membresía activa para dar de baja.');
-    }
-
-    await sequelize.transaction(async (t) => {
-      await subscriptionRepository.updateState(active, 'cancelled', t);
-      await downgradeRole(id_user, currentRole, t);
-    });
-
-    return toPublicSubscription(active);
   },
 
   /**
@@ -270,8 +187,12 @@ export const subscriptionService = {
    *
    * La usa userService.update cuando un ADMIN le cambia el rol a FREE a un
    * usuario que era PRO: mantiene sincronizada la fila de subscription con el
-   * rol nuevo, dentro de la misma transacción. A diferencia de cancelMine, no
-   * valida quién pide la baja: ese chequeo (ser ADMIN) ya lo hizo userService
+   * rol nuevo, dentro de la misma transacción. Es el ÚNICO camino a una baja:
+   * con el pago único el usuario no puede darse de baja solo (no habría nada que
+   * ganar, porque el acceso ya está pago y no se reembolsa) y la membresía
+   * tampoco vence por sí misma.
+   *
+   * No valida quién pide la baja: ese chequeo (ser ADMIN) ya lo hizo userService
    * antes de llamarla.
    */
   async cancelForUser(id_user: number, transaction: Transaction): Promise<void> {

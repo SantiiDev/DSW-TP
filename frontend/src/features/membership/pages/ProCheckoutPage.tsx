@@ -2,8 +2,11 @@
 //
 // Es el paso que va ENTRE la página de venta y MercadoPago. Antes el botón
 // "Pasarme a Pro" sacaba al usuario del sitio de una, sin que llegara a ver qué
-// estaba comprando, por cuánto ni hasta cuándo. Acá lo ve, y recién cuando
-// confirma se crea la orden de pago.
+// estaba comprando ni por cuánto. Acá lo ve, y recién cuando confirma se crea la
+// orden de pago.
+//
+// Es un PAGO ÚNICO: no hay período que mostrar ni renovación que aclarar, pero sí
+// hay que dejar en claro que se paga una sola vez.
 //
 // La pantalla NO cobra: crea la preference en MercadoPago (POST
 // /api/payments/checkout) y redirige. El cobro pasa allá, y la vuelta la atiende
@@ -30,7 +33,7 @@ import { useAuth } from '../../../core/context/AuthContext';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { membershipService } from '../services/membershipService';
-import { PRO_PLAN_NAME, calculateCoverageEnd } from '../models/Membership';
+import { PRO_PLAN_NAME } from '../models/Membership';
 import '../styles/_membership.scss';
 
 /** Lo que incluye la membresía. Es el detalle de lo que se está comprando. */
@@ -59,7 +62,6 @@ export const ProCheckoutPage = () => {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const today = new Date();
-  const coverageEnd = calculateCoverageEnd(today);
 
   const handleConfirm = async () => {
     if (!proPlan) return;
@@ -119,19 +121,16 @@ export const ProCheckoutPage = () => {
               <div className="checkout__period">
                 <CalendarDays size={18} aria-hidden="true" />
                 <div>
-                  <span className="checkout__period-label">Período que cubre</span>
-                  <span className="checkout__period-value">
-                    {formatDate(today)} — {formatDate(coverageEnd)}
-                  </span>
+                  <span className="checkout__period-label">Desde</span>
+                  <span className="checkout__period-value">{formatDate(today)}, para siempre</span>
                 </div>
               </div>
 
-              {/* Que no se renueve sola es LO que hay que decir antes de cobrar:
+              {/* Que sea un pago único es LO que hay que decir antes de cobrar:
                   es la diferencia con lo que la mayoría espera de una membresía. */}
               <p className="checkout__disclaimer">
-                Es un pago único por un mes. <strong>No se renueva automáticamente</strong> y no
-                guardamos los datos de tu tarjeta: cuando venza, si querés seguir, lo activás de
-                nuevo desde tu perfil.
+                Es un <strong>pago único</strong>: se paga una sola vez y el acceso Pro no vence.
+                No hay renovación ni cobros más adelante, y no guardamos los datos de tu tarjeta.
               </p>
             </section>
 
@@ -145,7 +144,7 @@ export const ProCheckoutPage = () => {
               </div>
               <div className="checkout__line checkout__line--muted">
                 <span>Duración</span>
-                <span>1 mes</span>
+                <span>Para siempre</span>
               </div>
 
               <div className="checkout__total">

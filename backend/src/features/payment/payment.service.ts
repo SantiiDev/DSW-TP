@@ -1,6 +1,10 @@
 // Lógica de negocio del pago de una membresía: arrancar el checkout y confirmar
 // el resultado. No conoce req ni res.
 //
+// La membresía Pro se cobra UNA SOLA VEZ: el pago no se repite y el acceso no
+// vence. Eso hace que el circuito de abajo se recorra una vez por usuario, y que
+// createCheckout() corte de entrada a quien ya la tenga.
+//
 // El circuito completo del CUU de upgrade:
 //
 //   1. El usuario aprieta "Pasarme a Pro"  -> createCheckout() arma la orden en
@@ -95,9 +99,15 @@ export const paymentService = {
     const user = await userRepository.findById(id_user);
     if (!user) throw new NotFoundError('El usuario');
 
-    // No se corta si el usuario ya es PRO: eso es una RENOVACIÓN, que es
-    // justamente como se mantiene viva una membresía mensual. Al confirmarse, la
-    // suscripción anterior se cancela y arranca una nueva por un mes más.
+    // La membresía es un PAGO ÚNICO: quien ya la tiene no tiene nada que volver
+    // a comprar. Se corta acá, antes de armar la preference, para que nadie
+    // pague dos veces por el mismo acceso. Un ADMIN no se toma como Pro por su
+    // rol: su rol no sale de una membresía, así que puede contratarla igual.
+    const active = await subscriptionService.getActive(id_user);
+    if (active) {
+      throw new BadRequestError('Ya tenés la membresía Pro activa: es un pago único.');
+    }
+
     return paymentGateway.createPreference({
       title: `Musicboxd — Membresía ${plan.name}`,
       amount: plan.amount,
@@ -155,9 +165,9 @@ export const paymentService = {
     const { id_user, id_plan } = parseExternalReference(payment.externalReference);
 
     await sequelize.transaction(async (t) => {
-      // Activar cancela la suscripción anterior, crea la nueva por un mes y deja
-      // al usuario como PRO. Todo eso vive en subscription.service, que es el
-      // dueño de la regla "el rol refleja la suscripción vigente".
+      // Activar crea la suscripción —sin vencimiento, porque es un pago único—
+      // y deja al usuario como PRO. Todo eso vive en subscription.service, que
+      // es el dueño de la regla "el rol refleja la suscripción vigente".
       const subscription = await subscriptionService.activate(id_user, id_plan, t);
 
       await paymentRepository.create(

@@ -1,18 +1,21 @@
 // Rutas de las suscripciones, montadas en /api/subscriptions.
 //
-//   GET   /api/subscriptions             listado completo, solo ADMIN
-//   GET   /api/subscriptions/mine        mi membresía vigente + historial, logueado
-//   PATCH /api/subscriptions/mine/cancel da de baja mi membresía, logueado
+//   GET /api/subscriptions       listado completo, solo ADMIN
+//   GET /api/subscriptions/mine  mi membresía vigente + historial, logueado
 //
-// No hay POST: una suscripción no se crea a mano, nace del pago confirmado por la
-// pasarela (ver payment.service). Tampoco hay DELETE: la baja es lógica, la
-// suscripción queda como 'cancelled' porque es el historial de facturación del
-// usuario y de ella cuelgan los pagos. Es el mismo criterio que la baja de un
-// usuario en user.routes.ts.
+// Son las dos únicas: una suscripción no se crea ni se da de baja por esta API.
 //
-// Las rutas de "mine" no llevan :id: el usuario sale del token. Es lo que hace
-// imposible mirar o cancelar la membresía de otro, sin necesidad de un chequeo de
-// "dueño o admin" en el service.
+//  - No nace a mano: la crea el pago confirmado por la pasarela (payment.service).
+//  - No se da de baja: la membresía Pro es un pago único vitalicio, así que el
+//    usuario no tiene nada que cancelar. La única baja posible es la que aplica un
+//    ADMIN cambiándole el rol al usuario desde el CRUD de usuarios, y ahí la fila
+//    queda como 'cancelled' —nunca borrada— porque es el historial de facturación
+//    y de ella cuelgan los pagos. Es el mismo criterio que la baja de un usuario
+//    en user.routes.ts.
+//
+// La ruta "mine" no lleva :id: el usuario sale del token. Es lo que hace imposible
+// mirar la membresía de otro, sin necesidad de un chequeo de "dueño o admin" en el
+// service.
 //
 // "mine" va ANTES que cualquier ruta con parámetro por el mismo motivo que en
 // review.routes.ts: Express prueba las rutas en orden.
@@ -26,8 +29,6 @@ import { listSubscriptionsQuerySchema } from './subscription.schema';
 export const subscriptionRouter = Router();
 
 subscriptionRouter.get('/mine', requireAuth, subscriptionController.getMine);
-
-subscriptionRouter.patch('/mine/cancel', requireAuth, subscriptionController.cancelMine);
 
 subscriptionRouter.get(
   '/',

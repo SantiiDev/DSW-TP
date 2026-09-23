@@ -3,48 +3,17 @@
 // no sale nunca de la capa de servicios (ver services/membershipService.ts).
 
 /** Estado de una suscripción, igual que el enum SUBSCRIPTION.state del backend. */
-export const SUBSCRIPTION_STATES = ['active', 'expired', 'cancelled'] as const;
+export const SUBSCRIPTION_STATES = ['active', 'cancelled'] as const;
 export type SubscriptionState = (typeof SUBSCRIPTION_STATES)[number];
 
 /** Etiqueta de cada estado: en la UI nunca se escribe el valor crudo. */
 export const SUBSCRIPTION_STATE_LABELS: Record<SubscriptionState, string> = {
   active: 'Activa',
-  expired: 'Vencida',
   cancelled: 'Cancelada',
 };
 
 /** Nombre del plan pago. Lo usa la página de venta para destacar su tarjeta. */
 export const PRO_PLAN_NAME = 'Pro';
-
-/**
- * Cuántos días antes del vencimiento se le avisa al usuario que su membresía está
- * por terminar. Una semana da tiempo de renovar sin que el aviso viva en pantalla
- * todo el mes.
- */
-export const RENEWAL_NOTICE_DAYS = 7;
-
-/**
- * Cuántos meses cubre una membresía paga. Tiene que coincidir con
- * MEMBERSHIP_MONTHS de subscription.service.ts en el backend, que es quien
- * realmente calcula el vencimiento al activar.
- *
- * Acá se duplica solo para poder MOSTRAR el período antes de pagar: el resumen
- * de la contratación necesita decir hasta cuándo va a valer. El dato que queda
- * guardado es siempre el que calcula el backend.
- */
-export const MEMBERSHIP_MONTHS = 1;
-
-/**
- * Hasta cuándo valdría una membresía que se contrata en esta fecha.
- * @param from cuándo arranca; por defecto, ahora.
- */
-export function calculateCoverageEnd(from: Date = new Date()): Date {
-  const end = new Date(from);
-  // setMonth resuelve solo los meses de distinto largo: contratar un 31 de enero
-  // cubre hasta el 28 (o 29) de febrero, no hasta el 3 de marzo.
-  end.setMonth(end.getMonth() + MEMBERSHIP_MONTHS);
-  return end;
-}
 
 export type PlanApiResponse = {
   id_plan: number;
@@ -173,37 +142,11 @@ export class Subscription {
 
   /**
    * ¿Es una suscripción real, con una fila propia en la base? False en la
-   * genérica que arma el backend para un PRO asignado a mano por un admin.
-   *
-   * La usa el panel de membresía para no ofrecer "Renovar" ni "Dar de baja"
-   * sobre algo que no existe como suscripción.
+   * genérica que arma el backend para un PRO asignado a mano por un admin, que
+   * no tiene fecha de alta porque no hubo pago detrás.
    */
   get hasRealSubscription(): boolean {
     return this.startDate !== null;
-  }
-
-  /**
-   * Cuántos días le quedan de vigencia.
-   *
-   * Devuelve 0 si ya venció y null si la membresía no vence (el plan Free). Se
-   * redondea para arriba para que el último día muestre "1 día" y no "0".
-   */
-  get daysLeft(): number | null {
-    if (!this.endDate) return null;
-    const ms = this.endDate.getTime() - Date.now();
-    return ms <= 0 ? 0 : Math.ceil(ms / (1000 * 60 * 60 * 24));
-  }
-
-  /**
-   * ¿Conviene ofrecerle renovar?
-   *
-   * La membresía es mensual con renovación manual: no se cobra sola, así que
-   * avisar antes de que venza es lo que evita que el usuario pierda el acceso sin
-   * enterarse.
-   */
-  get isExpiringSoon(): boolean {
-    const days = this.daysLeft;
-    return days !== null && days <= RENEWAL_NOTICE_DAYS;
   }
 }
 

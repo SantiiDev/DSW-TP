@@ -4,8 +4,8 @@
 // En Express 5 no hace falta try/catch: si el service lanza, el error llega solo
 // al middleware de manejo de errores.
 //
-// Las dos rutas de "mi membresía" sacan el usuario de req.user y NO de la URL:
-// es lo que garantiza que nadie pueda mirar ni dar de baja la membresía de otro.
+// La ruta de "mi membresía" saca el usuario de req.user y NO de la URL: es lo que
+// garantiza que nadie pueda mirar la membresía de otro.
 import { Request, Response } from 'express';
 import { UnauthorizedError } from '../../shared/errors/app-error';
 import { subscriptionService } from './subscription.service';
@@ -19,13 +19,6 @@ export const subscriptionController = {
 
     const membership = await subscriptionService.getMine(req.user.id_user, req.user.rol);
     res.status(200).json(membership);
-  },
-
-  async cancelMine(req: Request, res: Response): Promise<void> {
-    if (!req.user) throw new UnauthorizedError();
-
-    const cancelled = await subscriptionService.cancelMine(req.user.id_user, req.user.rol);
-    res.status(200).json(cancelled);
   },
 
   async list(req: Request, res: Response): Promise<void> {

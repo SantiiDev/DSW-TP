@@ -52,10 +52,15 @@ export type ListType = (typeof LIST_TYPES)[number];
 /**
  * Estado de una suscripción (SUBSCRIPTION.state).
  * - active:    es la membresía vigente del usuario.
- * - expired:   se cumplió su end_date sin renovarse.
- * - cancelled: el usuario la dio de baja antes de su vencimiento.
+ * - cancelled: se la dio de baja. Con el pago único la membresía no vence sola,
+ *              así que el único camino a este estado es que un ADMIN le cambie
+ *              el rol a FREE desde el CRUD de usuarios.
+ *
+ * El estado 'expired' existía cuando la membresía era mensual y podía vencer
+ * sin renovarse. Se eliminó al pasar al pago único: una membresía vitalicia no
+ * tiene vencimiento, así que ese estado era inalcanzable.
  */
-export const SUBSCRIPTION_STATES = ['active', 'expired', 'cancelled'] as const;
+export const SUBSCRIPTION_STATES = ['active', 'cancelled'] as const;
 export type SubscriptionState = (typeof SUBSCRIPTION_STATES)[number];
 
 /** Estado de un pago (PAYMENTS.state), alineado con los estados de la pasarela. */

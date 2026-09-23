@@ -117,7 +117,7 @@ export const PlanForm = ({
           />
         </FormField>
 
-        <FormField id="plan-amount" label="Monto mensual" hint="(en pesos, 0 si es gratis)">
+        <FormField id="plan-amount" label="Monto del pago único" hint="(en pesos, 0 si es gratis)">
           <TextInput
             id="plan-amount"
             type="text"
