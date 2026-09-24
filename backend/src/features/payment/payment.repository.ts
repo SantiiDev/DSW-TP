@@ -4,7 +4,7 @@
 // Ojo con la diferencia: este archivo guarda los pagos en NUESTRA base;
 // payment.gateway.ts es el que habla con MercadoPago.
 import { Transaction } from 'sequelize';
-import { Payment, Plan, Subscription } from '../../entities';
+import { Payment, Plan, Subscription, User } from '../../entities';
 import { PaymentState } from '../../shared/types/enums';
 
 /** Suscripción a la que pertenece un pago, con el plan que se cobró. */
@@ -13,6 +13,8 @@ export type PaymentSubscription = {
   subscription_date: Date;
   end_date: Date | null;
   plan?: { id_plan: number; name: string };
+  /** Solo lo trae la consulta del dashboard: quién compró. */
+  user?: { id_user: number; username: string };
 };
 
 /**
@@ -65,6 +67,35 @@ export const paymentRepository = {
       // El pago no guarda el usuario: cuelga de la suscripción, que sí lo tiene.
       // El include con `required: true` hace el INNER JOIN que filtra por dueño.
       include: [{ ...subscriptionInclude, where: { id_user }, required: true }],
+      order: [['payment_date', 'DESC']],
+    });
+
+    return payments as PaymentWithSubscription[];
+  },
+
+  /**
+   * Todos los pagos aprobados, del más nuevo al más viejo, con el plan y el
+   * usuario que compró. Es la única consulta del dashboard de administración:
+   * los totales, la curva mensual y las últimas ventas se arman en el service a
+   * partir de esta lista.
+   *
+   * Hoy todo pago guardado es 'approved' (los rechazos no dejan fila, ver
+   * payment.service), pero se filtra igual: el dashboard mide plata cobrada, y
+   * si mañana se guardaran otros estados no tendría que cambiar.
+   */
+  findApprovedForStats: async (): Promise<PaymentWithSubscription[]> => {
+    const payments = await Payment.findAll({
+      where: { state: 'approved' },
+      attributes: ['id_transaction', 'amount', 'payment_date', 'state'],
+      include: [
+        {
+          ...subscriptionInclude,
+          include: [
+            ...subscriptionInclude.include,
+            { model: User, as: 'user', attributes: ['id_user', 'username'] },
+          ],
+        },
+      ],
       order: [['payment_date', 'DESC']],
     });
 

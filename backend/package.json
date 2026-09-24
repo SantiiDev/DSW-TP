@@ -16,6 +16,7 @@
     "seed:plans": "tsx src/seed/seed-plans.ts",
     "seed:catalog": "tsx src/seed/seed-catalog.ts",
     "seed:admin": "tsx src/seed/seed-admin-user.ts",
+    "seed:demo-sales": "tsx src/seed/seed-demo-sales.ts",
     "db:reset": "tsx src/scripts/reset-db.ts"
   },
   "dependencies": {

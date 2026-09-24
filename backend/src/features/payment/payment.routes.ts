@@ -4,6 +4,7 @@
 //   POST /api/payments/confirm   confirma el pago al volver del checkout, logueado
 //   POST /api/payments/webhook   aviso de MercadoPago, PÚBLICO
 //   GET  /api/payments/mine      mi historial de pagos, logueado
+//   GET  /api/payments/stats     métricas del dashboard de administración, ADMIN
 //
 // El webhook es la única ruta del sistema sin requireAuth, y tiene que serlo: la
 // llama un servidor de MercadoPago, que no tiene ni puede tener un token nuestro.
@@ -20,9 +21,10 @@
 // el usuario.
 import { Router } from 'express';
 import { requireAuth } from '../../shared/middlewares/require-auth';
+import { requireRole } from '../../shared/middlewares/require-role';
 import { validate } from '../../shared/middlewares/validate';
 import { paymentController } from './payment.controller';
-import { confirmPaymentSchema, createCheckoutSchema } from './payment.schema';
+import { confirmPaymentSchema, createCheckoutSchema, paymentStatsQuerySchema } from './payment.schema';
 
 export const paymentRouter = Router();
 
@@ -43,3 +45,11 @@ paymentRouter.post(
 paymentRouter.post('/webhook', paymentController.webhook);
 
 paymentRouter.get('/mine', requireAuth, paymentController.getMine);
+
+paymentRouter.get(
+  '/stats',
+  requireAuth,
+  requireRole('ADMIN'),
+  validate({ query: paymentStatsQuerySchema }),
+  paymentController.stats
+);

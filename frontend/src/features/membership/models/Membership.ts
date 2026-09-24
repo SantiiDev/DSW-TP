@@ -15,6 +15,28 @@ export const SUBSCRIPTION_STATE_LABELS: Record<SubscriptionState, string> = {
 /** Nombre del plan pago. Lo usa la página de venta para destacar su tarjeta. */
 export const PRO_PLAN_NAME = 'Pro';
 
+/**
+ * Formatea un importe en pesos: "$ 3.500" o "$ 1.750,50".
+ *
+ * Los centavos se muestran solo si el importe los tiene. Un $3.500 con ",00"
+ * pegado atrás es ruido, pero redondear $1.750,50 a "$ 1.751" sería mostrar un
+ * importe que no es el que se cobró: las columnas son DECIMAL(10,2) y el panel
+ * de administración deja cargar centavos.
+ *
+ * Es el único lugar donde se formatea plata en la feature: lo usan los planes,
+ * los pagos y el dashboard de ingresos.
+ */
+export function formatArs(amount: number): string {
+  const decimals = Number.isInteger(amount) ? 0 : 2;
+
+  return amount.toLocaleString('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
 export type PlanApiResponse = {
   id_plan: number;
   name: string;
@@ -82,26 +104,9 @@ export class Plan {
     return this.amount > 0;
   }
 
-  /**
-   * Precio listo para mostrar: "$ 3.500", "$ 1.750,50" o "Gratis".
-   *
-   * Los centavos se muestran solo si el precio los tiene. Un plan de $3.500 con
-   * ",00" pegado atrás es ruido en la página de venta, pero redondear uno de
-   * $1.750,50 a "$ 1.751" sería mostrar un precio que no es el que se va a
-   * cobrar: la columna es un DECIMAL(10,2) y el panel de administración deja
-   * cargar centavos.
-   */
+  /** Precio listo para mostrar: "$ 3.500", "$ 1.750,50" o "Gratis" (ver formatArs). */
   get priceLabel(): string {
-    if (!this.isPaid) return 'Gratis';
-
-    const decimals = Number.isInteger(this.amount) ? 0 : 2;
-
-    return this.amount.toLocaleString('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    });
+    return this.isPaid ? formatArs(this.amount) : 'Gratis';
   }
 
   /** Cuántos suscriptores tiene, en singular o plural, para la tabla del panel. */
@@ -162,10 +167,6 @@ export class Payment {
 
   /** Importe listo para mostrar. */
   get amountLabel(): string {
-    return this.amount.toLocaleString('es-AR', {
-      style: 'currency',
-      currency: 'ARS',
-      maximumFractionDigits: 0,
-    });
+    return formatArs(this.amount);
   }
 }

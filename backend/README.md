@@ -887,6 +887,41 @@ usuario y emite un token nuevo. El frontend lo llama al confirmar un pago.
 | POST | `/api/payments/confirm` | logueado |
 | POST | `/api/payments/webhook` | **público** (lo llama MercadoPago) |
 | GET | `/api/payments/mine` | logueado |
+| GET | `/api/payments/stats?year=` | ADMIN |
+
+### Dashboard de administración
+
+`GET /api/payments/stats` alimenta la pestaña **Métricas** del panel de
+administración: ingresos (históricos y del año elegido), cantidad de ventas,
+ticket promedio, ingresos mes a mes, usuarios activos por rol, conversión a Pro
+y las últimas ventas.
+
+Con el pago único no hay ingresos recurrentes que medir (ni MRR ni bajas): lo que
+se mide son **ventas**. Todo sale de las tablas propias —`payments`,
+`subscription` y `users`—, así que un pago que entra por MercadoPago aparece en
+la siguiente lectura. Dos criterios que no son obvios:
+
+- **Usuarios por plan sale de `users.rol`**, no de `subscription`: un Free no
+  tiene fila en `subscription` (solo nace de un pago) y un Pro puede estar
+  asignado a mano por un admin. Las cuentas suspendidas no cuentan.
+- **La conversión** es Pro que pagaron (suscripciones activas) sobre usuarios
+  activos no admin: un admin no compra, tiene todo por su rol.
+
+#### Datos de demostración
+
+Para que el dashboard no muestre todo en cero en la defensa hay un seed aparte,
+que **no** corre con `npm run seed` ni con `db:reset`:
+
+```bash
+npm run seed:demo-sales              # 10 ventas repartidas en los últimos meses
+npm run seed:demo-sales -- --clean   # las borra
+```
+
+Cada venta es un usuario `demo_comprador_N` (email `@demo.musicboxd.local`) con
+su suscripción activa y su pago aprobado, creados en una transacción. Los pagos
+llevan `id_gateway` con prefijo `demo-`, que es lo que usa la limpieza para
+borrar solo lo de demo. **Hay que correr la limpieza antes del deploy**: si no,
+la app publicada mostraría ingresos que nunca se cobraron.
 
 ### Configurar MercadoPago para probarlo
 

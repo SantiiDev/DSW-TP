@@ -64,11 +64,13 @@ Los títulos son los de las ramas que salieron de cada issue.
 | — | Listas personalizadas de álbumes (CRUD completo) | Santiago Siena | Cerrado (entró por los PR #17 y #18; falta abrir el issue) |
 | — | Listas de canciones (`LISTS.type` + `LIST_SONGS`) y alta de listas restringida a `PRO`/`ADMIN` | Santiago Siena | Cerrado (entró por el PR #19; falta abrir el issue) |
 | — | Correcciones de listas, paginado del panel de administración y de las contribuciones del perfil | Juan Ignacio Esterri | Cerrado (entró por commits directos a `develop`; falta abrir el issue) |
+| — | Membresía Pro como **pago único** en lugar de suscripción mensual | Santino Gallo | Cerrado (entró por un commit directo a `develop`; falta abrir el issue) |
+| — | Dashboard de administración con métricas de ingresos | Santino Gallo | En curso en la rama `feature/admin-revenue-dashboard` (falta abrir el issue y renombrar la rama con su número) |
 
-> Las ocho filas sin número de más arriba se trabajaron antes de abrir su issue:
+> Las nueve filas sin número de más arriba se trabajaron antes de abrir su issue:
 > cuatro entraron juntas por el PR #13, la de CUU 4 parte 2 por el PR #15, la de
 > listas personalizadas por los PR #17 y #18, la de listas de canciones por el
-> PR #19, y la última por dos commits directos a `develop`. Hay que crearlas en
+> PR #19, y las dos últimas por commits directos a `develop`. Hay que crearlas en
 > el GitHub Project y vincularlas a esos pull requests, para que la trazabilidad
 > quede completa antes de la entrega.
 
@@ -89,7 +91,6 @@ Lo que falta del alcance y todavía no tiene issue. El detalle de cada uno está
 | Video demo de la aplicación | Santiago Siena | Alta (aprobación) |
 | Deploy y credenciales de la app publicada | Santino Gallo | Alta (aprobación) |
 | Merge de la entrega (`develop` → `main`) y apertura de los issues faltantes | Santino Gallo | Alta (regularidad) |
-| Membresía Pro como **pago único** en lugar de suscripción mensual | Santino Gallo | Alta |
 
 > **Reparto de lo que queda.** Se asigna así a propósito: el historial de commits
 > está desparejo (ver [Deuda de proceso](#deuda-de-proceso)), y estos entregables
@@ -187,17 +188,20 @@ trazabilidad del trabajo:
   perfil, colisión de clases CSS en la home y reglas faltantes del `.gitignore`).
   Mismo caso que los anteriores: son correcciones, pero tendrían que haber salido
   por una rama.
-- **`main` está 53 commits atrás de `develop`.** La entrega de regularidad tiene
+- **El pago único también entró por un commit directo a `develop`**: `587ca90`
+  (22/09). Es un cambio de alcance con 30 archivos tocados, de los que más tenía
+  que haber salido por una rama y un pull request.
+- **`main` está 54 commits atrás de `develop`.** La entrega de regularidad tiene
   que salir de un merge de `develop` a `main`.
 - **La carga de trabajo está repartida de forma despareja** en el historial: de
-  los 55 commits del desarrollo (sin contar merges ni el historial heredado del
-  fork), 36 son de Santino Gallo, 11 de Juan Ignacio Esterri y 8 de Santiago
+  los 56 commits del desarrollo (sin contar merges ni el historial heredado del
+  fork), 37 son de Santino Gallo, 11 de Juan Ignacio Esterri y 8 de Santiago
   Siena. La cátedra evalúa la participación de cada integrante, así que conviene
   repartir lo que falta de manera que el historial lo refleje: ese es el criterio
   con el que se asignaron los [pendientes de abrir](#pendientes-de-abrir).
 
-  > Medición al 22/09/2026. La cifra anterior (52 commits: 36 / 9 / 7) era del
-  > 19/09 y quedó vieja: entre el 21/09 y el 22/09 entraron el PR #19 y dos
+  > Medición al 24/09/2026. La cifra anterior (52 commits: 36 / 9 / 7) era del
+  > 19/09 y quedó vieja: entre el 21/09 y el 22/09 entraron el PR #19 y tres
   > commits directos. Para recalcularla:
   > `git log --no-merges --format="%an" --since=2026-07-01 | sort | uniq -c`
   > (en PowerShell, `... | Group-Object | Select-Object Count, Name`).

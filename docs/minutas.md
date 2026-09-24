@@ -72,6 +72,7 @@ está en [tracking.md](tracking.md).
 | 18/09/2026 | Correcciones sobre el CRUD de listas (PR #18) y retoques de estilos | `005e7ef`, `68cc11b` |
 | 21/09/2026 | Listas de canciones (`LISTS.type` + `LIST_SONGS`) y alta de listas restringida a `PRO`/`ADMIN` (PR #19) | `d28a56e` |
 | 22/09/2026 | Filtro de género y criterio real de "en tendencia" en listas, paginado del panel de administración y de las contribuciones del perfil, y corrección de la colisión de clases CSS en la home | `34a713a`, `323e3f0` |
+| 22/09/2026 | La membresía Pro pasa a ser un **pago único**: se elimina el vencimiento, la renovación, el estado `expired` y la baja voluntaria, en las dos apps y en la documentación | `587ca90` |
 
 ## Decisiones tomadas
 

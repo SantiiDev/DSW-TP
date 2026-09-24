@@ -4,7 +4,7 @@ Qué está terminado y qué falta, punto por punto, contra el alcance comprometi
 en la [propuesta](../proposal.md) y los requisitos del
 [enunciado](enunciado.md).
 
-Última revisión: **22/09/2026**.
+Última revisión: **24/09/2026**.
 
 ## Requisitos técnicos
 
@@ -28,7 +28,7 @@ en la [propuesta](../proposal.md) y los requisitos del
 | Login propio con al menos 2 niveles de acceso | ✅ | JWT + bcrypt, con `FREE`, `PRO` y `ADMIN` |
 | Rutas protegidas según el nivel de acceso | ✅ | `requireAuth` + `requireRole` |
 | Ambientes definidos | ✅ | `.env` + `.env.example` |
-| 1 test automatizado por integrante (3) | ✅ | Vitest sobre los schemas de Zod: `auth` (Santino), `album` (Esterri), `review` (Siena), más `follow` y `list` que se sumaron después — cinco en total, en [`backend/tests/unit`](../backend/tests/unit) |
+| 1 test automatizado por integrante (3) | ✅ | Vitest sobre los schemas de Zod: `auth` (Santino), `album` (Esterri), `review` (Siena), más `follow`, `list` y `payment` que se sumaron después — seis en total, en [`backend/tests/unit`](../backend/tests/unit) |
 | 1 test de integración | ✅ | Vitest + Supertest sobre `app.ts`: el circuito de login contra MySQL, en [`backend/tests/integration/auth.test.ts`](../backend/tests/integration/auth.test.ts) |
 
 ### Frontend — regularidad
@@ -55,7 +55,7 @@ en la [propuesta](../proposal.md) y los requisitos del
 |:-|:-:|:-|
 | Login y protección de rutas según el nivel de usuario | ✅ | `ProtectedRoute` + `AuthContext` |
 | Ambientes definidos | ✅ | `.env` con prefijo `VITE_` |
-| 1 test unitario de un componente | ✅ | Vitest + React Testing Library sobre `SegmentedControl` ([test](../frontend/src/core/components/SegmentedControl.test.tsx)) y sobre `MembershipPanel` ([test](../frontend/src/features/membership/components/MembershipPanel.test.tsx)), que fija la regla del pago único: el panel no ofrece renovar ni dar de baja |
+| 1 test unitario de un componente | ✅ | Vitest + React Testing Library sobre `SegmentedControl` ([test](../frontend/src/core/components/SegmentedControl.test.tsx)) sobre `MembershipPanel` ([test](../frontend/src/features/membership/components/MembershipPanel.test.tsx)), que fija la regla del pago único: el panel no ofrece renovar ni dar de baja, y sobre `RevenueDashboard` ([test](../frontend/src/features/membership/components/RevenueDashboard.test.tsx)), el tablero de métricas con y sin ventas |
 | 1 test end-to-end | ✅ | Playwright: el login completo desde el navegador ([test](../frontend/e2e/login.spec.ts)) |
 
 ## Requisitos funcionales
@@ -86,7 +86,7 @@ en la [propuesta](../proposal.md) y los requisitos del
 | 1 — Sistema de reseñas (álbumes y canciones) | ✅ | Alta, edición, baja, likes y comentarios |
 | 2 — Pasarela de pagos y membresías | ✅ | Checkout Pro en sandbox, webhook y confirmación al volver. Desde el 22/09 la membresía es un **pago único**: se paga una vez, el acceso no vence y no hay renovación ni baja voluntaria (ver la minuta del 22/09) |
 | 3 — Aporte y moderación de catálogo | ✅ | Alta en estado `pending` por un `PRO`, aprobación por un `ADMIN` |
-| 4 — Feed social y estadísticas avanzadas | ✅ | **Feed social**: la sección `/reviews` con su toggle Comunidad / Amigos, el seguimiento unidireccional entre usuarios (relación `FOLLOWS`) y el panel "Gente para seguir". Desde el perfil se abren las listas de seguidores y seguidos (con seguir/dejar de seguir en cada fila), el buscador de la barra encuentra álbumes, canciones y usuarios, el autor de cada reseña y comentario lleva a su perfil, y la pestaña "Resumen" muestra la actividad reciente. **Estadísticas avanzadas** ("Tu año en música"): pestaña "Estadísticas" del perfil propio con horas de música calificada, actividad mes a mes, géneros más escuchados, top de artistas y álbumes, décadas y distribución de notas, con selector de año. Salen de `GET /api/reviews/stats/me`, restringido a `PRO`/`ADMIN`; el service además relee el rol de la base para cortar un token viejo de una membresía vencida. Un `FREE` ve una vista previa bloqueada con acceso a `/pro`. Gráficos en SVG propio, sin dependencias nuevas (`core/components/charts`). |
+| 4 — Feed social y estadísticas avanzadas | ✅ | **Feed social**: la sección `/reviews` con su toggle Comunidad / Amigos, el seguimiento unidireccional entre usuarios (relación `FOLLOWS`) y el panel "Gente para seguir". Desde el perfil se abren las listas de seguidores y seguidos (con seguir/dejar de seguir en cada fila), el buscador de la barra encuentra álbumes, canciones y usuarios, el autor de cada reseña y comentario lleva a su perfil, y la pestaña "Resumen" muestra la actividad reciente. **Estadísticas avanzadas** ("Tu año en música"): pestaña "Estadísticas" del perfil propio con horas de música calificada, actividad mes a mes, géneros más escuchados, top de artistas y álbumes, décadas y distribución de notas, con selector de año. Salen de `GET /api/reviews/stats/me`, restringido a `PRO`/`ADMIN`; el service además relee el rol de la base para cortar un token viejo de alguien a quien un ADMIN le bajó el rol. Un `FREE` ve una vista previa bloqueada con acceso a `/pro`. Gráficos en SVG propio, sin dependencias nuevas (`core/components/charts`). |
 
 La relación entre casos de uso comprometida en la propuesta **cierra de punta a
 punta**: el pago del CUU 2 convierte al usuario en `PRO`, eso lo habilita a
@@ -102,7 +102,7 @@ anterior, que es lo que pide la cátedra.
 | Interacción social sobre reseñas (likes y comentarios) | ✅ |
 | Listas personalizadas de álbumes **y de canciones** | ✅ CRUD completo (`LISTS`, `LIST_ALBUMS`, `LIST_SONGS`, `LIST_LIKES` en el DER): alta, edición, baja, agregar/sacar ítems y "me gusta". Una lista es de álbumes **o** de canciones, nunca de las dos: lo dice `LISTS.type`, que decide en qué tabla intermedia van sus ítems. Armar y curar listas es un **beneficio Pro**; un `FREE` las ve, las comparte y les da "me gusta", y si intenta crear una ve el cartel que lo invita a `/pro`. `/lists` explora por "Top Listas" y "Listas en Tendencia" con filtro por género, y desde la ficha de un álbum **o de una canción** se agrega a una lista propia del tipo que corresponda. El CRUD base entró por los PR #17 y #18; las listas de canciones y el gate Pro, después |
 | Ranking global de usuarios más activos | ✅ Panel "Más activos" en la columna lateral de `/reviews`, ordenado por un puntaje que combina reseñas publicadas y seguidores (`GET /api/users/ranking`) |
-| Dashboard de administración con métricas de ingresos | ❌ |
+| Dashboard de administración con métricas de ingresos | ✅ Pestaña **Métricas** de `/admin` (la que abre por defecto): ingresos históricos y del año, ventas, ticket promedio, conversión a Pro, curva de ingresos mes a mes, usuarios activos por plan y últimas ventas. Sale de `GET /api/payments/stats` (solo `ADMIN`) y se calcula siempre sobre los pagos reales; para la defensa hay un seed de demo aparte (`npm run seed:demo-sales`) que se borra con `-- --clean` antes del deploy |
 | Autocompletado de metadatos en el alta de un álbum | ❌ |
 
 ## Documentación de la entrega

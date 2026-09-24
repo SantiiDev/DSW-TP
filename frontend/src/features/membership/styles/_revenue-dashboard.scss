@@ -1,0 +1,151 @@
+// Estilos del tablero de métricas del panel de administración (pestaña "Métricas").
+//
+// Mobile-first: en un teléfono todo va en una columna, con los indicadores de a
+// dos. Desde MD la curva ocupa la fila entera y el reparto de usuarios y las
+// últimas ventas quedan lado a lado; desde LG los cinco indicadores entran en una
+// sola fila.
+//
+// Las tarjetas copian el aspecto de las de "Tu año en música" (_advanced-stats.scss)
+// pero no las importan: esas son de la feature review y este tablero es de membership.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.revenue-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: $spacing-md;
+}
+
+.revenue-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: $spacing-md;
+
+  @media (min-width: $bp-md) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+// Fila de indicadores: ocupa todo el ancho del tablero y tiene su propia grilla.
+.revenue-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $spacing-md;
+  grid-column: 1 / -1;
+
+  @media (min-width: $bp-lg) {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  // Las cinco tarjetas quedan del mismo alto (las estira la grilla), así que el
+  // número va centrado en las dos direcciones: pegado arriba a la izquierda, las
+  // más bajas quedaban con un hueco abajo.
+  .revenue-card {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .stat-number {
+    align-items: center;
+  }
+
+  // Tamaño pensado para una columna de la fila, no para la portada ancha de las
+  // estadísticas. nowrap evita que el "$" quede solo en un renglón.
+  .stat-number__value {
+    font-size: 1.5rem;
+    white-space: nowrap;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.75rem;
+    }
+  }
+
+  .stat-number__label {
+    font-size: 0.72rem;
+  }
+}
+
+.revenue-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: $spacing-md;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+
+  @media (min-width: $bp-sm) {
+    padding: 1.5rem;
+  }
+
+  // El total histórico es el dato estrella: en mobile ocupa la fila entera, lleva
+  // el borde verde de la marca y un número un poco más grande que los demás.
+  &--highlight {
+    grid-column: 1 / -1;
+    border-color: rgba($color-primary, 0.35);
+
+    @media (min-width: $bp-lg) {
+      grid-column: auto;
+    }
+
+    .stat-number__value {
+      font-size: 1.9rem;
+      color: $color-primary;
+
+      @media (min-width: $bp-md) {
+        font-size: 2.1rem;
+      }
+    }
+  }
+
+  // Cuerpo de una tarjeta con gráfico: ocupa el alto que sobra debajo del título
+  // y centra el contenido en él.
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  // La leyenda del donut crece hasta llenar la fila (flex: 1 en _charts.scss) y
+  // empuja la dona a la izquierda. Acá se le fija un ancho para que dona y
+  // leyenda queden juntas y centradas como grupo.
+  .donut-chart__legend {
+    flex: 0 1 200px;
+  }
+
+  &--wide {
+    grid-column: 1 / -1;
+  }
+
+  &__title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__subtitle {
+    margin: 0 0 $spacing-md;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+  &__empty {
+    margin: $spacing-md 0 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__note {
+    margin: $spacing-md 0 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+  // La tabla de últimas ventas ya trae su propio margen superior.
+  .membership-payments {
+    margin-top: $spacing-sm;
+  }
+}

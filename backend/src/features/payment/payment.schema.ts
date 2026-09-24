@@ -31,5 +31,18 @@ export const confirmPaymentSchema = z.object({
 // un 400, y MercadoPago lo reintentaría para siempre. El controller lee lo que
 // entiende y contesta 200 a todo lo demás.
 
+// Métricas del dashboard de administración (GET /api/payments/stats?year=2026).
+// Sin year se usan las del año en curso. Mismos límites que las estadísticas
+// avanzadas de review.schema.ts, para que las dos pantallas acepten lo mismo.
+export const paymentStatsQuerySchema = z.object({
+  year: z.coerce
+    .number({ error: 'El año tiene que ser un número.' })
+    .int('El año tiene que ser un número entero.')
+    .min(1900, 'El año no es válido.')
+    .max(2100, 'El año no es válido.')
+    .optional(),
+});
+
 export type CreateCheckoutInput = z.infer<typeof createCheckoutSchema>;
 export type ConfirmPaymentInput = z.infer<typeof confirmPaymentSchema>;
+export type PaymentStatsQuery = z.infer<typeof paymentStatsQuerySchema>;
