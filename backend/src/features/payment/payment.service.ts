@@ -27,7 +27,11 @@
 // usuario lo ve en la pantalla de retorno y puede volver a intentar.
 import { sequelize } from '../../shared/db/sequelize';
 import { BadRequestError, NotFoundError } from '../../shared/errors/app-error';
+import { USER_ROLES, UserRole } from '../../shared/types/enums';
 import { planRepository } from '../plan/plan.repository';
+// El dashboard necesita contar membresías activas; se le pregunta al repositorio
+// de suscripciones igual que se le pregunta al de usuarios (ver review.service).
+import { subscriptionRepository } from '../subscription/subscription.repository';
 import { subscriptionService } from '../subscription/subscription.service';
 import { userRepository } from '../user/user.repository';
 import { parseExternalReference, paymentGateway } from './payment.gateway';
@@ -61,6 +65,112 @@ type PublicPayment = {
   state: string;
   plan: string | null;
 };
+
+/** Una venta en la lista "Últimas ventas" del dashboard. */
+type RecentSale = {
+  id_transaction: number;
+  amount: number;
+  payment_date: Date;
+  username: string | null;
+  plan: string | null;
+};
+
+/**
+ * Métricas del dashboard de administración.
+ *
+ * Con el pago único no hay ingresos recurrentes que medir (ni MRR ni bajas): lo
+ * que se mide son VENTAS. Cuánto se cobró, cuándo, y qué parte de los usuarios
+ * compró.
+ */
+type PublicPaymentStats = {
+  year: number;
+  /** Años con al menos un pago, más el actual. Del más nuevo al más viejo. */
+  available_years: number[];
+  revenue: {
+    /** Todo lo cobrado desde siempre, sin importar el año elegido. */
+    total_all_time: number;
+    total_year: number;
+    sales_year: number;
+    /** Ingresos del año / ventas del año; 0 si no hubo ventas. */
+    average_ticket: number;
+  };
+  /** Doce posiciones, de enero a diciembre del año elegido. */
+  monthly: { month: number; revenue: number; sales: number }[];
+  users: {
+    /** Cuentas activas; las suspendidas no cuentan. */
+    total: number;
+    /** Siempre los tres roles, en el orden de USER_ROLES, aunque alguno tenga 0. */
+    by_role: { rol: UserRole; count: number }[];
+    /** Pro que pagaron: cada membresía activa nace de un pago. */
+    pro_paid: number;
+    /** Pro por rol sin pago detrás: se los asignó un admin a mano. */
+    pro_assigned: number;
+    /** Pro que pagaron sobre usuarios no admin, en porcentaje con un decimal. */
+    conversion: number;
+  };
+  /** Las ventas más recientes, de cualquier año. */
+  recent_sales: RecentSale[];
+};
+
+/** Cuántas ventas muestra la lista de últimas ventas del dashboard. */
+const RECENT_SALES_SIZE = 8;
+
+/**
+ * Redondea un importe a centavos. Sumar decimales en punto flotante deja restos
+ * como 7000.000000001; la columna es DECIMAL(10,2) y el total no puede ser más
+ * preciso que lo que se guardó.
+ */
+function roundMoney(amount: number): number {
+  return Math.round(amount * 100) / 100;
+}
+
+/** Suma los importes de una lista de pagos. */
+function sumAmounts(payments: PaymentWithSubscription[]): number {
+  return roundMoney(payments.reduce((total, payment) => total + payment.amount, 0));
+}
+
+/**
+ * Ingresos y cantidad de ventas de cada mes de un año.
+ * @param payments pagos de ese año, ya filtrados.
+ * @returns doce posiciones: la 0 es enero y la 11 diciembre.
+ */
+function buildMonthly(payments: PaymentWithSubscription[]): PublicPaymentStats['monthly'] {
+  const monthly = Array.from({ length: 12 }, (_, index) => ({
+    month: index + 1,
+    revenue: 0,
+    sales: 0,
+  }));
+
+  for (const payment of payments) {
+    const entry = monthly[new Date(payment.payment_date).getMonth()];
+    entry.revenue += payment.amount;
+    entry.sales += 1;
+  }
+
+  return monthly.map((entry) => ({ ...entry, revenue: roundMoney(entry.revenue) }));
+}
+
+/**
+ * Los años que se pueden elegir en el dashboard: los que tuvieron al menos una
+ * venta, más el actual aunque todavía no tenga ninguna. Mismo criterio que las
+ * estadísticas avanzadas de review.service.
+ */
+function buildAvailableYears(payments: PaymentWithSubscription[], currentYear: number): number[] {
+  const years = new Set<number>([currentYear]);
+  for (const payment of payments) years.add(new Date(payment.payment_date).getFullYear());
+  return [...years].sort((a, b) => b - a);
+}
+
+/** Arma una fila de "Últimas ventas". */
+function toRecentSale(payment: PaymentWithSubscription): RecentSale {
+  return {
+    id_transaction: payment.id_transaction,
+    amount: payment.amount,
+    payment_date: payment.payment_date,
+    username: payment.subscription?.user?.username ?? null,
+    plan: payment.subscription?.plan?.name ?? null,
+  };
+}
 
 /** Arma la vista pública de un pago. */
 function toPublicPayment(payment: PaymentWithSubscription): PublicPayment {
@@ -198,5 +308,66 @@ export const paymentService = {
   async getMine(id_user: number): Promise<PublicPayment[]> {
     const payments = await paymentRepository.findAllByUser(id_user);
     return payments.map(toPublicPayment);
+  },
+
+  /**
+   * Métricas del dashboard de administración: ventas de la membresía y usuarios
+   * por plan. Solo ADMIN, que es lo que corta requireRole en la ruta.
+   *
+   * Todo sale de las tablas propias, así que un pago que entra por MercadoPago
+   * aparece acá en la siguiente lectura, sin nada en el medio. Las tres
+   * consultas son independientes y van en paralelo.
+   *
+   * @param year año elegido; sin él, el año en curso.
+   */
+  async adminStats(year?: number): Promise<PublicPaymentStats> {
+    const [payments, roleCounts, proPaid] = await Promise.all([
+      paymentRepository.findApprovedForStats(),
+      userRepository.countActiveByRole(),
+      subscriptionRepository.countActive(),
+    ]);
+
+    const currentYear = new Date().getFullYear();
+    const selectedYear = year ?? currentYear;
+    const yearPayments = payments.filter(
+      (payment) => new Date(payment.payment_date).getFullYear() === selectedYear
+    );
+
+    const totalYear = sumAmounts(yearPayments);
+
+    // Los tres roles siempre, aunque alguno no tenga cuentas: así el gráfico y su
+    // leyenda no cambian de forma según los datos.
+    const byRole = USER_ROLES.map((rol) => ({
+      rol,
+      count: roleCounts.find((row) => row.rol === rol)?.count ?? 0,
+    }));
+    const countOf = (rol: UserRole) => byRole.find((row) => row.rol === rol)?.count ?? 0;
+
+    const totalUsers = byRole.reduce((total, row) => total + row.count, 0);
+    // Los admin no compran: tienen todo por su rol. Contarlos en la base de la
+    // conversión la bajaría sin que haya un cliente real detrás.
+    const buyers = totalUsers - countOf('ADMIN');
+
+    return {
+      year: selectedYear,
+      available_years: buildAvailableYears(payments, currentYear),
+      revenue: {
+        total_all_time: sumAmounts(payments),
+        total_year: totalYear,
+        sales_year: yearPayments.length,
+        average_ticket: yearPayments.length ? roundMoney(totalYear / yearPayments.length) : 0,
+      },
+      monthly: buildMonthly(yearPayments),
+      users: {
+        total: totalUsers,
+        by_role: byRole,
+        pro_paid: proPaid,
+        // Nunca negativo: si un ADMIN compró Pro, su membresía cuenta como paga
+        // pero su rol no es PRO.
+        pro_assigned: Math.max(countOf('PRO') - proPaid, 0),
+        conversion: buyers > 0 ? Math.round((proPaid / buyers) * 1000) / 10 : 0,
+      },
+      recent_sales: payments.slice(0, RECENT_SALES_SIZE).map(toRecentSale),
+    };
   },
 };

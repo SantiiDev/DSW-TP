@@ -120,6 +120,13 @@ export const subscriptionRepository = {
     return subscriptions as SubscriptionWithPlan[];
   },
 
+  /**
+   * Cuántas membresías activas hay en total. Como una membresía solo nace de un
+   * pago, es la cantidad de usuarios que compraron Pro y lo conservan (los Pro
+   * asignados a mano por un admin no tienen fila).
+   */
+  countActive: (): Promise<number> => Subscription.count({ where: { state: 'active' } }),
+
   create: async (
     data: CreateSubscriptionData,
     transaction?: Transaction

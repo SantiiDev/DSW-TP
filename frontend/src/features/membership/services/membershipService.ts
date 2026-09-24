@@ -15,6 +15,8 @@ import type {
   PlanApiResponse,
   SubscriptionApiResponse,
 } from '../models/Membership';
+import { RecentSale, RevenueStats } from '../models/RevenueStats';
+import type { RevenueStatsApiResponse } from '../models/RevenueStats';
 
 /** "Mi membresía": la vigente y el historial, ya como modelos. */
 export type Membership = {
@@ -66,6 +68,34 @@ function toPayment(data: PaymentApiResponse): Payment {
     new Date(data.payment_date),
     data.state,
     data.plan
+  );
+}
+
+/** Pasa las métricas del dashboard del JSON de la API al modelo. */
+function toRevenueStats(data: RevenueStatsApiResponse): RevenueStats {
+  return new RevenueStats(
+    data.year,
+    data.available_years,
+    data.revenue.total_all_time,
+    data.revenue.total_year,
+    data.revenue.sales_year,
+    data.revenue.average_ticket,
+    data.monthly,
+    data.users.total,
+    data.users.by_role.map((row) => ({ role: row.rol, count: row.count })),
+    data.users.pro_paid,
+    data.users.pro_assigned,
+    data.users.conversion,
+    data.recent_sales.map(
+      (sale) =>
+        new RecentSale(
+          sale.id_transaction,
+          sale.amount,
+          new Date(sale.payment_date),
+          sale.username,
+          sale.plan
+        )
+    )
   );
 }
 
@@ -132,5 +162,16 @@ export const membershipService = {
     return httpClient.post<ConfirmApiResponse>('/payments/confirm', {
       payment_id: paymentId,
     });
+  },
+
+  /**
+   * Métricas del dashboard de administración. Solo ADMIN: la API corta con 403
+   * a cualquier otro rol aunque alguien fuerce la URL.
+   * @param year año elegido; sin él, la API usa el año en curso.
+   */
+  async getRevenueStats(year?: number): Promise<RevenueStats> {
+    const query = year === undefined ? '' : `?year=${year}`;
+    const data = await httpClient.get<RevenueStatsApiResponse>(`/payments/stats${query}`);
+    return toRevenueStats(data);
   },
 };

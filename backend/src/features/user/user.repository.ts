@@ -33,6 +33,22 @@ export const userRepository = {
 
   findByUsername: (username: string) => User.findOne({ where: { username } }),
 
+  /**
+   * Cuántas cuentas activas hay de cada rol. Las suspendidas no cuentan: es la
+   * foto de los usuarios que hoy usan el sitio, para el dashboard de admin.
+   *
+   * @returns una fila por rol que tenga al menos una cuenta.
+   */
+  countActiveByRole: async (): Promise<{ rol: UserRole; count: number }[]> => {
+    // Con `group`, count() devuelve un arreglo de { rol, count } en vez de un número.
+    const rows = (await User.count({
+      where: { state: 'active' },
+      group: ['rol'],
+    })) as unknown as { rol: UserRole; count: number }[];
+
+    return rows.map((row) => ({ rol: row.rol, count: Number(row.count) }));
+  },
+
   update: async (user: User, data: UpdateUserData, transaction?: Transaction): Promise<User> =>
     user.update(data, { transaction }),
 

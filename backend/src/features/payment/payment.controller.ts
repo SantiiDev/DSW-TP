@@ -6,7 +6,7 @@
 import { Request, Response } from 'express';
 import { UnauthorizedError } from '../../shared/errors/app-error';
 import { paymentService } from './payment.service';
-import { ConfirmPaymentInput, CreateCheckoutInput } from './payment.schema';
+import { ConfirmPaymentInput, CreateCheckoutInput, PaymentStatsQuery } from './payment.schema';
 
 /**
  * Saca el id del pago de un aviso de MercadoPago.
@@ -97,5 +97,12 @@ export const paymentController = {
 
     const payments = await paymentService.getMine(req.user.id_user);
     res.status(200).json(payments);
+  },
+
+  /** Métricas del dashboard de administración. requireRole ya cortó a quien no es ADMIN. */
+  async stats(req: Request, res: Response): Promise<void> {
+    const { year } = req.validated.query as PaymentStatsQuery;
+    const stats = await paymentService.adminStats(year);
+    res.status(200).json(stats);
   },
 };
