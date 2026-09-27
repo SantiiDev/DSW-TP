@@ -11,7 +11,7 @@ import type { ReactNode } from 'react';
 import './_alert.scss';
 
 type AlertProps = {
-  tone: 'error' | 'success';
+  tone: 'error' | 'success' | 'warning';
   children: ReactNode;
 };
 

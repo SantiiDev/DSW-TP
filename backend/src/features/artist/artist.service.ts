@@ -76,6 +76,12 @@ const DUPLICATE_MESSAGES: Record<ContentState, (name: string) => string> = {
 /** Como mucho, cuántos parecidos se devuelven: es un aviso, no un listado. */
 const MAX_SIMILAR = 5;
 
+// Tope de propuestas de artista que un mismo PRO puede tener pendientes al
+// mismo tiempo. Sin esto, un solo usuario cargando de a decenas satura la cola
+// de moderación del ADMIN. No aplica a un ADMIN: lo que carga entra aprobado,
+// nunca queda pendiente.
+const MAX_PENDING_PROPOSALS = 6;
+
 /**
  * Normaliza un nombre para poder compararlo: minúsculas, sin acentos y sin nada
  * que no sea una letra o un número. Así "2 Pac", "2-PAC" y "2pac" quedan iguales,
@@ -130,6 +136,24 @@ async function assertNameAvailable(name: string, excludeId?: number): Promise<vo
   );
 
   if (duplicate) throw new ConflictError(DUPLICATE_MESSAGES[duplicate.state](duplicate.name));
+}
+
+/**
+ * Corta con 409 si el actor ya tiene MAX_PENDING_PROPOSALS artistas esperando
+ * revisión. Un ADMIN no tiene tope: lo que carga entra aprobado directamente,
+ * así que nunca sube la cuenta de pendientes.
+ * @param actor usuario autenticado que hace el alta.
+ */
+async function assertPendingLimitNotReached(actor: TokenPayload): Promise<void> {
+  if (actor.rol === 'ADMIN') return;
+
+  const pending = await artistRepository.countPending(actor.id_user);
+  if (pending >= MAX_PENDING_PROPOSALS) {
+    throw new ConflictError(
+      `Ya tenés ${MAX_PENDING_PROPOSALS} propuestas de artista esperando revisión. ` +
+        'Esperá a que un administrador las apruebe o las rechace antes de cargar otra.'
+    );
+  }
 }
 
 /**
@@ -196,6 +220,7 @@ export const artistService = {
    * @param actor usuario autenticado que hace la request.
    */
   async create(data: CreateArtistInput, actor: TokenPayload): Promise<PublicArtist> {
+    await assertPendingLimitNotReached(actor);
     await assertNameAvailable(data.name);
 
     const artist = await artistRepository.create({

@@ -37,6 +37,11 @@ type AlbumContributionsListProps = {
 // criterio que ArtistContributionsList, su hermana.
 const PAGE_SIZE = 12;
 
+// Tope de propuestas pendientes que puede tener un mismo usuario a la vez.
+// Tiene que coincidir con MAX_PENDING_PROPOSALS de album.service.ts: acá solo
+// se usa para avisar ANTES de intentarlo; el límite real lo impone la API.
+const MAX_PENDING_PROPOSALS = 6;
+
 export const AlbumContributionsList = ({
   userId,
   username,
@@ -49,6 +54,11 @@ export const AlbumContributionsList = ({
     reload: loadContributions,
   } = useFetch(() => albumService.list({ createdBy: userId }), userId);
   const albums = data ?? [];
+
+  // Solo importa en el perfil propio: es el único lugar donde se puede proponer.
+  // Los aprobados y los rechazados ya se resolvieron, no cuentan para el tope.
+  const pendingCount = albums.filter((album) => album.isPending).length;
+  const hasReachedPendingLimit = isOwnProfile && pendingCount >= MAX_PENDING_PROPOSALS;
 
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -172,8 +182,29 @@ export const AlbumContributionsList = ({
         <div className="album-contributions__head">
           <h3 className="album-contributions__title">Álbumes ({albums.length})</h3>
 
-          {isOwnProfile && <Button onClick={() => handleOpenModal(null)}>Proponer otro álbum</Button>}
+          {isOwnProfile && (
+            <Button
+              onClick={() => handleOpenModal(null)}
+              disabled={hasReachedPendingLimit}
+              title={
+                hasReachedPendingLimit
+                  ? `Ya tenés ${MAX_PENDING_PROPOSALS} propuestas de álbum esperando revisión.`
+                  : undefined
+              }
+            >
+              Proponer otro álbum
+            </Button>
+          )}
         </div>
+
+        {/* Solo se ve al tocar el tope: mientras haya lugar, el botón de arriba
+            alcanza y esto sería ruido. */}
+        {hasReachedPendingLimit && (
+          <Alert tone="warning">
+            Ya tenés {MAX_PENDING_PROPOSALS} propuestas de álbum esperando revisión. Esperá a que
+            un administrador las apruebe o las rechace antes de cargar otro.
+          </Alert>
+        )}
 
         {/* Sobre sus propios aportes el autor puede: corregir mientras no estén
             aprobados (un aprobado ya es catálogo y lo edita un ADMIN), y dar de

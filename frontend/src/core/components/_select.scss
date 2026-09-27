@@ -123,7 +123,11 @@
 
   &__panel {
     position: fixed;
-    z-index: 60;
+    // Por encima del overlay de FormModal y ConfirmDialog (1100): el Select se usa
+    // adentro de formularios en modales (por ejemplo el artista al proponer un
+    // álbum) y, al estar los dos montados como hijos directos de <body> por su
+    // propio portal, un z-index menor quedaba tapado por el modal que lo contiene.
+    z-index: 1200;
     padding: 0.3rem;
     // El ancho lo fija el componente como mínimo (el del botón) y el panel crece
     // hasta donde haga falta para que cada opción se lea entera. El tope tiene

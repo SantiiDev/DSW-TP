@@ -373,6 +373,12 @@ export const albumRepository = {
       order: [['title', 'ASC']],
     }),
 
+  // Cuántos aportes de este usuario siguen pendientes de revisión. Lo usa el
+  // alta para frenar a un PRO que ya satura la cola de moderación (ver
+  // MAX_PENDING_PROPOSALS en album.service.ts).
+  countPending: (createdBy: number): Promise<number> =>
+    Album.count({ where: { created_by: createdBy, state: 'pending' } }),
+
   create: (data: CreateAlbumData): Promise<AlbumWithRelations> => Album.create(data),
 
   update: async (
