@@ -4,7 +4,7 @@ Qué está terminado y qué falta, punto por punto, contra el alcance comprometi
 en la [propuesta](../proposal.md) y los requisitos del
 [enunciado](enunciado.md).
 
-Última revisión: **24/09/2026**.
+Última revisión: **27/09/2026**.
 
 ## Requisitos técnicos
 
@@ -103,7 +103,6 @@ anterior, que es lo que pide la cátedra.
 | Listas personalizadas de álbumes **y de canciones** | ✅ CRUD completo (`LISTS`, `LIST_ALBUMS`, `LIST_SONGS`, `LIST_LIKES` en el DER): alta, edición, baja, agregar/sacar ítems y "me gusta". Una lista es de álbumes **o** de canciones, nunca de las dos: lo dice `LISTS.type`, que decide en qué tabla intermedia van sus ítems. Armar y curar listas es un **beneficio Pro**; un `FREE` las ve, las comparte y les da "me gusta", y si intenta crear una ve el cartel que lo invita a `/pro`. `/lists` explora por "Top Listas" y "Listas en Tendencia" con filtro por género, y desde la ficha de un álbum **o de una canción** se agrega a una lista propia del tipo que corresponda. El CRUD base entró por los PR #17 y #18; las listas de canciones y el gate Pro, después |
 | Ranking global de usuarios más activos | ✅ Panel "Más activos" en la columna lateral de `/reviews`, ordenado por un puntaje que combina reseñas publicadas y seguidores (`GET /api/users/ranking`) |
 | Dashboard de administración con métricas de ingresos | ✅ Pestaña **Métricas** de `/admin` (la que abre por defecto): ingresos históricos y del año, ventas, ticket promedio, conversión a Pro, curva de ingresos mes a mes, usuarios activos por plan y últimas ventas. Sale de `GET /api/payments/stats` (solo `ADMIN`) y se calcula siempre sobre los pagos reales; para la defensa hay un seed de demo aparte (`npm run seed:demo-sales`) que se borra con `-- --clean` antes del deploy |
-| Autocompletado de metadatos en el alta de un álbum | ❌ |
 
 ## Documentación de la entrega
 

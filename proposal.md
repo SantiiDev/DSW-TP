@@ -99,7 +99,6 @@ CUU 2 (pago)  →  el usuario pasa a ser PRO
 |:-|:-|
 |Listados |1. Ranking global de usuarios más activos. <br>2. Panel de Administración (Dashboard Admin) con métricas de ingresos por membresías y cantidad de usuarios por plan.|
 |CUU/Epic|1. Listas personalizadas: Creación y gestión de agrupaciones públicas de álbumes o de canciones (ej. "Favoritos del Rock Nacional"). Una lista es de un tipo o del otro, nunca de los dos. Armarlas y curarlas es un **beneficio de la membresía Pro**; un usuario Free las ve, las comparte y les da "me gusta".<br>2. **Interacción social sobre las reseñas**: un usuario puede marcar con "me gusta" y comentar las reseñas de otros, y compartir el enlace de cualquiera de ellas. Requiere las dos estructuras agregadas al DER (`REVIEW_LIKES` y `REVIEW_COMMENTS`).|
-|Otros|1. Autocompletado de metadatos al dar de alta un álbum desde el circuito de aporte Pro, reutilizando la data ya descargada por el procedimiento de seed.|
 
 ## Stack tecnológico
 
