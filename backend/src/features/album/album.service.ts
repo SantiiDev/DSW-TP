@@ -113,6 +113,13 @@ const DUPLICATE_MESSAGES: Record<ContentState, (title: string) => string> = {
     `"${title}" ya se había propuesto para ese artista y un administrador rechazó esa propuesta.`,
 };
 
+// Tope de propuestas de álbum que un mismo PRO puede tener pendientes al mismo
+// tiempo. Mismo criterio y mismo valor que MAX_PENDING_PROPOSALS en
+// artist.service.ts: sin esto, un solo usuario cargando de a decenas satura la
+// cola de moderación del ADMIN. No aplica a un ADMIN: lo que carga entra
+// aprobado, nunca queda pendiente.
+const MAX_PENDING_PROPOSALS = 6;
+
 /**
  * Normaliza un título para poder compararlo: minúsculas, sin acentos y sin nada
  * que no sea una letra o un número. Así "OK Computer", "ok-computer" y
@@ -212,6 +219,24 @@ function toPublicAlbumDetail(
       reviews_count: publishedCount(song.reviews),
     })),
   };
+}
+
+/**
+ * Corta con 409 si el actor ya tiene MAX_PENDING_PROPOSALS álbumes esperando
+ * revisión. Un ADMIN no tiene tope: lo que carga entra aprobado directamente,
+ * así que nunca sube la cuenta de pendientes.
+ * @param actor usuario autenticado que hace el alta.
+ */
+async function assertPendingLimitNotReached(actor: TokenPayload): Promise<void> {
+  if (actor.rol === 'ADMIN') return;
+
+  const pending = await albumRepository.countPending(actor.id_user);
+  if (pending >= MAX_PENDING_PROPOSALS) {
+    throw new ConflictError(
+      `Ya tenés ${MAX_PENDING_PROPOSALS} propuestas de álbum esperando revisión. ` +
+        'Esperá a que un administrador las apruebe o las rechace antes de cargar otro.'
+    );
+  }
 }
 
 /**
@@ -355,6 +380,7 @@ export const albumService = {
   async create(data: CreateAlbumInput, actor: TokenPayload): Promise<PublicAlbumDetail> {
     const genreIds = data.genre_ids ?? [];
 
+    await assertPendingLimitNotReached(actor);
     await assertArtistExists(data.id_artist);
     await assertGenresExist(genreIds);
     await assertTitleAvailable(data.title, data.id_artist);

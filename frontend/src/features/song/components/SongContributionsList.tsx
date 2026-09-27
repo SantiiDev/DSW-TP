@@ -37,6 +37,11 @@ type SongContributionsListProps = {
 // criterio que ArtistContributionsList, su hermana.
 const PAGE_SIZE = 12;
 
+// Tope de propuestas pendientes que puede tener un mismo usuario a la vez.
+// Tiene que coincidir con MAX_PENDING_PROPOSALS de song.service.ts: acá solo
+// se usa para avisar ANTES de intentarlo; el límite real lo impone la API.
+const MAX_PENDING_PROPOSALS = 6;
+
 export const SongContributionsList = ({
   userId,
   username,
@@ -49,6 +54,11 @@ export const SongContributionsList = ({
     reload: loadContributions,
   } = useFetch(() => songService.list({ createdBy: userId }), userId);
   const songs = data ?? [];
+
+  // Solo importa en el perfil propio: es el único lugar donde se puede proponer.
+  // Las aprobadas y las rechazadas ya se resolvieron, no cuentan para el tope.
+  const pendingCount = songs.filter((song) => song.isPending).length;
+  const hasReachedPendingLimit = isOwnProfile && pendingCount >= MAX_PENDING_PROPOSALS;
 
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,8 +184,29 @@ export const SongContributionsList = ({
         <div className="song-contributions__head">
           <h3 className="song-contributions__title">Canciones ({songs.length})</h3>
 
-          {isOwnProfile && <Button onClick={() => handleOpenModal(null)}>Proponer otra canción</Button>}
+          {isOwnProfile && (
+            <Button
+              onClick={() => handleOpenModal(null)}
+              disabled={hasReachedPendingLimit}
+              title={
+                hasReachedPendingLimit
+                  ? `Ya tenés ${MAX_PENDING_PROPOSALS} propuestas de canción esperando revisión.`
+                  : undefined
+              }
+            >
+              Proponer otra canción
+            </Button>
+          )}
         </div>
+
+        {/* Solo se ve al tocar el tope: mientras haya lugar, el botón de arriba
+            alcanza y esto sería ruido. */}
+        {hasReachedPendingLimit && (
+          <Alert tone="warning">
+            Ya tenés {MAX_PENDING_PROPOSALS} propuestas de canción esperando revisión. Esperá a
+            que un administrador las apruebe o las rechace antes de cargar otra.
+          </Alert>
+        )}
 
         {/* Sobre sus propios aportes el autor puede: corregir mientras no estén
             aprobados (un aprobado ya es catálogo y lo edita un ADMIN), y dar de

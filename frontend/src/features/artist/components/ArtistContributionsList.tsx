@@ -39,6 +39,11 @@ type ArtistContributionsListProps = {
 // criterio que ArtistAdminSection, la tabla del catálogo completo).
 const PAGE_SIZE = 12;
 
+// Tope de propuestas pendientes que puede tener un mismo usuario a la vez.
+// Tiene que coincidir con MAX_PENDING_PROPOSALS de artist.service.ts: acá solo
+// se usa para avisar ANTES de intentarlo; el límite real lo impone la API.
+const MAX_PENDING_PROPOSALS = 6;
+
 export const ArtistContributionsList = ({
   userId,
   username,
@@ -51,6 +56,11 @@ export const ArtistContributionsList = ({
     reload: loadContributions,
   } = useFetch(() => artistService.list({ createdBy: userId }), userId);
   const artists = data ?? [];
+
+  // Solo importa en el perfil propio: es el único lugar donde se puede proponer.
+  // Los aprobados y los rechazados ya se resolvieron, no cuentan para el tope.
+  const pendingCount = artists.filter((artist) => artist.isPending).length;
+  const hasReachedPendingLimit = isOwnProfile && pendingCount >= MAX_PENDING_PROPOSALS;
 
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -176,8 +186,29 @@ export const ArtistContributionsList = ({
         <div className="artist-contributions__head">
           <h3 className="artist-contributions__title">Artistas ({artists.length})</h3>
 
-          {isOwnProfile && <Button onClick={() => handleOpenModal(null)}>Proponer otro artista</Button>}
+          {isOwnProfile && (
+            <Button
+              onClick={() => handleOpenModal(null)}
+              disabled={hasReachedPendingLimit}
+              title={
+                hasReachedPendingLimit
+                  ? `Ya tenés ${MAX_PENDING_PROPOSALS} propuestas de artista esperando revisión.`
+                  : undefined
+              }
+            >
+              Proponer otro artista
+            </Button>
+          )}
         </div>
+
+        {/* Solo se ve al tocar el tope: mientras haya lugar, el botón de arriba
+            alcanza y esto sería ruido. */}
+        {hasReachedPendingLimit && (
+          <Alert tone="warning">
+            Ya tenés {MAX_PENDING_PROPOSALS} propuestas de artista esperando revisión. Esperá a
+            que un administrador las apruebe o las rechace antes de cargar otra.
+          </Alert>
+        )}
 
         {/* Sobre sus propios aportes el autor puede: corregir mientras no estén
             aprobados (un aprobado ya es catálogo y lo edita un ADMIN), y dar de

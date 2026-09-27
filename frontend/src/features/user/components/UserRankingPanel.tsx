@@ -21,8 +21,14 @@ import { followService } from '../services/followService';
 import { UserRow } from './UserRow';
 import '../styles/_user-ranking.scss';
 
+// Menos que el tope por defecto de la API (5): este panel comparte la columna
+// lateral, sticky y con scroll propio, con SuggestedUsersPanel (ver
+// _reviews-explore.scss). Con los dos al tope se pasaban de esa altura y
+// aparecía un segundo scroll adentro de la columna, pegado al de la página.
+const SIDEBAR_RANKING_LIMIT = 3;
+
 export const UserRankingPanel = () => {
-  const { data, isLoading, error } = useFetch(() => followService.ranking());
+  const { data, isLoading, error } = useFetch(() => followService.ranking(SIDEBAR_RANKING_LIMIT));
   const users = data ?? [];
 
   return (

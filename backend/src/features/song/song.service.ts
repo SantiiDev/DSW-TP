@@ -100,6 +100,31 @@ function toPublicSong(song: SongWithRelations): PublicSong {
   };
 }
 
+// Tope de propuestas de canción que un mismo PRO puede tener pendientes al
+// mismo tiempo. Mismo criterio y mismo valor que MAX_PENDING_PROPOSALS en
+// artist.service.ts y album.service.ts: sin esto, un solo usuario cargando de
+// a decenas satura la cola de moderación del ADMIN. No aplica a un ADMIN: lo
+// que carga entra aprobado, nunca queda pendiente.
+const MAX_PENDING_PROPOSALS = 6;
+
+/**
+ * Corta con 409 si el actor ya tiene MAX_PENDING_PROPOSALS canciones esperando
+ * revisión. Un ADMIN no tiene tope: lo que carga entra aprobado directamente,
+ * así que nunca sube la cuenta de pendientes.
+ * @param actor usuario autenticado que hace el alta.
+ */
+async function assertPendingLimitNotReached(actor: TokenPayload): Promise<void> {
+  if (actor.rol === 'ADMIN') return;
+
+  const pending = await songRepository.countPending(actor.id_user);
+  if (pending >= MAX_PENDING_PROPOSALS) {
+    throw new ConflictError(
+      `Ya tenés ${MAX_PENDING_PROPOSALS} propuestas de canción esperando revisión. ` +
+        'Esperá a que un administrador las apruebe o las rechace antes de cargar otra.'
+    );
+  }
+}
+
 /**
  * Busca la canción por id o corta con 404 si no existe. La usan todas las
  * operaciones que reciben un :id en la URL.
@@ -236,6 +261,7 @@ export const songService = {
     // llegar a ella.
     const id_album = data.id_album;
 
+    await assertPendingLimitNotReached(actor);
     await assertAlbumExists(id_album);
 
     const number_track = await resolveTrackNumber(data.number_track, id_album);

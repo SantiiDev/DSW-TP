@@ -322,6 +322,12 @@ export const songRepository = {
       order: [['number_track', 'ASC']],
     }),
 
+  // Cuántos aportes de este usuario siguen pendientes de revisión. Lo usa el
+  // alta para frenar a un PRO que ya satura la cola de moderación (ver
+  // MAX_PENDING_PROPOSALS en song.service.ts).
+  countPending: (createdBy: number): Promise<number> =>
+    Song.count({ where: { created_by: createdBy, state: 'pending' } }),
+
   create: (data: CreateSongData): Promise<SongWithRelations> => Song.create(data),
 
   update: async (song: SongWithRelations, data: UpdateSongData): Promise<SongWithRelations> => {

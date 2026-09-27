@@ -23,6 +23,12 @@ import type { CommunityUser } from '../models/Follow';
 import { UserRow } from './UserRow';
 import '../styles/_suggested-users.scss';
 
+// Menos que el tope por defecto de la API (8): este panel comparte la columna
+// lateral, sticky y con scroll propio, con UserRankingPanel (ver
+// _reviews-explore.scss). Con los dos al tope se pasaban de esa altura y
+// aparecía un segundo scroll adentro de la columna, pegado al de la página.
+const SIDEBAR_SUGGESTIONS_LIMIT = 3;
+
 type SuggestedUsersPanelProps = {
   /**
    * Avisa que se siguió o se dejó de seguir a alguien. Lo usa la página para
@@ -39,7 +45,7 @@ export const SuggestedUsersPanel = ({ onFollowChange }: SuggestedUsersPanelProps
   // cada carga es exactamente lo que hace falta (a diferencia del feed, que
   // acumula tandas y por eso no lo usa).
   const { data, isLoading, error, setData, setError } = useFetch(() =>
-    followService.suggestions()
+    followService.suggestions(SIDEBAR_SUGGESTIONS_LIMIT)
   );
   const users = data ?? [];
 

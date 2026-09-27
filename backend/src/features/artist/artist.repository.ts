@@ -138,6 +138,12 @@ export const artistRepository = {
       order: [['name', 'ASC']],
     }),
 
+  // Cuántos aportes de este usuario siguen pendientes de revisión. Lo usa el
+  // alta para frenar a un PRO que ya satura la cola de moderación (ver
+  // MAX_PENDING_PROPOSALS en artist.service.ts).
+  countPending: (createdBy: number): Promise<number> =>
+    Artist.count({ where: { created_by: createdBy, state: 'pending' } }),
+
   create: (data: CreateArtistData): Promise<ArtistWithRelations> => Artist.create(data),
 
   update: async (
