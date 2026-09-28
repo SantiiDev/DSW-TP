@@ -11,13 +11,26 @@ import {
   Song,
   User,
 } from '../../entities';
-import { ContentState, ReviewState, ReviewTargetKind } from '../../shared/types/enums';
+import {
+  ContentState,
+  ProfileColor,
+  ReviewState,
+  ReviewTargetKind,
+  UserRole,
+} from '../../shared/types/enums';
 
 /** Autor de la reseña, reducido a lo que se muestra en su tarjeta. */
 export type ReviewUser = {
   id_user: number;
   username: string;
   url_avatar: string | null;
+  /** Para el badge Pro al lado del nombre. */
+  rol: UserRole;
+  /**
+   * Color de acento del autor, para la franja de su tarjeta. Viaja tal como está
+   * guardado: si el autor ya no es Pro, el frontend no lo dibuja.
+   */
+  profile_color: ProfileColor | null;
 };
 
 /** Artista del álbum reseñado, para poder nombrarlo debajo del título. */
@@ -172,12 +185,13 @@ type UpdateReviewData = {
 
 // El autor viaja con cada reseña: no hay pantalla que muestre una sin decir quién
 // la escribió. El hash de la contraseña ya lo excluye el defaultScope de USERS,
-// pero los atributos se listan igual para no mandar el email ni el rol, que no
-// tienen nada que hacer en una tarjeta de reseña.
+// pero los atributos se listan igual para no mandar el email, que es un dato
+// privado. El rol y el color de perfil sí viajan: son el badge Pro al lado del
+// nombre y la franja de color de la tarjeta.
 const userInclude: IncludeOptions = {
   model: User,
   as: 'user',
-  attributes: ['id_user', 'username', 'url_avatar'],
+  attributes: ['id_user', 'username', 'url_avatar', 'rol', 'profile_color'],
 };
 
 // Los dos ítems van con required: false (LEFT JOIN) porque una reseña apunta a

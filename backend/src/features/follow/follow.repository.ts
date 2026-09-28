@@ -95,6 +95,8 @@ const USER_CARD_ATTRIBUTES: FindAttributeOptions = [
   'username',
   'url_avatar',
   'rol',
+  // Tiñe el badge Pro con el color que el usuario eligió para su perfil.
+  'profile_color',
   [REVIEWS_COUNT, 'reviews_count'],
   [FOLLOWERS_COUNT, 'followers_count'],
 ];

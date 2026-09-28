@@ -82,6 +82,8 @@ function toPublicUser(user: ListUser): ListUser {
     id_user: user.id_user,
     username: user.username,
     url_avatar: user.url_avatar ?? null,
+    rol: user.rol,
+    profile_color: user.profile_color ?? null,
   };
 }
 

@@ -8,7 +8,7 @@
 import { IncludeOptions, Op, Order, literal } from 'sequelize';
 import { Album, Artist, Genre, List, ListAlbum, ListLike, ListSong, Song, User } from '../../entities';
 import { escapeLike } from '../../shared/db/like';
-import { ContentState, ListType } from '../../shared/types/enums';
+import { ContentState, ListType, ProfileColor, UserRole } from '../../shared/types/enums';
 import { ListSort } from './list.schema';
 
 /** Autor de la lista, reducido a lo que se muestra en su tarjeta. */
@@ -16,6 +16,10 @@ export type ListUser = {
   id_user: number;
   username: string;
   url_avatar: string | null;
+  /** Para el badge Pro al lado del nombre. */
+  rol: UserRole;
+  /** Color de acento del autor, para la franja de la tarjeta (ver review.repository). */
+  profile_color: ProfileColor | null;
 };
 
 /** Artista del ítem de una lista, para poder nombrarlo debajo del título. */
@@ -133,11 +137,12 @@ type NewItemRow = {
 };
 
 // El autor viaja con cada lista: no hay tarjeta que la muestre sin decir de quién
-// es. Los atributos se listan a mano para no mandar el email ni el rol.
+// es. Los atributos se listan a mano para no mandar el email; el rol y el color
+// de perfil sí viajan: son el badge Pro y la franja de color de la tarjeta.
 const userInclude: IncludeOptions = {
   model: User,
   as: 'user',
-  attributes: ['id_user', 'username', 'url_avatar'],
+  attributes: ['id_user', 'username', 'url_avatar', 'rol', 'profile_color'],
 };
 
 // Los ítems de la lista viajan en el orden en que se agregaron (`position`), y

@@ -7,7 +7,7 @@
 // de ids que sigue el usuario para armar el feed de amigos.
 import { BadRequestError, ConflictError, NotFoundError } from '../../shared/errors/app-error';
 import { TokenPayload } from '../../shared/auth/jwt';
-import { UserRole } from '../../shared/types/enums';
+import { ProfileColor, UserRole } from '../../shared/types/enums';
 import { User } from '../../entities';
 import { followRepository, SuggestedUserRow } from './follow.repository';
 import {
@@ -46,6 +46,8 @@ export type PublicUserCard = {
   username: string;
   url_avatar: string | null;
   rol: UserRole;
+  /** Color de perfil, que tiñe el badge Pro. El frontend lo ignora si no es Pro. */
+  profile_color: ProfileColor | null;
   /** Cuántas reseñas publicó. Es lo que se muestra debajo del nombre. */
   reviews_count: number;
   followers_count: number;
@@ -126,6 +128,7 @@ function toPublicUserCard(row: SuggestedUserRow, followedIds: number[]): PublicU
     username: row.username,
     url_avatar: row.url_avatar ?? null,
     rol: row.rol,
+    profile_color: row.profile_color ?? null,
     reviews_count: Number(row.get('reviews_count')),
     followers_count: Number(row.get('followers_count')),
     followed_by_me: followedIds.includes(row.id_user),

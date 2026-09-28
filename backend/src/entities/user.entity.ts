@@ -1,5 +1,6 @@
 // Entidad USERS.
-// USERS (id_user, username, email, password, rol, state, url_avatar, registration_date)
+// USERS (id_user, username, email, password, rol, state, url_avatar, url_banner,
+//        banner_position, profile_color, registration_date)
 //   id_user -> PK
 import {
   CreationOptional,
@@ -9,7 +10,14 @@ import {
   Model,
 } from 'sequelize';
 import { sequelize } from '../shared/db/sequelize';
-import { USER_ROLES, USER_STATES, UserRole, UserState } from '../shared/types/enums';
+import {
+  PROFILE_COLORS,
+  ProfileColor,
+  USER_ROLES,
+  USER_STATES,
+  UserRole,
+  UserState,
+} from '../shared/types/enums';
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id_user: CreationOptional<number>;
@@ -19,6 +27,9 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare rol: CreationOptional<UserRole>;
   declare state: CreationOptional<UserState>;
   declare url_avatar: CreationOptional<string | null>;
+  declare url_banner: CreationOptional<string | null>;
+  declare banner_position: CreationOptional<number>;
+  declare profile_color: CreationOptional<ProfileColor | null>;
   declare registration_date: CreationOptional<Date>;
 }
 
@@ -63,6 +74,33 @@ User.init(
       // no el archivo: el proyecto no maneja subida ni almacenamiento de imágenes.
       // En null, el frontend dibuja el avatar por defecto.
       type: DataTypes.STRING(500),
+      allowNull: true,
+      defaultValue: null,
+    },
+    url_banner: {
+      // Imagen de portada del perfil: beneficio Pro. Mismo criterio que
+      // url_avatar, se guarda la URL y no el archivo.
+      //
+      // Si el usuario deja de ser Pro, el valor se conserva pero el frontend deja
+      // de dibujarlo: si vuelve a pagar, su banner reaparece sin cargarlo de nuevo.
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      defaultValue: null,
+    },
+    banner_position: {
+      // Qué franja de la imagen se ve en el banner, en porcentaje vertical: 0 es
+      // el borde de arriba, 100 el de abajo y 50 el centro. El banner es una
+      // franja ancha y casi ninguna foto tiene esa proporción, así que sin esto
+      // el recorte cae siempre en el medio y suele cortar lo importante.
+      type: DataTypes.TINYINT.UNSIGNED,
+      allowNull: false,
+      defaultValue: 50,
+      validate: { min: 0, max: 100 },
+    },
+    profile_color: {
+      // Color de acento del perfil: beneficio Pro, con la misma regla de
+      // conservación que url_banner. NULL es el verde por defecto del sitio.
+      type: DataTypes.ENUM(...PROFILE_COLORS),
       allowNull: true,
       defaultValue: null,
     },
