@@ -4,7 +4,8 @@
 //
 // El resto de la app trabaja SIEMPRE con estas clases; el JSON crudo del backend
 // no sale nunca de la capa de servicios (ver services/followService.ts).
-import type { UserRole } from './User';
+import { visibleAccent } from './User';
+import type { ProfileColor, UserRole } from './User';
 
 /** Forma cruda del estado del seguimiento, tal como viaja en la API. */
 export type FollowStatsApiResponse = {
@@ -23,6 +24,7 @@ export type CommunityUserApiResponse = {
   username: string;
   url_avatar: string | null;
   rol: UserRole;
+  profile_color: ProfileColor | null;
   reviews_count: number;
   followers_count: number;
   followed_by_me: boolean;
@@ -54,11 +56,18 @@ export class CommunityUser {
     public readonly username: string,
     public readonly avatarUrl: string | null,
     public readonly rol: UserRole,
+    /** Color guardado. Para dibujarlo se usa `accent`, que respeta el rol. */
+    public readonly profileColor: ProfileColor | null,
     /** Reseñas publicadas. Es el criterio por el que se recomienda a alguien. */
     public readonly reviewsCount: number,
     public readonly followersCount: number,
     public readonly followedByMe: boolean
   ) {}
+
+  /** Color de su badge Pro, o null si no es Pro. */
+  get accent(): ProfileColor | null {
+    return visibleAccent(this.rol, this.profileColor);
+  }
 
   /** A dónde lleva la tarjeta al hacerle click. */
   get profilePath(): string {
@@ -91,6 +100,7 @@ export class CommunityUser {
       this.username,
       this.avatarUrl,
       this.rol,
+      this.profileColor,
       this.reviewsCount,
       followedByMe ? this.followersCount + 1 : this.followersCount - 1,
       followedByMe

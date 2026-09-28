@@ -45,6 +45,39 @@
   min-width: 0;
 }
 
+// Franja de color a la izquierda de algo que escribió un usuario Pro (su
+// reseña, su comentario, su lista), con su color de acento. Genera una clase
+// modificadora por color: `&--accent-green`, `&--accent-blue`, etc. El
+// componente elige cuál poner según el color del autor, o ninguna si es FREE.
+//
+// Va como un pseudo-elemento superpuesto y no como borde ni sombra: un borde de
+// 3px ensancharía solo las tarjetas de los Pro y dejarían de alinear con las
+// demás, y una sombra interior quedaría tapada por el contenido que tenga fondo
+// propio (el collage de portadas de una lista). Usa el ::before del elemento.
+//
+//   .review-card { @include user-accent-stripe; }
+@mixin user-accent-stripe($width: 3px) {
+  @each $name, $accent in $profile-accents {
+    &--accent-#{$name} {
+      position: relative;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: $width;
+        background-color: $accent;
+        border-radius: $radius 0 0 $radius;
+        // Por encima del contenido, pero sin atajar clicks.
+        z-index: 1;
+        pointer-events: none;
+      }
+    }
+  }
+}
+
 // Encabezado de una página "explorador" (listado con filtros o un toggle
 // arriba): título con degradado, línea divisoria abajo y subtítulo centrado.
 // Estaba escrito dos veces con el mismo diseño, una en /lists y otra en

@@ -88,7 +88,15 @@ function toAlbumRef(data: ReviewAlbumApiResponse): ReviewAlbumRef {
  * @param data usuario crudo, o null si la respuesta no lo trajo.
  */
 function toAuthor(data: ReviewUserApiResponse | null): ReviewAuthor | null {
-  return data === null ? null : new ReviewAuthor(data.id_user, data.username, data.url_avatar);
+  return data === null
+    ? null
+    : new ReviewAuthor(
+        data.id_user,
+        data.username,
+        data.url_avatar,
+        data.rol,
+        data.profile_color ?? null
+      );
 }
 
 /**

@@ -264,6 +264,28 @@
     border-color: $color-primary;
   }
 
+  // Franja con el color de acento de quien la armó, si es Pro (ver el mixin).
+  @include user-accent-stripe;
+
+  // Si el autor es Pro, el degradé y el borde toman su color en vez del verde:
+  // así la tarjeta entera es de un solo color, el mismo de su franja y su badge.
+  // Mismas opacidades que el verde de arriba, para que ningún color pese más.
+  @each $name, $accent in $profile-accents {
+    &--accent-#{$name} {
+      background: linear-gradient(
+        135deg,
+        rgba($accent, 0.28) 0%,
+        rgba($accent, 0.08) 45%,
+        $color-bg-light 100%
+      );
+      border-color: rgba($accent, 0.35);
+
+      &:hover {
+        border-color: $accent;
+      }
+    }
+  }
+
   // Collage de portadas: 5 imágenes en fila
   &__collage {
     display: grid;

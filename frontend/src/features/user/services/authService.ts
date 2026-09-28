@@ -3,7 +3,7 @@
 //
 // Es el único lugar del frontend que conoce la forma del JSON de la API.
 import { httpClient } from '../../../core/services/httpClient';
-import { User } from '../models/User';
+import { DEFAULT_BANNER_POSITION, User } from '../models/User';
 import type { UserApiResponse } from '../models/User';
 
 export type RegisterInput = {
@@ -45,6 +45,10 @@ export function toUser(data: UserApiResponse): User {
     // agregó después y el default de la base es 'active'.
     data.state ?? 'active',
     data.url_avatar,
+    // Una sesión guardada antes de que existieran estos campos no los trae.
+    data.url_banner ?? null,
+    data.banner_position ?? DEFAULT_BANNER_POSITION,
+    data.profile_color ?? null,
     new Date(data.registration_date)
   );
 }

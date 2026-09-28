@@ -15,6 +15,7 @@ import { Avatar } from '../../../core/components/Avatar';
 import { Badge } from '../../../core/components/Badge';
 import { GatedLink } from '../../../core/components/GatedLink';
 import { IconButton } from '../../../core/components/IconButton';
+import { RoleBadge } from '../../user/components/RoleBadge';
 import { StarRating } from './StarRating';
 import { ReviewComments } from './ReviewComments';
 import type { Review } from '../models/Review';
@@ -81,7 +82,16 @@ export const ReviewCard = ({
   };
 
   return (
-    <article className={`review-card${review.isHidden ? ' review-card--hidden' : ''}`}>
+    <article
+      className={[
+        'review-card',
+        review.isHidden ? 'review-card--hidden' : '',
+        // Franja con el color del autor: solo si es Pro (authorAccent es null si no).
+        review.authorAccent ? `review-card--accent-${review.authorAccent}` : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       {/* La cabecera va AFUERA del enlace a la reseña: el avatar y el nombre del
           autor llevan a su perfil, y un <a> adentro de otro <a> es HTML inválido
           (el navegador los separa solo y el click cae donde no se espera). */}
@@ -107,6 +117,7 @@ export const ReviewCard = ({
             ) : (
               review.authorName
             )}
+            <RoleBadge rol={review.authorRol} accent={review.authorAccent} />
             {/* La pastilla solo la ven el autor y un ADMIN: para el resto, una
                 reseña oculta directamente no aparece en el listado. */}
             {review.isHidden && <Badge tone="warning">Oculta</Badge>}

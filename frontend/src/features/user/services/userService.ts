@@ -3,11 +3,12 @@
 import { httpClient } from '../../../core/services/httpClient';
 import { toUser } from './authService';
 import { User } from '../models/User';
-import type { UserApiResponse, UserRole } from '../models/User';
+import type { ProfileColor, UserApiResponse, UserRole } from '../models/User';
 
 /**
  * Campos editables de un usuario.
- * `rol` solo lo acepta el backend si quien hace la request es ADMIN.
+ * `rol` solo lo acepta el backend si quien hace la request es ADMIN, y
+ * `url_banner` / `profile_color` si la cuenta es Pro.
  */
 export type UpdateUserInput = {
   username?: string;
@@ -15,6 +16,12 @@ export type UpdateUserInput = {
   rol?: UserRole;
   /** URL de la foto de perfil. String vacío para volver al avatar por defecto. */
   url_avatar?: string;
+  /** URL del banner. String vacío para sacarlo. */
+  url_banner?: string;
+  /** Qué franja de la imagen se ve: 0 arriba, 100 abajo. */
+  banner_position?: number;
+  /** null vuelve al verde por defecto. */
+  profile_color?: ProfileColor | null;
 };
 
 /** Alta de una cuenta desde el panel de administración. */
@@ -44,7 +51,7 @@ export const userService = {
     return toUser(data);
   },
 
-  /** Actualiza username y/o email de un usuario. */
+  /** Actualiza los datos de perfil de un usuario (solo los campos que se manden). */
   async update(id: number, input: UpdateUserInput): Promise<User> {
     const data = await httpClient.patch<UserApiResponse>(`/users/${id}`, input);
     return toUser(data);

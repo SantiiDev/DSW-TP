@@ -6,6 +6,7 @@ import { EmptyState } from '../../../core/components/EmptyState';
 import { Loader } from '../../../core/components/Loader';
 import { SectionHeader } from '../../../core/components/SectionHeader';
 import { useFetch } from '../../../core/hooks/useFetch';
+import { RoleBadge } from '../../user/components/RoleBadge';
 import { listService } from '../services/listService';
 
 /** Cuántas listas entran en el ranking: las que caben sin scroll en la barra lateral. */
@@ -39,7 +40,8 @@ export const TopListsSection = () => {
                 <h3 className="top-list-item__title">{list.name}</h3>
                 <p className="top-list-item__meta">
                   {list.itemsLabel} · por{' '}
-                  <span className="top-list-item__author">@{list.authorName}</span>
+                  <span className="top-list-item__author">@{list.authorName}</span>{' '}
+                  <RoleBadge rol={list.authorRol} accent={list.authorAccent} />
                 </p>
               </div>
               <div className="top-list-item__likes">

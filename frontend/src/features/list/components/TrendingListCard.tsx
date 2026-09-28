@@ -16,6 +16,7 @@ import { Calendar, Check, Heart, Music, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Avatar } from '../../../core/components/Avatar';
 import { useCopyLink } from '../../../core/hooks/useCopyLink';
+import { RoleBadge } from '../../user/components/RoleBadge';
 import type { List } from '../models/List';
 
 type TrendingListCardProps = {
@@ -26,7 +27,13 @@ export const TrendingListCard = ({ list }: TrendingListCardProps) => {
   const { copied, copy } = useCopyLink();
 
   return (
-    <article className="trending-list-card">
+    <article
+      className={
+        list.authorAccent
+          ? `trending-list-card trending-list-card--accent-${list.authorAccent}`
+          : 'trending-list-card'
+      }
+    >
       <Link to={list.sharePath} className="trending-list-card__link">
         <div className="trending-list-card__collage">
           {list.covers.map((cover, index) =>
@@ -56,6 +63,7 @@ export const TrendingListCard = ({ list }: TrendingListCardProps) => {
           <div className="trending-list-card__author">
             <Avatar url={list.user?.urlAvatar ?? null} username={list.authorName} size="sm" />
             <span className="trending-list-card__username">@{list.authorName}</span>
+            <RoleBadge rol={list.authorRol} accent={list.authorAccent} />
           </div>
 
           {list.description && (

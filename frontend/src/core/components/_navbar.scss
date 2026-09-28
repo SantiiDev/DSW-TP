@@ -221,6 +221,14 @@
     margin-bottom: 0.25rem;
   }
 
+  // Nombre + badge de rol en una fila; el nombre se recorta antes que la pastilla.
+  &__dropdown-identity {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
   &__dropdown-name {
     font-size: 0.9rem;
     font-weight: 700;
@@ -284,6 +292,15 @@
 
     @media (min-width: $bp-md) {
       display: inline;
+    }
+  }
+
+  // Badge de rol al lado del nombre: mismo corte que &__username.
+  &__role {
+    display: none;
+
+    @media (min-width: $bp-md) {
+      display: inline-flex;
     }
   }
 }

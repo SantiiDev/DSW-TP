@@ -66,7 +66,15 @@ function toList(data: ListApiResponse): List {
     data.description,
     data.type,
     new Date(data.creation_date),
-    data.user ? new ListUser(data.user.id_user, data.user.username, data.user.url_avatar) : null,
+    data.user
+      ? new ListUser(
+          data.user.id_user,
+          data.user.username,
+          data.user.url_avatar,
+          data.user.rol,
+          data.user.profile_color ?? null
+        )
+      : null,
     data.items_count,
     data.likes_count,
     data.liked_by_me,

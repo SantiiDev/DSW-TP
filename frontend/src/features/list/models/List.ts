@@ -1,6 +1,8 @@
 // Modelo de una lista personalizada dentro del frontend.
 // El resto de la app trabaja SIEMPRE con esta clase; el JSON crudo del backend no
 // sale nunca de la capa de servicios (ver services/listService.ts).
+import { visibleAccent } from '../../user/models/User';
+import type { ProfileColor, UserRole } from '../../user/models/User';
 
 /**
  * De qué es una lista. Son los mismos valores que la columna LISTS.type del
@@ -17,6 +19,8 @@ export type ListUserApiResponse = {
   id_user: number;
   username: string;
   url_avatar: string | null;
+  rol: UserRole;
+  profile_color: ProfileColor | null;
 };
 
 /** Artista del ítem de una lista, tal como viaja en la API. */
@@ -67,8 +71,17 @@ export class ListUser {
   constructor(
     public readonly id: number,
     public readonly username: string,
-    public readonly urlAvatar: string | null
+    public readonly urlAvatar: string | null,
+    /** Para el badge Pro al lado del nombre. */
+    public readonly rol: UserRole,
+    /** Color guardado. Para dibujarlo se usa `accent`, que respeta el rol. */
+    public readonly profileColor: ProfileColor | null
   ) {}
+
+  /** Color de la franja de sus tarjetas, o null si no es Pro. */
+  get accent(): ProfileColor | null {
+    return visibleAccent(this.rol, this.profileColor);
+  }
 }
 
 /** Artista de un ítem dentro de una lista. */
@@ -131,6 +144,16 @@ export class List {
   /** Nombre de quien la armó, o un texto de reemplazo si la cuenta se dio de baja. */
   get authorName(): string {
     return this.user?.username ?? 'Usuario eliminado';
+  }
+
+  /** Rol de quien la armó para su badge, o null si la cuenta ya no está. */
+  get authorRol(): UserRole | null {
+    return this.user?.rol ?? null;
+  }
+
+  /** Color de acento de quien la armó, para la franja de la tarjeta, o null. */
+  get authorAccent(): ProfileColor | null {
+    return this.user?.accent ?? null;
   }
 
   /** ¿Es una lista de canciones? Decide los textos de toda la pantalla. */

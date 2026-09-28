@@ -31,6 +31,7 @@ import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { AlbumCover } from '../../genre/components/AlbumCover';
+import { RoleBadge } from '../../user/components/RoleBadge';
 import { RelatedReviews } from '../components/RelatedReviews';
 import { ReviewActionsPanel } from '../components/ReviewActionsPanel';
 import { ReviewComments } from '../components/ReviewComments';
@@ -220,6 +221,7 @@ export const ReviewDetailPage = () => {
                     ) : (
                       <strong>{review.authorName}</strong>
                     )}
+                    <RoleBadge rol={review.authorRol} accent={review.authorAccent} />
                     {/* La pastilla solo la ven el autor y un ADMIN: para el resto
                         una reseña oculta devuelve 404. */}
                     {review.isHidden && <Badge tone="warning">Oculta</Badge>}

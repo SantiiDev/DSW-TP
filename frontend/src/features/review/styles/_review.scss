@@ -185,6 +185,9 @@ $star-color: #f5c518;
     border-style: dashed;
   }
 
+  // Franja con el color de acento del autor, si es Pro (ver el mixin).
+  @include user-accent-stripe;
+
   // El borde se enciende al pasar por encima de la parte clickeable, que es la
   // señal de que la reseña se puede abrir. Va en la tarjeta y no en el enlace
   // para que se pinte el marco entero.
@@ -431,6 +434,9 @@ $star-color: #f5c518;
     padding: $spacing-sm $spacing-md;
     background-color: rgba($color-text, 0.06);
     border-radius: $radius;
+
+    // Franja con el color de acento de un autor Pro (ver el mixin).
+    @include user-accent-stripe(2px);
   }
 
   &__meta {
@@ -1111,6 +1117,15 @@ $star-color: #f5c518;
     align-items: center;
     justify-content: space-between;
     gap: $spacing-sm;
+  }
+
+  // Nombre + badge de rol. El min-width: 0 deja que el nombre se recorte antes
+  // de empujar los contadores de la derecha.
+  &__byline {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
   }
 
   &__author {

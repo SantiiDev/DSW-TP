@@ -32,7 +32,7 @@ const PRO_SHORTCUTS = [
   {
     icon: Palette,
     title: 'Personalizá tu perfil',
-    description: 'Cambiá tu avatar y tus datos desde la edición de perfil.',
+    description: 'Elegí un banner y un color de acento para tu perfil desde "Editar perfil".',
     to: '/profile',
     label: 'Ir a mi perfil',
   },

@@ -1,4 +1,5 @@
-// Formulario para editar el perfil propio (foto, username y email).
+// Formulario para editar el perfil propio (foto, username, email y, si la cuenta
+// es Pro, banner y color).
 // Es un componente controlado: no llama a la API directamente, delega el submit
 // al padre a través de la prop onSubmit (que en UserProfilePage usa el
 // updateProfile del AuthContext).
@@ -8,7 +9,10 @@ import { Alert } from '../../../core/components/Alert';
 import { Avatar } from '../../../core/components/Avatar';
 import { Button } from '../../../core/components/Button';
 import { FormField, TextInput } from '../../../core/components/FormField';
+import { DEFAULT_BANNER_POSITION, DEFAULT_PROFILE_COLOR } from '../models/User';
+import type { ProfileColor } from '../models/User';
 import type { UpdateUserInput } from '../services/userService';
+import { ProfileCustomizationFields } from './ProfileCustomizationFields';
 
 // Imagen de ejemplo para probar el campo rápido. Es un servicio de fotos random
 // que devuelve la imagen directamente, así que sirve como referencia de "URL que
@@ -19,6 +23,11 @@ type UserFormProps = {
   initialUsername: string;
   initialEmail: string;
   initialAvatarUrl: string | null;
+  /** true si la cuenta es Pro o Admin: habilita banner y color. */
+  canCustomize: boolean;
+  initialBannerUrl: string | null;
+  initialBannerPosition: number;
+  initialProfileColor: ProfileColor | null;
   isSubmitting: boolean;
   error: string | null;
   onSubmit: (input: UpdateUserInput) => void;
@@ -29,6 +38,10 @@ export const UserForm = ({
   initialUsername,
   initialEmail,
   initialAvatarUrl,
+  canCustomize,
+  initialBannerUrl,
+  initialBannerPosition,
+  initialProfileColor,
   isSubmitting,
   error,
   onSubmit,
@@ -43,12 +56,31 @@ export const UserForm = ({
   // misma. Se guarda cuál falló: si después se escribe otra, el aviso se va solo.
   const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
   const avatarFailed = avatarUrl === failedAvatarUrl;
+  // Personalización Pro. Mismo criterio que el avatar: el campo maneja string, y
+  // sin color elegido se muestra marcado el verde por defecto.
+  const [bannerUrl, setBannerUrl] = useState(initialBannerUrl ?? '');
+  const [bannerPosition, setBannerPosition] = useState(
+    initialBannerPosition ?? DEFAULT_BANNER_POSITION
+  );
+  const [profileColor, setProfileColor] = useState<ProfileColor>(
+    initialProfileColor ?? DEFAULT_PROFILE_COLOR
+  );
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     // url_avatar viaja aunque esté vacío: así el backend sabe que hay que borrar
     // la foto y volver al avatar por defecto.
-    onSubmit({ username, email, url_avatar: avatarUrl.trim() });
+    const input: UpdateUserInput = { username, email, url_avatar: avatarUrl.trim() };
+
+    // Banner y color viajan solo si la cuenta puede usarlos: la API los rechaza
+    // con 403 en una cuenta FREE, y un FREE ni siquiera tiene los campos.
+    if (canCustomize) {
+      input.url_banner = bannerUrl.trim();
+      input.banner_position = bannerPosition;
+      input.profile_color = profileColor;
+    }
+
+    onSubmit(input);
   };
 
   return (
@@ -119,6 +151,17 @@ export const UserForm = ({
           required
         />
       </FormField>
+
+      <ProfileCustomizationFields
+        canCustomize={canCustomize}
+        username={username}
+        bannerUrl={bannerUrl}
+        bannerPosition={bannerPosition}
+        profileColor={profileColor}
+        onBannerUrlChange={setBannerUrl}
+        onBannerPositionChange={setBannerPosition}
+        onProfileColorChange={setProfileColor}
+      />
 
       <div className="user-form__actions">
         <Button variant="subtle" fullWidth onClick={onCancel} disabled={isSubmitting}>
