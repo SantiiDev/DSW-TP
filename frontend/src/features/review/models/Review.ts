@@ -1,6 +1,8 @@
 // Modelo de una reseña dentro del frontend.
 // El resto de la app trabaja SIEMPRE con esta clase; el JSON crudo del backend no
 // sale nunca de la capa de servicios (ver services/reviewService.ts).
+import { visibleAccent } from '../../user/models/User';
+import type { ProfileColor, UserRole } from '../../user/models/User';
 
 /**
  * Estado de moderación de una reseña, igual que el enum REVIEW.state del backend.
@@ -30,6 +32,8 @@ export type ReviewUserApiResponse = {
   id_user: number;
   username: string;
   url_avatar: string | null;
+  rol: UserRole;
+  profile_color: ProfileColor | null;
 };
 
 export type ReviewArtistApiResponse = {
@@ -118,8 +122,17 @@ export class ReviewAuthor {
   constructor(
     public readonly id: number,
     public readonly username: string,
-    public readonly avatarUrl: string | null
+    public readonly avatarUrl: string | null,
+    /** Para el badge Pro al lado del nombre. */
+    public readonly rol: UserRole,
+    /** Color guardado. Para dibujarlo se usa `accent`, que respeta el rol. */
+    public readonly profileColor: ProfileColor | null
   ) {}
+
+  /** Color de la franja de sus tarjetas, o null si no es Pro. */
+  get accent(): ProfileColor | null {
+    return visibleAccent(this.rol, this.profileColor);
+  }
 }
 
 /** Álbum reseñado, o el álbum al que pertenece la canción reseñada. */
@@ -155,6 +168,16 @@ export class ReviewComment {
 
   get authorName(): string {
     return this.author?.username ?? 'Usuario eliminado';
+  }
+
+  /** Rol del autor para su badge, o null si el comentario quedó sin autor. */
+  get authorRol(): UserRole | null {
+    return this.author?.rol ?? null;
+  }
+
+  /** Color de acento del autor para la franja del comentario, o null. */
+  get authorAccent(): ProfileColor | null {
+    return this.author?.accent ?? null;
   }
 
   /** Fecha lista para mostrar ("12 de marzo de 2026"). */
@@ -242,6 +265,16 @@ export class Review {
   /** Nombre del autor, o un texto de reemplazo si la reseña quedó sin uno. */
   get authorName(): string {
     return this.author?.username ?? 'Usuario eliminado';
+  }
+
+  /** Rol del autor para su badge, o null si la reseña quedó sin autor. */
+  get authorRol(): UserRole | null {
+    return this.author?.rol ?? null;
+  }
+
+  /** Color de acento del autor para la franja de la tarjeta, o null si no es Pro. */
+  get authorAccent(): ProfileColor | null {
+    return this.author?.accent ?? null;
   }
 
   /** Calificación con un decimal, como se muestra al lado de las estrellas ("4.5"). */

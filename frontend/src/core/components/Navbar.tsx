@@ -4,6 +4,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { ChevronDown, LogOut, UserRound } from 'lucide-react';
 import { useAuthModal } from '../context/AuthModalContext';
 import { useAuth } from '../context/AuthContext';
+import { RoleBadge } from '../../features/user/components/RoleBadge';
 import { Avatar } from './Avatar';
 import { ConfirmDialog } from './Modal';
 import { NavbarSearch } from './NavbarSearch';
@@ -106,6 +107,11 @@ export const Navbar = () => {
                 >
                   <Avatar url={authState.user.urlAvatar} username={authState.user.username} size="sm" />
                   <span className="navbar__username">{authState.user.username}</span>
+                  {/* Se esconde en mobile junto con el nombre: sin nombre al lado,
+                      una pastilla suelta al lado del avatar no se entiende. */}
+                  <span className="navbar__role">
+                    <RoleBadge rol={authState.user.rol} accent={authState.user.visibleColor} />
+                  </span>
                   <ChevronDown
                     className={`navbar__chevron ${isMenuOpen ? 'navbar__chevron--open' : ''}`}
                     size={16}
@@ -118,7 +124,10 @@ export const Navbar = () => {
                     {/* El nombre se repite acá porque en mobile no se muestra en la
                         barra: así el usuario siempre sabe con qué cuenta entró. */}
                     <div className="navbar__dropdown-header">
-                      <span className="navbar__dropdown-name">{authState.user.username}</span>
+                      <span className="navbar__dropdown-identity">
+                        <span className="navbar__dropdown-name">{authState.user.username}</span>
+                        <RoleBadge rol={authState.user.rol} accent={authState.user.visibleColor} />
+                      </span>
                       <span className="navbar__dropdown-email">{authState.user.email}</span>
                     </div>
 

@@ -13,6 +13,7 @@ import { TextInput } from '../../../core/components/FormField';
 import { GatedLink } from '../../../core/components/GatedLink';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
+import { RoleBadge } from '../../user/components/RoleBadge';
 import { reviewService } from '../services/reviewService';
 import type { ReviewComment } from '../models/Review';
 import '../styles/_review.scss';
@@ -140,7 +141,13 @@ export const ReviewComments = ({
                 <Avatar url={null} username={comment.authorName} size="sm" />
               )}
 
-              <div className="review-comments__body">
+              <div
+                className={
+                  comment.authorAccent
+                    ? `review-comments__body review-comments__body--accent-${comment.authorAccent}`
+                    : 'review-comments__body'
+                }
+              >
                 <p className="review-comments__meta">
                   {comment.author ? (
                     <GatedLink
@@ -152,6 +159,7 @@ export const ReviewComments = ({
                   ) : (
                     <span className="review-comments__author">{comment.authorName}</span>
                   )}
+                  <RoleBadge rol={comment.authorRol} accent={comment.authorAccent} />
                   <span className="review-comments__date">{comment.dateLabel}</span>
                 </p>
                 <p className="review-comments__text">{comment.text}</p>

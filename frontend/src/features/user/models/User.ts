@@ -38,6 +38,45 @@ export const STATE_LABELS: Record<UserState, string> = {
 };
 
 /**
+ * Colores de acento que un PRO puede elegir para su perfil, igual que el enum
+ * USERS.profile_color del backend. El tono exacto de cada uno lo define el mapa
+ * $profile-accents de abstracts/_variable.scss: acá solo viaja el nombre.
+ */
+export const PROFILE_COLORS = ['green', 'blue', 'purple', 'pink', 'orange', 'gold'] as const;
+export type ProfileColor = (typeof PROFILE_COLORS)[number];
+
+export const PROFILE_COLOR_LABELS: Record<ProfileColor, string> = {
+  green: 'Verde',
+  blue: 'Azul',
+  purple: 'Violeta',
+  pink: 'Rosa',
+  orange: 'Naranja',
+  gold: 'Dorado',
+};
+
+/** El color que rige cuando el usuario no eligió ninguno: el verde del sitio. */
+export const DEFAULT_PROFILE_COLOR: ProfileColor = 'green';
+
+/** Recorte del banner cuando el usuario no eligió ninguno: el centro de la imagen. */
+export const DEFAULT_BANNER_POSITION = 50;
+
+/**
+ * Color de acento con el que se dibuja a un usuario en cualquier pantalla
+ * (su ficha, la franja de sus reseñas, sus listas).
+ *
+ * Solo las cuentas Pro o Admin tienen acento: la personalización es un
+ * beneficio de la membresía. Un FREE devuelve null aunque tenga un color
+ * guardado de cuando era Pro, que se conserva por si vuelve a pagar.
+ *
+ * @param rol rol actual del usuario.
+ * @param color color guardado, o null si nunca eligió uno.
+ */
+export function visibleAccent(rol: UserRole, color: ProfileColor | null): ProfileColor | null {
+  if (rol === 'FREE') return null;
+  return color ?? DEFAULT_PROFILE_COLOR;
+}
+
+/**
  * Forma cruda con la que viaja un usuario en las respuestas de la API.
  * Respeta los nombres del backend (snake_case y `rol`, como en el DER); pasarlo
  * al modelo es justamente lo que hace el servicio.
@@ -50,6 +89,9 @@ export type UserApiResponse = {
   rol: UserRole;
   state: UserState;
   url_avatar: string | null;
+  url_banner: string | null;
+  banner_position: number;
+  profile_color: ProfileColor | null;
   registration_date: string;
 };
 
@@ -64,6 +106,14 @@ export class User {
     public readonly state: UserState,
     /** URL de la foto de perfil, o null si usa el avatar por defecto. */
     public readonly urlAvatar: string | null,
+    /**
+     * Personalización Pro tal como está guardada. Puede tener valor aunque la
+     * cuenta ya sea FREE: para dibujarla se usan visibleBanner y visibleColor.
+     */
+    public readonly urlBanner: string | null,
+    /** Qué franja de la imagen se ve en el banner: 0 arriba, 100 abajo. */
+    public readonly bannerPosition: number,
+    public readonly profileColor: ProfileColor | null,
     public readonly registrationDate: Date
   ) {}
 
@@ -85,6 +135,24 @@ export class User {
   /** ¿Tiene la membresía paga? Decide qué versión de la página /pro se muestra. */
   get isPro(): boolean {
     return this.rol === 'PRO' || this.rol === 'ADMIN';
+  }
+
+  /** ¿Puede elegir banner y color de perfil? Es un beneficio de la membresía. */
+  get canCustomizeProfile(): boolean {
+    return this.isPro;
+  }
+
+  /**
+   * Banner que se dibuja en la ficha. Si la cuenta dejó de ser Pro el valor
+   * sigue guardado, pero no se muestra: reaparece solo si vuelve a pagar.
+   */
+  get visibleBanner(): string | null {
+    return this.canCustomizeProfile ? this.urlBanner : null;
+  }
+
+  /** Color de acento que rige en la ficha, con el mismo criterio que visibleBanner. */
+  get visibleColor(): ProfileColor {
+    return visibleAccent(this.rol, this.profileColor) ?? DEFAULT_PROFILE_COLOR;
   }
 
   /** ¿Puede moderar contenido y gestionar planes? */

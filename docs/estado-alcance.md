@@ -4,7 +4,7 @@ Qué está terminado y qué falta, punto por punto, contra el alcance comprometi
 en la [propuesta](../proposal.md) y los requisitos del
 [enunciado](enunciado.md).
 
-Última revisión: **27/09/2026**.
+Última revisión: **28/09/2026**.
 
 ## Requisitos técnicos
 
@@ -103,6 +103,7 @@ anterior, que es lo que pide la cátedra.
 | Listas personalizadas de álbumes **y de canciones** | ✅ CRUD completo (`LISTS`, `LIST_ALBUMS`, `LIST_SONGS`, `LIST_LIKES` en el DER): alta, edición, baja, agregar/sacar ítems y "me gusta". Una lista es de álbumes **o** de canciones, nunca de las dos: lo dice `LISTS.type`, que decide en qué tabla intermedia van sus ítems. Armar y curar listas es un **beneficio Pro**; un `FREE` las ve, las comparte y les da "me gusta", y si intenta crear una ve el cartel que lo invita a `/pro`. `/lists` explora por "Top Listas" y "Listas en Tendencia" con filtro por género, y desde la ficha de un álbum **o de una canción** se agrega a una lista propia del tipo que corresponda. El CRUD base entró por los PR #17 y #18; las listas de canciones y el gate Pro, después |
 | Ranking global de usuarios más activos | ✅ Panel "Más activos" en la columna lateral de `/reviews`, ordenado por un puntaje que combina reseñas publicadas y seguidores (`GET /api/users/ranking`) |
 | Dashboard de administración con métricas de ingresos | ✅ Pestaña **Métricas** de `/admin` (la que abre por defecto): ingresos históricos y del año, ventas, ticket promedio, conversión a Pro, curva de ingresos mes a mes, usuarios activos por plan y últimas ventas. Sale de `GET /api/payments/stats` (solo `ADMIN`) y se calcula siempre sobre los pagos reales; para la defensa hay un seed de demo aparte (`npm run seed:demo-sales`) que se borra con `-- --clean` antes del deploy |
+| Personalización de perfil Pro | ✅ Un `PRO` o `ADMIN` elige un **banner** (por URL, igual que el avatar, con un deslizador para elegir qué parte de la imagen se ve) y un **color de acento** de una paleta cerrada, que tiñe su ficha (banner, borde del avatar y pestañas) y deja una franja de ese color en sus reseñas, comentarios y listas. Desde "Editar perfil", con vista previa en vivo; un `FREE` ve un cartel hacia `/pro`. Además, un **badge Pro** metálico aparece al lado del nombre en todo lugar donde un usuario se muestra a otros: reseñas, comentarios, listas, filas de la comunidad y la navbar (Admin lleva el suyo, en acero). Columnas `USERS.url_banner`, `USERS.banner_position` y `USERS.profile_color` en el DER. La API rechaza con 403 cargarlos en una cuenta `FREE`, mirando el rol de la base y no el del token; si un `PRO` pasa a `FREE`, sus datos se conservan pero no se muestran |
 
 ## Documentación de la entrega
 
@@ -122,15 +123,16 @@ anterior, que es lo que pide la cátedra.
 
 Cosas que funcionan pero no están como deberían, ordenadas por prioridad:
 
-1. **Los beneficios Pro no se cumplen todos.** Las estadísticas y, desde ahora,
-   armar listas dependen del rol; pero el sitio promete además "sin anuncios" y
-   "personalización avanzada", y no existe ningún componente de anuncios que se le
-   muestre a un `FREE` ni ninguna opción de perfil exclusiva de `PRO`.
+1. **Los beneficios Pro no se cumplen todos.** Las estadísticas, armar listas y
+   la personalización de perfil (banner, color de acento y badge Pro) dependen
+   del rol. Pero el sitio promete además "sin anuncios", y no existe ningún
+   componente de anuncios que se le muestre a un `FREE`. La tabla comparativa de
+   `/pro` (`ProComparison.tsx`) también ofrece cosas sin implementar: "Largo
+   ilimitado en reseñas", "Acceso anticipado a funciones", "Soporte prioritario" y
+   "Listas (máx. 10)" para Free, cuando un `FREE` no puede crear listas.
 
-   > La propuesta se actualizó para que la descripción del plan Pro nombre las
-   > listas, que es un beneficio que ahora sí está implementado de punta a punta
-   > (backend y frontend), en lugar de la "personalización avanzada" que no
-   > existe.
+   > La personalización de perfil se resolvió el 28/09 en la rama
+   > `feature/profile-customization` (ver "Alcance adicional voluntario").
 
 > **Resuelto (17/09, PR #17 y #18).** `/lists` mostraba datos fijos en sus tres secciones
 > (`TopListsSection`, `TrendingListsSection`, `ExploreTagsSection`), con

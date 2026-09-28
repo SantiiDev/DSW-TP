@@ -27,6 +27,7 @@ function toCommunityUser(data: CommunityUserApiResponse): CommunityUser {
     data.username,
     data.url_avatar,
     data.rol,
+    data.profile_color ?? null,
     data.reviews_count,
     data.followers_count,
     data.followed_by_me

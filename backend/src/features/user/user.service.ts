@@ -14,7 +14,7 @@ import {
 } from '../../shared/errors/app-error';
 import { TokenPayload } from '../../shared/auth/jwt';
 import { sequelize } from '../../shared/db/sequelize';
-import { UserRole, UserState } from '../../shared/types/enums';
+import { ProfileColor, UserRole, UserState } from '../../shared/types/enums';
 import { subscriptionService } from '../subscription/subscription.service';
 import { userRepository } from './user.repository';
 import { CreateUserInput, UpdateUserInput } from './user.schema';
@@ -37,6 +37,13 @@ type PublicUser = {
   /** 'active' o 'suspended': una cuenta suspendida no puede iniciar sesión. */
   state: UserState;
   url_avatar: string | null;
+  /**
+   * Personalización Pro. Viajan aunque la cuenta ya sea FREE: la API devuelve lo
+   * guardado y el frontend decide si lo dibuja según el rol.
+   */
+  url_banner: string | null;
+  banner_position: number;
+  profile_color: ProfileColor | null;
   registration_date: Date;
 };
 
@@ -53,8 +60,34 @@ function toPublicUser(user: User, includeEmail = true): PublicUser {
     rol: user.rol,
     state: user.state,
     url_avatar: user.url_avatar ?? null,
+    url_banner: user.url_banner ?? null,
+    banner_position: user.banner_position ?? 50,
+    profile_color: user.profile_color ?? null,
     registration_date: user.registration_date,
   };
+}
+
+/**
+ * Corta con 403 si se quiere cargar banner o color en una cuenta que no es Pro.
+ *
+ * Mira el rol con el que va a QUEDAR la cuenta (el que viene en el mismo PATCH, o
+ * si no el de la base) y no el del token: así un token viejo de alguien que ya
+ * pasó a FREE no alcanza, y un ADMIN puede hacer Pro a alguien y cargarle el
+ * banner en la misma request.
+ *
+ * @param user cuenta editada, recién leída de la base.
+ * @param data campos del PATCH.
+ */
+function assertCanCustomize(user: User, data: UpdateUserInput): void {
+  const touchesCustomization =
+    data.url_banner !== undefined ||
+    data.banner_position !== undefined ||
+    data.profile_color !== undefined;
+  const resultingRole = data.rol ?? user.rol;
+
+  if (touchesCustomization && resultingRole === 'FREE') {
+    throw new ForbiddenError('El banner y el color de perfil son beneficios Pro.');
+  }
 }
 
 /** ¿El actor es el dueño de esa cuenta, o un ADMIN? */
@@ -159,7 +192,8 @@ export const userService = {
   },
 
   /**
-   * Actualiza username, email y/o rol de un usuario.
+   * Actualiza los datos de un usuario: username, email, avatar, y la
+   * personalización Pro (banner y color); rol y estado solo un ADMIN.
    * @param id_user usuario a modificar.
    * @param actor usuario autenticado que hace la request.
    * @param data campos a cambiar, ya validados por Zod.
@@ -179,6 +213,7 @@ export const userService = {
     }
 
     const user = await findExisting(id_user);
+    assertCanCustomize(user, data);
     await assertAvailable({ username: data.username, email: data.email }, id_user);
 
     // Si el admin le saca el PRO (lo pasa a FREE) y tenía una suscripción paga

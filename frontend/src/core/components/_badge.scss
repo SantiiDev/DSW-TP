@@ -22,6 +22,9 @@ $badge-tones: (
   text-transform: uppercase;
   letter-spacing: 0.4px;
   white-space: nowrap;
+  // Centrada con el texto cuando va en medio de una línea (el badge de rol al
+  // lado de un nombre); en un contenedor flex esto no tiene efecto.
+  vertical-align: middle;
 
   @each $tone, $tone-color in $badge-tones {
     &--#{$tone} {

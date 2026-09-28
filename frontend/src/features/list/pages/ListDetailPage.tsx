@@ -31,6 +31,7 @@ import { useFetch } from '../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
 import { GatedLink } from '../../../core/components/GatedLink';
 import { AlbumCover } from '../../genre/components/AlbumCover';
+import { RoleBadge } from '../../user/components/RoleBadge';
 import { listService } from '../services/listService';
 import type { ListInput } from '../services/listService';
 import { ListItemManager } from '../components/ListItemManager';
@@ -212,7 +213,8 @@ export const ListDetailPage = () => {
               <div className="list-detail__meta">
                 <Avatar url={list.user?.urlAvatar ?? null} username={list.authorName} size="sm" />
                 <span>
-                  por <strong>@{list.authorName}</strong> · {list.dateLabel} · {list.itemsLabel}
+                  por <strong>@{list.authorName}</strong> <RoleBadge rol={list.authorRol} accent={list.authorAccent} /> ·{' '}
+                  {list.dateLabel} · {list.itemsLabel}
                 </span>
               </div>
 

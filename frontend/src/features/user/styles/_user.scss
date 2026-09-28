@@ -13,6 +13,24 @@
   padding-top: $spacing-lg;
   padding-bottom: $spacing-lg;
 
+  // Color de acento del perfil (beneficio Pro). Se define como variable CSS y no
+  // como variable SASS porque depende del usuario que se está mirando, y eso
+  // recién se sabe en el navegador. La página recibe la clase del color que
+  // corresponde (ver UserProfilePage) y cada pieza que se tiñe lee la variable.
+  --profile-accent: #{$color-primary};
+
+  @each $name, $accent in $profile-accents {
+    &--accent-#{$name} {
+      --profile-accent: #{$accent};
+    }
+  }
+
+  // El subrayado de la pestaña activa vive en core/components/_tabs.scss y es
+  // verde en todo el sitio. Solo dentro del perfil toma el color del dueño.
+  .tabs__underline {
+    background-color: var(--profile-accent);
+  }
+
   &__container {
     width: 100%;
     display: flex;
@@ -58,22 +76,58 @@
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
   border-radius: $radius;
-  // En mobile se achica el padding: con 2rem a cada lado los contadores quedan
-  // apretados en una pantalla de 375px.
-  padding: $spacing-md;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-lg;
+  // Recorta el banner contra las esquinas redondeadas de la tarjeta.
+  overflow: hidden;
 
-  @media (min-width: $bp-sm) {
-    padding: $spacing-lg;
+  // Banner de los perfiles Pro. El fondo es el degradé que se ve cuando no hay
+  // imagen (o no carga); si hay, la imagen lo tapa entera.
+  &__banner {
+    height: 96px;
+    background: linear-gradient(
+      135deg,
+      var(--profile-accent) 0%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+
+    @media (min-width: $bp-md) {
+      height: 160px;
+    }
   }
 
-  // Desde MD la identidad va a la izquierda y los contadores a la derecha.
-  @media (min-width: $bp-md) {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
+  &__banner-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    // cover recorta en vez de deformar: una foto cualquiera no tiene la
+    // proporción apaisada de la franja.
+    object-fit: cover;
+  }
+
+  // El avatar grande lleva el borde del color de acento del perfil.
+  .avatar--lg {
+    border-color: var(--profile-accent);
+  }
+
+  // Todo lo que va debajo del banner. El padding va acá y no en la tarjeta para
+  // que el banner llegue de borde a borde.
+  &__content {
+    // En mobile se achica el padding: con 2rem a cada lado los contadores quedan
+    // apretados en una pantalla de 375px.
+    padding: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+
+    @media (min-width: $bp-sm) {
+      padding: $spacing-lg;
+    }
+
+    // Desde MD la identidad va a la izquierda y los contadores a la derecha.
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
   }
 
   &__identity {
@@ -469,4 +523,151 @@
     margin-top: $spacing-sm;
   }
 
+}
+
+// --- Personalización Pro (components/ProfileCustomizationFields) ----------
+
+.profile-customization {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: $spacing-sm 0 0;
+  padding: $spacing-md;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  min-width: 0;
+
+  &__legend {
+    padding: 0 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--profile-accent);
+  }
+
+  // La vista previa reusa el banner de la ficha, con esquinas propias.
+  &__preview {
+    border-radius: $radius;
+    overflow: hidden;
+  }
+
+  // --- Encuadre del banner ---
+  &__position {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__position-edge {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+  }
+
+  // El deslizador nativo, teñido con el color de acento que se está eligiendo.
+  &__range {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--profile-accent);
+    cursor: pointer;
+  }
+
+  // --- Selector de color ---
+  &__colors {
+    margin: 0;
+    padding: 0;
+    border: none;
+    min-width: 0;
+  }
+
+  &__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    margin-top: 0.4rem;
+  }
+
+  &__swatch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem 0.35rem 0.45rem;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    // Cada muestra pinta su propio punto con el tono del mapa de acentos.
+    @each $name, $accent in $profile-accents {
+      &--#{$name} .profile-customization__swatch-dot {
+        background-color: $accent;
+      }
+    }
+
+    // Marcada: el borde toma el color de la muestra elegida.
+    &:has(.profile-customization__radio:checked) {
+      border-color: var(--profile-accent);
+      color: $color-text;
+    }
+
+    // El foco del teclado cae en el radio escondido; se muestra en la etiqueta.
+    &:has(.profile-customization__radio:focus-visible) {
+      outline: 2px solid var(--profile-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  // El radio nativo se esconde a la vista pero sigue siendo el control real:
+  // funciona con el teclado y lo anuncia el lector de pantalla.
+  &__radio {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+  }
+
+  &__swatch-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  // --- Versión bloqueada (FREE) ---
+  &--locked {
+    flex-direction: column;
+    align-items: flex-start;
+    color: $color-text-secondary;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  &__locked-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__locked-title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__locked-hint {
+    margin: 0.2rem 0 0;
+    font-size: 0.8rem;
+  }
 }

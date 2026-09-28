@@ -7,7 +7,7 @@ Está en Mermaid y no como imagen a propósito: se versiona en git junto al cód
 se revisa en un pull request como cualquier otro archivo y no se desincroniza del
 modelo real. [`docs.md`](../docs.md) admite Mermaid para los diagramas.
 
-Última revisión: **19/09/2026** — 17 tablas.
+Última revisión: **28/09/2026** — 17 tablas.
 
 ## Diagrama
 
@@ -21,6 +21,9 @@ erDiagram
         enum rol "FREE, PRO o ADMIN. Default FREE"
         enum state "active o suspended. Default active"
         varchar url_avatar "500, nullable"
+        varchar url_banner "500, nullable. Beneficio Pro"
+        tinyint banner_position "0 a 100, default 50. Encuadre vertical del banner"
+        enum profile_color "green, blue, purple, pink, orange o gold. Nullable. Beneficio Pro"
         datetime registration_date "Default NOW"
     }
 
@@ -273,7 +276,7 @@ estuviera guardado en una columna, una lista vacía dejaría de tener tipo.
 
 | Entidad | Atributos |
 |:-|:-|
-| `USERS` | `state`, `url_avatar`. Además `rol` se define como `FREE / PRO / ADMIN` |
+| `USERS` | `state`, `url_avatar`. Además `rol` se define como `FREE / PRO / ADMIN`. `url_banner`, `banner_position` y `profile_color` guardan la personalización de perfil, que es beneficio Pro |
 | `ARTIST`, `ALBUMS`, `SONG` | `state` y `created_by`, para el circuito de aporte y moderación del CUU 3 |
 | `ALBUMS` | `average_rating`, atributo **derivado**: se recalcula al crear, editar, borrar, ocultar o restaurar una reseña |
 | `REVIEW` | `edited_date` y `state` |

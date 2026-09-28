@@ -8,6 +8,19 @@ $color-nav-bg: #000000;
 $color-nav-border: #282828;
 $color-error: #E2564A; // Mensajes de error de formularios y de la API
 
+// Colores de acento que un PRO puede elegir para su perfil. Las claves son los
+// valores del enum USERS.profile_color: la base guarda el nombre y el tono exacto
+// se decide acá. Los reusan el perfil (banner, avatar, pestañas) y el selector
+// del formulario de edición.
+$profile-accents: (
+  'green': $color-primary,
+  'blue': #4A9DE2,
+  'purple': #9B6BF2,
+  'pink': #F062A8,
+  'orange': #FF6B35,
+  'gold': #FECA57,
+);
+
 // Typography
 $font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 

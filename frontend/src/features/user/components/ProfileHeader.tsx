@@ -1,4 +1,4 @@
-// Cabecera del perfil: avatar, nombre, rol, contadores y acciones.
+// Cabecera del perfil: banner (Pro), avatar, nombre, rol, contadores y acciones.
 // Es presentacional; quien decide qué hacer con los botones es UserProfilePage.
 import { Avatar } from '../../../core/components/Avatar';
 import { Badge } from '../../../core/components/Badge';
@@ -8,6 +8,8 @@ import type { User } from '../models/User';
 import type { ProfileStats } from '../models/ProfileStats';
 import { FollowButton } from './FollowButton';
 import type { FollowListTab } from './FollowListModal';
+import { ProfileBanner } from './ProfileBanner';
+import { RoleBadge } from './RoleBadge';
 
 type ProfileHeaderProps = {
   user: User;
@@ -47,72 +49,90 @@ export const ProfileHeader = ({
 }: ProfileHeaderProps) => {
   return (
     <header className="profile-header">
-      <div className="profile-header__identity">
-        <Avatar url={user.urlAvatar} username={user.username} size="lg" />
+      {/* Solo en cuentas Pro o Admin. Un FREE que alguna vez tuvo banner lo
+          conserva guardado, pero no se dibuja (ver User.visibleBanner). */}
+      {user.canCustomizeProfile && (
+        <ProfileBanner
+          url={user.visibleBanner}
+          username={user.username}
+          position={user.bannerPosition}
+        />
+      )}
 
-        <div className="profile-header__info">
-          <h1 className="profile-header__username">{user.username}</h1>
+      <div className="profile-header__content">
+        <div className="profile-header__identity">
+          <Avatar url={user.urlAvatar} username={user.username} size="lg" />
 
-          <div className="profile-header__meta">
-            <Badge tone={ROLE_TONES[user.rol]}>{ROLE_LABELS[user.rol]}</Badge>
-            <span className="profile-header__since">
-              Miembro desde {user.registrationDate.toLocaleDateString('es-AR')}
-            </span>
+          <div className="profile-header__info">
+            <h1 className="profile-header__username">{user.username}</h1>
+
+            <div className="profile-header__meta">
+              {/* En el perfil sí se nombra el rol FREE ("Member"), con la pastilla
+                  sobria; Pro y Admin llevan la metálica de RoleBadge. */}
+              {user.rol === 'FREE' ? (
+                <Badge tone={ROLE_TONES.FREE}>{ROLE_LABELS.FREE}</Badge>
+              ) : (
+                <RoleBadge rol={user.rol} accent={user.visibleColor} />
+              )}
+              <span className="profile-header__since">
+                Miembro desde {user.registrationDate.toLocaleDateString('es-AR')}
+              </span>
+            </div>
+
+            {/* El email es dato privado: la API solo lo manda en el perfil propio. */}
+            {isOwnProfile && user.email && (
+              <p className="profile-header__email">{user.email}</p>
+            )}
           </div>
+        </div>
 
-          {/* El email es dato privado: la API solo lo manda en el perfil propio. */}
-          {isOwnProfile && user.email && (
-            <p className="profile-header__email">{user.email}</p>
+        <div className="profile-header__side">
+          <ul className="profile-header__stats">
+            {STAT_LABELS.map(({ key, label, list }) => (
+              <li key={key} className="profile-header__stat">
+                {list ? (
+                  <button
+                    type="button"
+                    className="profile-header__stat-button"
+                    aria-label={`Ver ${label.toLowerCase()}: ${stats[key]}`}
+                    onClick={() => onOpenFollowList(list)}
+                  >
+                    <span className="profile-header__stat-value">{stats[key]}</span>
+                    <span className="profile-header__stat-label">{label}</span>
+                  </button>
+                ) : (
+                  <>
+                    <span className="profile-header__stat-value">{stats[key]}</span>
+                    <span className="profile-header__stat-label">{label}</span>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {/* En el perfil propio van las acciones sobre la cuenta; en el de otro,
+              el botón de seguirlo. Los dos casos comparten el mismo lugar y la
+              misma caja, que es donde el usuario ya sabe que están las acciones. */}
+          {isOwnProfile ? (
+            <div className="profile-header__actions">
+              <Button variant="outline" size="sm" onClick={onEdit}>
+                Editar perfil
+              </Button>
+              <Button variant="danger" size="sm" onClick={onDelete}>
+                Dar de baja mi cuenta
+              </Button>
+            </div>
+          ) : (
+            <div className="profile-header__actions">
+              <FollowButton
+                isFollowing={isFollowing}
+                isBusy={isFollowBusy}
+                size="sm"
+                onToggle={onToggleFollow}
+              />
+            </div>
           )}
         </div>
-      </div>
-
-      <div className="profile-header__side">
-        <ul className="profile-header__stats">
-          {STAT_LABELS.map(({ key, label, list }) => (
-            <li key={key} className="profile-header__stat">
-              {list ? (
-                <button
-                  type="button"
-                  className="profile-header__stat-button"
-                  aria-label={`Ver ${label.toLowerCase()}: ${stats[key]}`}
-                  onClick={() => onOpenFollowList(list)}
-                >
-                  <span className="profile-header__stat-value">{stats[key]}</span>
-                  <span className="profile-header__stat-label">{label}</span>
-                </button>
-              ) : (
-                <>
-                  <span className="profile-header__stat-value">{stats[key]}</span>
-                  <span className="profile-header__stat-label">{label}</span>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-
-        {/* En el perfil propio van las acciones sobre la cuenta; en el de otro,
-            el botón de seguirlo. Los dos casos comparten el mismo lugar y la
-            misma caja, que es donde el usuario ya sabe que están las acciones. */}
-        {isOwnProfile ? (
-          <div className="profile-header__actions">
-            <Button variant="outline" size="sm" onClick={onEdit}>
-              Editar perfil
-            </Button>
-            <Button variant="danger" size="sm" onClick={onDelete}>
-              Dar de baja mi cuenta
-            </Button>
-          </div>
-        ) : (
-          <div className="profile-header__actions">
-            <FollowButton
-              isFollowing={isFollowing}
-              isBusy={isFollowBusy}
-              size="sm"
-              onToggle={onToggleFollow}
-            />
-          </div>
-        )}
       </div>
     </header>
   );

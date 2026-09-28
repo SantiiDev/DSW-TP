@@ -16,6 +16,16 @@ export const USER_STATES = ['active', 'suspended'] as const;
 export type UserState = (typeof USER_STATES)[number];
 
 /**
+ * Colores de acento que un PRO puede elegir para su perfil (USERS.profile_color).
+ *
+ * Es una paleta cerrada a propósito: se guarda el nombre y no un color libre, así
+ * la base nunca tiene CSS escrito por un usuario y el frontend decide el tono
+ * exacto de cada uno. NULL en la columna significa el verde del sitio.
+ */
+export const PROFILE_COLORS = ['green', 'blue', 'purple', 'pink', 'orange', 'gold'] as const;
+export type ProfileColor = (typeof PROFILE_COLORS)[number];
+
+/**
  * Estado de moderación del contenido de catálogo (ARTIST, ALBUMS, SONG).
  * Lo cargado por el seed queda en 'approved'; lo que da de alta un usuario PRO
  * entra como 'pending' hasta que un ADMIN lo revisa.

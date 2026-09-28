@@ -7,6 +7,7 @@
 import { Link } from 'react-router-dom';
 import { Heart, MessageCircle } from 'lucide-react';
 import { AlbumCover } from '../../genre/components/AlbumCover';
+import { RoleBadge } from '../../user/components/RoleBadge';
 import { StarRating } from './StarRating';
 import type { Review } from '../models/Review';
 import '../styles/_review.scss';
@@ -36,7 +37,10 @@ export const ReviewSummaryCard = ({ review }: ReviewSummaryCardProps) => {
       </p>
 
       <footer className="review-summary__footer">
-        <span className="review-summary__author">{review.authorName}</span>
+        <span className="review-summary__byline">
+          <span className="review-summary__author">{review.authorName}</span>
+          <RoleBadge rol={review.authorRol} accent={review.authorAccent} />
+        </span>
 
         <span className="review-summary__stats">
           <span className="review-summary__stat">

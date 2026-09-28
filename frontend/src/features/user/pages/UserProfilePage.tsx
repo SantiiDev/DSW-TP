@@ -229,6 +229,10 @@ export const UserProfilePage = () => {
           initialUsername={viewedUser.username}
           initialEmail={viewedUser.email}
           initialAvatarUrl={viewedUser.urlAvatar}
+          canCustomize={viewedUser.canCustomizeProfile}
+          initialBannerUrl={viewedUser.urlBanner}
+          initialBannerPosition={viewedUser.bannerPosition}
+          initialProfileColor={viewedUser.profileColor}
           isSubmitting={authState.isSubmitting}
           error={authState.error}
           onSubmit={handleUpdate}
@@ -308,7 +312,12 @@ export const UserProfilePage = () => {
   return (
     <>
       <Navbar />
-      <main className="user-profile-page">
+      {/* El color de acento del dueño del perfil tiñe el banner, el borde del
+          avatar y las pestañas (ver _user.scss). visibleColor ya vuelve al verde
+          si la cuenta no es Pro. */}
+      <main
+        className={`user-profile-page user-profile-page--accent-${viewedUser?.visibleColor ?? 'green'}`}
+      >
         <div className="user-profile-page__container">
           {/* El mismo botón que usan las fichas de álbum y canción y los
               listados: vive en core/components para que "Volver" se vea y se

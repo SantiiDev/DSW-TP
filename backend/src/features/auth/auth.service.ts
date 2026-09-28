@@ -10,7 +10,7 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from '../../shared/errors/app-error';
-import { UserRole, UserState } from '../../shared/types/enums';
+import { ProfileColor, UserRole, UserState } from '../../shared/types/enums';
 import { authRepository } from './auth.repository';
 import { LoginInput, RegisterInput } from './auth.schema';
 
@@ -27,6 +27,9 @@ type PublicUser = {
   rol: UserRole;
   state: UserState;
   url_avatar: string | null;
+  url_banner: string | null;
+  banner_position: number;
+  profile_color: ProfileColor | null;
   registration_date: Date;
 };
 
@@ -60,6 +63,9 @@ function toPublicUser(user: User): PublicUser {
     rol: user.rol,
     state: user.state,
     url_avatar: user.url_avatar ?? null,
+    url_banner: user.url_banner ?? null,
+    banner_position: user.banner_position ?? 50,
+    profile_color: user.profile_color ?? null,
     registration_date: user.registration_date,
   };
 }

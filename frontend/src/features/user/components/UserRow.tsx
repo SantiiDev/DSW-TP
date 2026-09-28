@@ -10,11 +10,10 @@
 // (sin sesión, abren el registro) y el botón queda afuera del enlace para que
 // apretarlo no navegue.
 import { Avatar } from '../../../core/components/Avatar';
-import { Badge } from '../../../core/components/Badge';
 import { GatedLink } from '../../../core/components/GatedLink';
 import type { CommunityUser } from '../models/Follow';
-import { ROLE_LABELS, ROLE_TONES } from '../models/User';
 import { FollowButton } from './FollowButton';
+import { RoleBadge } from './RoleBadge';
 import '../styles/_user-row.scss';
 
 type UserRowProps = {
@@ -60,11 +59,7 @@ export const UserRow = ({
         <span className="user-row__info">
           <span className="user-row__username">
             <span className="user-row__name">{user.username}</span>
-            {/* El rol FREE no lleva pastilla: es el estado normal y marcarlo en
-                cada fila sería ruido. */}
-            {user.rol !== 'FREE' && (
-              <Badge tone={ROLE_TONES[user.rol]}>{ROLE_LABELS[user.rol]}</Badge>
-            )}
+            <RoleBadge rol={user.rol} accent={user.accent} />
           </span>
           <span className="user-row__meta">{meta}</span>
         </span>

@@ -3,7 +3,7 @@
 // registro/login). Es la única capa que habla con Sequelize.
 import { Transaction } from 'sequelize';
 import { User } from '../../entities';
-import { UserRole, UserState } from '../../shared/types/enums';
+import { ProfileColor, UserRole, UserState } from '../../shared/types/enums';
 
 type CreateUserData = {
   username: string;
@@ -20,6 +20,9 @@ type UpdateUserData = {
   rol?: UserRole;
   state?: UserState;
   url_avatar?: string | null;
+  url_banner?: string | null;
+  banner_position?: number;
+  profile_color?: ProfileColor | null;
 };
 
 export const userRepository = {
