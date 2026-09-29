@@ -1,6 +1,6 @@
 @use "sass:color";
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
 
 .footer {
   background-color: $color-bg;

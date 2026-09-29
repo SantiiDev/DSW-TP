@@ -25,8 +25,8 @@ import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { Alert } from './Alert';
-import './_form-modal.scss';
+import { Alert } from '../Alert';
+import './FormModal.scss';
 
 type FormModalProps = {
   isOpen: boolean;

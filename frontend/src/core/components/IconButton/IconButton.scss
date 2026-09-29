@@ -1,6 +1,6 @@
 // Estilos del botón de solo ícono (core/components/IconButton.tsx).
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/mixins' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 .icon-btn {
   // Cuadrado: el ícono va centrado y el alto lo fija el propio padding, así

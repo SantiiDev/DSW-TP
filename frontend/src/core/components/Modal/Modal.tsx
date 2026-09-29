@@ -12,8 +12,8 @@
 //     onCancel={...}
 //   />
 import { useEffect } from 'react';
-import { Button } from './Button';
-import './_modal.scss';
+import { Button } from '../Button';
+import './Modal.scss';
 
 type ConfirmDialogProps = {
   isOpen: boolean;

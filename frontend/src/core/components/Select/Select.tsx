@@ -23,7 +23,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown, Search } from 'lucide-react';
-import './_select.scss';
+import './Select.scss';
 
 /** Una opción del desplegable: el valor que viaja y el texto que se muestra. */
 export type SelectOption<T extends string | number> = {

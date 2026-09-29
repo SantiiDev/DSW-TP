@@ -7,7 +7,7 @@
 //
 //   <StatsBar items={[{ value: 12, label: 'Reseñas' }]} />
 import type { ReactNode } from 'react';
-import './_stats-bar.scss';
+import './StatsBar.scss';
 
 /** Una columna de la barra. */
 export type Stat = {

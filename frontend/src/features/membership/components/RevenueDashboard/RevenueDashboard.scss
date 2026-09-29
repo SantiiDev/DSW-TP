@@ -1,3 +1,15 @@
+// Estilos del tablero de métricas del panel de administración (pestaña "Métricas").
+//
+// Mobile-first: en un teléfono todo va en una columna, con los indicadores de a
+// dos. Desde MD la curva ocupa la fila entera y el reparto de usuarios y las
+// últimas ventas quedan lado a lado; desde LG los cinco indicadores entran en una
+// sola fila.
+//
+// Las tarjetas copian el aspecto de las de "Tu año en música" (_advanced-stats.scss)
+// pero no las importan: esas son de la feature review y este tablero es de membership.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
 .revenue-dashboard {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

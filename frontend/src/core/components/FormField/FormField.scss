@@ -1,5 +1,5 @@
 // Estilos del campo de formulario reutilizable (core/components/FormField.tsx).
-@use '../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/variable' as *;
 
 .form-field {
   display: flex;
@@ -26,6 +26,13 @@
     // estira los dos campos al alto de la fila, así que alcanza con mandar el
     // control al fondo del suyo para que queden alineados.
     margin-bottom: auto;
+  }
+
+  // Mensaje de validación debajo del control.
+  &__error {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-error;
   }
 
   // Aclaración al lado de la etiqueta: pesa menos que el nombre del campo.
@@ -60,6 +67,13 @@
     &:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+    }
+
+    // Campo con error de validación. Se engancha de aria-invalid y no de una
+    // clase: es el mismo atributo que le avisa al lector de pantalla, así que el
+    // aspecto y lo que se anuncia no pueden quedar desincronizados.
+    &[aria-invalid='true'] {
+      border-color: $color-error;
     }
 
     // El textarea solo se diferencia en que se puede estirar, y solo a lo alto:

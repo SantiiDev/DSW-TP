@@ -13,7 +13,7 @@
 //   />
 import { ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
-import './_section-header.scss';
+import './SectionHeader.scss';
 
 /**
  * Color del ícono. Es decorativo y va por sección: verde para el catálogo,

@@ -4,9 +4,9 @@
 //
 //   <DonutChart segments={[{ label: 'Rock', value: 40 }]} centerValue="12" centerLabel="géneros" />
 import { useState } from 'react';
-import { useInView } from '../../hooks/useInView';
-import { CHART_PALETTE } from './chartPalette';
-import './_charts.scss';
+import { useInView } from '../../../hooks/useInView';
+import { CHART_PALETTE } from '../chartPalette';
+import './DonutChart.scss';
 
 export type DonutSegment = {
   label: string;

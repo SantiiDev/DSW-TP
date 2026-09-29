@@ -8,7 +8,7 @@
 //
 //   {error && <Alert tone="error">{error}</Alert>}
 import type { ReactNode } from 'react';
-import './_alert.scss';
+import './Alert.scss';
 
 type AlertProps = {
   tone: 'error' | 'success' | 'warning';

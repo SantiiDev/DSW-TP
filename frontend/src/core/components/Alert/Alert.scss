@@ -1,6 +1,6 @@
 // Estilos del aviso reutilizable (core/components/Alert.tsx).
 @use 'sass:color';
-@use '../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/variable' as *;
 
 .alert {
   margin: 0;

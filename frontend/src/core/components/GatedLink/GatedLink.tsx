@@ -17,8 +17,8 @@
 // <a> al que reemplaza.
 import { Link } from 'react-router-dom';
 import type { CSSProperties, ReactNode } from 'react';
-import { useGatedNavigation } from '../hooks/useGatedNavigation';
-import './_gated-link.scss';
+import { useGatedNavigation } from '../../hooks/useGatedNavigation';
+import './GatedLink.scss';
 
 type GatedLinkProps = {
   /** Ruta a la que navega cuando hay sesión. */

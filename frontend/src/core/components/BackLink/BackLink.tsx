@@ -12,7 +12,7 @@
 // tiene sentido para esa ficha.
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import './_back-link.scss';
+import './BackLink.scss';
 
 type BackLinkProps = {
   /** A dónde ir cuando no hay historial previo dentro de la app. */

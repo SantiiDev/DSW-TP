@@ -2,8 +2,8 @@
 //
 // Reemplaza al bloque `.artist-request` que estaba en _artist.scss: las tres
 // entidades aportables usan la misma tarjeta, así que vive una sola vez acá.
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
 
 // Envoltorio de una cola de solicitudes: el aviso de la última decisión, el
 // título con el conteo y la grilla de tarjetas. Lo comparten las tres secciones

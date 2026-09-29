@@ -1,7 +1,7 @@
 // Indicador de carga reutilizable por cualquier feature.
 // Se usa mientras se espera una respuesta del backend, para no dejar la pantalla
 // en blanco sin explicación.
-import './_loader.scss';
+import './Loader.scss';
 
 type LoaderProps = {
   message?: string;

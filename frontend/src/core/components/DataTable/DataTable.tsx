@@ -15,7 +15,7 @@
 //     getRowKey={(g) => g.id}
 //   />
 import type { ReactNode } from 'react';
-import './_data-table.scss';
+import './DataTable.scss';
 
 /**
  * Una columna de la tabla.

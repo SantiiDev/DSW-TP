@@ -1,8 +1,8 @@
 // Estilos del diálogo con formulario (core/components/FormModal.tsx).
 // Mismo comportamiento visual que el ConfirmDialog de _modal.scss, pero con un
 // formulario adentro en vez de un par de botones.
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/mixins' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 .form-modal-overlay {
   position: fixed;

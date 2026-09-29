@@ -9,7 +9,7 @@
 //     Se agregó <strong>Kid A</strong>
 //   </InlineNotice>
 import type { ReactNode } from 'react';
-import './_inline-notice.scss';
+import './InlineNotice.scss';
 
 type InlineNoticeProps = {
   /** 'positive' lo pinta del verde de la marca; 'neutral', del gris del texto secundario. */

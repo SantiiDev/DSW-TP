@@ -2,8 +2,8 @@
 // Estilos del diálogo de confirmación (ConfirmDialog).
 // El overlay replica el del AuthModal para que todas las ventanas del sitio se
 // comporten y se vean igual.
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
 
 .modal-overlay {
   position: fixed;

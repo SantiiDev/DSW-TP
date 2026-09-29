@@ -2,7 +2,7 @@
 // listar. Existe para que "no hay nada" se vea igual en todo el sitio y nunca
 // quede un bloque en blanco sin explicación.
 import type { ReactNode } from 'react';
-import './_empty-state.scss';
+import './EmptyState.scss';
 
 type EmptyStateProps = {
   /** Ícono decorativo, normalmente uno de lucide-react. */

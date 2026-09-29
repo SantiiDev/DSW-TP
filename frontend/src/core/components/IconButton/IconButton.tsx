@@ -11,7 +11,7 @@
 //
 //   <IconButton icon={<Pencil size={16} />} label="Editar" onClick={...} />
 import type { ReactNode } from 'react';
-import './_icon-button.scss';
+import './IconButton.scss';
 
 /**
  * Color del ícono según lo que hace la acción:

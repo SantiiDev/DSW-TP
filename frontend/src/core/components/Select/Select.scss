@@ -4,7 +4,7 @@
 // para que un formulario se vea parejo, y el panel toma los colores de las
 // superficies elevadas: fondo $color-bg-light y sombra, igual que los modales.
 @use 'sass:color';
-@use '../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/variable' as *;
 
 .select {
   position: relative;

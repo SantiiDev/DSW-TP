@@ -1,6 +1,6 @@
 // Estilos de la barra de búsqueda reutilizable (core/components/SearchBar.tsx).
 // Los botones son el componente Button, que trae los suyos: acá va solo el campo.
-@use '../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/variable' as *;
 
 .search-bar {
   display: flex;

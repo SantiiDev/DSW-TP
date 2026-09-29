@@ -17,9 +17,9 @@
 // falsificar la firma de un token.
 import { Navigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import { useAuth } from '../context/AuthContext';
-import type { UserRole } from '../../features/user/models/User';
-import { Loader } from './Loader';
+import { useAuth } from '../../context/AuthContext';
+import type { UserRole } from '../../../features/user/models/User';
+import { Loader } from '../Loader';
 
 type ProtectedRouteProps = {
   children: ReactNode;

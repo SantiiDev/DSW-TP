@@ -2,8 +2,8 @@
 // en barras verticales no entrarían (décadas, artistas, géneros).
 //
 //   <HorizontalBarList items={[{ id: '1980', label: 'Años 80', value: 12, valueLabel: '12' }]} />
-import { useInView } from '../../hooks/useInView';
-import './_charts.scss';
+import { useInView } from '../../../hooks/useInView';
+import './HorizontalBarList.scss';
 
 export type BarItem = {
   id: string;

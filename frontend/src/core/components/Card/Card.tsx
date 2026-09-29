@@ -9,7 +9,7 @@
 //     <GenreForm ... />
 //   </Card>
 import type { ReactNode } from 'react';
-import './_card.scss';
+import './Card.scss';
 
 type CardProps = {
   /** Título opcional de la tarjeta. Si no se pasa, no se dibuja la cabecera. */

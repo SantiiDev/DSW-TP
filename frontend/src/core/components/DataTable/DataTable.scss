@@ -1,7 +1,7 @@
 // Estilos de la tabla de datos reutilizable (core/components/DataTable.tsx).
 // Reemplaza a los bloques __table-wrapper / __table que estaban repetidos en
 // _admin.scss, _artist.scss y _genre.scss.
-@use '../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/variable' as *;
 
 .data-table {
   width: 100%;

@@ -6,7 +6,7 @@
 // ajenos al componente.
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { SegmentedControl } from './SegmentedControl';
+import { SegmentedControl } from './';
 
 // Las mismas opciones que usa la cola de solicitudes del panel de administración.
 const options = [

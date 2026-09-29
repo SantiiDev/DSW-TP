@@ -2,8 +2,8 @@
 //
 // La caja del input sigue siendo la de .navbar__search (ver _navbar.scss); acá va
 // el desplegable de resultados, con una sección por tipo.
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
 
 .navbar-search {
   position: relative;

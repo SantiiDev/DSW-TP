@@ -4,7 +4,7 @@
 // de administración.
 import { useState } from 'react';
 import { User as UserIcon } from 'lucide-react';
-import './_avatar.scss';
+import './Avatar.scss';
 
 type AvatarSize = 'sm' | 'md' | 'lg';
 

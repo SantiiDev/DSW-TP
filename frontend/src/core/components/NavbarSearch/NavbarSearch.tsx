@@ -13,17 +13,17 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { Search } from 'lucide-react';
-import { AlbumCover } from '../../features/genre/components/AlbumCover';
-import type { Album } from '../../features/album/models/Album';
-import { albumService } from '../../features/album/services/albumService';
-import type { Song } from '../../features/song/models/Song';
-import { songService } from '../../features/song/services/songService';
-import { UserRow } from '../../features/user/components/UserRow';
-import type { CommunityUser } from '../../features/user/models/Follow';
-import { followService } from '../../features/user/services/followService';
-import { useGatedNavigation } from '../hooks/useGatedNavigation';
-import { SearchResultRow } from './SearchResultRow';
-import './_navbar-search.scss';
+import { AlbumCover } from '../../../features/genre/components/AlbumCover';
+import type { Album } from '../../../features/album/models/Album';
+import { albumService } from '../../../features/album/services/albumService';
+import type { Song } from '../../../features/song/models/Song';
+import { songService } from '../../../features/song/services/songService';
+import { UserRow } from '../../../features/user/components/UserRow';
+import type { CommunityUser } from '../../../features/user/models/Follow';
+import { followService } from '../../../features/user/services/followService';
+import { useGatedNavigation } from '../../hooks/useGatedNavigation';
+import { SearchResultRow } from '../SearchResultRow';
+import './NavbarSearch.scss';
 
 /** Cuántos resultados entran por sección. Con tres secciones, el desplegable no se hace eterno. */
 const RESULTS_PER_SECTION = 4;

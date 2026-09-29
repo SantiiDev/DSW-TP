@@ -14,7 +14,7 @@
 // activa dónde está. Eso es lo único que hace el efecto de abajo.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import './_tabs.scss';
+import './Tabs.scss';
 
 /** Una pestaña: el id con el que la identifica el padre y el texto que se ve. */
 export type TabItem = {

@@ -6,7 +6,7 @@
 //
 //   <Badge tone="success">Activo</Badge>
 import type { ReactNode } from 'react';
-import './_badge.scss';
+import './Badge.scss';
 
 /**
  * Color de la pastilla, elegido por significado y no por color:

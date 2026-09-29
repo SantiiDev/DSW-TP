@@ -20,7 +20,7 @@
 // `request-card__detail--empty`, para cuando el aporte no incluyó ese dato.
 import { UserRound } from 'lucide-react';
 import type { ReactNode } from 'react';
-import './_request-card.scss';
+import './RequestCard.scss';
 
 type RequestCardProps = {
   title: string;

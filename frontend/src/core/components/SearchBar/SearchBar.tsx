@@ -17,8 +17,8 @@
 //   />
 import type { FormEvent } from 'react';
 import { Search, X } from 'lucide-react';
-import { Button } from './Button';
-import './_search-bar.scss';
+import { Button } from '../Button';
+import './SearchBar.scss';
 
 type SearchBarProps = {
   /** Texto que se está escribiendo (lo controla el padre). */

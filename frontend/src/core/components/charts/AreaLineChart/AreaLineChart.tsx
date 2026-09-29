@@ -7,8 +7,8 @@
 // sin deformarse (los puntos, las etiquetas y el globo con el valor) va en HTML
 // encima, ubicado con porcentajes.
 import { useId, useState } from 'react';
-import { useInView } from '../../hooks/useInView';
-import './_charts.scss';
+import { useInView } from '../../../hooks/useInView';
+import './AreaLineChart.scss';
 
 export type ChartPoint = {
   label: string;

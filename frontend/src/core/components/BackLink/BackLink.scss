@@ -4,8 +4,8 @@
 // pastilla con borde le daba el peso de una acción principal, compitiendo con el
 // título de la pantalla. Es el mismo aspecto que tenía el botón propio del
 // perfil, que ahora también usa este componente.
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/mixins' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 .back-link {
   align-self: flex-start;

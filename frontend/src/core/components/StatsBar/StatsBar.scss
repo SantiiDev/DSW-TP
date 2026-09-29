@@ -1,6 +1,6 @@
 // Estilos de la barra de contadores (core/components/StatsBar.tsx).
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
 
 .stats-bar {
   // Las columnas se reparten el ancho en partes iguales y NUNCA bajan de línea:

@@ -1,7 +1,7 @@
 // Componente del pie de página (Footer) de la aplicación, que contiene enlaces rápidos, la suscripción al boletín de noticias y derechos reservados.
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import './_footer.scss';
+import './Footer.scss';
 
 export const Footer = () => {
   return (

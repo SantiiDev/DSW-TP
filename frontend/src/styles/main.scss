@@ -7,30 +7,9 @@
 @use 'base/typography';
 @use 'base/animations';
 
-// Core Components
-@use '../core/components/button';
-@use '../core/components/card';
-@use '../core/components/badge';
-@use '../core/components/alert';
-@use '../core/components/form-field';
-@use '../core/components/data-table';
-@use '../core/components/section-header';
-@use '../core/components/navbar';
-@use '../core/components/footer';
-@use '../core/components/fade-in-section';
-@use '../core/components/loader';
-@use '../core/components/modal';
-@use '../core/components/avatar';
-@use '../core/components/empty-state';
-@use '../core/components/tabs';
-@use '../core/components/select';
-@use '../core/components/search-bar';
-@use '../core/components/form-modal';
-@use '../core/components/request-card';
-@use '../core/components/gated-link';
-@use '../core/components/back-link';
-@use '../core/components/icon-button';
-@use '../core/components/stats-bar';
+// Los componentes de core/components NO se importan acá: cada uno importa su
+// propio .scss desde su carpeta (core/components/<Componente>/<Componente>.scss).
+// Antes se cargaban por los dos lados y quedaban duplicados en el CSS final.
 
 // Features Components
 @use '../features/home/components/hero';
@@ -68,8 +47,7 @@
 @use '../features/list/styles/lists-explore';
 @use '../features/list/styles/list';
 
-// Membership / Pro
-@use '../features/membership/styles/membership';
+// Membership / Pro: cada componente importa su propio .scss desde su carpeta.
 
 // Anuncios
 @use '../features/ad/styles/ad';

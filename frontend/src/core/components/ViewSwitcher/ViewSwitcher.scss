@@ -13,8 +13,8 @@
 // la pastilla se corre con un `translateX` de un 100% por posición y no hace
 // falta medir nada en JavaScript. El componente solo pasa cuántas opciones hay y
 // cuál está elegida, en dos variables CSS.
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/mixins' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 // Cuánto tarda el deslizamiento. La curva arranca rápido y frena al llegar, que
 // es lo que hace que se lea como un movimiento y no como un cambio de posición.

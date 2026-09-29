@@ -2,8 +2,8 @@
 //
 // No repite el subrayado de la barra de pestañas a propósito: se leería como
 // otro nivel de navegación cuando en realidad filtra la sección actual.
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/mixins' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 .segmented {
   display: flex;

@@ -12,7 +12,7 @@
 // aria-*), así ninguna pantalla necesita envolverlo para agregarle algo.
 import { Link } from 'react-router-dom';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
-import './_button.scss';
+import './Button.scss';
 
 /**
  * Apariencia del botón:

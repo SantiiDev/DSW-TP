@@ -4,7 +4,7 @@
 // __submit-btn, __cancel-btn, __delete-btn, __approve-btn, etc. en cada feature
 // vive acá como variantes.
 @use 'sass:color';
-@use '../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/variable' as *;
 
 .btn {
   display: inline-flex;

@@ -1,6 +1,6 @@
 // Estilos de la pastilla de estado (core/components/Badge.tsx).
 @use 'sass:color';
-@use '../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/variable' as *;
 
 // Color de cada tono. Todas las pastillas se pintan igual (fondo al 15% y texto
 // al color pleno), así que se recorre el mapa en vez de escribir cinco bloques

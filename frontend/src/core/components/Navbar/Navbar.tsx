@@ -2,13 +2,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { ChevronDown, LogOut, UserRound } from 'lucide-react';
-import { useAuthModal } from '../context/AuthModalContext';
-import { useAuth } from '../context/AuthContext';
-import { RoleBadge } from '../../features/user/components/RoleBadge';
-import { Avatar } from './Avatar';
-import { ConfirmDialog } from './Modal';
-import { NavbarSearch } from './NavbarSearch';
-import './_navbar.scss';
+import { useAuthModal } from '../../context/AuthModalContext';
+import { useAuth } from '../../context/AuthContext';
+import { RoleBadge } from '../../../features/user/components/RoleBadge';
+import { Avatar } from '../Avatar';
+import { ConfirmDialog } from '../Modal';
+import { NavbarSearch } from '../NavbarSearch';
+import './Navbar.scss';
 
 export const Navbar = () => {
   const { openLogin, openSignup } = useAuthModal();

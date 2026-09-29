@@ -11,7 +11,7 @@
 //     onChange={setFilter}
 //     ariaLabel="Estado de la solicitud"
 //   />
-import './_segmented-control.scss';
+import './SegmentedControl.scss';
 
 export type SegmentOption<T extends string> = {
   value: T;

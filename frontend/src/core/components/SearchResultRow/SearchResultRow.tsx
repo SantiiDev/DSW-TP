@@ -6,7 +6,7 @@
 // Va con GatedLink porque las fichas piden sesión: sin cuenta, elegir un resultado
 // abre el registro, igual que las tarjetas del explorador.
 import type { ReactNode } from 'react';
-import { GatedLink } from './GatedLink';
+import { GatedLink } from '../GatedLink';
 
 type SearchResultRowProps = {
   /** Ruta de la ficha. */

@@ -13,7 +13,7 @@
 //     <TextInput id="genre-name" value={name} onChange={...} required />
 //   </FormField>
 import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
-import './_form-field.scss';
+import './FormField.scss';
 
 type FormFieldProps = {
   /** Debe coincidir con el id del control, para que el label lo active. */
@@ -21,10 +21,15 @@ type FormFieldProps = {
   label: string;
   /** Aclaración al lado de la etiqueta, por ejemplo "(opcional)". */
   hint?: string;
+  /**
+   * Mensaje de validación del campo. Se dibuja debajo del control con el id
+   * `${id}-error`: el control lo enlaza con aria-describedby (ver fieldErrorProps en core/utils/validators).
+   */
+  error?: string;
   children: ReactNode;
 };
 
-export const FormField = ({ id, label, hint, children }: FormFieldProps) => {
+export const FormField = ({ id, label, hint, error, children }: FormFieldProps) => {
   return (
     <div className="form-field">
       <label className="form-field__label" htmlFor={id}>
@@ -32,6 +37,11 @@ export const FormField = ({ id, label, hint, children }: FormFieldProps) => {
         {hint && <span className="form-field__hint">{hint}</span>}
       </label>
       {children}
+      {error && (
+        <p className="form-field__error" id={`${id}-error`}>
+          {error}
+        </p>
+      )}
     </div>
   );
 };

@@ -1,9 +1,9 @@
 // Estilos de la barra de pestañas reutilizable (core/components/Tabs.tsx).
 // Nacieron en el perfil; se movieron acá cuando el panel de administración
 // necesitó las mismas pestañas, para no tener dos copias que se desincronicen.
-@use '../../styles/abstracts/variable' as *;
-@use '../../styles/abstracts/breakpoints' as *;
-@use '../../styles/abstracts/mixins' as *;
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
 
 .tabs {
   border-bottom: 1px solid $color-nav-border;

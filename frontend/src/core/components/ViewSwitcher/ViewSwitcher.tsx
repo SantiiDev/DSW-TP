@@ -17,7 +17,7 @@
 //     ariaLabel="Tipo de música"
 //   />
 import type { CSSProperties } from 'react';
-import './_view-switcher.scss';
+import './ViewSwitcher.scss';
 
 export type ViewOption<T extends string> = {
   value: T;

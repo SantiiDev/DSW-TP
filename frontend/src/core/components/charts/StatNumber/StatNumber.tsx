@@ -4,8 +4,8 @@
 //   <StatNumber value={1234} label="minutos" />
 //   <StatNumber value={35000} label="cobrados" prefix="$ " />
 import { useEffect, useState } from 'react';
-import { useInView } from '../../hooks/useInView';
-import './_charts.scss';
+import { useInView } from '../../../hooks/useInView';
+import './StatNumber.scss';
 
 type StatNumberProps = {
   value: number;

@@ -1,6 +1,7 @@
 // Componente envoltorio que aplica una animación de aparición (fade in) a su contenido al hacer scroll.
 import type { ReactNode } from 'react';
-import { useInView } from '../hooks/useInView';
+import { useInView } from '../../hooks/useInView';
+import './FadeInSection.scss';
 
 type FadeInSectionProps = {
   children: ReactNode;
