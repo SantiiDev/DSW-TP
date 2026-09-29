@@ -1,0 +1,19 @@
+// Estilos de la página /pro: el marco común de la vista de venta y la de socio.
+@use '../../../../styles/abstracts/variable' as *;
+
+// ─── Page wrapper ───────────────────────────────────────────
+.pro-page {
+  min-height: 100vh;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ÁREA DE SOCIO — lo que ve un usuario que YA tiene la membresía
+//  (ProMemberView). Reutiliza los tokens de arriba para que las dos
+//  caras de /pro se vean como la misma página.
+// ═══════════════════════════════════════════════════════════════
+
+// La cara de socio no tiene hero a pantalla completa, así que necesita su
+// propio aire arriba para no quedar pegada al navbar.
+.pro-page--member {
+  padding-top: $spacing-lg;
+}

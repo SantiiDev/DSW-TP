@@ -1,0 +1,93 @@
+// Estilos del acordeón de preguntas frecuentes de /pro.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../styles/tokens' as *;
+
+// ═══════════════════════════════════════════════════════════════
+//  FAQ ACCORDION
+// ═══════════════════════════════════════════════════════════════
+.pro-faq {
+  padding: $spacing-xl $spacing-md;
+  max-width: 750px;
+  margin: 0 auto;
+
+  &__heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: $color-text;
+    text-align: center;
+    margin: 0 0 $spacing-xl;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.2rem;
+    }
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__item {
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+
+    &--open {
+      border-color: rgba($pro-green, 0.35);
+    }
+  }
+
+  &__question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-md $spacing-lg;
+    background: none;
+    border: none;
+    color: $color-text;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    gap: $spacing-md;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $pro-green;
+    }
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    color: $color-text-secondary;
+
+    .pro-faq__item--open & {
+      transform: rotate(180deg);
+      color: $pro-green;
+    }
+  }
+
+  &__answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+
+    p {
+      color: $color-text-secondary;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      padding: 0 $spacing-lg $spacing-lg;
+      margin: 0;
+    }
+
+    .pro-faq__item--open & {
+      max-height: 250px;
+    }
+  }
+}

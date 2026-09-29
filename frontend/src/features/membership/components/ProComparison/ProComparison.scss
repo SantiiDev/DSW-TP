@@ -1,0 +1,114 @@
+// Estilos de la tabla comparativa Free vs Pro.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../styles/tokens' as *;
+
+// ═══════════════════════════════════════════════════════════════
+//  COMPARISON TABLE — Columna Pro destacada con color
+// ═══════════════════════════════════════════════════════════════
+.pro-comparison {
+  padding: $spacing-xl $spacing-md;
+  max-width: calc(900px + 2rem);
+  margin: 0 auto;
+
+  &__heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: $color-text;
+    text-align: center;
+    margin: 0 0 $spacing-xl;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.4rem;
+    }
+  }
+
+  &__table-wrap {
+    border-radius: $radius;
+    overflow: hidden;
+    border: 1px solid $color-nav-border;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  &__th {
+    padding: $spacing-md $spacing-lg;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: $color-text-secondary;
+    text-align: center;
+    background-color: $color-bg-light;
+    border-bottom: 1px solid $color-nav-border;
+
+    &--feature {
+      text-align: left;
+      width: 50%;
+    }
+
+    // Columna Pro con fondo verde vibrante
+    &--pro {
+      background: $pro-gradient;
+      color: #000;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+  }
+
+  &__price-row {
+    td {
+      padding: $spacing-md $spacing-lg;
+      border-bottom: 1px solid $color-nav-border;
+      font-weight: 700;
+    }
+  }
+
+  &__row {
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid rgba($color-nav-border, 0.5);
+    }
+  }
+
+  &__td {
+    padding: $spacing-md $spacing-lg;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 0.92rem;
+    color: $color-text;
+
+    &--feature {
+      text-align: left;
+      color: $color-text;
+      font-weight: 500;
+    }
+
+    // Celda de la columna Pro con fondo tenue verde
+    &--pro-cell {
+      background-color: rgba($pro-green, 0.08);
+      font-weight: 600;
+    }
+  }
+
+  &__check {
+    color: $pro-green;
+  }
+
+  &__x {
+    color: #555;
+  }
+
+  &__label {
+    color: $pro-green;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+}

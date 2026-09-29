@@ -1,0 +1,80 @@
+// Estilos de la pantalla de vuelta de MercadoPago (/pro/return).
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../styles/tokens' as *;
+
+// ─── Pantalla de vuelta de MercadoPago (/pro/return) ────────
+//
+// Tres caras posibles (activada, en proceso, fallida) que comparten la caja y se
+// diferencian solo por el color del ícono y del borde.
+.pro-return {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - #{$navbar-height});
+  padding: $spacing-lg $spacing-md;
+}
+
+.pro-return__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  max-width: 520px;
+  padding: $spacing-xl $spacing-lg;
+  text-align: center;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+}
+
+// El ícono es lo primero que se mira, así que es lo que lleva el color del
+// resultado. El borde lo acompaña en un tono apenas marcado.
+.pro-return__panel--ok {
+  border-color: rgba($pro-green, 0.4);
+  color: $pro-green;
+}
+
+.pro-return__panel--pending {
+  border-color: rgba(#e0a53f, 0.4);
+  color: #e0a53f;
+}
+
+.pro-return__panel--error {
+  border-color: rgba($color-error, 0.4);
+  color: $color-error;
+}
+
+// El texto vuelve al color normal: el color del resultado es solo para el ícono.
+.pro-return__title {
+  margin: 0;
+  font-size: 1.6rem;
+  color: $color-text;
+}
+
+.pro-return__message {
+  margin: 0;
+  color: $color-text;
+}
+
+.pro-return__hint {
+  margin: 0;
+  font-size: 0.88rem;
+  color: $color-text-secondary;
+}
+
+.pro-return__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  justify-content: center;
+  margin-top: $spacing-sm;
+}
+
+.pro-return__link {
+  color: $color-text-secondary;
+  font-size: 0.88rem;
+
+  &:hover {
+    color: $color-text;
+  }
+}

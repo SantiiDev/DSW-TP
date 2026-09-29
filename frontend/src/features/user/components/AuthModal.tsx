@@ -2,11 +2,74 @@
 // Consume el AuthModalContext para controlar su visibilidad y el AuthContext para
 // registrar o iniciar sesión contra el backend. Renderiza condicionalmente el
 // formulario de Iniciar Sesión o el de Registro.
+//
+// Valida los campos con reglas propias (core/utils/validators) y no con las del
+// navegador: el formulario lleva noValidate y cada campo muestra su mensaje debajo.
 import { useState } from 'react';
 import { Button } from '../../../core/components/Button';
 import { useAuthModal } from '../../../core/context/AuthModalContext';
 import { useAuth } from '../../../core/context/AuthContext';
+import {
+  fieldErrorProps,
+  hasErrors,
+  isEmail,
+  matchesPattern,
+  maxLength,
+  minLength,
+  required,
+  sameAs,
+  validateField,
+} from '../../../core/utils/validators';
+import type { FieldErrors } from '../../../core/utils/validators';
 import '../styles/_auth.scss';
+
+type AuthField = 'username' | 'email' | 'password' | 'confirmPassword';
+
+type AuthValues = Record<AuthField, string>;
+
+/**
+ * Valida el formulario con las mismas reglas que registerSchema y loginSchema
+ * del backend (auth.schema.ts), así el usuario se entera antes de mandarlo.
+ *
+ * En el login la contraseña solo tiene que estar: ya existe y se compara tal
+ * cual, y validarle el largo daría pistas sobre el formato esperado (el backend
+ * hace lo mismo).
+ *
+ * @param values lo que escribió el usuario.
+ * @param isLogin si es el formulario de inicio de sesión o el de registro.
+ */
+function validateAuthForm(values: AuthValues, isLogin: boolean): FieldErrors<AuthField> {
+  const email = validateField(values.email, [required('Ingresá tu email.'), isEmail()]);
+
+  if (isLogin) {
+    return {
+      email,
+      password: validateField(values.password, [required('Ingresá tu contraseña.')]),
+    };
+  }
+
+  return {
+    username: validateField(values.username, [
+      required('Elegí un nombre de usuario.'),
+      minLength(3, 'El nombre de usuario debe tener al menos 3 caracteres.'),
+      maxLength(50, 'El nombre de usuario no puede tener más de 50 caracteres.'),
+      matchesPattern(
+        /^[a-zA-Z0-9._]+$/,
+        'El nombre de usuario solo puede tener letras, números, puntos y guiones bajos.'
+      ),
+    ]),
+    email,
+    password: validateField(values.password, [
+      required('Elegí una contraseña.'),
+      minLength(8, 'La contraseña debe tener al menos 8 caracteres.'),
+      maxLength(72, 'La contraseña no puede tener más de 72 caracteres.'),
+    ]),
+    confirmPassword: validateField(values.confirmPassword, [
+      required('Repetí la contraseña.'),
+      sameAs(values.password, 'Las contraseñas no coinciden.'),
+    ]),
+  };
+}
 
 export const AuthModal = () => {
   const { state: modalState, closeModal, switchView } = useAuthModal();
@@ -18,17 +81,19 @@ export const AuthModal = () => {
   const [username, setUsername] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Errores que se detectan en el navegador y ni siquiera llegan al backend
-  // (por ahora, solo que las dos contraseñas no coincidan).
-  const [formError, setFormError] = useState<string | null>(null);
+  // Si ya se intentó enviar. Hasta ese momento no se marca ningún campo: nadie
+  // quiere ver "Ingresá tu email" en rojo antes de haber empezado a escribir.
+  // Después del primer intento los errores se recalculan en cada tecla, así el
+  // mensaje desaparece apenas el campo queda bien.
+  const [wasSubmitted, setWasSubmitted] = useState(false);
 
   if (!modalState.isOpen) return null;
 
   const isLogin = modalState.view === 'login';
 
-  // Se muestra un error por vez: el local tiene prioridad porque es el más
-  // inmediato a lo que el usuario acaba de escribir.
-  const errorMessage = formError ?? authState.error;
+  const errors: FieldErrors<AuthField> = wasSubmitted
+    ? validateAuthForm({ username, email, password, confirmPassword }, isLogin)
+    : {};
 
   // Deja el modal como recién abierto, para que al volver a entrar no aparezcan
   // los datos ni el error del intento anterior.
@@ -37,18 +102,21 @@ export const AuthModal = () => {
     setPassword('');
     setUsername('');
     setConfirmPassword('');
-    setFormError(null);
+    setWasSubmitted(false);
     clearError();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
+    setWasSubmitted(true);
 
-    if (!isLogin && password !== confirmPassword) {
-      setFormError('Las contraseñas no coinciden.');
-      return;
-    }
+    // Se valida acá con los valores actuales y no con `errors`, que en el primer
+    // intento todavía está vacío (wasSubmitted recién se actualiza en el próximo render).
+    const currentErrors = validateAuthForm(
+      { username, email, password, confirmPassword },
+      isLogin
+    );
+    if (hasErrors(currentErrors)) return;
 
     const succeeded = isLogin
       ? await login({ email, password })
@@ -67,7 +135,8 @@ export const AuthModal = () => {
   };
 
   const handleSwitchView = () => {
-    setFormError(null);
+    // El otro formulario pide otros campos: sus errores arrancan de cero.
+    setWasSubmitted(false);
     clearError();
     switchView(isLogin ? 'signup' : 'login');
   };
@@ -96,29 +165,14 @@ export const AuthModal = () => {
               </p>
             </div>
 
-            {/* Botón de Google */}
-            <button type="button" className="auth__google-btn">
-              <svg className="auth__google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-              </svg>
-              Continuar con Google
-            </button>
-
-            {/* Separador */}
-            <div className="auth__divider">
-              <span className="auth__divider-line"></span>
-              <span className="auth__divider-text">o</span>
-              <span className="auth__divider-line"></span>
-            </div>
-
-            {/* Formulario */}
-            <form className="auth__form" onSubmit={handleSubmit}>
-              {errorMessage && (
+            {/* Formulario. noValidate apaga los globos del navegador: los
+                mensajes los pone el propio formulario debajo de cada campo. */}
+            <form className="auth__form" onSubmit={handleSubmit} noValidate>
+              {/* Error de la API (credenciales incorrectas, email ya usado):
+                  es del formulario entero, no de un campo. */}
+              {authState.error && (
                 <p className="auth__error" role="alert">
-                  {errorMessage}
+                  {authState.error}
                 </p>
               )}
 
@@ -132,12 +186,12 @@ export const AuthModal = () => {
                     type="text"
                     className="auth__input"
                     placeholder="Tu nombre de usuario"
+                    autoComplete="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    minLength={3}
-                    maxLength={50}
-                    required
+                    {...fieldErrorProps('auth-username', errors.username)}
                   />
+                  <FieldError id="auth-username" message={errors.username} />
                 </div>
               )}
 
@@ -145,15 +199,21 @@ export const AuthModal = () => {
                 <label htmlFor="auth-email" className="auth__label">
                   Correo electrónico
                 </label>
+                {/* type="text" con inputMode="email" y no type="email": este
+                    último trae su propia validación del navegador. inputMode
+                    conserva el teclado con "@" en el celular. */}
                 <input
                   id="auth-email"
-                  type="email"
+                  type="text"
+                  inputMode="email"
+                  autoComplete="email"
                   className="auth__input"
                   placeholder="tu@correo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
+                  {...fieldErrorProps('auth-email', errors.email)}
                 />
+                <FieldError id="auth-email" message={errors.email} />
               </div>
 
               <div className="auth__field">
@@ -165,13 +225,12 @@ export const AuthModal = () => {
                   type="password"
                   className="auth__input"
                   placeholder={isLogin ? 'Tu contraseña' : 'Mínimo 8 caracteres'}
+                  autoComplete={isLogin ? 'current-password' : 'new-password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  // El mínimo se valida igual en el backend; acá es solo para
-                  // avisar antes de gastar una request.
-                  minLength={isLogin ? undefined : 8}
-                  required
+                  {...fieldErrorProps('auth-password', errors.password)}
                 />
+                <FieldError id="auth-password" message={errors.password} />
               </div>
 
               {!isLogin && (
@@ -184,10 +243,12 @@ export const AuthModal = () => {
                     type="password"
                     className="auth__input"
                     placeholder="Repite tu contraseña"
+                    autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
+                    {...fieldErrorProps('auth-confirm-password', errors.confirmPassword)}
                   />
+                  <FieldError id="auth-confirm-password" message={errors.confirmPassword} />
                 </div>
               )}
 

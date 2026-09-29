@@ -1,0 +1,12 @@
+// Tokens de la página Pro. Son solo variables: no generan CSS, así que cada
+// componente que los necesita los trae con @use sin duplicar nada.
+@use '../../../styles/abstracts/variable' as *;
+
+$pro-green: $color-primary; // #1ED760
+$pro-green-dark: #17a94d;
+$pro-gradient: linear-gradient(135deg, $pro-green 0%, #0fd85b 50%, #06d6a0 100%);
+
+// Ancho de todas las secciones de /pro. Sale del navbar, que centra su contenido
+// en 1150px: sumándole su padding lateral ($spacing-md a cada lado) los bordes de
+// cada sección quedan alineados con los del navbar en cualquier resolución.
+$pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);

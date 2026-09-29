@@ -57,3 +57,7 @@ $content-width: 1150px;
 // rápido y frena al llegar, que es lo que la hace sentir fluida.
 $modal-overlay-in: modal-overlay-in 0.25s ease-out;
 $modal-card-in: modal-card-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+// Curva de las animaciones de dibujo de los gráficos (core/components/charts):
+// arranca con impulso y frena suave. La comparten el área y la dona.
+$chart-ease: cubic-bezier(0.22, 1, 0.36, 1);
