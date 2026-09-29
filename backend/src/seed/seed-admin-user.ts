@@ -10,6 +10,7 @@
 // en la Fase 3: nunca se escribe en texto plano en la base.
 import bcrypt from 'bcryptjs';
 import { env } from '../shared/config/env';
+import { sequelize } from '../shared/db/sequelize';
 import { User } from '../entities';
 
 // Costo del hash de bcrypt. 10 es el valor habitual: suficientemente lento como para
@@ -46,7 +47,6 @@ export async function seedAdminUser(): Promise<void> {
 // Permite correr solo este seed, sin tocar los demás.
 if (require.main === module) {
   void (async () => {
-    const { sequelize } = await import('../shared/db/sequelize');
     try {
       await sequelize.authenticate();
       console.log('[seed] Conectado a la base de datos.');

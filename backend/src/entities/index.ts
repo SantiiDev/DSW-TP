@@ -4,6 +4,7 @@
 // circulares y para tener el mapa completo de relaciones en un solo lugar.
 // Importar este archivo (aunque sea por su efecto colateral) es lo que deja
 // el modelo listo para usar.
+import { Ad } from './ad.entity';
 import { Album } from './album.entity';
 import { Artist } from './artist.entity';
 import { Follow } from './follow.entity';
@@ -263,7 +264,17 @@ User.hasMany(Album, { foreignKey: 'created_by', as: 'createdAlbums', onDelete: '
 Song.belongsTo(User, { foreignKey: 'created_by', as: 'creator', onDelete: 'SET NULL' });
 User.hasMany(Song, { foreignKey: 'created_by', as: 'createdSongs', onDelete: 'SET NULL' });
 
+// --- Anuncios ---------------------------------------------------------------
+//
+// ADS no declara NINGUNA asociación, y no es un olvido: es la única entidad
+// suelta del modelo. Un anuncio no pertenece a ningún usuario ni apunta a nada
+// del catálogo, así que no tiene ninguna clave foránea de la que colgarse.
+//
+// Se la importa igual, arriba, porque ese import es lo que registra el modelo en
+// la instancia de Sequelize y hace que sync() cree la tabla (ver server.ts).
+
 export {
+  Ad,
   Album,
   Artist,
   Follow,

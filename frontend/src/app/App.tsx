@@ -23,6 +23,7 @@ import { ReviewDetailPage } from '../features/review/pages/ReviewDetailPage';
 import { AuthProvider } from '../core/context/AuthContext';
 import { AuthModalProvider } from '../core/context/AuthModalContext';
 import { AuthModal } from '../features/user/components/AuthModal';
+import { AdRotator } from '../features/ad/components/AdRotator';
 import { ProtectedRoute } from '../core/components/ProtectedRoute';
 
 // Static Info Pages
@@ -208,6 +209,13 @@ export const App = () => {
           </Routes>
         </div>
         <AuthModal />
+
+        {/* La publicidad que ve un usuario Free. Va acá afuera y no adentro del
+            div de arriba a propósito: ese div se remonta en cada cambio de ruta
+            por su `key`, y con él se reiniciaría el reloj del próximo anuncio,
+            que nunca llegaría a cumplir el minuto. Quién lo ve y cada cuánto
+            aparece lo decide el propio AdRotator. */}
+        <AdRotator />
       </AuthModalProvider>
     </AuthProvider>
   );

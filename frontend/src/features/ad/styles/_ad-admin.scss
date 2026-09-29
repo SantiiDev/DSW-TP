@@ -1,0 +1,94 @@
+// Estilos de la sección "Anuncios" del panel de administración
+// (features/ad/components/AdAdminSection.tsx, AdAdminTable.tsx y AdForm.tsx).
+//
+// Misma forma que .plan-admin en _membership.scss: la tabla y el marco los ponen
+// DataTable y Card, así que acá solo va lo propio de esta sección.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.ad-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__actions {
+    display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el resto de los formularios del sitio.
+    justify-content: flex-end;
+    gap: $spacing-sm;
+  }
+}
+
+.ad-admin {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__list-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // Miniatura de la columna "Imagen". Va chica y con el mismo 3:4 del panel, para
+  // que se vea el encuadre real que va a tener el anuncio.
+  &__thumb {
+    width: 42px;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: $radius;
+    background-color: $color-bg;
+    display: block;
+
+    @media (min-width: $bp-md) {
+      width: 54px;
+    }
+  }
+
+  // El título y su descripción van uno debajo del otro en la misma celda.
+  &__title-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  &__description {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: $color-text-secondary;
+  }
+
+  &__link {
+    font-size: 0.85rem;
+    color: $color-primary;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__no-link {
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+    font-style: italic;
+  }
+}

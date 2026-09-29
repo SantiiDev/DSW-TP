@@ -1,6 +1,7 @@
 // Router principal de la API. Cada feature aporta su propio router y se monta acá
 // bajo su prefijo. Es el índice de todos los endpoints del sistema.
 import { Router } from 'express';
+import { adRouter } from './features/ad/ad.routes';
 import { albumRouter } from './features/album/album.routes';
 import { artistRouter } from './features/artist/artist.routes';
 import { authRouter } from './features/auth/auth.routes';
@@ -35,3 +36,4 @@ router.use('/lists', listRouter);
 router.use('/plans', planRouter);
 router.use('/subscriptions', subscriptionRouter);
 router.use('/payments', paymentRouter);
+router.use('/ads', adRouter);

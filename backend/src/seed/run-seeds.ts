@@ -10,6 +10,7 @@
 // Uso:  npm run seed
 import { sequelize } from '../shared/db/sequelize';
 import { seedAdminUser } from './seed-admin-user';
+import { seedAds } from './seed-ads';
 import { seedCatalog } from './seed-catalog';
 import { seedPlans } from './seed-plans';
 
@@ -22,6 +23,9 @@ export async function runAllSeeds(): Promise<void> {
   await seedPlans();
   await seedCatalog();
   await seedAdminUser();
+  // Va al final porque no depende de nada: los anuncios son la única tabla sin
+  // claves foráneas, así que da igual si ya están los planes o el catálogo.
+  await seedAds();
 }
 
 if (require.main === module) {
