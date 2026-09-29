@@ -71,5 +71,9 @@
 // Membership / Pro
 @use '../features/membership/styles/membership';
 
+// Anuncios
+@use '../features/ad/styles/ad';
+@use '../features/ad/styles/ad-admin';
+
 // Static Info Pages
 @use '../features/home/styles/static-pages';

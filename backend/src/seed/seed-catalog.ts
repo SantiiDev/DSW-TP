@@ -20,6 +20,7 @@
 // única que ya declara la entidad (`uq_song_album_track`).
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { sequelize } from '../shared/db/sequelize';
 import { Album, Artist, Genre, GenreAlbum, Song } from '../entities';
 import type { RawAlbum, RawArtist, RawGenre } from './fetch-metadata';
 
@@ -177,7 +178,6 @@ export async function seedCatalog(): Promise<void> {
 // Permite correr solo este seed, sin tocar los demás.
 if (require.main === module) {
   void (async () => {
-    const { sequelize } = await import('../shared/db/sequelize');
     try {
       await sequelize.authenticate();
       console.log('[seed] Conectado a la base de datos.');

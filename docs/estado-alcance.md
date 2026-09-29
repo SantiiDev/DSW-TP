@@ -4,7 +4,7 @@ Qué está terminado y qué falta, punto por punto, contra el alcance comprometi
 en la [propuesta](../proposal.md) y los requisitos del
 [enunciado](enunciado.md).
 
-Última revisión: **28/09/2026**.
+Última revisión: **29/09/2026**.
 
 ## Requisitos técnicos
 
@@ -123,16 +123,28 @@ anterior, que es lo que pide la cátedra.
 
 Cosas que funcionan pero no están como deberían, ordenadas por prioridad:
 
-1. **Los beneficios Pro no se cumplen todos.** Las estadísticas, armar listas y
-   la personalización de perfil (banner, color de acento y badge Pro) dependen
-   del rol. Pero el sitio promete además "sin anuncios", y no existe ningún
-   componente de anuncios que se le muestre a un `FREE`. La tabla comparativa de
-   `/pro` (`ProComparison.tsx`) también ofrece cosas sin implementar: "Largo
-   ilimitado en reseñas", "Acceso anticipado a funciones", "Soporte prioritario" y
-   "Listas (máx. 10)" para Free, cuando un `FREE` no puede crear listas.
+1. **Los beneficios Pro no se cumplen todos.** Las estadísticas, armar listas,
+   la personalización de perfil (banner, color de acento y badge Pro) y la
+   navegación sin anuncios dependen del rol. Pero la tabla comparativa de `/pro`
+   (`ProComparison.tsx`) todavía ofrece cosas sin implementar: "Largo ilimitado
+   en reseñas", "Acceso anticipado a funciones", "Soporte prioritario" y "Listas
+   (máx. 10)" para Free, cuando un `FREE` no puede crear listas.
 
    > La personalización de perfil se resolvió el 28/09 en la rama
    > `feature/profile-customization` (ver "Alcance adicional voluntario").
+
+   > **Resuelto (29/09, rama `feature/ads-2`).** La parte de "sin anuncios". La
+   > propuesta promete una "experiencia sin anuncios" como beneficio Pro
+   > (`proposal.md`) y siete componentes del frontend lo repiten, pero no existía
+   > ningún anuncio que ver, así que el beneficio no significaba nada. Se agregó
+   > la tabla `ADS` con su CRUD de `ADMIN` (pestaña **Anuncios** de `/admin`) y un
+   > panel que se le muestra a un usuario `FREE` cada minuto, con un botón
+   > "Saltar" que se habilita a los cinco segundos y un acceso directo a `/pro`.
+   > El panel **no bloquea el sitio**: flota sobre el contenido pegado a un
+   > costado y se puede seguir navegando con él en pantalla, pero no se va solo.
+   > De los cinco anuncios del seed, el quinto es la propia membresía Pro, que es
+   > el único con enlace interno (`/pro`). Un `PRO`, un `ADMIN` y un visitante sin
+   > cuenta no ven ninguno.
 
 > **Resuelto (17/09, PR #17 y #18).** `/lists` mostraba datos fijos en sus tres secciones
 > (`TopListsSection`, `TrendingListsSection`, `ExploreTagsSection`), con

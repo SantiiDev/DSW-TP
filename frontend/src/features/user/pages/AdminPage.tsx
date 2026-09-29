@@ -24,6 +24,7 @@ import { AdminMusicPanel } from '../components/AdminMusicPanel';
 import { AdminRequestsPanel } from '../components/AdminRequestsPanel';
 import { PlanAdminSection } from '../../membership/components/PlanAdminSection';
 import { RevenueAdminSection } from '../../membership/components/RevenueAdminSection';
+import { AdAdminSection } from '../../ad/components/AdAdminSection';
 import '../styles/_admin.scss';
 
 // Métricas va primera y es la que abre: es el resumen de cómo anda el sitio, lo
@@ -34,6 +35,7 @@ const ADMIN_TABS = [
   { id: 'music', label: 'Música' },
   { id: 'requests', label: 'Solicitudes' },
   { id: 'plans', label: 'Planes' },
+  { id: 'ads', label: 'Anuncios' },
 ] as const;
 
 type AdminTab = (typeof ADMIN_TABS)[number]['id'];
@@ -45,6 +47,7 @@ const TAB_SUBTITLES: Record<AdminTab, string> = {
   music: 'Mantener el catálogo: artistas, álbumes y canciones.',
   requests: 'Revisar los aportes al catálogo que envían los usuarios Pro.',
   plans: 'Definir los planes de membresía: nombre, precio y qué incluye cada uno.',
+  ads: 'La publicidad que ven los usuarios Free: alta, pausa y baja de anuncios.',
 };
 
 export const AdminPage = () => {
@@ -73,6 +76,7 @@ export const AdminPage = () => {
         {activeTab === 'music' && <AdminMusicPanel />}
         {activeTab === 'requests' && <AdminRequestsPanel />}
         {activeTab === 'plans' && <PlanAdminSection />}
+        {activeTab === 'ads' && <AdAdminSection />}
       </main>
       <Footer />
     </>

@@ -1,12 +1,23 @@
 {
+  /* Este es el tsconfig que ve el EDITOR y el que usa `npm run typecheck`:
+     abarca el código y los tests. El de compilar es tsconfig.build.json, que
+     emite a dist/ solo lo de src/.
+
+     Están separados porque no se puede hacer las dos cosas con un archivo: para
+     emitir hace falta `rootDir: "src"`, y con eso puesto los archivos de tests/
+     quedan fuera de la raíz y tsc los rechaza. Mientras tests/ no estuvo en
+     ningún include, el editor no sabía a qué proyecto pertenecían esos archivos
+     y el typecheck los salteaba por completo. */
   "compilerOptions": {
     "target": "ES2022",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    /* "node16" y no "commonjs" + "node": esa combinación usaba la resolución
+       `node10`, que TypeScript 6 marca como deprecada con un error (TS5107) y
+       deja de funcionar en la 7. Es la forma moderna de decir lo mismo: como
+       package.json no declara "type": "module", el proyecto sigue siendo
+       CommonJS y el código emitido no cambia. */
+    "module": "node16",
+    "moduleResolution": "node16",
     "lib": ["ES2022"],
-
-    "rootDir": "src",
-    "outDir": "dist",
 
     /* Chequeos estrictos: el backend valida datos que vienen de afuera,
        conviene que el compilador sea exigente. */
@@ -19,8 +30,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "sourceMap": true
+    "sourceMap": true,
+
+    /* Acá solo se chequea; quien emite es tsconfig.build.json. */
+    "noEmit": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

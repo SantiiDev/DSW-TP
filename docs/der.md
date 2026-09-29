@@ -7,7 +7,7 @@ Está en Mermaid y no como imagen a propósito: se versiona en git junto al cód
 se revisa en un pull request como cualquier otro archivo y no se desincroniza del
 modelo real. [`docs.md`](../docs.md) admite Mermaid para los diagramas.
 
-Última revisión: **28/09/2026** — 17 tablas.
+Última revisión: **29/09/2026** — 18 tablas.
 
 ## Diagrama
 
@@ -152,6 +152,15 @@ erDiagram
         datetime liked_date "Default NOW"
     }
 
+    ADS {
+        int id_ad PK "autoincremental"
+        varchar title UK "80 caracteres"
+        varchar description "200, nullable"
+        varchar url_image "500. Ruta dentro de public/ del frontend"
+        varchar target_url "500, nullable. URL externa o ruta del sitio (/pro)"
+        boolean active "Default true. Saca el anuncio de circulación sin borrarlo"
+    }
+
     USERS ||--o{ SUBSCRIPTION : "contrata"
     PLAN ||--o{ SUBSCRIPTION : "se contrata en"
     SUBSCRIPTION ||--o{ PAYMENTS : "se cobra con"
@@ -188,6 +197,12 @@ erDiagram
 
 `PK,FK` marca las columnas que son parte de una clave primaria compuesta y a la
 vez clave foránea. Mermaid no tiene una marca propia para ese caso.
+
+`ADS` aparece suelta, sin ninguna línea que la conecte, y es a propósito: es la
+única tabla del modelo sin claves foráneas. Un anuncio no pertenece a ningún
+usuario ni apunta a nada del catálogo, así que no hay ninguna relación que
+dibujar. A quién se le muestra no es un dato de la tabla sino una regla de la
+aplicación: solo a los usuarios con rol `FREE`.
 
 ## Restricciones que el diagrama no muestra
 
@@ -241,6 +256,7 @@ justificación de cada uno están en [`proposal.md`](../proposal.md).
 | `LIST_ALBUMS` | N:M entre `LISTS` y `ALBUMS`, con PK compuesta, `position` y `added_date` | Alcance adicional voluntario |
 | `LIST_SONGS` | N:M entre `LISTS` y `SONG`, idéntica a la anterior cambiando el álbum por la canción | Alcance adicional voluntario |
 | `LIST_LIKES` | N:M entre `USERS` y `LISTS`, con PK compuesta y `liked_date` | Alcance adicional voluntario |
+| `ADS` | Entidad nueva y **sin relaciones**: la publicidad que se le muestra a un usuario `FREE`. Es lo que le da sentido al "sin anuncios" que la propuesta ofrece como beneficio Pro | Deuda del alcance comprometido |
 
 `FOLLOWS` es la única relación recursiva del modelo: sus dos claves foráneas
 apuntan a la misma tabla, y por eso cada una lleva el nombre de su rol en la

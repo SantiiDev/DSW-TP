@@ -67,15 +67,16 @@ Los títulos son los de las ramas que salieron de cada issue.
 | — | Membresía Pro como **pago único** en lugar de suscripción mensual | Santino Gallo | Cerrado (entró por un commit directo a `develop`; falta abrir el issue) |
 | — | Dashboard de administración con métricas de ingresos | Santino Gallo | En curso en la rama `feature/admin-revenue-dashboard` (falta abrir el issue y renombrar la rama con su número) |
 | — | Personalización de perfil Pro (banner, color de acento y badge Pro en reseñas, comentarios, listas y navbar) | Juan Ignacio Esterri | En curso en la rama `feature/profile-customization` (falta abrir el issue) |
+| — | Anuncios para usuarios Free (tabla `ADS`, panel lateral y CRUD de administración) | Santiago Siena | En curso en la rama `feature/ads-2` (falta abrir el issue) |
 
-> Las nueve filas sin número de más arriba se trabajaron antes de abrir su issue:
+> Las diez filas sin número de más arriba se trabajaron antes de abrir su issue:
 > cuatro entraron juntas por el PR #13, la de CUU 4 parte 2 por el PR #15, la de
 > listas personalizadas por los PR #17 y #18, la de listas de canciones por el
-> PR #19, y las dos últimas por commits directos a `develop`. Hay que crearlas en
+> PR #19, y las dos de los commits directos a `develop`. Hay que crearlas en
 > el GitHub Project y vincularlas a esos pull requests, para que la trazabilidad
-> quede completa antes de la entrega. Las dos filas "En curso" del final (el
-> dashboard de ingresos y la personalización de perfil) también necesitan su
-> issue.
+> quede completa antes de la entrega. Las tres filas "En curso" del final (el
+> dashboard de ingresos, la personalización de perfil y los anuncios) también
+> necesitan su issue.
 
 > Los números #11 y #12 salen del nombre de las ramas
 > (`feature/11-testing-setup` y `feature/12-user-ranking`), que por convención
