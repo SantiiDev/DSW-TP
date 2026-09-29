@@ -1,0 +1,114 @@
+// Estilos de la grilla de beneficios de la membresía Pro.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../styles/tokens' as *;
+
+// ═══════════════════════════════════════════════════════════════
+//  FEATURES SHOWCASE — Grid de beneficios con ícono grande
+// ═══════════════════════════════════════════════════════════════
+.pro-features {
+  padding: $spacing-xl $spacing-md;
+  max-width: $pro-section-max;
+  margin: 0 auto;
+  scroll-margin-top: 80px;
+
+  &__heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: $color-text;
+    text-align: center;
+    margin: 0 0 $spacing-xl;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.4rem;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+.pro-feature-card {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  padding: $spacing-xl $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 260px;
+  transition: border-color 0.3s ease;
+
+  // Solo contraste: se enciende el borde, la tarjeta no se levanta.
+  &:hover {
+    border-color: rgba($pro-green, 0.5);
+  }
+
+  &__top {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+  }
+
+  &__desc {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  &__visual {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin-top: $spacing-lg;
+  }
+
+  &__icon {
+    color: rgba($pro-green, 0.25);
+    transition: color 0.3s ease;
+
+    // Solo el color: el ícono no se agranda.
+    .pro-feature-card:hover & {
+      color: rgba($pro-green, 0.6);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  AÑADIDOS A PIEZAS COMPARTIDAS POR LAS DOS CARAS DE /pro
+// ═══════════════════════════════════════════════════════════════
+
+// Chip "Activo" de cada beneficio, solo en la vista del socio.
+.pro-feature-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  padding: 0.15rem 0.55rem;
+  border-radius: $radius;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: rgba($pro-green, 0.15);
+  color: $pro-green;
+}

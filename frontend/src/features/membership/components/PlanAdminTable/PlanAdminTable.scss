@@ -1,0 +1,25 @@
+// Estilos de las celdas propias de la tabla de planes.
+@use '../../../../styles/abstracts/variable' as *;
+
+.plan-admin {
+  // El nombre y la pastilla de "Pago" / "Gratuito" van juntos en la misma celda.
+  &__name-cell {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  // La descripción es el campo más largo de la fila. Sin un tope se lleva todo el
+  // ancho de la tabla y deja las demás columnas apretadas contra el borde.
+  &__description-cell {
+    display: inline-block;
+    max-width: 32ch;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__no-description {
+    font-style: italic;
+    opacity: 0.7;
+  }
+}

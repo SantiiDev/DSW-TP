@@ -1,0 +1,55 @@
+// Estilos de Lista de barras horizontales (HorizontalBarList).
+//
+// La animación se dispara al agregar la clase o el valor "visible" cuando el
+// gráfico entra en pantalla (ver useInView).
+@use '../../../../styles/abstracts/variable' as *;
+
+.bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    margin-bottom: 0.35rem;
+    font-size: 0.85rem;
+  }
+
+  &__label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: $color-text;
+  }
+
+  &__value {
+    font-weight: 700;
+    color: $color-text-secondary;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__track {
+    height: 8px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+
+  &__fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba($color-primary, 0.6), $color-primary);
+    transform-origin: left center;
+    transition: transform 0.9s $chart-ease;
+  }
+}
+
+// Los gráficos se dibujan de a poco siempre, aunque el sistema pida reducir
+// movimiento: fue una decisión del equipo (ver core/utils/scrollToSection).
