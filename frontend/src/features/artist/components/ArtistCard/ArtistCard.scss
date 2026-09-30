@@ -1,0 +1,67 @@
+// Estilos de ArtistCard.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
+// La píldora de estado de moderación ahora la dibuja el componente Badge
+// (core/components/Badge.tsx), así que acá no queda ni el mixin ni sus colores.
+// --- Card de un artista (aportes del perfil) -------------------------------
+.artist-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  height: 100%;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+
+  &__name {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  // La biografía es un texto largo: se corta a tres líneas para que todas las
+  // cards de la grilla queden parejas.
+  &__bio {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: $color-text-secondary;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    &--empty {
+      font-style: italic;
+    }
+  }
+
+  &__meta {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  // Editar y eliminar el propio aporte, en la pestaña "Aportes" del perfil. Van
+  // como íconos y no como botones con texto: son dos acciones sobre una card
+  // chica, y con las palabras completas no entran en una fila de la grilla.
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $color-nav-border;
+  }
+
+  &__albums {
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+}

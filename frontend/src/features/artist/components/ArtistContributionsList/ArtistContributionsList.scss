@@ -1,0 +1,52 @@
+// Estilos de ArtistContributionsList.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
+// --- Cola de solicitudes (pestaña "Solicitudes" del panel) ------------------
+//
+// La tarjeta de una solicitud y la grilla que las acomoda ahora las dibuja
+// RequestCard (core/components), que comparten las tres entidades aportables:
+// artista, álbum y canción. Acá no queda nada propio de la feature.
+// --- Aportes del perfil (pestaña "Aportes") --------------------------------
+.artist-contributions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+  }
+}
+
+// En la pestaña "Aportes" del perfil la lista va debajo del selector de
+// segmentos (Artistas / Álbumes / Canciones), y el panel que los contiene no
+// separa a sus hijos. Va acotado al panel del perfil para que la lista, en
+// cualquier otro lugar, no arrastre un margen de más.
+.profile-panel .artist-contributions {
+  margin-top: $spacing-md;
+}

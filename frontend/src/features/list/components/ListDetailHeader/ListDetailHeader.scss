@@ -1,0 +1,66 @@
+// Estilos de ListDetailHeader.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
+.list-header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: $color-text;
+    line-height: 1.1;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.6rem;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+
+    strong {
+      color: $color-primary;
+      font-weight: 600;
+    }
+  }
+
+  &__description {
+    margin: 0;
+    max-width: 640px;
+    color: $color-text-secondary;
+    line-height: 1.6;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  // Enlace a /pro dentro del aviso que ve el dueño que dejó de ser Pro. Va
+  // subrayado porque vive en medio de una oración: sin eso no se lee como un
+  // enlace, solo como una palabra de otro color.
+  &__pro-link {
+    color: $color-primary;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+}

@@ -156,11 +156,11 @@ export const ProMemberView = ({ user }: ProMemberViewProps) => {
             <div className="pro-member__card">
               <h3 className="pro-member__card-title">
                 <LifeBuoy size={18} aria-hidden="true" />
-                Soporte prioritario
+                ¿Necesitás ayuda?
               </h3>
               <p className="pro-member__card-text">
-                Como socio Pro tus consultas se responden primero. Escribinos y te contestamos
-                a la brevedad.
+                Si algo de tu membresía no funciona como esperabas, escribinos desde el
+                formulario de contacto y te respondemos a la brevedad.
               </p>
               <Link to="/contact" className="pro-member__card-link">
                 Contactar al equipo &rarr;

@@ -1,0 +1,99 @@
+// Estilos de GenreFilters.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Panel de filtros -------------------------------------------------------
+.genre-filters {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  // En mobile va arriba de los resultados; desde escritorio pasa al costado
+  // (ver .genre-detail__body).
+  order: 1;
+
+  @media (min-width: $bp-lg) {
+    order: 2;
+    // Acompaña el scroll de la lista, que puede ser larga.
+    position: sticky;
+    top: calc(#{$navbar-height} + #{$spacing-md});
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-secondary;
+  }
+
+  // Los dos desplegables de este panel son el componente Select
+  // (core/components/Select.tsx), que trae sus propios estilos.
+
+  // Los dos modos del año ("Solo 1997" / "Desde 1997"), como un par de pastillas.
+  &__modes {
+    display: flex;
+    gap: $spacing-sm;
+  }
+
+  &__mode {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    background-color: transparent;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    color: $color-text-secondary;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    &--active {
+      border-color: $color-primary;
+      background-color: rgba($color-primary, 0.12);
+      color: $color-primary;
+    }
+  }
+
+  &__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0.35rem;
+    background-color: transparent;
+    border: none;
+    color: $color-text-secondary;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+  }
+}

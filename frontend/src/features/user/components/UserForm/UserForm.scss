@@ -1,0 +1,59 @@
+// Estilos de UserForm.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// El formulario de edición comparte estructura con el de auth: mismo look de
+// campo/label/input/error/submit, con nombres propios para no acoplar features.
+.user-form {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  // Vista previa de la foto mientras se edita, arriba de los campos.
+  &__avatar-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__avatar-hint {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+    max-width: 280px;
+  }
+
+  &__example-btn {
+    align-self: flex-start;
+    margin-top: 0.4rem;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $color-primary;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: color.adjust($color-primary, $lightness: 10%);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+  }
+
+}

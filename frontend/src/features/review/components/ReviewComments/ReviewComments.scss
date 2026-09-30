@@ -1,0 +1,145 @@
+// Estilos de ReviewComments.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Hilo de comentarios -----------------------------------------------------
+.review-comments {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  // Dentro de una tarjeta del listado: separado del cuerpo de la reseña por una
+  // línea, porque comparte caja con ella.
+  &--compact {
+    margin-top: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $color-nav-border;
+  }
+
+  // En la página de la reseña el hilo es una sección propia y ya tiene su
+  // encabezado: no necesita línea, y respira más.
+  &--page {
+    gap: $spacing-md;
+  }
+
+  &__loading,
+  &__empty {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-sm;
+  }
+
+  // El globo del comentario. El color va como un blanco muy transparente y no
+  // como una variable fija porque el hilo se muestra sobre dos fondos distintos
+  // (la tarjeta del listado y la página): así se despega de los dos.
+  &__body {
+    flex: 1;
+    min-width: 0;
+    padding: $spacing-sm $spacing-md;
+    background-color: rgba($color-text, 0.06);
+    border-radius: $radius;
+
+    // Franja con el color de acento de un autor Pro (ver el mixin).
+    @include user-accent-stripe(2px);
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: $spacing-sm;
+    margin: 0;
+  }
+
+  &__author {
+    color: $color-text;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  // Avatar y nombre de quien comentó, como enlaces a su perfil.
+  &__avatar-link {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: auto;
+    border-radius: 50%;
+    transition: box-shadow 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      box-shadow: 0 0 0 2px $color-primary;
+      outline: none;
+    }
+  }
+
+  &__author-link {
+    width: auto;
+
+    &:hover,
+    &:focus-visible {
+      color: $color-primary;
+      text-decoration: underline;
+      outline: none;
+    }
+  }
+
+  &__date {
+    color: $color-text-secondary;
+    font-size: 0.75rem;
+  }
+
+  &__text {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  &__delete {
+    padding: 4px;
+    background: none;
+    border: none;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-error;
+    }
+  }
+
+  // El campo y el botón de enviar, en una sola línea.
+  &__form {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: flex-start;
+
+    // El input se estira y el botón se queda con su ancho.
+    .form-field__control {
+      flex: 1;
+    }
+  }
+
+  // En la página hay lugar: el campo ocupa el ancho y el botón va debajo.
+  &--page &__form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

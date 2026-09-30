@@ -28,12 +28,12 @@ const PRO_BENEFITS: ProBenefit[] = [
   {
     icon: Palette,
     title: 'Personalización del perfil',
-    description: 'Elegí colores, banners y temas exclusivos para que tu perfil refleje tu estilo musical.',
+    description: 'Elegí un banner y un color de acento para que tu perfil refleje tu estilo musical.',
   },
   {
     icon: ListMusic,
-    title: 'Listas ilimitadas',
-    description: 'Creá todas las listas que quieras. Organizá tu música como un verdadero curador.',
+    title: 'Armá tus propias listas',
+    description: 'Creá listas de álbumes o de canciones y compartilas. Organizá tu música como un verdadero curador.',
   },
   {
     icon: PlusCircle,

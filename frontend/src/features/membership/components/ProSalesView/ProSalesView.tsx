@@ -119,7 +119,7 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
                 <li><Ban size={18} /> Con anuncios</li>
                 <li><Star size={18} /> Reseñas y calificaciones</li>
                 <li><Shield size={18} /> Perfil público</li>
-                <li><ListMusic size={18} /> Hasta 10 listas</li>
+                <li><ListMusic size={18} /> Ver y dar "me gusta" a listas</li>
               </ul>
               <button
                 type="button"
@@ -154,7 +154,7 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
                 <li><Palette size={18} /> Personalización del perfil</li>
                 <li><BarChart3 size={18} /> Estadísticas avanzadas</li>
                 <li><Shield size={18} /> Badge Pro verificado</li>
-                <li><ListMusic size={18} /> Listas ilimitadas</li>
+                <li><ListMusic size={18} /> Armá tus propias listas</li>
                 <li><Sparkles size={18} /> Aportá al catálogo</li>
               </ul>
               <button

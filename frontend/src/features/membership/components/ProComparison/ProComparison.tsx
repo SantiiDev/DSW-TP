@@ -6,9 +6,9 @@
 import { Check, X } from 'lucide-react';
 import './ProComparison.scss';
 
-// Cada fila es una función del producto. `pro` marca si Pro la incluye; cuando
-// en vez de un tilde hay que mostrar un texto (por ejemplo "Ilimitadas"), se usa
-// `proText`, que tiene prioridad sobre `pro`.
+// Cada fila es una función que existe en el producto. Pro las incluye todas, así
+// que solo hace falta marcar cuáles tiene también Free. No se listan promesas sin
+// implementar: la tabla es lo que el usuario compra.
 type ProComparisonProps = {
   proPrice: string;
 };
@@ -16,22 +16,19 @@ type ProComparisonProps = {
 type ComparisonRow = {
   feature: string;
   free: boolean;
-  pro?: boolean;
-  proText?: string;
 };
 
 const COMPARISON_ROWS: ComparisonRow[] = [
-  { feature: 'Sin anuncios en Musicboxd', free: false, pro: true },
-  { feature: 'Reseñas y calificaciones', free: true, pro: true },
-  { feature: 'Badge Pro en perfil y reseñas', free: false, pro: true },
-  { feature: 'Banner personalizado en el perfil', free: false, pro: true },
-  { feature: 'Estadísticas avanzadas de escucha', free: false, pro: true },
-  { feature: 'Temas de colores para tu perfil', free: false, pro: true },
-  { feature: 'Listas (máx. 10)', free: true, proText: 'Ilimitadas' },
-  { feature: 'Largo ilimitado en reseñas', free: false, pro: true },
-  { feature: 'Aportar artistas, álbumes y canciones', free: false, pro: true },
-  { feature: 'Acceso anticipado a funciones', free: false, pro: true },
-  { feature: 'Soporte prioritario', free: false, pro: true },
+  { feature: 'Reseñas y calificaciones', free: true },
+  { feature: 'Likes y comentarios en reseñas', free: true },
+  { feature: 'Ver, compartir y dar "me gusta" a listas', free: true },
+  { feature: 'Sin anuncios en Musicboxd', free: false },
+  { feature: 'Crear y curar tus propias listas', free: false },
+  { feature: 'Estadísticas avanzadas de escucha', free: false },
+  { feature: 'Badge Pro en perfil y reseñas', free: false },
+  { feature: 'Banner personalizado en el perfil', free: false },
+  { feature: 'Color de acento para tu perfil', free: false },
+  { feature: 'Aportar artistas, álbumes y canciones', free: false },
 ];
 
 /** @param proPrice precio del plan Pro ya formateado; '—' mientras no cargó. */
@@ -57,7 +54,7 @@ export const ProComparison = ({ proPrice }: ProComparisonProps) => {
             </tr>
           </thead>
           <tbody>
-            {COMPARISON_ROWS.map(({ feature, free, proText }) => (
+            {COMPARISON_ROWS.map(({ feature, free }) => (
               <tr key={feature} className="pro-comparison__row">
                 <td className="pro-comparison__td pro-comparison__td--feature">{feature}</td>
                 <td className="pro-comparison__td">
@@ -68,11 +65,7 @@ export const ProComparison = ({ proPrice }: ProComparisonProps) => {
                   )}
                 </td>
                 <td className="pro-comparison__td pro-comparison__td--pro-cell">
-                  {proText ? (
-                    <span className="pro-comparison__label">{proText}</span>
-                  ) : (
-                    <Check size={20} className="pro-comparison__check" />
-                  )}
+                  <Check size={20} className="pro-comparison__check" />
                 </td>
               </tr>
             ))}

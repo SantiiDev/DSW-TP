@@ -1,0 +1,95 @@
+// Estilos de ExploreListing.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ─── Listado completo (/albums y /songs) ────────────────────
+//
+// Es a donde llevan los "Ver todos" y las tarjetas de década. Reusa la grilla y
+// las tarjetas de las secciones: lo único propio es la cabecera y el pie con el
+// botón "Ver más".
+.explore-listing {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-height: calc(100vh - #{$navbar-height});
+
+  @media (min-width: $bp-md) {
+    padding: $spacing-xl $spacing-lg;
+  }
+
+  // Las tres líneas del encabezado van centradas, igual que las de la ficha de
+  // un género.
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    text-align: center;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: $color-text;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.6rem;
+    }
+  }
+
+  &__subtitle {
+    margin: 0;
+    max-width: 60ch;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // En escritorio la grilla va fija en cinco columnas. La tanda que trae "Ver
+  // más" es de 25, así que quedan cinco filas exactas y la última nunca deja un
+  // hueco a la derecha (ver PAGE_SIZE en ExploreListing.tsx: los dos números
+  // tienen que seguir siendo múltiplos).
+  .explore-section__grid {
+    @media (min-width: $bp-lg) {
+      // minmax(0, 1fr) y no 1fr a secas: `1fr` es `minmax(auto, 1fr)`, y con esa
+      // base un título largo empuja su columna y las cinco dejan de medir lo
+      // mismo. El 0 las obliga a repartirse el ancho en partes iguales.
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
+  // Pie del listado paginado: cuántos resultados se ven y el botón que trae la
+  // tanda siguiente. Mismo patrón que el "Ver más" de la ficha de género.
+  &__more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+}

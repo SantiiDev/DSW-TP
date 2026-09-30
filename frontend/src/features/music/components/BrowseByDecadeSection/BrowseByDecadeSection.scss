@@ -1,0 +1,91 @@
+// Estilos de BrowseByDecadeSection.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ─── Decade Cards ───────────────────────────────────────────
+.decade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: $spacing-sm;
+
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.decade-card {
+  // Se lee como un botón y no como un bloque de texto: borde con el verde de la
+  // marca, una barra de acento a la izquierda y el conteo en una pastilla. El
+  // fondo y las tipografías siguen siendo los del resto del sitio.
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  background-color: $color-bg-light;
+  border: 1px solid rgba($color-primary, 0.3);
+  border-radius: $radius;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  text-align: left;
+
+  // La barra de acento del borde izquierdo. Va como pseudo-elemento y no como
+  // border-left para que no le coma ancho al contenido ni pelee con el radio.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background-color: rgba($color-primary, 0.55);
+    transition: background-color 0.2s ease;
+  }
+
+  // Solo contraste: el fondo se aclara y se encienden el borde y la barra de
+  // acento. La tarjeta no se levanta.
+  &:hover {
+    background-color: color.adjust($color-bg-light, $lightness: 4%);
+    border-color: $color-primary;
+
+    &::before {
+      background-color: $color-primary;
+    }
+  }
+
+  &__emoji {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__decade {
+    color: $color-text;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  &__years {
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+  }
+
+  // El conteo como pastilla: es el dato que dice si vale la pena entrar, y suelto
+  // en gris se perdía contra el resto del texto.
+  &__count {
+    flex-shrink: 0;
+    padding: 0.25rem 0.6rem;
+    background-color: rgba($color-primary, 0.12);
+    border-radius: $radius;
+    color: $color-primary;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}

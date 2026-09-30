@@ -28,7 +28,7 @@ const FAQ_ITEMS = [
   {
     question: '¿Hay descuento para estudiantes?',
     answer:
-      'Sí, ofrecemos un 50% de descuento para estudiantes verificados. Contactanos a soporte@musicboxd.com con tu certificado estudiantil.',
+      'Por ahora no: el precio de la membresía es el mismo para todos. Si cambia, lo vas a ver reflejado en esta página.',
   },
 ];
 

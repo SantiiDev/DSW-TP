@@ -1,0 +1,120 @@
+// Estilos de ListItemPicker.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Buscador de álbumes (ficha de detalle de una lista) --------------------
+.list-item-picker {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+
+  // El campo de búsqueda. Repite el look de .search-bar__field pero sin su
+  // <form>, que no se puede anidar dentro del formulario de alta de la lista
+  // (ver el encabezado de ListItemPicker).
+  &__field {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  &__icon {
+    position: absolute;
+    left: 0.75rem;
+    color: $color-text-secondary;
+    // Sin esto, hacer click justo sobre la lupa no enfoca el campo.
+    pointer-events: none;
+  }
+
+  &__input {
+    width: 100%;
+    background-color: $color-bg-light;
+    // Con qué color se tapa el fondo del navegador si autocompleta el campo
+    // (ver la regla de :-webkit-autofill en base/_reset.scss).
+    --autofill-bg: #{$color-bg-light};
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    // Los paddings dejan lugar a la lupa de la izquierda y a la cruz de la derecha.
+    padding: 0.6rem 2.4rem 0.6rem 2.4rem;
+    color: $color-text;
+    font: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary;
+    }
+  }
+
+  // Misma cruz que la de cerrar un modal (.form-modal__close): redonda, gris y
+  // blanca al pasar el mouse. Antes acá se veía la cruz nativa del navegador,
+  // que no se puede estilar.
+  &__clear {
+    @include control-centrado;
+    position: absolute;
+    right: 0.5rem;
+    padding: 0.25rem;
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: $color-text;
+    }
+  }
+
+  &__results {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  &__result {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0.5rem;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+  }
+
+  &__result-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__result-title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__result-artist {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+}

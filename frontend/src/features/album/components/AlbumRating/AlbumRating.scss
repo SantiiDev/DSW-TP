@@ -1,0 +1,37 @@
+// Estilos de AlbumRating.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Calificación promedio --------------------------------------------------
+.album-rating-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: $color-text;
+  white-space: nowrap;
+
+  &__star {
+    color: #f5c518;
+    fill: #f5c518;
+  }
+
+  &__max,
+  &__count {
+    color: $color-text-secondary;
+    font-size: 0.82rem;
+  }
+
+  &--lg {
+    font-size: 1.1rem;
+  }
+
+  // Mientras el álbum o la pista no tengan reseñas se muestra un texto gris, no
+  // un "0 / 5", que se leería como una calificación pésima.
+  &--empty {
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+}

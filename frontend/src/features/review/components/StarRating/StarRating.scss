@@ -1,0 +1,50 @@
+// Estilos de StarRating.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+@use '../../styles/tokens' as *;
+
+// --- Estrellas de solo lectura ----------------------------------------------
+//
+// Cada estrella son dos íconos superpuestos: el de contorno abajo y el relleno
+// arriba, recortado con un ancho en porcentaje. Es lo que permite dibujar medias
+// estrellas sin tener un tercer ícono.
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+
+  &__star {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    line-height: 0;
+  }
+
+  &__outline {
+    color: $color-nav-border;
+  }
+
+  // El recorte: overflow hidden sobre un ancho variable deja ver solo la parte
+  // pintada de la estrella de abajo.
+  &__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    line-height: 0;
+  }
+
+  &__solid {
+    color: $star-color;
+    fill: $star-color;
+  }
+
+  &__value {
+    margin-left: $spacing-sm;
+    color: $color-text;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+}

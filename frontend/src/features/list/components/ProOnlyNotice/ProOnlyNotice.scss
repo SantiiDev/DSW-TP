@@ -1,0 +1,56 @@
+// Estilos de ProOnlyNotice.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Aviso "armar listas es de Pro" -----------------------------------------
+//
+// Es la tarjeta de .stats-locked__card de _advanced-stats.scss, pero suelta:
+// acá no hay nada difuminado atrás porque va dentro de un modal, así que no
+// necesita ni el escenario ni el overlay. Los dos beneficios Pro del sitio se
+// anuncian con la misma cara.
+.pro-only {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: $spacing-md $spacing-sm;
+  text-align: center;
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: rgba($color-primary, 0.15);
+    color: $color-primary;
+  }
+
+  &__badge {
+    padding: 2px 8px;
+    border-radius: $radius;
+    background-color: $color-primary;
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: $color-text;
+  }
+
+  &__text {
+    margin: 0;
+    max-width: 38ch;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+  }
+}

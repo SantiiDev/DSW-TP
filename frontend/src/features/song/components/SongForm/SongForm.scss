@@ -1,0 +1,33 @@
+// Estilos de SongForm.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Formulario de alta y edición ------------------------------------------
+// Igual que .album-form: la caja la pone la Card (o el FormModal) que lo envuelve.
+.song-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  // Pista y duración comparten fila desde tablet: los dos son campos numéricos
+  // cortos y ponerlos uno debajo del otro estira el formulario sin necesidad.
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el de confirmación (ConfirmDialog).
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}

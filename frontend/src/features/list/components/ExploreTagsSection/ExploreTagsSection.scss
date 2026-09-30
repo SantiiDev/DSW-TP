@@ -1,0 +1,73 @@
+// Estilos de ExploreTagsSection.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ─── Explore Tags Section ───────────────────────────────────
+.explore-tags {
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+  }
+
+  &__header-icon {
+    color: $color-primary;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+
+    @media (max-width: $bp-md) {
+      font-size: 1.1rem;
+    }
+  }
+
+  &__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}
+
+// ─── Tag Chip/Pill ──────────────────────────────────────────
+.explore-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.45rem 0.9rem;
+  background-color: rgba($color-bg-light, 0.8);
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  color: $color-text;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+
+  &:hover {
+    border-color: rgba($color-primary, 0.5);
+    background-color: rgba($color-primary, 0.08);
+    color: $color-primary;
+  }
+
+  // El filtro de género activo: mismo tratamiento visual que el resto de los
+  // chips "activos" del sitio (ver .genre-filters__mode en _genre.scss).
+  &--active {
+    border-color: $color-primary;
+    background-color: rgba($color-primary, 0.14);
+    color: $color-primary;
+  }
+
+  &__label {
+    line-height: 1;
+  }
+}

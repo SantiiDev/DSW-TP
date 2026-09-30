@@ -1,0 +1,17 @@
+// Tokens de la feature review. Son solo variables: no generan CSS, así que cada
+// componente que los necesita los trae con @use sin duplicar nada.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
+
+// Color de las estrellas. Es el amarillo de una calificación, no el verde de la
+// marca: se usa en las dos versiones (lectura y selección), así que va una vez.
+$star-color: #f5c518;
+
+// --- Tablero ------------------------------------------------------------------
+// La grilla decide sus columnas por el ancho del TABLERO, no de la pantalla: en
+// desktop el tablero comparte la fila con la columna lateral del perfil y queda
+// más angosto que en una tablet, donde ocupa todo el ancho. Con una media query
+// de pantalla, en desktop las tarjetas quedaban tan finas que la dona se salía.
+// Sigue siendo mobile-first: una columna, y dos cuando hay lugar.
+$stats-two-columns: 620px;

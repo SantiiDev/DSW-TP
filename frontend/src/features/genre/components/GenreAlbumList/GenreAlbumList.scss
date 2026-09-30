@@ -1,0 +1,177 @@
+// Estilos de GenreAlbumList.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Calificación promedio --------------------------------------------------
+.album-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  color: $color-text;
+  white-space: nowrap;
+
+  &__star {
+    color: #f5c518;
+    fill: #f5c518;
+  }
+
+  &__max {
+    color: $color-text-secondary;
+    font-size: 0.82rem;
+  }
+
+  // Mientras el álbum no tenga reseñas se muestra un texto gris, no un "0 / 5".
+  &--empty {
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+}
+
+// --- Colección de álbumes: las dos vistas -----------------------------------
+//
+// El JSX es el mismo para lista y grilla (ver GenreAlbumList); lo único que
+// cambia es este CSS.
+.album-collection {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  // Cada álbum es un <li> con el enlace a su ficha adentro. El min-width lo
+  // necesita el <li>, que es el hijo directo de la grilla: sin él, un título
+  // largo estira su columna y las cuatro dejan de medir lo mismo.
+  > li {
+    min-width: 0;
+  }
+
+  // Vista de lista: una fila por álbum, con la carátula chica a la izquierda y
+  // la calificación empujada contra el borde derecho.
+  &--list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    .album-item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      padding: 0.6rem 0.8rem;
+      background-color: $color-bg-light;
+      border: 1px solid $color-nav-border;
+      border-radius: $radius;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.03);
+      }
+
+      &__info {
+        // El margen automático es lo que manda la calificación a la derecha.
+        margin-right: auto;
+        min-width: 0;
+      }
+    }
+  }
+
+  // Vista de grilla: tarjetas con la carátula grande arriba. Mobile-first: dos
+  // columnas en pantalla chica y se van sumando a medida que hay ancho.
+  &--grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .album-item {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+      min-width: 0;
+
+      // Se enciende el título, sin moverse: ningún elemento del sitio se levanta
+      // ni se agranda con el mouse encima.
+      &:hover .album-item__title {
+        color: $color-primary;
+      }
+
+      &__info {
+        min-width: 0;
+      }
+    }
+  }
+}
+
+// Pie del listado: cuántos álbumes se ven y el botón que trae la tanda siguiente.
+// Mismo patrón que el "Ver más" de la tabla de artistas del panel.
+.album-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+
+  @media (min-width: $bp-md) {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+
+  // Los dos botones van juntos, para que el conteo quede solo de un lado.
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+  }
+
+}
+
+.album-item {
+  // Cada álbum de la lista es un enlace a su ficha (/albums/:id), así que hay que
+  // apagarle el celeste y el subrayado que el navegador le pone a un <a>.
+  color: inherit;
+  text-decoration: none;
+
+  &__title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: $color-text;
+    transition: color 0.2s ease;
+    // Los títulos largos se cortan con puntos suspensivos en vez de estirar la
+    // fila o desbordar la tarjeta.
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__artist {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__year {
+    margin: 0.15rem 0 0;
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+  }
+}

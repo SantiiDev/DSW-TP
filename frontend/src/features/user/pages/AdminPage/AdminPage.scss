@@ -1,0 +1,243 @@
+// Estilos de AdminPage.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+.admin-users {
+  // Mismo ancho que el navbar y que el resto de las pantallas (ver el mixin).
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  // El layout de App.tsx envuelve las páginas en un contenedor flex, y un item
+  // de flex arranca con min-width: auto, o sea que no baja del ancho de su
+  // contenido. Sin esto la tabla estira la página entera en mobile en vez de
+  // scrollear dentro de su propio wrapper.
+  min-width: 0;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.75rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+    margin: 0;
+  }
+
+  // --- Formulario de alta -------------------------------------------------
+
+  // El fondo, el borde y el padding los pone el FormModal que lo envuelve: acá
+  // queda solo cómo se apilan los campos y los botones.
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  // Una columna en mobile, dos desde tablet: los cuatro campos del alta entran
+  // cómodos sin estirarse a lo ancho de la pantalla.
+  &__form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  // Los botones son los Button compartidos; lo único propio de esta pantalla es
+  // que no se estiren a lo ancho del formulario.
+  &__form-actions {
+    display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el de confirmación (ConfirmDialog).
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  // --- Listado ------------------------------------------------------------
+
+  // Título del listado y, a la derecha, el botón que abre el alta.
+  &__list-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    // Sin esto la sección no se achica por debajo del ancho de la tabla (los
+    // items de un flex arrancan con min-width: auto), la tabla desborda la
+    // pantalla en mobile y el scroll del wrapper nunca llega a activarse.
+    min-width: 0;
+  }
+
+  &__list-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0;
+  }
+
+  // Cuántas de las cuentas listadas están dadas de baja.
+  &__list-note {
+    padding: 0.15rem 0.6rem;
+    border-radius: $radius;
+    background-color: rgba($color-error, 0.12);
+    color: color.adjust($color-error, $lightness: 10%);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  &__empty {
+    color: $color-text-secondary;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  // El select y la etiqueta de "antes: X" van juntos en la celda de rol.
+  &__role-cell {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  // El desplegable de rol y su resaltado los dibuja el componente Select
+  // (prop `highlighted`), así que acá no queda nada de eso.
+
+  // Fila de una cuenta suspendida: se atenúa para diferenciarla sin ocultarla.
+  // Los controles quedan al 100% para que se puedan seguir usando.
+  &__row--suspended td {
+    opacity: 0.65;
+  }
+
+  // Recuerda el rol guardado, para que se entienda qué se va a reemplazar.
+  &__pending-tag {
+    font-size: 0.72rem;
+    color: $color-text-secondary;
+    white-space: nowrap;
+  }
+
+  // Fila con un cambio pendiente: un fondo tenue la separa del resto.
+  &__row--pending td {
+    background-color: rgba($color-primary, 0.07);
+  }
+
+  // --- Barra de cambios sin guardar ---------------------------------------
+
+  // Queda pegada abajo mientras se recorre un listado largo: el admin puede
+  // cambiar varias filas y el botón de guardar sigue estando a la vista.
+  &__changes-bar {
+    position: sticky;
+    bottom: $spacing-md;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    border: 1px solid rgba($color-primary, 0.45);
+    border-radius: $radius;
+    background-color: $color-bg-light;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__changes-text {
+    margin: 0;
+    font-size: 0.88rem;
+    color: $color-text;
+  }
+
+  &__changes-actions {
+    display: flex;
+    gap: $spacing-sm;
+    // En mobile los dos botones se reparten el ancho en vez de quedar chiquitos.
+    & > * {
+      flex: 1;
+    }
+
+    @media (min-width: $bp-md) {
+      flex: none;
+
+      & > * {
+        flex: none;
+      }
+    }
+  }
+}
+
+// ─── Paneles del panel de administración ────────────────────
+//
+// El bloque de las pestañas "Música" y "Solicitudes". La tarjeta que los envuelve
+// ya pone el marco y la separación entre sus hijos (ver _card.scss): acá va solo
+// lo propio de estos paneles.
+.admin-panel {
+  // Etiqueta + desplegable del filtro de estado. El Select trae sus propios
+  // estilos (core/components/Select.tsx); acá va solo cómo se para al lado de su
+  // etiqueta, igual que el filtro de las tablas del catálogo.
+  &__filter {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: $spacing-sm;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  // Caja del conmutador de entidad. Existe para que el control no se estire a
+  // todo el ancho de la tarjeta: la caja verde se dibuja del tamaño de sus
+  // pastillas y se apoya a la izquierda, igual que en /music.
+  &__switcher {
+    display: flex;
+    justify-content: flex-start;
+
+    // En mobile, en cambio, ocupa el ancho completo y las pastillas se reparten
+    // en partes iguales: con cuatro entidades y el ancho justo del texto quedan
+    // muy chicas para el dedo.
+    @media (max-width: $bp-sm) {
+      // Solo hay que estirarlo: el reparto en partes iguales ya lo hace su
+      // grilla (ver _view-switcher.scss).
+      .view-switcher {
+        width: 100%;
+      }
+
+      .view-switcher__option {
+        padding-left: $spacing-sm;
+        padding-right: $spacing-sm;
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+// Estilos de ListDetailPage.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Ficha pública de una lista ----------------------------------------------
+.list-detail {
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media (min-width: $bp-md) {
+    @include page-container($spacing-lg);
+    padding-top: $spacing-xl;
+    padding-bottom: $spacing-xl;
+  }
+
+  &__state {
+    display: flex;
+    justify-content: center;
+    padding: $spacing-xl 0;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+}

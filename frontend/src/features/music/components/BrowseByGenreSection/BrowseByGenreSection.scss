@@ -1,0 +1,98 @@
+// Estilos de BrowseByGenreSection.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ─── Genre Cards ────────────────────────────────────────────
+// Es flex y no grid a propósito. Los géneros son once y en una grilla nunca
+// llenan la última fila, que quedaba con un hueco a la derecha. Con flex, las
+// tarjetas de esa última fila crecen y se reparten el ancho sobrante, así que la
+// sección siempre cierra pareja.
+.genre-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+
+  // 170px es el ancho al que una tarjeta pasa a la fila siguiente; de ahí para
+  // arriba crece para llenar lo que sobre.
+  > * {
+    flex: 1 1 170px;
+  }
+
+  @media (max-width: $bp-sm) {
+    // Dos por fila: la mitad del ancho menos su parte del hueco.
+    > * {
+      flex: 1 1 calc(50% - #{$spacing-sm} / 2);
+    }
+  }
+}
+
+.genre-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: $spacing-md;
+  border-radius: $radius;
+  min-height: 110px;
+  cursor: pointer;
+  border: none;
+  text-align: left;
+  overflow: hidden;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: $radius;
+    transition: background 0.2s ease;
+  }
+
+  // Solo contraste: se levanta el velo oscuro y la portada de fondo queda a
+  // pleno color. La tarjeta no se mueve.
+  &:hover::before {
+    background: rgba(0, 0, 0, 0);
+  }
+
+  &__name {
+    position: relative;
+    z-index: 1;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  &__count {
+    position: relative;
+    z-index: 1;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 2px;
+  }
+}
+
+// --- Estados de la grilla de "Explorar por Género" --------------------------
+//
+// La grilla en sí (.genre-grid y .genre-card) se estila en music-explore.scss.
+// Acá solo van los estados que aparecieron al conectarla con la API.
+.genre-grid {
+  &__error,
+  &__empty {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border-radius: $radius;
+    font-size: 0.9rem;
+  }
+
+  &__error {
+    background-color: rgba($color-error, 0.12);
+    border: 1px solid rgba($color-error, 0.4);
+    color: $color-error;
+  }
+
+  &__empty {
+    color: $color-text-secondary;
+  }
+}

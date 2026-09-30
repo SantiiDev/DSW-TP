@@ -4,7 +4,7 @@
 // (como el modal de autenticación) y maneja el restablecimiento del scroll al cambiar de ruta.
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
-import { Home } from '../features/home/Home';
+import { Home } from '../features/home/pages/Home';
 import { MusicExplorePage } from '../features/music/pages/MusicExplorePage';
 import { GenreDetailPage } from '../features/genre/pages/GenreDetailPage';
 import { AlbumDetailPage } from '../features/album/pages/AlbumDetailPage';

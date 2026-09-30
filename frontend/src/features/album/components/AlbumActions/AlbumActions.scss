@@ -1,0 +1,33 @@
+// Estilos de AlbumActions.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Panel de acciones (columna lateral) ------------------------------------
+.album-actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  min-width: 0;
+
+  // Aviso de "enlace copiado". Aparece debajo de los botones y se va solo a los
+  // pocos segundos (ver AlbumActions.tsx).
+  &__notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: $color-primary;
+
+    &--error {
+      color: $color-error;
+    }
+  }
+}
