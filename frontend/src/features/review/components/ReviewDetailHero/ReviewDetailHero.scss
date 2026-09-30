@@ -1,0 +1,152 @@
+// Estilos de ReviewDetailHero.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Cabecera con la portada de fondo ---
+//
+// El truco es el mismo de cualquier ficha de disco: la portada, agrandada y
+// difuminada, hace de telón, y encima va un degradado hacia el fondo de la
+// página para que el texto se lea y el borde de abajo no se note.
+//
+// La cabecera ocupa TODO el ancho de la pantalla, así que no vive adentro del
+// contenedor de la página: lo aplica su contenido. No se usa el truco de
+// márgenes negativos con 100vw porque en Windows el ancho de la barra de
+// scroll entra en esa medida y deja la página con scroll horizontal, y taparlo
+// con overflow-x rompería el sticky de la columna lateral.
+.review-hero {
+  position: relative;
+  width: 100%;
+  padding-block: $spacing-lg;
+  // El espacio de más arriba es para el botón "Volver", que va flotando sobre
+  // la cabecera (ver .review-detail__topbar). Mismas medidas que .album-hero.
+  padding-top: calc(#{$spacing-lg} + 2.5rem);
+  // Recorta el desenfoque del fondo, que se pasa de los bordes.
+  overflow: hidden;
+
+  @media (min-width: $bp-md) {
+    padding-block: $spacing-xl;
+    padding-top: calc(#{$spacing-xl} + 1.5rem);
+  }
+
+  // Velo oscuro sobre el fondo: la portada puede ser clarísima y sin esto el
+  // texto quedaría ilegible. Va acá y NO adentro del backdrop, que está al 45%
+  // de opacidad: metido ahí, el degradado se aguaba con la imagen y el borde
+  // de abajo no llegaba nunca al color de la página, así que se veía el corte
+  // entre la cabecera y el cuerpo. Es el mismo criterio que en .album-hero.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba($color-bg, 0.5) 0%,
+      rgba($color-bg, 0.75) 60%,
+      $color-bg 100%
+    );
+  }
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: cover;
+    // El desenfoque agranda los bordes: el scale evita que se vea el marco
+    // transparente que deja el blur alrededor.
+    filter: blur(28px) saturate(1.2);
+    transform: scale(1.15);
+    opacity: 0.45;
+  }
+
+  &__content {
+    @include page-container;
+    // Por encima de las dos capas de fondo (la portada desenfocada y el velo),
+    // que son position absolute sin z-index.
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+
+    // Desde tablet la carátula y los datos comparten fila, con el texto apoyado
+    // abajo, como en la ficha del álbum.
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: flex-end;
+      gap: $spacing-lg;
+    }
+  }
+
+  // Caja de ancho fijo para la carátula. Hace falta porque la versión grande del
+  // componente compartido es `width: 100%`: está pensada para una celda de
+  // grilla, y suelta en esta fila se comía el ancho entero y dejaba el título
+  // partido en una columna de una letra.
+  &__cover {
+    width: 140px;
+    flex-shrink: 0;
+    border-radius: $radius;
+    // La sombra es lo que despega la portada del telón de fondo.
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+
+    @media (min-width: $bp-md) {
+      width: 220px;
+    }
+  }
+
+  &__info {
+    // Se queda con el resto de la fila. El min-width deja que el texto se
+    // encoja: sin él, un título largo no baja del ancho de su palabra más larga.
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__link {
+    text-decoration: none;
+
+    &:hover .review-hero__title {
+      color: $color-primary;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    color: $color-text;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+    transition: color 0.2s ease;
+
+    @media (min-width: $bp-md) {
+      font-size: 3rem;
+    }
+  }
+
+  // "Álbum" o "Canción · Pista 5". Los puntos que separan los datos los pone el
+  // CSS, así el JSX no tiene que intercalar separadores a mano.
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm;
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+
+    span + span::before {
+      content: '•';
+      margin-right: $spacing-sm;
+    }
+  }
+
+  &__subtitle {
+    margin: 0;
+    color: $color-text;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}

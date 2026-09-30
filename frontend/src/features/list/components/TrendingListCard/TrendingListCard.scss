@@ -1,0 +1,195 @@
+// Estilos de TrendingListCard.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ─── Trending List Card ─────────────────────────────────────
+//
+// La tarjeta del feed lleva el degradado verde difuminado del sitio: es LA
+// lista, la unidad de contenido de esta pantalla, y el verde es lo que la separa
+// de un vistazo del fondo y de las tarjetas de reseña de /reviews.
+//
+// Es el mismo degradado del bloque "Tu año en música" de la pestaña de
+// estadísticas (ver .advanced-stats en _advanced-stats.scss): arranca verde
+// arriba a la izquierda y se apaga hacia el fondo de tarjeta de siempre. Al ser
+// oscuro, el texto sigue yendo claro.
+.trending-list-card {
+  display: block;
+  background: linear-gradient(
+    135deg,
+    rgba($color-primary, 0.28) 0%,
+    rgba($color-primary, 0.08) 45%,
+    $color-bg-light 100%
+  );
+  border: 1px solid rgba($color-primary, 0.35);
+  border-radius: $radius;
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+
+  // El enlace cubre el collage y el cuerpo, no la tarjeta entera: al pie está el
+  // botón de compartir, y un <button> adentro de un <a> es HTML inválido (ver el
+  // encabezado de TrendingListCard). El puntero de mano va acá y no en la
+  // tarjeta, para que el pie no parezca clickeable.
+  &__link {
+    display: block;
+    cursor: pointer;
+  }
+
+  // Solo contraste: se enciende el borde. La tarjeta no se levanta ni proyecta
+  // sombra, igual que el resto del sitio.
+  &:hover {
+    border-color: $color-primary;
+  }
+
+  // Franja con el color de acento de quien la armó, si es Pro (ver el mixin).
+  @include user-accent-stripe;
+
+  // Si el autor es Pro, el degradé y el borde toman su color en vez del verde:
+  // así la tarjeta entera es de un solo color, el mismo de su franja y su badge.
+  // Mismas opacidades que el verde de arriba, para que ningún color pese más.
+  @each $name, $accent in $profile-accents {
+    &--accent-#{$name} {
+      background: linear-gradient(
+        135deg,
+        rgba($accent, 0.28) 0%,
+        rgba($accent, 0.08) 45%,
+        $color-bg-light 100%
+      );
+      border-color: rgba($accent, 0.35);
+
+      &:hover {
+        border-color: $accent;
+      }
+    }
+  }
+
+  // Collage de portadas: 5 imágenes en fila
+  &__collage {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    aspect-ratio: 5 / 1.2;
+    overflow: hidden;
+  }
+
+  &__collage-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    // Se ve mientras la portada carga.
+    background-color: #222;
+
+    // Slot vacío: una lista con menos de cinco álbumes no manda portada para
+    // esa posición. Queda como un hueco oscuro, sin la imagen rota del
+    // navegador ni un espacio en blanco.
+    &--empty {
+      background-color: #1a1a1a;
+    }
+  }
+
+  // Cuerpo
+  &__body {
+    padding: $spacing-md;
+  }
+
+  &__title {
+    color: $color-text;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0 0 $spacing-sm;
+    transition: color 0.2s ease;
+
+    .trending-list-card:hover & {
+      color: $color-primary;
+    }
+  }
+
+  // Info del autor
+  &__author {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-sm;
+  }
+
+  &__username {
+    color: $color-text-secondary;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+
+  &__description {
+    color: $color-text-secondary;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  // Footer: los datos a la izquierda y el botón de compartir a la derecha.
+  //
+  // Quedó FUERA del cuerpo (antes era un hijo más de __body), así que ya no
+  // hereda su padding: se lo pone él. El separador de arriba y el aire con la
+  // descripción quedan igual que antes, porque __body sigue cerrando con su
+  // propio padding inferior.
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md $spacing-md;
+    border-top: 1px solid rgba($color-nav-border, 0.5);
+  }
+
+  &__stats {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: $color-text-secondary;
+    font-size: 0.78rem;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  // Compartir: mismo peso visual que los datos de al lado (no compite con el
+  // resto de la tarjeta) y se enciende en verde al pasar por encima, como el
+  // resto del sitio.
+  &__share {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    // margin-left: auto lo mantiene a la derecha aun si los datos se van a dos
+    // líneas en pantallas chicas y el space-between deja de alcanzar.
+    margin-left: auto;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid transparent;
+    border-radius: $radius;
+    background-color: transparent;
+    color: $color-text-secondary;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+      border-color: rgba($color-primary, 0.45);
+      background-color: rgba($color-primary, 0.1);
+    }
+  }
+}

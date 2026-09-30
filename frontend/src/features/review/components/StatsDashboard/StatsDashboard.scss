@@ -1,0 +1,91 @@
+// Estilos de StatsDashboard.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../styles/tokens' as *;
+
+// El contenedor que se mide es un envoltorio y no el propio tablero: una
+// container query solo aplica a los descendientes, así que el tablero no podría
+// cambiar sus propias columnas midiéndose a sí mismo.
+.stats-dashboard-container {
+  container-type: inline-size;
+}
+
+.stats-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: $spacing-md;
+
+  @container (min-width: #{$stats-two-columns}) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  // Cada bloque sube apenas al aparecer, escalonado, como las tarjetas de un resumen.
+  > * {
+    animation: stats-rise 0.5s ease both;
+
+    @for $i from 1 through 7 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{($i - 1) * 70}ms;
+      }
+    }
+  }
+}
+
+.stats-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: $spacing-md;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+
+  @media (min-width: $bp-sm) {
+    padding: 1.5rem;
+  }
+
+  &--wide {
+    @container (min-width: #{$stats-two-columns}) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__subtitle {
+    margin: 0 0 $spacing-md;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+
+    strong {
+      color: $color-text;
+    }
+  }
+
+  // Si no hay subtítulo, el contenido necesita su propio aire debajo del título.
+  &__title + :not(.stats-card__subtitle) {
+    margin-top: $spacing-md;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+}
+
+@keyframes stats-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

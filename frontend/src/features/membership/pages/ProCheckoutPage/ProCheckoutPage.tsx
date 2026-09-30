@@ -41,7 +41,7 @@ const INCLUDED = [
   { icon: Sparkles, label: 'Navegación sin anuncios' },
   { icon: BarChart3, label: 'Estadísticas avanzadas de tu año en música' },
   { icon: Palette, label: 'Personalización del perfil' },
-  { icon: ListMusic, label: 'Listas ilimitadas' },
+  { icon: ListMusic, label: 'Armar tus propias listas de álbumes y canciones' },
   { icon: ShieldCheck, label: 'Aportar artistas, álbumes y canciones al catálogo' },
 ];
 

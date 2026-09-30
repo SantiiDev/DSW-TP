@@ -1,0 +1,18 @@
+// Estilos de ReviewFeed.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Feed social (/reviews) --------------------------------------------------
+.review-feed {
+  transition: opacity 0.2s ease;
+
+  // Mientras se trae el otro modo del toggle, las reseñas de antes siguen en su
+  // lugar apenas atenuadas: el alto de la columna no cambia y el cambio se lee
+  // como una transición y no como un salto. El bloqueo evita que en ese rato se
+  // le dé "me gusta" a una reseña que está por desaparecer de la lista.
+  &--switching {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+}

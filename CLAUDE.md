@@ -97,8 +97,11 @@ core/components/SegmentedControl/
   (`abstracts` y `base`): si un componente también se importa ahí, su CSS sale duplicado.
 - Variables que comparten varios componentes de una feature van en un parcial de tokens
   (`features/<feature>/styles/_tokens.scss`), que no genera CSS.
-- Ya migrados: `core/components` y la feature `membership`. Las demás features se migran con el
-  mismo patrón, cada una por su dueño.
+- Si un componente usa un bloque BEM que es de otro (por ejemplo `.profile-panel`, que es de
+  `ProfileTabContent`), importa el `.scss` de ese otro componente: Vite lo carga una sola vez.
+  La única hoja compartida sin dueño es `features/home/styles/static-pages.scss` (las cuatro
+  páginas estáticas).
+- Todo `core/components` y todas las features ya están migrados.
 
 ### Backend
 

@@ -17,6 +17,7 @@ import { useAuth } from '../../../../core/context/AuthContext';
 import { useFetch } from '../../../../core/hooks/useFetch';
 import { membershipService } from '../../services/membershipService';
 import './MembershipPanel.scss';
+import '../../../user/components/ProfileTabContent/ProfileTabContent.scss';
 
 /** Formatea una fecha como "12 de agosto de 2026". */
 function formatDate(date: Date): string {

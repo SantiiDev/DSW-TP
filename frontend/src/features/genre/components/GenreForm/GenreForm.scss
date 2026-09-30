@@ -1,0 +1,22 @@
+// Estilos de GenreForm.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Formulario de alta y edición ------------------------------------------
+// Igual que .artist-form: la caja la pone la Card que lo envuelve.
+.genre-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__actions {
+    display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el de confirmación (ConfirmDialog).
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+}

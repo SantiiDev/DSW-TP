@@ -123,12 +123,16 @@ anterior, que es lo que pide la cátedra.
 
 Cosas que funcionan pero no están como deberían, ordenadas por prioridad:
 
-1. **Los beneficios Pro no se cumplen todos.** Las estadísticas, armar listas,
-   la personalización de perfil (banner, color de acento y badge Pro) y la
-   navegación sin anuncios dependen del rol. Pero la tabla comparativa de `/pro`
-   (`ProComparison.tsx`) todavía ofrece cosas sin implementar: "Largo ilimitado
-   en reseñas", "Acceso anticipado a funciones", "Soporte prioritario" y "Listas
-   (máx. 10)" para Free, cuando un `FREE` no puede crear listas.
+1. ~~**Los beneficios Pro no se cumplen todos.**~~ **Resuelto (30/09, rama
+   `refactor/tech-debt`).** La tabla comparativa de `/pro` (`ProComparison.tsx`)
+   ofrecía cosas sin implementar: "Largo ilimitado en reseñas", "Acceso
+   anticipado a funciones", "Soporte prioritario" y "Listas (máx. 10)" para
+   Free, cuando un `FREE` no puede crear listas. Ahora lista solo lo que existe.
+   Se corrigieron también las mismas promesas en `ProBenefits`, `ProSalesView`,
+   `ProCheckoutPage` y `ProMemberView` ("Listas ilimitadas", "Hasta 10 listas",
+   "Soporte prioritario"), y en las preguntas frecuentes: el botón "Reportar"
+   que no existe, el descuento para estudiantes y la escala de "1 a 5" estrellas
+   (es de media a cinco, de a media estrella).
 
    > La personalización de perfil se resolvió el 28/09 en la rama
    > `feature/profile-customization` (ver "Alcance adicional voluntario").

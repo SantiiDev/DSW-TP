@@ -1,0 +1,195 @@
+// Estilos de AdModal.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
+// Paleta CLARA, solo para el anuncio.
+//
+// Es la única superficie blanca del sitio: todo Musicboxd es oscuro, y que el
+// aviso venga en blanco es justamente lo que lo hace leer como algo de afuera y
+// no como una sección más de la página. Refuerza lo mismo que dice la etiqueta
+// "Publicidad".
+//
+// Los colores se definen acá y no en abstracts/_variable.scss porque no los usa
+// nadie más: la paleta global es la del tema oscuro, y meter estos ahí daría a
+// entender que cualquier componente puede ponerse blanco.
+$ad-surface: #f5f5f5;
+
+// fondo del panel
+$ad-border: #dcdcdc;
+
+// borde y línea divisoria del pie
+$ad-placeholder: #e4e4e4;
+
+// fondo del marco mientras la imagen carga
+$ad-text: #141414;
+
+// título
+$ad-text-soft: #5b5b5b;
+
+// descripción
+$ad-tag: #6e6e6e;
+
+// la palabra "Publicidad"
+// Verde de la marca oscurecido para que se lea sobre el blanco: el $color-primary
+// original (#1ED760) sobre este fondo queda en un contraste de 1.9:1, ilegible.
+$ad-accent: #0b6e2f;
+
+// Capa que ubica el panel en su esquina. Ocupa la pantalla entera solo para eso:
+// no se pinta y no recibe clicks, así que la página de abajo se sigue usando con
+// normalidad. Es lo que hace que el anuncio no bloquee.
+.ad-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  // La escala del sitio es: navbar 100, desplegables 200, modales 1100, panel del
+  // Select 1200. El anuncio va arriba de todo para que no quede escondido detrás
+  // de nada; como no bloquea, taparle una punta a un modal abierto no impide
+  // seguir usándolo.
+  z-index: 1300;
+  display: flex;
+  // Mobile: el panel se apoya abajo, que es donde llega el pulgar.
+  align-items: flex-end;
+  justify-content: center;
+  padding: $spacing-md;
+
+  // A partir de tablet se despega al costado derecho y se centra en vertical.
+  @media (min-width: $bp-md) {
+    align-items: center;
+    justify-content: flex-end;
+    padding: $spacing-lg;
+  }
+}
+
+.ad {
+  // El panel SÍ recibe clicks, al revés de la capa que lo contiene: es lo único
+  // de la capa con lo que se puede interactuar.
+  pointer-events: auto;
+  width: 100%;
+  // Mobile: ocupa el ancho disponible. En pantallas grandes es una columna
+  // angosta, del ancho de un afiche.
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: $spacing-md;
+  background-color: $ad-surface;
+  border: 1px solid $ad-border;
+  border-radius: $radius;
+  // Sombra marcada: sin el velo detrás, es lo único que despega el anuncio del
+  // contenido y deja claro que está flotando por encima y no incrustado. Sigue
+  // siendo negra aunque el panel sea claro, porque lo que hay abajo es oscuro.
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  animation: ad-panel-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+
+  @media (min-width: $bp-md) {
+    width: clamp(320px, 30vw, 420px);
+  }
+
+  // "Publicidad", arriba de todo. Chica y gris a propósito: tiene que dejar claro
+  // que el aviso no es contenido de Musicboxd, sin competir con el anuncio.
+  &__tag {
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: $ad-tag;
+  }
+
+  // La imagen es la protagonista: un afiche vertical que se lee de un vistazo.
+  // El alto sale del aspect-ratio y no de un valor fijo, así la caja no se
+  // deforma con imágenes de distinto tamaño.
+  &__image-frame {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: $radius;
+    // Gris claro y no el negro del sitio: es lo que se ve el instante que la
+    // imagen tarda en cargar, y un rectángulo negro sobre el panel blanco se
+    // leería como un error.
+    background-color: $ad-placeholder;
+  }
+
+  &__link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    // cover y no contain: el afiche llena el marco aunque la imagen no venga
+    // exactamente en 3:4, que es lo más probable.
+    object-fit: cover;
+    display: block;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $ad-text;
+    line-height: 1.3;
+  }
+
+  &__description {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: $ad-text-soft;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $ad-border;
+  }
+
+  // El enganche a /pro. Va discreto: es una salida, no la acción principal del
+  // panel, que es saltar el anuncio.
+  &__remove {
+    font-size: 0.8rem;
+    color: $ad-text-soft;
+    text-decoration: none;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $ad-accent;
+      text-decoration: underline;
+    }
+  }
+}
+
+// El anuncio entra desde el borde derecho, que es de donde viene el panel. Es un
+// keyframe propio y no uno de base/_animations.scss porque esos dos los comparten
+// el diálogo de confirmación y el de formulario, que suben desde abajo.
+@keyframes ad-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

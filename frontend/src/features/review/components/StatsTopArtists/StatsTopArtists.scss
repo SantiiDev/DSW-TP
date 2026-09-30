@@ -1,0 +1,83 @@
+// Estilos de StatsTopArtists.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
+// --- Ranking de artistas ------------------------------------------------------
+.stats-rank {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  &__position {
+    flex-shrink: 0;
+    width: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-align: center;
+    color: $color-text-secondary;
+  }
+
+  &__item:first-child &__position {
+    color: $color-primary;
+  }
+
+  // Un artista va en círculo, para distinguirlo a simple vista de un álbum.
+  &__cover .album-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  &__cover .album-cover__initial {
+    font-size: 1.1rem;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__meta {
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+  }
+
+  &__track {
+    display: block;
+    height: 4px;
+    margin-top: 3px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+  }
+
+  &__fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background-color: $color-primary;
+    transform-origin: left center;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}

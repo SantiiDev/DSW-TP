@@ -1,0 +1,43 @@
+// Estilos de ExploreSectionShell.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ─── Shared Section Layout ──────────────────────────────────
+.explore-section {
+  margin-top: $spacing-xl;
+
+  // ── Grid Layout ────────────────────
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: $spacing-md;
+
+    @media (max-width: $bp-sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+  }
+
+  // ── List Layout ────────────────────
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background-color: rgba($color-bg-light, 0.5);
+    border-radius: $radius;
+    overflow: hidden;
+  }
+}
+
+// ─── Estado vacío de una sección ────────────────────────────
+//
+// Cuando la consulta salió bien pero el catálogo no tiene nada que mostrar en ese
+// criterio. Es una línea de texto y no un EmptyState entero: adentro de una
+// sección del explorador, la caja grande rompe el ritmo de la página.
+.explore-section__empty {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: 0.9rem;
+}

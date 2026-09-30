@@ -1,0 +1,46 @@
+// Estilos de PickedItemsList.
+@use '../../../../styles/abstracts/variable' as *;
+
+.picked-items {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  // Con muchos álbumes elegidos el bloque scrollea solo, para que el botón de
+  // guardar no quede fuera del modal.
+  max-height: 13rem;
+  overflow-y: auto;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0.4rem 0.5rem;
+    background-color: rgba($color-primary, 0.1);
+    border: 1px solid rgba($color-primary, 0.35);
+    border-radius: $radius;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__artist {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

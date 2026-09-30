@@ -1,0 +1,45 @@
+// Estilos de AdvancedStatsPanel.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
+// --- Contenedor de la pestaña -------------------------------------------------
+.stats-panel {
+  // En mobile el panel del perfil tiene 2rem de padding: con los gráficos adentro
+  // se come demasiado ancho, así que acá se achica. Va con las dos clases para
+  // ganarle a .profile-panel sin depender del orden en que se cargan las hojas.
+  &.profile-panel {
+    padding: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      padding: $spacing-lg;
+    }
+  }
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+  }
+
+  &__title {
+    margin-bottom: 0.25rem;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__content--refreshing {
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+}

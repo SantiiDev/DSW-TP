@@ -1,0 +1,50 @@
+// Estilos de AlbumSectionNav.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Barra de secciones -----------------------------------------------------
+//
+// Queda pegada abajo del navbar, así que su alto entra en el scroll-margin-top
+// de las secciones y en el TOP_OFFSET de AlbumSectionNav.tsx: si se cambia el
+// padding de las pestañas, hay que revisar esos dos valores.
+.album-nav {
+  position: sticky;
+  // Justo abajo del navbar, que es sticky en top: 0 con este mismo alto.
+  top: $navbar-height;
+  // Menos que el navbar (100) y que el menú de usuario (200): esta barra pasa
+  // por debajo de los dos.
+  z-index: 50;
+  background-color: rgba($color-bg, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid $color-nav-border;
+
+  // Misma caja que el cuerpo de la ficha, para que las pestañas arranquen
+  // alineadas con el contenido. Se le descuenta el padding lateral que ya trae
+  // cada pestaña de Tabs: si no, el texto quedaría corrido a la derecha.
+  &__inner {
+    width: 100%;
+    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
+    margin: 0 auto;
+    padding: 0;
+
+    @media (min-width: $bp-md) {
+      max-width: calc(#{$content-width} + #{$spacing-lg} * 2);
+      padding: 0 calc(#{$spacing-lg} - #{$spacing-md});
+    }
+  }
+
+  // Las pestañas son las de core/components/Tabs. Acá solo se ajusta lo que
+  // cambia en la ficha: la línea de abajo ya la pone .album-nav a todo el ancho,
+  // y la pestaña activa va en verde, como estaba antes esta barra.
+  .tabs {
+    border-bottom: none;
+  }
+
+  // Con :hover incluido: si no, pasar el mouse por la activa la volvía blanca
+  // según el orden en que se cargaran las dos hojas.
+  .tabs__tab--active,
+  .tabs__tab--active:hover {
+    color: $color-primary;
+  }
+}

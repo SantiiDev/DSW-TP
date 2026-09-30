@@ -22,14 +22,14 @@
 //   <Select options={albumes} value={id} onChange={setId} searchable />
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, ChevronDown, Search } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { useFloatingPanel } from '../../hooks/useFloatingPanel';
+import { normalizeText } from '../../utils/normalizeText';
+import { SelectPanel } from './SelectPanel';
+import type { SelectOption } from './SelectPanel';
 import './Select.scss';
 
-/** Una opción del desplegable: el valor que viaja y el texto que se muestra. */
-export type SelectOption<T extends string | number> = {
-  value: T;
-  label: string;
-};
+export type { SelectOption };
 
 type SelectProps<T extends string | number> = {
   options: SelectOption<T>[];
@@ -68,61 +68,6 @@ type SelectProps<T extends string | number> = {
   className?: string;
 };
 
-// Alto máximo del panel (la lista más, si lo hay, el buscador). Se usa para
-// decidir si abrirlo hacia abajo o hacia arriba según el espacio que quede en
-// pantalla, así que alcanza con que sea una estimación del alto real.
-const MAX_PANEL_HEIGHT = 300;
-
-// Separación entre el botón y el panel.
-const PANEL_GAP = 4;
-
-// Ancho máximo del panel (tiene que coincidir con el max-width del CSS). Se usa
-// para que, cuando el panel crece más que el botón, no se salga de la pantalla.
-const MAX_PANEL_WIDTH = 320;
-
-// Aire mínimo contra el borde de la ventana.
-const VIEWPORT_MARGIN = 8;
-
-/**
- * Posición del panel en la ventana.
- *
- * Es `position: fixed` y va montado en el <body> con un portal, no dentro del
- * componente. Si fuera un hijo con position:absolute, cualquier contenedor con
- * overflow (por ejemplo el wrapper con scroll de la tabla de usuarios) le
- * recortaría el panel al abrirlo.
- */
-type PanelPosition = {
-  left: number;
-  /**
-   * El panel arranca del ancho del botón, pero crece si alguna opción no entra:
-   * las opciones tienen que poder leerse enteras aunque el botón sea angosto.
-   * El techo lo pone MAX_PANEL_WIDTH.
-   */
-  minWidth: number;
-  /** Se usa uno u otro según hacia dónde se abra. */
-  top?: number;
-  bottom?: number;
-};
-
-/**
- * Normaliza un texto para poder buscarlo: minúsculas y sin acentos, así "Bailá"
- * se encuentra escribiendo "baila".
- *
- * NFD separa cada letra acentuada en letra + acento aparte ("á" pasa a ser "a" +
- * tilde), y el filtro siguiente borra ese acento suelto.
- */
-function normalize(text: string): string {
-  return (
-    text
-      .toLowerCase()
-      .normalize('NFD')
-      // \p{Diacritic} son justamente esos acentos sueltos. Se usa la clase
-      // Unicode y no el rango de caracteres literales, que en el editor se ven
-      // como espacios y cualquiera los borraría sin querer.
-      .replace(/\p{Diacritic}/gu, '')
-  );
-}
-
 export function Select<T extends string | number>({
   options,
   value,
@@ -142,7 +87,6 @@ export function Select<T extends string | number>({
   // Opción marcada con el teclado. Es distinta de la elegida: recorrer la lista
   // con las flechas no cambia el valor hasta apretar Enter.
   const [highlightedIndex, setHighlightedIndex] = useState(0);
-  const [position, setPosition] = useState<PanelPosition | null>(null);
   // Lo que se escribió en el buscador. Se vacía cada vez que se abre el panel:
   // el filtro de la vez anterior no tiene por qué seguir aplicado.
   const [query, setQuery] = useState('');
@@ -156,6 +100,7 @@ export function Select<T extends string | number>({
   // Ids únicos por instancia: puede haber varios Select en la misma pantalla
   // (la tabla de usuarios dibuja uno por fila).
   const listId = useId();
+  const { position, updatePosition } = useFloatingPanel(triggerRef, isOpen);
 
   const selectedOption = options.find((option) => option.value === value);
   const selectedLabel = selectedOption ? selectedOption.label : placeholder;
@@ -166,33 +111,9 @@ export function Select<T extends string | number>({
   const visibleOptions = useMemo(() => {
     if (!searchable || query.trim() === '') return options;
 
-    const term = normalize(query.trim());
-    return options.filter((option) => normalize(option.label).includes(term));
+    const term = normalizeText(query.trim());
+    return options.filter((option) => normalizeText(option.label).includes(term));
   }, [options, query, searchable]);
-
-  /** Calcula dónde dibujar el panel a partir de la posición del botón en pantalla. */
-  const updatePosition = () => {
-    const trigger = triggerRef.current;
-    if (!trigger) return;
-
-    const rect = trigger.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - rect.bottom;
-    // Si abajo no entra pero arriba sí, se abre hacia arriba (típico de las
-    // últimas filas de una tabla larga).
-    const opensUpwards = spaceBelow < MAX_PANEL_HEIGHT && rect.top > spaceBelow;
-
-    // El panel puede terminar más ancho que el botón, así que se corre a la
-    // izquierda si con ese ancho llegaría a pasarse del borde de la ventana.
-    const maxLeft = window.innerWidth - MAX_PANEL_WIDTH - VIEWPORT_MARGIN;
-
-    setPosition({
-      left: Math.max(VIEWPORT_MARGIN, Math.min(rect.left, maxLeft)),
-      minWidth: rect.width,
-      ...(opensUpwards
-        ? { bottom: window.innerHeight - rect.top + PANEL_GAP }
-        : { top: rect.bottom + PANEL_GAP }),
-    });
-  };
 
   const openPanel = () => {
     if (disabled) return;
@@ -227,22 +148,6 @@ export function Select<T extends string | number>({
 
     document.addEventListener('mousedown', handlePointerDown);
     return () => document.removeEventListener('mousedown', handlePointerDown);
-  }, [isOpen]);
-
-  // El panel está en el <body> con position: fixed, así que no acompaña solo al
-  // botón cuando la página (o la tabla) scrollea: hay que recalcularlo.
-  // El `true` es la fase de captura, para enterarse también del scroll de los
-  // contenedores internos, que no burbujea.
-  useEffect(() => {
-    if (!isOpen) return;
-
-    window.addEventListener('scroll', updatePosition, true);
-    window.addEventListener('resize', updatePosition);
-
-    return () => {
-      window.removeEventListener('scroll', updatePosition, true);
-      window.removeEventListener('resize', updatePosition);
-    };
   }, [isOpen]);
 
   // Con buscador, el foco pasa al campo apenas se abre: se puede escribir sin
@@ -376,69 +281,28 @@ export function Select<T extends string | number>({
       {isOpen &&
         position &&
         createPortal(
-          <div ref={panelRef} className="select__panel" style={position}>
-            {searchable && (
-              <div className="select__search">
-                <Search className="select__search-icon" size={15} aria-hidden="true" />
-                <input
-                  ref={searchRef}
-                  type="text"
-                  className="select__search-input"
-                  placeholder={searchPlaceholder}
-                  aria-label={searchPlaceholder}
-                  aria-controls={listId}
-                  aria-activedescendant={`${listId}-option-${highlightedIndex}`}
-                  value={query}
-                  onChange={(e) => {
-                    setQuery(e.target.value);
-                    // El filtro cambia la lista entera: la marca vuelve al primer
-                    // resultado, que si no quedaría apuntando a cualquier lado.
-                    setHighlightedIndex(0);
-                  }}
-                  onKeyDown={handleSearchKeyDown}
-                />
-              </div>
-            )}
-
-            <ul id={listId} ref={listRef} className="select__list" role="listbox">
-              {visibleOptions.map((option, index) => {
-                const isSelected = option.value === value;
-                const isHighlighted = index === highlightedIndex;
-
-                return (
-                  <li
-                    key={option.value}
-                    id={`${listId}-option-${index}`}
-                    className={[
-                      'select__option',
-                      isHighlighted ? 'select__option--highlighted' : '',
-                      isSelected ? 'select__option--selected' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    role="option"
-                    aria-selected={isSelected}
-                    // El click se resuelve en mousedown y no en click: el listener
-                    // que cierra al hacer click afuera también corre en mousedown.
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      handleSelect(option);
-                    }}
-                    onMouseEnter={() => setHighlightedIndex(index)}
-                  >
-                    <span className="select__option-label">{option.label}</span>
-                    {isSelected && <Check size={14} aria-hidden="true" />}
-                  </li>
-                );
-              })}
-
-              {/* Con el buscador vacío esto no puede pasar: solo aparece cuando lo
-                  que se escribió no coincide con ninguna opción. */}
-              {visibleOptions.length === 0 && (
-                <li className="select__empty">No hay resultados para "{query.trim()}".</li>
-              )}
-            </ul>
-          </div>,
+          <SelectPanel
+            listId={listId}
+            panelRef={panelRef}
+            listRef={listRef}
+            searchRef={searchRef}
+            style={position}
+            options={visibleOptions}
+            value={value}
+            highlightedIndex={highlightedIndex}
+            searchable={searchable}
+            searchPlaceholder={searchPlaceholder}
+            query={query}
+            onQueryChange={(nextQuery) => {
+              setQuery(nextQuery);
+              // El filtro cambia la lista entera: la marca vuelve al primer
+              // resultado, que si no quedaría apuntando a cualquier lado.
+              setHighlightedIndex(0);
+            }}
+            onSearchKeyDown={handleSearchKeyDown}
+            onHighlight={setHighlightedIndex}
+            onSelect={handleSelect}
+          />,
           document.body
         )}
     </div>

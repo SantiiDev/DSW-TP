@@ -1,0 +1,17 @@
+// Estilos de AdForm.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
+.ad-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__actions {
+    display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el resto de los formularios del sitio.
+    justify-content: flex-end;
+    gap: $spacing-sm;
+  }
+}

@@ -1,0 +1,119 @@
+// Estilos de StatsHero.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../styles/tokens' as *;
+
+// --- Portada: "Tu año en música" ----------------------------------------------
+.stats-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: 1.5rem $spacing-md;
+  overflow: hidden;
+  border: 1px solid rgba($color-primary, 0.35);
+  border-radius: $radius;
+  // Mismo degradado verde que la promo Pro del perfil, un poco más intenso: es el
+  // bloque protagonista de la pestaña.
+  background: linear-gradient(135deg, rgba($color-primary, 0.28) 0%, rgba($color-primary, 0.08) 45%, $color-bg-light 100%);
+
+  @media (min-width: $bp-sm) {
+    padding: $spacing-lg;
+  }
+
+  @container (min-width: #{$stats-two-columns}) {
+    grid-column: 1 / -1;
+  }
+
+  // Disco decorativo que asoma por la esquina, como en las tarjetas de un resumen anual.
+  &::after {
+    content: '';
+    position: absolute;
+    top: -70px;
+    right: -70px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, rgba(255, 255, 255, 0.05) 0 2px, transparent 2px 9px);
+    pointer-events: none;
+  }
+
+  &__intro {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $color-primary;
+  }
+
+  &__intro .stat-number__label {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.95rem;
+    color: $color-text;
+  }
+
+  &__totals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  &__highlights {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: $spacing-sm;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    @container (min-width: #{$stats-two-columns}) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  &__highlight {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    padding: 0.6rem 0.8rem;
+    border-radius: $radius;
+    background-color: rgba(0, 0, 0, 0.3);
+    font-size: 0.85rem;
+  }
+
+  &__highlight-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    color: $color-primary;
+  }
+
+  &__highlight-text {
+    color: $color-text-secondary;
+    white-space: nowrap;
+  }
+
+  &__highlight-value {
+    margin-left: auto;
+    min-width: 0;
+    // Un nombre de género largo ("Rock Nacional") baja de línea en vez de cortarse.
+    text-align: right;
+    color: $color-text;
+  }
+
+  &--compact {
+    gap: $spacing-md;
+  }
+}

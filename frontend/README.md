@@ -80,11 +80,11 @@ src/
     services/       httpClient (único punto de salida HTTP) y tokenStorage
     utils/          ApiError y traducción de errores a mensajes de pantalla
   features/<x>/     Una carpeta por entidad del dominio:
-    components/     Componentes propios de la feature
+    components/     Componentes propios de la feature, uno por carpeta con su .scss
     models/         Clases que representan los datos de la API
-    pages/          Páginas enrutadas
+    pages/          Páginas enrutadas, una por carpeta con su .scss
     services/       Llamadas HTTP de la feature (usan el httpClient)
-    styles/         Parciales SCSS de la feature
+    styles/         Solo tokens (_tokens.scss): variables compartidas, sin CSS
   styles/           7-1: abstracts (variables, breakpoints, mixins), base, main.scss
 ```
 
@@ -252,7 +252,8 @@ funcionando porque redirige a `/admin`.
 - Todo en TypeScript: no se crean archivos `.js` / `.jsx`.
 - Componentes funcionales con Hooks, en PascalCase; hooks en camelCase con prefijo `use`.
 - Handlers de eventos con prefijo `handle` (`handleSubmit`, `handleLogout`).
-- Parciales SCSS en kebab-case con guion bajo (`_album-card.scss`) y registrados en
-  `styles/main.scss`.
+- Una carpeta por componente (`AlbumCard/AlbumCard.tsx`, `AlbumCard.scss`, `index.ts`): cada
+  componente importa su propio `.scss`. `styles/main.scss` queda solo con lo global
+  (`abstracts` y `base`).
 - Mobile-first: primero el estilo base, después `@media (min-width: ...)`.
 - Sin librerías de UI, de estado ni de estilos fuera del stack definido.

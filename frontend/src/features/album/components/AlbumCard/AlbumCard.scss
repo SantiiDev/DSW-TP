@@ -1,0 +1,65 @@
+// Estilos de AlbumCard.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Card de un álbum (aportes del perfil) ---------------------------------
+.album-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  height: 100%;
+  // Sin esto, un título largo estira la columna de la grilla en vez de cortarse.
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: $color-text;
+    transition: color 0.2s ease;
+    // Los títulos largos se cortan con puntos suspensivos.
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__artist,
+  &__meta {
+    margin: 0;
+    max-width: 100%;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Editar y eliminar el propio aporte, en la pestaña "Aportes" del perfil. Solo
+  // aparecen en los que todavía no se aprobaron, que son los que no navegan.
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-sm;
+    margin-top: auto;
+  }
+
+  // Solo las cards de álbumes aprobados navegan: son las únicas que tienen ficha.
+  // Al pasar por encima se enciende el título, que es la señal de que se puede
+  // entrar. Antes la card se levantaba; ahora ningún elemento del sitio se mueve
+  // con el mouse encima, solo cambia de color.
+  &--link:hover &__title {
+    color: $color-primary;
+  }
+}

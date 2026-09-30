@@ -7,51 +7,7 @@
 @use 'base/typography';
 @use 'base/animations';
 
-// Los componentes de core/components NO se importan acá: cada uno importa su
-// propio .scss desde su carpeta (core/components/<Componente>/<Componente>.scss).
-// Antes se cargaban por los dos lados y quedaban duplicados en el CSS final.
-
-// Features Components
-@use '../features/home/components/hero';
-@use '../features/home/components/popular-albums';
-@use '../features/home/components/features';
-
-// User / Auth
-@use '../features/user/styles/auth';
-@use '../features/user/styles/suggested-users';
-@use '../features/user/styles/user';
-@use '../features/user/styles/admin';
-
-// Music Explore
-@use '../features/music/styles/music-explore';
-
-// Artistas
-@use '../features/artist/styles/artist';
-
-// Géneros
-@use '../features/genre/styles/genre';
-
-// Álbumes
-@use '../features/album/styles/album';
-
-// Canciones
-@use '../features/song/styles/song';
-
-// Reseñas
-@use '../features/review/styles/review';
-
-// Lists Explore
-@use '../features/review/styles/reviews-explore';
-
-// Listas personalizadas
-@use '../features/list/styles/lists-explore';
-@use '../features/list/styles/list';
-
-// Membership / Pro: cada componente importa su propio .scss desde su carpeta.
-
-// Anuncios
-@use '../features/ad/styles/ad';
-@use '../features/ad/styles/ad-admin';
-
-// Static Info Pages
-@use '../features/home/styles/static-pages';
+// Acá va solo lo global. Los componentes NO se importan acá: cada uno, de
+// core/components y de cada feature, importa su propio .scss desde su carpeta
+// (<Componente>/<Componente>.scss). Antes las features se cargaban por los dos
+// lados (acá y desde sus componentes) y su CSS quedaba duplicado.

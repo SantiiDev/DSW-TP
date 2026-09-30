@@ -1,0 +1,68 @@
+// Estilos de UserProfilePage.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+.user-profile-page {
+  // Mismo ancho que el navbar y que el resto de las pantallas (ver el mixin).
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-lg;
+
+  // Color de acento del perfil (beneficio Pro). Se define como variable CSS y no
+  // como variable SASS porque depende del usuario que se está mirando, y eso
+  // recién se sabe en el navegador. La página recibe la clase del color que
+  // corresponde (ver UserProfilePage) y cada pieza que se tiñe lee la variable.
+  --profile-accent: #{$color-primary};
+
+  @each $name, $accent in $profile-accents {
+    &--accent-#{$name} {
+      --profile-accent: #{$accent};
+    }
+  }
+
+  // El subrayado de la pestaña activa vive en core/components/_tabs.scss y es
+  // verde en todo el sitio. Solo dentro del perfil toma el color del dueño.
+  .tabs__underline {
+    background-color: var(--profile-accent);
+  }
+
+  &__container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    min-width: 0;
+  }
+
+  // Contenido + columna lateral. Una sola columna en mobile; desde LG el sidebar
+  // se va a la derecha con ancho fijo.
+  //
+  // Las dos columnas terminan a la misma altura: sin `align-items`, la grilla
+  // estira cada una hasta el alto de la fila, que es el de la más alta. Con
+  // `start` la caja de contenido quedaba más corta que la pila de tarjetas del
+  // costado y el bloque se veía desparejo.
+  &__body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    min-width: 0;
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: minmax(0, 1fr) 320px;
+    }
+  }
+
+  // Estirar la columna no alcanza: lo que se ve es el panel de adentro, así que
+  // es el panel el que tiene que ocupar todo el alto.
+  &__main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    > .profile-panel {
+      flex: 1 1 auto;
+    }
+  }
+}

@@ -1,0 +1,53 @@
+// Estilos de RatingHistogram.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Histograma de calificaciones -----------------------------------------
+.rating-histogram {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  &__bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 70px;
+  }
+
+  &__bar-wrapper {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  &__bar {
+    width: 100%;
+    background-color: $color-primary;
+    border-radius: 2px 2px 0 0;
+    // El alto lo pone el componente a partir de los datos.
+    transition: height 0.3s ease;
+  }
+
+  &__scale {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: $color-text-secondary;
+  }
+
+  &__scale-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    color: $color-primary;
+  }
+
+  &__total {
+    color: $color-text-secondary;
+  }
+}

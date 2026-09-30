@@ -1,0 +1,87 @@
+// Estilos de SongDetailPage.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Ficha pública de una canción -------------------------------------------
+.song-detail {
+  // Ancla al botón "Volver", que va posicionado sobre la cabecera.
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  // La cabecera va a ancho completo, así que la caja de lectura la ponen el
+  // cuerpo y los estados de carga, no la página.
+  min-width: 0;
+
+  // Botón "Volver": arriba a la izquierda del todo, flotando sobre la cabecera,
+  // igual que en la ficha de álbum. Antes iba en una franja propia entre el
+  // navbar y la cabecera, y esa franja se veía como una banda gris cortando la
+  // pantalla en dos.
+  &__topbar {
+    position: absolute;
+    top: $spacing-md;
+    left: $spacing-md;
+    // Por encima de las dos capas de fondo de la cabecera (la portada
+    // desenfocada y el velo oscuro), que no llevan z-index.
+    z-index: 2;
+
+    @media (min-width: $bp-md) {
+      left: $spacing-lg;
+    }
+  }
+
+  // Contenido + columna lateral, igual que el perfil: una sola columna en mobile
+  // y desde LG el tracklist del álbum se va a la derecha con ancho fijo.
+  &__body {
+    width: 100%;
+    max-width: calc(#{$content-width} + #{$spacing-md} * 2);
+    margin: 0 auto;
+    padding: $spacing-lg $spacing-md $spacing-xl;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    min-width: 0;
+
+    @media (min-width: $bp-md) {
+      max-width: calc(#{$content-width} + #{$spacing-lg} * 2);
+      padding: $spacing-xl $spacing-lg;
+    }
+
+    @media (min-width: $bp-lg) {
+      // Solo se parte en dos si hay columna lateral: una canción suelta (sin
+      // álbum) no tiene tracklist que mostrar, y sin este :has quedaría una
+      // columna vacía de 320px al costado.
+      &:has(.song-detail__aside) {
+        grid-template-columns: minmax(0, 1fr) 320px;
+        align-items: start;
+      }
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+    min-width: 0;
+  }
+
+  // Las acciones de la canción, hoy solo "Agregar a una lista". El ancho se
+  // acota para que el botón no cruce toda la columna en desktop: la ficha del
+  // álbum lo tiene en una barra lateral angosta y así se ven parecidos.
+  &__actions {
+    max-width: 320px;
+  }
+
+  &__aside {
+    min-width: 0;
+  }
+
+  // Carga, error y "no existe": comparten la caja de lectura porque sin la
+  // cabecera no hay nada que centre el contenido.
+  &__state {
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: $spacing-xl $spacing-md;
+  }
+}

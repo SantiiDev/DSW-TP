@@ -1,0 +1,102 @@
+// Estilos de ExploreMusicRow.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ─── Music List Item (Ranked List) ──────────────────────────
+.music-list-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  // Bastante más aire a la derecha que a la izquierda: la columna de la derecha
+  // (calificación y reseñas) quedaba pegada al borde de la fila y se leía como
+  // cortada.
+  padding: $spacing-md $spacing-xl $spacing-md $spacing-lg;
+  background-color: $color-bg-light;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color.adjust($color-bg-light, $lightness: 4%);
+  }
+
+  &__rank {
+    color: $color-primary;
+    font-size: 1.1rem;
+    font-weight: 800;
+    min-width: 36px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__cover {
+    width: 56px;
+    height: 56px;
+    border-radius: $radius;
+    overflow: hidden;
+    flex-shrink: 0;
+    background-color: #222;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    color: $color-text;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__meta {
+    color: $color-text-secondary;
+    font-size: 0.82rem;
+    margin: 2px 0 0;
+  }
+
+  // Columna de la derecha: la calificación arriba y las reseñas abajo. El ancho
+  // mínimo la mantiene como una columna alineada entre filas, en vez de que cada
+  // texto termine en un lugar distinto según lo largo que sea.
+  &__stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2px;
+    flex-shrink: 0;
+    min-width: 120px;
+    text-align: right;
+  }
+
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #feca57;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  &__reviews {
+    // Sin oscurecer: el gris apagado sobre el fondo negro se leía como un texto
+    // a medio dibujar.
+    color: $color-text-secondary;
+    font-size: 0.78rem;
+    margin: 0;
+    // "Sin reseñas" tiene que entrar en una línea: cortado en dos se lee como un
+    // error de maquetado.
+    white-space: nowrap;
+  }
+}

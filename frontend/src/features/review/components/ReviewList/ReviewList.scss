@@ -1,0 +1,17 @@
+// Estilos de ReviewList.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Listado -----------------------------------------------------------------
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__more {
+    display: flex;
+    justify-content: center;
+    padding-top: $spacing-sm;
+  }
+}
