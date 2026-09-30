@@ -10,3 +10,8 @@ $pro-gradient: linear-gradient(135deg, $pro-green 0%, #0fd85b 50%, #06d6a0 100%)
 // en 1150px: sumándole su padding lateral ($spacing-md a cada lado) los bordes de
 // cada sección quedan alineados con los del navbar en cualquier resolución.
 $pro-section-max: calc(#{$content-width} + #{$spacing-md} * 2);
+
+// Ancho de las secciones de lectura (comparativa y preguntas frecuentes): más
+// angostas que las demás para que las filas no queden tan largas. Van las dos
+// con el mismo ancho para que se vean alineadas una debajo de la otra.
+$pro-narrow-section-max: calc(900px + #{$spacing-md} * 2);

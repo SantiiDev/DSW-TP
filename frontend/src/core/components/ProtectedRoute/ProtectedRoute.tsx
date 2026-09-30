@@ -36,7 +36,7 @@ export const ProtectedRoute = ({ children, roles, redirectTo = '/' }: ProtectedR
   // redirigiera acá, al recargar una ruta privada el usuario se quedaría afuera
   // aunque su sesión siguiera siendo válida.
   if (state.status === 'checking') {
-    return <Loader message="Verificando tu sesión..." />;
+    return <Loader message="Verificando tu sesión..." fullPage />;
   }
 
   if (state.status !== 'authenticated' || !state.user) {

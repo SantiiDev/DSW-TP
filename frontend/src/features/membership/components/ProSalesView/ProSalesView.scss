@@ -382,67 +382,12 @@
 // ═══════════════════════════════════════════════════════════════
 //  FINAL CTA
 // ═══════════════════════════════════════════════════════════════
-.pro-cta {
-  padding: $spacing-xl $spacing-md;
-
-  &__container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: $color-bg-light;
-    border: 1px solid $color-nav-border;
-    border-radius: $radius;
-    padding: 4rem $spacing-lg;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $spacing-md;
-    transition: border-color 0.3s ease;
-
-    // Solo contraste: se enciende el borde, la caja no se levanta.
-    &:hover {
-      border-color: rgba($pro-green, 0.5);
-    }
-  }
-
-  &__title {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: $color-text;
-    margin: 0;
-    max-width: 500px;
-
-    @media (min-width: $bp-md) {
-      font-size: 2rem;
-    }
-  }
-
-  &__subtitle {
-    color: $color-text-secondary;
-    font-size: 1rem;
-    margin: 0;
-  }
-
-  &__btn {
-    margin-top: $spacing-sm;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0.85rem 2.2rem;
-    border-radius: $radius;
-    font-weight: 700;
-    font-size: 1.05rem;
-    background-color: $pro-green;
-    color: #000;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.25s ease;
-
-    // Solo contraste: el verde se aclara, el botón no se agranda.
-    &:hover {
-      background-color: color.adjust($pro-green, $lightness: 6%);
-    }
-  }
+// La caja, el fondo animado y los botones son los del CTA de inicio (bloque
+// cta-section, en CallToAction.scss). Acá solo se agrega lo propio del de Pro:
+// el ícono de la corona, que necesita separarse del texto del botón.
+.pro-cta__btn {
+  gap: 8px;
+  cursor: pointer;
 }
 
 // ═══════════════════════════════════════════════════════════════

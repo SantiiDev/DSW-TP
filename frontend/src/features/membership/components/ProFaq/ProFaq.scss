@@ -8,7 +8,7 @@
 // ═══════════════════════════════════════════════════════════════
 .pro-faq {
   padding: $spacing-xl $spacing-md;
-  max-width: 750px;
+  max-width: $pro-narrow-section-max;
   margin: 0 auto;
 
   &__heading {

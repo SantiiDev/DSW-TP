@@ -8,7 +8,7 @@
 // ═══════════════════════════════════════════════════════════════
 .pro-comparison {
   padding: $spacing-xl $spacing-md;
-  max-width: calc(900px + 2rem);
+  max-width: $pro-narrow-section-max;
   margin: 0 auto;
 
   &__heading {

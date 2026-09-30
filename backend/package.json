@@ -18,6 +18,7 @@
     "seed:admin": "tsx src/seed/seed-admin-user.ts",
     "seed:ads": "tsx src/seed/seed-ads.ts",
     "seed:demo-sales": "tsx src/seed/seed-demo-sales.ts",
+    "seed:demo-lists": "tsx src/seed/seed-demo-lists.ts",
     "db:reset": "tsx src/scripts/reset-db.ts"
   },
   "dependencies": {

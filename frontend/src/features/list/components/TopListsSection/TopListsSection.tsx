@@ -10,8 +10,12 @@ import { RoleBadge } from '../../../user/components/RoleBadge';
 import { listService } from '../../services/listService';
 import './TopListsSection.scss';
 
-/** Cuántas listas entran en el ranking: las que caben sin scroll en la barra lateral. */
-const TOP_SIZE = 8;
+/**
+ * Cuántas listas entran en el ranking. Con 5 la barra lateral (Mis Listas, Top
+ * Listas y Explorar por Género) entra completa en la pantalla; con más,
+ * "Explorar por Género" quedaba cortado abajo.
+ */
+const TOP_SIZE = 5;
 
 export const TopListsSection = () => {
   const { data, isLoading, error } = useFetch(() =>

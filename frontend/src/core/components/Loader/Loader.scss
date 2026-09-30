@@ -15,6 +15,12 @@
   gap: $spacing-md;
   padding: $spacing-xl $spacing-md;
 
+  // Variante de pantalla completa: alto de la ventana para que el flex de arriba
+  // lo centre también en vertical, no solo en horizontal.
+  &--full-page {
+    min-height: 100vh;
+  }
+
   &__spinner {
     width: 32px;
     height: 32px;

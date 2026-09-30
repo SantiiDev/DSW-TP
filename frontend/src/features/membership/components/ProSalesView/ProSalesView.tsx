@@ -13,6 +13,7 @@ import { PRO_PLAN_NAME } from '../../models/Membership';
 import { ProBenefits } from '../ProBenefits';
 import { ProComparison } from '../ProComparison';
 import { ProFaq } from '../ProFaq';
+import { CtaBackdrop } from '../../../home/components/CtaBackdrop';
 import {
   Crown,
   BarChart3,
@@ -24,6 +25,9 @@ import {
   Sparkles,
   HeadphonesIcon,
 } from 'lucide-react';
+// El CTA final usa el bloque cta-section, que es de CallToAction: se importa su
+// hoja para no depender de que la página de inicio ya se haya cargado.
+import '../../../home/components/CallToAction/CallToAction.scss';
 import './ProSalesView.scss';
 
 type ProSalesViewProps = {
@@ -192,19 +196,31 @@ export const ProSalesView = ({ isAuthenticated }: ProSalesViewProps) => {
       </FadeInSection>
 
       {/* ── Final CTA ────────────────────────────── */}
+      {/* Reutiliza la caja y el fondo animado del CTA de la página de inicio
+          (bloque cta-section y CtaBackdrop), para que los dos se vean iguales. */}
       <FadeInSection delay={200}>
-        <section className="pro-cta">
-          <div className="pro-cta__container">
-            <h2 className="pro-cta__title">
-              ¿Listo para llevar tu música al siguiente nivel?
-            </h2>
-            <p className="pro-cta__subtitle">
-              Sumate a los que ya disfrutan Musicboxd Pro.
-            </p>
-            <button type="button" className="pro-cta__btn" onClick={handleUpgradeClick}>
-              <Crown size={18} />
-              {isAuthenticated ? 'Pasarme a Pro' : 'Comenzar con Pro'}
-            </button>
+        <section className="cta-section">
+          <div className="cta-section__container">
+            <CtaBackdrop />
+
+            <div className="cta-section__content">
+              <h2 className="cta-section__title">
+                ¿Listo para llevar tu música al siguiente nivel?
+              </h2>
+              <p className="cta-section__subtitle">
+                Sumate a los que ya disfrutan Musicboxd Pro.
+              </p>
+              <div className="cta-section__actions">
+                <button
+                  type="button"
+                  className="cta-section__btn cta-section__btn--primary pro-cta__btn"
+                  onClick={handleUpgradeClick}
+                >
+                  <Crown size={18} />
+                  {isAuthenticated ? 'Pasarme a Pro' : 'Comenzar con Pro'}
+                </button>
+              </div>
+            </div>
           </div>
         </section>
       </FadeInSection>
