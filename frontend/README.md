@@ -20,6 +20,7 @@ consulta ninguna API externa, todo sale de nuestra propia API.
 | Variable       | Descripción                                                   |
 | :------------- | :------------------------------------------------------------ |
 | `VITE_API_URL` | URL base de la API, incluyendo `/api`. Nunca se hardcodea la URL |
+| `VITE_WEB3FORMS_ACCESS_KEY` | Access key de [Web3Forms](https://web3forms.com), que recibe el formulario de `/contact` y lo reenvía por mail. Se pide gratis con la casilla que va a recibir los mensajes. Sin ella, el formulario avisa que no está configurado |
 
 ## Scripts
 

@@ -107,8 +107,8 @@ button {
 // una sombra interior tan grande como el campo.
 //
 // El color va en una variable CSS y no fijo porque los inputs del sitio usan dos
-// fondos distintos: los que no son $color-bg la redefinen (ver .search-bar__input,
-// .footer__input y el buscador de artistas).
+// fondos distintos: los que no son $color-bg la redefinen (ver .search-bar__input
+// y el buscador de artistas).
 input,
 textarea,
 select {

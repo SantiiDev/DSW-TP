@@ -18,6 +18,16 @@ import { Loader } from '../../../core/components/Loader';
 import { Select } from '../../../core/components/Select';
 import type { SelectOption } from '../../../core/components/Select';
 import { useFetch } from '../../../core/hooks/useFetch';
+import {
+  fieldErrorProps,
+  hasErrors,
+  isIntegerBetween,
+  isUrl,
+  maxLength,
+  required,
+  validateField,
+} from '../../../core/utils/validators';
+import type { FieldErrors } from '../../../core/utils/validators';
 import { artistService } from '../../artist/services/artistService';
 import { genreService } from '../../genre/services/genreService';
 import type { AlbumInput } from '../services/albumService';
@@ -52,6 +62,29 @@ const EMPTY_FORM: AlbumInput = {
   genre_ids: [],
 };
 
+type AlbumField = 'title' | 'id_artist' | 'release_year' | 'url_cover';
+
+/**
+ * Valida el álbum con las mismas reglas que album.schema.ts del backend. Los
+ * géneros no se validan: son casillas y cualquier combinación es válida.
+ */
+function validateAlbumForm(form: AlbumInput): FieldErrors<AlbumField> {
+  return {
+    title: validateField(form.title, [
+      required('El título del álbum no puede estar vacío.'),
+      maxLength(200, 'El título del álbum no puede tener más de 200 caracteres.'),
+    ]),
+    id_artist: form.id_artist === NO_ARTIST ? 'Hay que elegir el artista del álbum.' : undefined,
+    release_year: validateField(form.release_year ?? '', [
+      isIntegerBetween(1900, 2100, 'El año de lanzamiento tiene que estar entre 1900 y 2100.'),
+    ]),
+    url_cover: validateField(form.url_cover ?? '', [
+      maxLength(500, 'La URL de la portada no puede tener más de 500 caracteres.'),
+      isUrl('La URL de la portada no es válida.'),
+    ]),
+  };
+}
+
 export const AlbumForm = ({
   initialValues,
   isSubmitting,
@@ -83,6 +116,11 @@ export const AlbumForm = ({
     .filter((artist) => artist.state !== 'rejected')
     .map((artist) => ({ value: artist.id, label: artist.name }));
 
+  // Errores visibles recién después del primer intento de guardar; desde ahí se
+  // recalculan en cada cambio (criterio común a todos los formularios).
+  const [wasSubmitted, setWasSubmitted] = useState(false);
+  const errors: FieldErrors<AlbumField> = wasSubmitted ? validateAlbumForm(form) : {};
+
   const genres = data?.genres ?? [];
   const selectedGenres = form.genre_ids ?? [];
 
@@ -101,11 +139,16 @@ export const AlbumForm = ({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setWasSubmitted(true);
+    if (hasErrors(validateAlbumForm(form))) return;
 
     const succeeded = await onSubmit(form);
     // En una edición los campos quedan como están porque siguen siendo los datos
     // del álbum; en un alta se vacían para poder cargar el siguiente.
-    if (succeeded && !isEditing) setForm(EMPTY_FORM);
+    if (succeeded && !isEditing) {
+      setForm(EMPTY_FORM);
+      setWasSubmitted(false);
+    }
   };
 
   if (isLoading) return <Loader message="Cargando artistas y géneros..." />;
@@ -115,18 +158,15 @@ export const AlbumForm = ({
   if (error) return <Alert tone="error">{error}</Alert>;
 
   return (
-    <form className="album-form" onSubmit={handleSubmit}>
-      <FormField id="album-title" label="Título">
+    <form className="album-form" onSubmit={handleSubmit} noValidate>
+      <FormField id="album-title" label="Título" error={errors.title}>
         <TextInput
           id="album-title"
           type="text"
           placeholder="Nevermind, OK Computer, Clics Modernos..."
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
-          // Los límites se validan igual en el backend; acá son para avisar antes
-          // de gastar una request.
-          maxLength={200}
-          required
+          {...fieldErrorProps('album-title', errors.title)}
         />
       </FormField>
 
@@ -148,29 +188,42 @@ export const AlbumForm = ({
           searchPlaceholder="Buscar un artista..."
           fullWidth
         />
+        {/* Mismo aspecto que el error de FormField. Antes, sin artista, el botón de
+            guardar quedaba deshabilitado sin decir por qué. */}
+        {errors.id_artist && <p className="form-field__error">{errors.id_artist}</p>}
       </div>
 
       <div className="album-form__row">
-        <FormField id="album-year" label="Año de lanzamiento" hint="(opcional)">
+        <FormField
+          id="album-year"
+          label="Año de lanzamiento"
+          hint="(opcional)"
+          error={errors.release_year}
+        >
           <NumberInput
             id="album-year"
             placeholder="1991"
             value={form.release_year ?? ''}
             onValueChange={(release_year) => setForm({ ...form, release_year })}
-            // Cuatro dígitos alcanzan para cualquier año; el rango 1900-2100 lo
-            // valida el backend.
-            maxLength={4}
+            {...fieldErrorProps('album-year', errors.release_year)}
           />
         </FormField>
 
-        <FormField id="album-cover" label="URL de la portada" hint="(opcional)">
+        <FormField
+          id="album-cover"
+          label="URL de la portada"
+          hint="(opcional)"
+          error={errors.url_cover}
+        >
+          {/* type="text" + inputMode: type="url" trae la validación del navegador. */}
           <TextInput
             id="album-cover"
-            type="url"
+            type="text"
+            inputMode="url"
             placeholder="https://..."
             value={form.url_cover}
             onChange={(e) => setForm({ ...form, url_cover: e.target.value })}
-            maxLength={500}
+            {...fieldErrorProps('album-cover', errors.url_cover)}
           />
         </FormField>
       </div>
@@ -206,8 +259,7 @@ export const AlbumForm = ({
           </Button>
         )}
 
-        {/* El artista es obligatorio: sin uno elegido, el backend responde 400. */}
-        <Button type="submit" disabled={isSubmitting || form.id_artist === NO_ARTIST}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Guardando...' : submitLabel}
         </Button>
       </div>

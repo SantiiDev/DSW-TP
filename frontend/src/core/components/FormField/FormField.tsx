@@ -9,9 +9,13 @@
 //   TextInput    el input (o textarea) ya estilado.
 //   NumberInput  un campo para escribir números, sin las flechitas del navegador.
 //
-//   <FormField id="genre-name" label="Nombre">
-//     <TextInput id="genre-name" value={name} onChange={...} required />
+//   <FormField id="genre-name" label="Nombre" error={errors.name}>
+//     <TextInput id="genre-name" value={name} onChange={...}
+//       {...fieldErrorProps('genre-name', errors.name)} />
 //   </FormField>
+//
+// Sin atributos de validación del navegador (required, minLength...): las reglas
+// van en core/utils/validators y el <form> lleva noValidate (ver CLAUDE.md).
 import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
 import './FormField.scss';
 

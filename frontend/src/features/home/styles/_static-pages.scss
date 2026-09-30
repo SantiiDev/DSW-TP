@@ -104,12 +104,31 @@
         &:focus {
           border-color: $color-primary;
         }
+
+        // Campo con error: se engancha de aria-invalid, igual que FormField.
+        &[aria-invalid='true'] {
+          border-color: $color-error;
+        }
       }
 
       textarea {
         resize: vertical;
         min-height: 120px;
       }
+    }
+
+    // Mensaje de validación debajo de un campo.
+    .form-group__error {
+      margin: 0;
+      font-size: 0.8rem;
+      color: $color-error;
+    }
+
+    // Trampa para bots (ver contactService): fuera de la pantalla y fuera del
+    // orden de tabulación, así ninguna persona la ve ni la completa.
+    .form-group--honeypot {
+      position: absolute;
+      left: -9999px;
     }
 
     button {
@@ -127,6 +146,27 @@
       &:hover {
         background-color: color.adjust($color-primary, $lightness: 6%);
       }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  // "Enviar otro mensaje", debajo del aviso de éxito del contacto.
+  &__link-btn {
+    margin-top: $spacing-md;
+    padding: 0;
+    background: none;
+    border: none;
+    color: $color-primary;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
     }
   }
 

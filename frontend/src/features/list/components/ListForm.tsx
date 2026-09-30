@@ -5,9 +5,9 @@
 //
 //   - ALTA: arranca eligiendo de qué va a ser la lista (álbumes o canciones),
 //     trae el buscador del tipo elegido, y no deja enviar hasta que haya al
-//     menos un ítem. Una lista vacía sería un nombre suelto y no una agrupación;
-//     el backend la rechaza igual (ver createListSchema), acá se avisa antes de
-//     gastar la request.
+//     menos un ítem (lo avisa con un mensaje). Una lista vacía sería un nombre
+//     suelto y no una agrupación; el backend la rechaza igual (ver
+//     createListSchema), acá se avisa antes de gastar la request.
 //   - EDICIÓN: solo nombre y descripción. Los ítems de una lista ya creada se
 //     suman y se sacan de a uno desde su ficha, y el tipo no se puede cambiar
 //     nunca (sus ítems viven en la tabla intermedia de su tipo).
@@ -19,6 +19,14 @@ import { FormField, TextInput } from '../../../core/components/FormField';
 import { IconButton } from '../../../core/components/IconButton';
 import { InlineNotice } from '../../../core/components/InlineNotice';
 import { SegmentedControl } from '../../../core/components/SegmentedControl';
+import {
+  fieldErrorProps,
+  hasErrors,
+  maxLength,
+  required,
+  validateField,
+} from '../../../core/utils/validators';
+import type { FieldErrors } from '../../../core/utils/validators';
 import type { SegmentOption } from '../../../core/components/SegmentedControl';
 import { AlbumCover } from '../../genre/components/AlbumCover';
 import type { ListType } from '../models/List';
@@ -82,6 +90,38 @@ type ListFormProps = {
   onCancel?: () => void;
 };
 
+/** Cuántos ítems acepta el alta de una vez: MAX_ITEMS_ON_CREATE en list.schema.ts. */
+const MAX_ITEMS_ON_CREATE = 50;
+
+type ListField = 'name' | 'description' | 'items';
+
+/**
+ * Valida la lista con las mismas reglas que list.schema.ts del backend. Los
+ * ítems solo cuentan en el alta: en la edición se manejan desde la ficha.
+ */
+function validateListForm(
+  values: { name: string; description: string; itemCount: number },
+  isEditing: boolean
+): FieldErrors<ListField> {
+  let items: string | undefined;
+  if (!isEditing && values.itemCount === 0) {
+    items = 'Una lista tiene que tener al menos un álbum o una canción.';
+  } else if (!isEditing && values.itemCount > MAX_ITEMS_ON_CREATE) {
+    items = `No se pueden agregar más de ${MAX_ITEMS_ON_CREATE} ítems de una vez.`;
+  }
+
+  return {
+    name: validateField(values.name, [
+      required('El nombre de la lista no puede estar vacío.'),
+      maxLength(100, 'El nombre de la lista no puede tener más de 100 caracteres.'),
+    ]),
+    description: validateField(values.description, [
+      maxLength(500, 'La descripción no puede tener más de 500 caracteres.'),
+    ]),
+    items,
+  };
+}
+
 export const ListForm = ({
   initialValues,
   initialType = 'album',
@@ -102,8 +142,14 @@ export const ListForm = ({
   // qué desapareció la selección.
   const [wasCleared, setWasCleared] = useState(false);
 
-  // En el alta hacen falta las dos cosas; en la edición, solo el nombre.
-  const canSubmit = name.trim() !== '' && (isEditing || items.length > 0) && !isSubmitting;
+  // Errores visibles recién después del primer intento de guardar; desde ahí se
+  // recalculan en cada cambio (criterio común a todos los formularios). Antes el
+  // botón quedaba deshabilitado sin nombre o sin ítems, sin decir por qué.
+  const [wasSubmitted, setWasSubmitted] = useState(false);
+  const currentValues = { name, description, itemCount: items.length };
+  const errors: FieldErrors<ListField> = wasSubmitted
+    ? validateListForm(currentValues, isEditing)
+    : {};
 
   /**
    * Cambia de sección y VACÍA lo elegido. Es la consecuencia directa de que una
@@ -129,6 +175,8 @@ export const ListForm = ({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setWasSubmitted(true);
+    if (hasErrors(validateListForm(currentValues, isEditing))) return;
 
     const succeeded = await onSubmit({
       name,
@@ -144,11 +192,12 @@ export const ListForm = ({
       setDescription('');
       setItems([]);
       setWasCleared(false);
+      setWasSubmitted(false);
     }
   };
 
   return (
-    <form className="list-form" onSubmit={handleSubmit}>
+    <form className="list-form" onSubmit={handleSubmit} noValidate>
       {!isEditing && canChooseType && (
         <div className="list-form__type">
           <SegmentedControl
@@ -169,29 +218,31 @@ export const ListForm = ({
         </div>
       )}
 
-      <FormField id="list-name" label="Nombre">
+      <FormField id="list-name" label="Nombre" error={errors.name}>
         <TextInput
           id="list-name"
           type="text"
           placeholder="Favoritos del Rock Nacional"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          // El límite se valida igual en el backend; acá es para avisar antes de
-          // gastar una request.
-          maxLength={100}
-          required
+          {...fieldErrorProps('list-name', errors.name)}
         />
       </FormField>
 
-      <FormField id="list-description" label="Descripción" hint="(opcional)">
+      <FormField
+        id="list-description"
+        label="Descripción"
+        hint="(opcional)"
+        error={errors.description}
+      >
         <TextInput
           as="textarea"
           id="list-description"
           placeholder="De qué se trata esta lista..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          maxLength={500}
           rows={3}
+          {...fieldErrorProps('list-description', errors.description)}
         />
       </FormField>
 
@@ -231,6 +282,9 @@ export const ListForm = ({
             isBusy={isSubmitting}
             onAdd={handleAdd}
           />
+
+          {/* Mismo aspecto que el error de FormField. */}
+          {errors.items && <p className="form-field__error">{errors.items}</p>}
         </div>
       )}
 
@@ -241,7 +295,7 @@ export const ListForm = ({
           </Button>
         )}
 
-        <Button type="submit" disabled={!canSubmit}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Guardando...' : submitLabel}
         </Button>
       </div>

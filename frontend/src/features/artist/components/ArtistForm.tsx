@@ -13,6 +13,14 @@ import type { FormEvent } from 'react';
 import { Button } from '../../../core/components/Button';
 import { FormField, TextInput } from '../../../core/components/FormField';
 import { ConfirmDialog } from '../../../core/components/Modal';
+import {
+  fieldErrorProps,
+  hasErrors,
+  maxLength,
+  required,
+  validateField,
+} from '../../../core/utils/validators';
+import type { FieldErrors } from '../../../core/utils/validators';
 import { artistService } from '../services/artistService';
 import type { ArtistInput } from '../services/artistService';
 import { STATE_LABELS } from '../models/Artist';
@@ -40,6 +48,19 @@ type ArtistFormProps = {
 };
 
 const EMPTY_FORM: ArtistInput = { name: '', biography: '' };
+
+/** Valida el artista con las mismas reglas y mensajes que artist.schema.ts del backend. */
+function validateArtistForm(form: ArtistInput): FieldErrors<'name' | 'biography'> {
+  return {
+    name: validateField(form.name, [
+      required('El nombre del artista no puede estar vacío.'),
+      maxLength(150, 'El nombre del artista no puede tener más de 150 caracteres.'),
+    ]),
+    biography: validateField(form.biography ?? '', [
+      maxLength(5000, 'La biografía no puede tener más de 5000 caracteres.'),
+    ]),
+  };
+}
 
 /**
  * Arma el texto del aviso de nombres parecidos.
@@ -81,16 +102,29 @@ export const ArtistForm = ({
 
   const isBusy = isSubmitting || isChecking;
 
+  // Errores visibles recién después del primer intento de guardar; desde ahí se
+  // recalculan en cada tecla (criterio común a todos los formularios).
+  const [wasSubmitted, setWasSubmitted] = useState(false);
+  const errors: FieldErrors<'name' | 'biography'> = wasSubmitted ? validateArtistForm(form) : {};
+
   /** Manda el formulario al padre. Solo el alta se limpia, y solo si salió bien. */
   const send = async () => {
     const succeeded = await onSubmit(form);
     // En una edición los campos quedan como están porque siguen siendo los datos
     // del artista; en un alta se vacían para poder cargar el siguiente.
-    if (succeeded && !isEditing) setForm(EMPTY_FORM);
+    if (succeeded && !isEditing) {
+      setForm(EMPTY_FORM);
+      setWasSubmitted(false);
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setWasSubmitted(true);
+    // Se valida antes de buscar parecidos: con el nombre vacío o demasiado largo
+    // no tiene sentido consultar a la API.
+    if (hasErrors(validateArtistForm(form))) return;
+
     setIsChecking(true);
 
     let similar: SimilarArtist[] = [];
@@ -119,28 +153,30 @@ export const ArtistForm = ({
 
   return (
     <>
-      <form className="artist-form" onSubmit={handleSubmit}>
-        <FormField id="artist-name" label="Nombre">
+      <form className="artist-form" onSubmit={handleSubmit} noValidate>
+        <FormField id="artist-name" label="Nombre" error={errors.name}>
           <TextInput
             id="artist-name"
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
-            // Los límites se validan igual en el backend; acá son para avisar antes
-            // de gastar una request.
-            maxLength={150}
-            required
+            {...fieldErrorProps('artist-name', errors.name)}
           />
         </FormField>
 
-        <FormField id="artist-biography" label="Biografía" hint="(opcional)">
+        <FormField
+          id="artist-biography"
+          label="Biografía"
+          hint="(opcional)"
+          error={errors.biography}
+        >
           <TextInput
             as="textarea"
             id="artist-biography"
             value={form.biography}
             onChange={(e) => setForm({ ...form, biography: e.target.value })}
-            maxLength={5000}
             rows={4}
+            {...fieldErrorProps('artist-biography', errors.biography)}
           />
         </FormField>
 

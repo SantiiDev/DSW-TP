@@ -13,14 +13,12 @@ import {
   fieldErrorProps,
   hasErrors,
   isEmail,
-  matchesPattern,
-  maxLength,
-  minLength,
   required,
   sameAs,
   validateField,
 } from '../../../core/utils/validators';
 import type { FieldErrors } from '../../../core/utils/validators';
+import { EMAIL_RULES, NEW_PASSWORD_RULES, USERNAME_RULES } from '../models/userRules';
 import '../styles/_auth.scss';
 
 type AuthField = 'username' | 'email' | 'password' | 'confirmPassword';
@@ -39,37 +37,42 @@ type AuthValues = Record<AuthField, string>;
  * @param isLogin si es el formulario de inicio de sesión o el de registro.
  */
 function validateAuthForm(values: AuthValues, isLogin: boolean): FieldErrors<AuthField> {
-  const email = validateField(values.email, [required('Ingresá tu email.'), isEmail()]);
-
   if (isLogin) {
     return {
-      email,
+      email: validateField(values.email, [required('Ingresá tu email.'), isEmail()]),
       password: validateField(values.password, [required('Ingresá tu contraseña.')]),
     };
   }
 
+  // Las reglas del registro son las de cualquier cuenta nueva (models/userRules).
   return {
-    username: validateField(values.username, [
-      required('Elegí un nombre de usuario.'),
-      minLength(3, 'El nombre de usuario debe tener al menos 3 caracteres.'),
-      maxLength(50, 'El nombre de usuario no puede tener más de 50 caracteres.'),
-      matchesPattern(
-        /^[a-zA-Z0-9._]+$/,
-        'El nombre de usuario solo puede tener letras, números, puntos y guiones bajos.'
-      ),
-    ]),
-    email,
-    password: validateField(values.password, [
-      required('Elegí una contraseña.'),
-      minLength(8, 'La contraseña debe tener al menos 8 caracteres.'),
-      maxLength(72, 'La contraseña no puede tener más de 72 caracteres.'),
-    ]),
+    username: validateField(values.username, USERNAME_RULES),
+    email: validateField(values.email, EMAIL_RULES),
+    password: validateField(values.password, NEW_PASSWORD_RULES),
     confirmPassword: validateField(values.confirmPassword, [
       required('Repetí la contraseña.'),
       sameAs(values.password, 'Las contraseñas no coinciden.'),
     ]),
   };
 }
+
+type FieldErrorProps = {
+  /** El id del input: el mensaje queda con id `${id}-error`, que es el que
+   *  apunta el aria-describedby de fieldErrorProps. */
+  id: string;
+  message: string | undefined;
+};
+
+/** Mensaje de validación debajo de un campo. No dibuja nada si el campo está bien. */
+const FieldError = ({ id, message }: FieldErrorProps) => {
+  if (!message) return null;
+
+  return (
+    <p className="auth__field-error" id={`${id}-error`}>
+      {message}
+    </p>
+  );
+};
 
 export const AuthModal = () => {
   const { state: modalState, closeModal, switchView } = useAuthModal();

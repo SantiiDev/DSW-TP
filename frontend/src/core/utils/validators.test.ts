@@ -6,7 +6,9 @@ import { describe, expect, it } from 'vitest';
 import {
   hasErrors,
   isEmail,
+  isIntegerBetween,
   isNumberBetween,
+  isUrl,
   matchesPattern,
   maxLength,
   minLength,
@@ -53,6 +55,24 @@ describe('reglas sueltas', () => {
     expect(amount('750,5')).toBeNull();
     expect(amount('abc')).toBe('Monto inválido');
     expect(amount('-1')).toBe('Monto inválido');
+  });
+
+  it('isUrl acepta http y https, y rechaza texto suelto u otros protocolos', () => {
+    const url = isUrl('URL inválida');
+
+    expect(url('https://picsum.photos/200')).toBeNull();
+    expect(url('http://ejemplo.com/foto.jpg')).toBeNull();
+    expect(url('picsum.photos/200')).toBe('URL inválida');
+    expect(url('javascript:alert(1)')).toBe('URL inválida');
+  });
+
+  it('isIntegerBetween rechaza decimales, letras y valores fuera de rango', () => {
+    const year = isIntegerBetween(1900, 2100, 'Año inválido');
+
+    expect(year('1999')).toBeNull();
+    expect(year('1999.5')).toBe('Año inválido');
+    expect(year('19a9')).toBe('Año inválido');
+    expect(year('1800')).toBe('Año inválido');
   });
 
   it('las reglas de formato dejan pasar el vacío: eso lo decide required', () => {

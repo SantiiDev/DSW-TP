@@ -13,6 +13,7 @@ import { TextInput } from '../../../core/components/FormField';
 import { GatedLink } from '../../../core/components/GatedLink';
 import { ConfirmDialog } from '../../../core/components/Modal';
 import { getErrorMessage } from '../../../core/utils/errorHandler';
+import { fieldErrorProps, maxLength, validateField } from '../../../core/utils/validators';
 import { RoleBadge } from '../../user/components/RoleBadge';
 import { reviewService } from '../services/reviewService';
 import type { ReviewComment } from '../models/Review';
@@ -34,8 +35,11 @@ type ReviewCommentsProps = {
   onCountChange: (count: number) => void;
 };
 
-// Mismo techo que valida el backend (ver createCommentSchema).
+// Mismo techo y mensaje que valida el backend (ver createCommentSchema).
 const MAX_LENGTH = 1000;
+const LENGTH_RULES = [
+  maxLength(MAX_LENGTH, `El comentario no puede tener más de ${MAX_LENGTH} caracteres.`),
+];
 
 export const ReviewComments = ({
   reviewId,
@@ -48,6 +52,11 @@ export const ReviewComments = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [text, setText] = useState('');
+
+  // El error de largo se muestra en vivo: solo aparece cuando realmente se pasó
+  // del tope, así que no marca nada antes de tiempo.
+  const commentInputId = `comment-${reviewId}`;
+  const lengthError = validateField(text, LENGTH_RULES);
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Comentario que se está por borrar, o null si no hay ninguno esperando
   // confirmación. Borrar es irreversible, así que se pregunta primero, igual que
@@ -76,7 +85,7 @@ export const ReviewComments = ({
     e.preventDefault();
 
     const trimmed = text.trim();
-    if (trimmed === '' || isSubmitting) return;
+    if (trimmed === '' || lengthError || isSubmitting) return;
 
     setIsSubmitting(true);
     setError(null);
@@ -183,15 +192,15 @@ export const ReviewComments = ({
       {/* Sin sesión no se puede comentar, así que directamente no se muestra el
           campo: es más claro que dejarlo puesto y que falle al enviar. */}
       {currentUserId !== null && (
-        <form className="review-comments__form" onSubmit={handleSubmit}>
+        <form className="review-comments__form" onSubmit={handleSubmit} noValidate>
           <TextInput
-            id={`comment-${reviewId}`}
+            id={commentInputId}
             placeholder="Escribí un comentario..."
-            maxLength={MAX_LENGTH}
             value={text}
             disabled={isSubmitting}
             onChange={(e) => setText(e.target.value)}
             aria-label="Escribí un comentario"
+            {...fieldErrorProps(commentInputId, lengthError)}
           />
           <Button
             type="submit"
@@ -200,11 +209,18 @@ export const ReviewComments = ({
             // tarjeta del listado va chico y al lado.
             size={variant === 'page' ? 'md' : 'sm'}
             fullWidth={variant === 'page'}
+            // Vacío no hay nada que mandar: es el patrón de cualquier caja de
+            // comentarios y se entiende sin mensaje. El largo sí se explica abajo.
             disabled={text.trim() === '' || isSubmitting}
           >
             {isSubmitting ? 'Enviando...' : 'Comentar'}
           </Button>
         </form>
+      )}
+      {lengthError && (
+        <p className="form-field__error" id={`${commentInputId}-error`}>
+          {lengthError}
+        </p>
       )}
 
       <ConfirmDialog
