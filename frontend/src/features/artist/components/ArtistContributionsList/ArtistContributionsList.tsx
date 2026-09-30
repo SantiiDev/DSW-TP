@@ -5,7 +5,7 @@
 //
 // En el perfil propio se ven también los pendientes y los rechazados (por eso
 // cada card muestra su estado): el que los cargó necesita saber en qué quedaron.
-// En el perfil de otro usuario la API devuelve solo lo aprobado.
+// En el perfil de otro usuario se pide solo lo aprobado (un admin recibiría todo).
 //
 // Vive en la feature artist para que el perfil solo tenga que montarla. Cuando
 // existan los CRUD de álbum y canción, la pestaña va a sumar sus propias
@@ -55,7 +55,13 @@ export const ArtistContributionsList = ({
     isLoading,
     error,
     reload: loadContributions,
-  } = useFetch(() => artistService.list({ createdBy: userId }), userId);
+  } = useFetch(
+    // En el perfil de otro se pide solo lo aprobado: la API le devuelve todos los
+    // estados a un admin, y mostrarle a cualquiera los pendientes o rechazados de
+    // otra persona confunde (eso se modera en el panel de administración).
+    () => artistService.list({ createdBy: userId, state: isOwnProfile ? undefined : 'approved' }),
+    userId
+  );
   const artists = data ?? [];
 
   // Solo importa en el perfil propio: es el único lugar donde se puede proponer.

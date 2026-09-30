@@ -102,7 +102,9 @@ export function useCatalogAdmin<T extends { id: number }, I>({
   const moderate = async (item: T, decision: 'approve' | 'reject') => {
     setBusyId(item.id);
     setError(null);
-    setFeedback(null);
+    // El aviso anterior NO se limpia al arrancar: si se borrara acá y volviera a
+    // aparecer al terminar, la lista subiría y bajaría de golpe. Se reemplaza
+    // cuando llega el nuevo, o se saca si la operación falla.
 
     try {
       if (decision === 'approve') await service.approve(item.id);
@@ -112,6 +114,7 @@ export function useCatalogAdmin<T extends { id: number }, I>({
       const label = decision === 'approve' ? 'aprobó' : 'rechazó';
       setFeedback(`Se ${label} el aporte "${getName(item)}".`);
     } catch (err) {
+      setFeedback(null);
       setError(getErrorMessage(err));
     } finally {
       setBusyId(null);
@@ -126,7 +129,7 @@ export function useCatalogAdmin<T extends { id: number }, I>({
     setToDelete(null);
     setBusyId(item.id);
     setError(null);
-    setFeedback(null);
+    // Igual que en moderate: el aviso anterior se mantiene hasta tener el nuevo.
 
     try {
       await service.remove(item.id);
@@ -135,6 +138,7 @@ export function useCatalogAdmin<T extends { id: number }, I>({
       await reload();
       setFeedback(`Se eliminó "${getName(item)}" del catálogo.`);
     } catch (err) {
+      setFeedback(null);
       setError(getErrorMessage(err));
     } finally {
       setBusyId(null);

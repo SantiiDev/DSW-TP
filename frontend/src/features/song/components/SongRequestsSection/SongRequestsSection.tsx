@@ -13,7 +13,7 @@ import type { ReactNode } from 'react';
 import { Alert } from '../../../../core/components/Alert';
 import { ShowMore } from '../../../../core/components/ShowMore';
 import { useShowMore } from '../../../../core/hooks/useShowMore';
-import { Loader } from '../../../../core/components/Loader';
+import { RefreshableBody } from '../../../../core/components/RefreshableBody';
 import { EmptyState } from '../../../../core/components/EmptyState';
 import { useFetch } from '../../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../../core/utils/errorHandler';
@@ -76,7 +76,9 @@ export const SongRequestsSection = ({
   const handleDecision = async (song: Song, decision: 'approve' | 'reject') => {
     setBusySongId(song.id);
     setError(null);
-    setFeedback(null);
+    // El aviso anterior NO se limpia al arrancar: si se borrara acá y volviera a
+    // aparecer al terminar, la lista subiría y bajaría de golpe. Se reemplaza
+    // cuando llega el nuevo, o se saca si la operación falla.
 
     try {
       if (decision === 'approve') await songService.approve(song.id);
@@ -87,6 +89,7 @@ export const SongRequestsSection = ({
       await loadRequests();
       setFeedback(`Se ${DECISION_LABELS[decision]} la propuesta "${song.title}".`);
     } catch (err) {
+      setFeedback(null);
       setError(getErrorMessage(err));
     } finally {
       setBusySongId(null);
@@ -99,37 +102,36 @@ export const SongRequestsSection = ({
       {error && <Alert tone="error">{error}</Alert>}
       {feedback && <Alert tone="success">{feedback}</Alert>}
 
-      {isLoading ? (
-        <Loader message="Cargando solicitudes..." />
-      ) : requests.length === 0 ? (
-        <EmptyState icon={emptyIcon} title={emptyTitle} message={emptyMessage} />
-      ) : (
-        <>
-          <h3 className="request-section__title">Canciones ({requests.length})</h3>
+      <RefreshableBody
+        isLoading={isLoading}
+        loadingMessage="Cargando solicitudes..."
+        isEmpty={requests.length === 0}
+        empty={<EmptyState icon={emptyIcon} title={emptyTitle} message={emptyMessage} />}
+      >
+        <h3 className="request-section__title">Canciones ({requests.length})</h3>
 
-          <ul className="request-list">
-            {visibleRequests.map((song) => (
-              <SongRequestCard
-                key={song.id}
-                song={song}
-                isBusy={busySongId === song.id}
-                onApprove={(item) => void handleDecision(item, 'approve')}
-                onReject={(item) => void handleDecision(item, 'reject')}
-              />
-            ))}
-          </ul>
-
-          {hasMore && (
-            <ShowMore
-              shown={visibleRequests.length}
-              total={requests.length}
-              noun="solicitudes"
-              buttonLabel="Ver más canciones"
-              onShowMore={showMore}
+        <ul className="request-list">
+          {visibleRequests.map((song) => (
+            <SongRequestCard
+              key={song.id}
+              song={song}
+              isBusy={busySongId === song.id}
+              onApprove={(item) => void handleDecision(item, 'approve')}
+              onReject={(item) => void handleDecision(item, 'reject')}
             />
-          )}
-        </>
-      )}
+          ))}
+        </ul>
+
+        {hasMore && (
+          <ShowMore
+            shown={visibleRequests.length}
+            total={requests.length}
+            noun="solicitudes"
+            buttonLabel="Ver más canciones"
+            onShowMore={showMore}
+          />
+        )}
+      </RefreshableBody>
     </div>
   );
 };

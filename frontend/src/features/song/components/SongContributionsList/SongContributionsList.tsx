@@ -5,7 +5,7 @@
 //
 // En el perfil propio se ven también las pendientes y las rechazadas (por eso
 // cada card muestra su estado): el que las cargó necesita saber en qué quedaron.
-// En el perfil de otro usuario la API devuelve solo lo aprobado.
+// En el perfil de otro usuario se pide solo lo aprobado (un admin recibiría todo).
 //
 // OJO, no confundir con la pestaña "Canciones calificadas": esa lista las que el
 // usuario reseñó, y depende de la feature review. Esta lista las que cargó.
@@ -53,7 +53,13 @@ export const SongContributionsList = ({
     isLoading,
     error,
     reload: loadContributions,
-  } = useFetch(() => songService.list({ createdBy: userId }), userId);
+  } = useFetch(
+    // En el perfil de otro se pide solo lo aprobado: la API le devuelve todos los
+    // estados a un admin, y mostrarle a cualquiera los pendientes o rechazados de
+    // otra persona confunde (eso se modera en el panel de administración).
+    () => songService.list({ createdBy: userId, state: isOwnProfile ? undefined : 'approved' }),
+    userId
+  );
   const songs = data ?? [];
 
   // Solo importa en el perfil propio: es el único lugar donde se puede proponer.

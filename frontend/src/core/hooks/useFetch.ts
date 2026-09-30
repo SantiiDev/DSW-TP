@@ -54,21 +54,30 @@ export function useFetch<T>(
   // provocaría la siguiente y no pararía nunca. La ref se actualiza en un efecto
   // (y no en el cuerpo) para no escribir durante el render.
   const fetcherRef = useRef(fetcher);
+  // Número de la última request lanzada. Sirve para descartar respuestas viejas:
+  // con un buscador que pide en cada pausa, la respuesta de "ab" puede llegar
+  // DESPUÉS de la de "abc" (la base tarda distinto según la consulta) y, sin este
+  // control, pisaría la lista con resultados de un texto que ya no está en pantalla.
+  const lastRequestRef = useRef(0);
 
   useEffect(() => {
     fetcherRef.current = fetcher;
   });
 
   const reload = useCallback(async () => {
+    const requestId = ++lastRequestRef.current;
     setIsLoading(true);
     setError(null);
 
     try {
-      setData(await fetcherRef.current());
+      const result = await fetcherRef.current();
+      if (requestId === lastRequestRef.current) setData(result);
     } catch (err) {
-      setError(getErrorMessage(err));
+      if (requestId === lastRequestRef.current) setError(getErrorMessage(err));
     } finally {
-      setIsLoading(false);
+      // Solo la request más nueva apaga el loading: si una vieja lo apagara, la
+      // tabla se vería "lista" mientras la búsqueda actual todavía está en camino.
+      if (requestId === lastRequestRef.current) setIsLoading(false);
     }
   }, []);
 
