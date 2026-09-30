@@ -45,13 +45,12 @@ function toFormValues(ad: Ad): AdFormValues {
 }
 
 export const AdAdminSection = () => {
-  const {
-    data,
-    isLoading,
-    error,
-    reload: loadAds,
-    setError,
-  } = useFetch(() => adService.list());
+  // No se usa `reload`: las cuatro operaciones (alta, edición, pausa y baja)
+  // devuelven el anuncio que tocaron, así que la tabla se actualiza en memoria con
+  // `setData`. Volver a pedir la lista prendería `isLoading` y el listado
+  // desaparecería un instante detrás del "Cargando anuncios...", que es lo que
+  // hacía parecer que el panel se recargaba en cada click.
+  const { data, isLoading, error, setData, setError } = useFetch(() => adService.list());
   const ads = data ?? [];
 
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -71,6 +70,22 @@ export const AdAdminSection = () => {
   const [formError, setFormError] = useState<string | null>(null);
 
   const activeCount = ads.filter((ad) => ad.isActive).length;
+
+  // Un solo cartel, SIEMPRE en pantalla, que cambia de texto según lo último que
+  // pasó. Antes el aviso se montaba y se desmontaba, y al pausar un anuncio
+  // aparecía de la nada empujando la tabla para abajo: el salto se leía como si el
+  // panel entero se hubiera recargado. Con el hueco reservado desde el primer
+  // render, lo único que cambia es el texto de adentro.
+  let statusTone: 'error' | 'success' | 'neutral' = 'neutral';
+  let statusMessage = 'Sin cambios';
+
+  if (error) {
+    statusTone = 'error';
+    statusMessage = error;
+  } else if (feedback) {
+    statusTone = 'success';
+    statusMessage = feedback;
+  }
 
   /**
    * Abre el modal del formulario.
@@ -92,13 +107,21 @@ export const AdAdminSection = () => {
 
     try {
       if (editingAd) {
-        await adService.update(editingAd.id, input);
+        const updated = await adService.update(editingAd.id, input);
+        // Igual que el interruptor: la fila se reemplaza en memoria con lo que
+        // devolvió la API, sin volver a pedir la lista.
+        setData((current) =>
+          (current ?? []).map((item) => (item.id === editingAd.id ? updated : item))
+        );
         setFeedback(`Se guardaron los cambios de "${input.title}".`);
       } else {
         const created = await adService.create(input);
+        // El anuncio nuevo va al final porque la API ordena por id ascendente
+        // (ver ad.repository.ts), así que agregarlo al final deja la tabla en el
+        // mismo orden que si se volviera a pedir.
+        setData((current) => [...(current ?? []), created]);
         setFeedback(`Se agregó el anuncio "${created.title}".`);
       }
-      await loadAds();
       setIsFormOpen(false);
       return true;
     } catch (err) {
@@ -119,8 +142,17 @@ export const AdAdminSection = () => {
 
     try {
       // Se manda SOLO el campo `active`: el resto del anuncio queda como estaba.
-      await adService.update(ad.id, { active: !ad.isActive });
-      await loadAds();
+      const updated = await adService.update(ad.id, { active: !ad.isActive });
+
+      // Se reemplaza esa fila en memoria en vez de volver a pedir la lista
+      // entera. El PATCH ya devuelve el anuncio actualizado, así que la request
+      // sería al mismo tiempo de más y molesta: `reload` prende `isLoading`, la
+      // tabla se desmontaría para mostrar el "Cargando anuncios..." y pausar un
+      // anuncio parecería recargar el panel.
+      setData((current) =>
+        (current ?? []).map((item) => (item.id === ad.id ? updated : item))
+      );
+
       setFeedback(
         ad.isActive
           ? `"${ad.title}" dejó de mostrarse. Se puede reanudar cuando quieras.`
@@ -146,7 +178,9 @@ export const AdAdminSection = () => {
       await adService.remove(id);
       // Si se estaba editando justo ese anuncio, el formulario ya no aplica.
       setEditingAd((current) => (current?.id === id ? null : current));
-      await loadAds();
+      // Se saca la fila en memoria, por el mismo motivo que en el interruptor: no
+      // hace falta pedir la lista de nuevo para saber que ese anuncio ya no está.
+      setData((current) => (current ?? []).filter((item) => item.id !== id));
       setFeedback(`Se eliminó el anuncio "${title}".`);
     } catch (err) {
       setError(getErrorMessage(err));
@@ -163,8 +197,14 @@ export const AdAdminSection = () => {
       subtitle="La publicidad que ven los usuarios Free. Un Pro o un Admin no ve ninguna."
     >
       <div className="ad-admin">
-        {error && <Alert tone="error">{error}</Alert>}
-        {feedback && <Alert tone="success">{feedback}</Alert>}
+        {/* La key remonta el cartel cuando cambia el texto, y eso no es un detalle:
+            un role="status" recién montado es lo que hace que el lector de pantalla
+            lea la confirmación. Si se reusara el mismo nodo cambiándole el texto,
+            el aviso podría pasar en silencio. La caja mide lo mismo en los tres
+            tonos, así que remontarlo no mueve nada de lugar. */}
+        <Alert key={statusMessage} tone={statusTone}>
+          {statusMessage}
+        </Alert>
 
         <div className="ad-admin__toolbar">
           <h3 className="ad-admin__list-title">

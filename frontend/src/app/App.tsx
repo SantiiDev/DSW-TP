@@ -267,7 +267,7 @@ export const App = () => {
         {/* La publicidad que ve un usuario Free. Va acá afuera y no adentro del
             div de arriba a propósito: ese div se remonta en cada cambio de ruta
             por su `key`, y con él se reiniciaría el reloj del próximo anuncio,
-            que nunca llegaría a cumplir el minuto. Quién lo ve y cada cuánto
+            que nunca llegaría a cumplir su espera. Quién lo ve y cada cuánto
             aparece lo decide el propio AdRotator. */}
         <AdRotator />
       </AuthModalProvider>

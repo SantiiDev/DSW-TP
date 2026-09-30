@@ -3,6 +3,10 @@
 // PlanForm.
 //
 // Valida con reglas propias (core/utils/validators), no con las del navegador.
+//
+// Muestra además una vista previa de la imagen mientras se escribe su ruta, con el
+// mismo criterio que el banner del perfil: lo que se va a publicar se ve antes de
+// guardarlo.
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Button } from '../../../../core/components/Button';
@@ -101,8 +105,17 @@ export const AdForm = ({
   // Errores visibles recién después del primer intento de guardar; desde ahí se
   // recalculan en cada tecla (criterio común a todos los formularios).
   const [wasSubmitted, setWasSubmitted] = useState(false);
+  // Última ruta de imagen que el navegador no pudo cargar. Se guarda el texto y no
+  // un booleano para que el aviso se vaya solo al escribir otra, igual que el del
+  // banner del perfil (ProfileCustomizationFields).
+  const [failedImage, setFailedImage] = useState<string | null>(null);
 
   const errors: FieldErrors<keyof AdFormValues> = wasSubmitted ? validateAdForm(values) : {};
+
+  // La vista previa trabaja con la ruta sin espacios, que es lo que se va a
+  // guardar y lo que el navegador va a pedir.
+  const imagePath = values.urlImage.trim();
+  const imageFailed = imagePath !== '' && imagePath === failedImage;
 
   /** Actualiza un solo campo, dejando los demás como estaban. */
   const handleChange = (field: keyof AdFormValues, value: string) => {
@@ -181,6 +194,28 @@ export const AdForm = ({
           {...fieldErrorProps('ad-image', errors.urlImage)}
         />
       </FormField>
+
+      {/* Vista previa de la imagen recién escrita. Es la única forma de darse
+          cuenta ANTES de guardar de que la ruta quedó mal: hasta ahora una ruta
+          equivocada se descubría cuando el anuncio le salía sin foto a un usuario
+          Free. No lleva alt porque es decorativa: al lado está el campo que dice
+          de qué imagen se trata, y el mensaje de la caja avisa si no cargó. */}
+      <div className="ad-form__preview">
+        {imagePath === '' || imageFailed ? (
+          <p className="ad-form__preview-empty">
+            {imageFailed
+              ? 'No pudimos cargar esa imagen. Revisá la ruta.'
+              : 'Acá se va a ver la imagen del anuncio.'}
+          </p>
+        ) : (
+          <img
+            className="ad-form__preview-image"
+            src={imagePath}
+            alt=""
+            onError={() => setFailedImage(imagePath)}
+          />
+        )}
+      </div>
 
       {/* type="text" y no type="url": el navegador rechazaría "/pro", que es
           justamente lo que lleva el anuncio de la propia membresía. Las dos

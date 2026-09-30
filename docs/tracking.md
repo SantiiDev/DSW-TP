@@ -67,7 +67,7 @@ Los títulos son los de las ramas que salieron de cada issue.
 | — | Membresía Pro como **pago único** en lugar de suscripción mensual | Santino Gallo | Cerrado (entró por un commit directo a `develop`; falta abrir el issue) |
 | — | Dashboard de administración con métricas de ingresos | Santino Gallo | En curso en la rama `feature/admin-revenue-dashboard` (falta abrir el issue y renombrar la rama con su número) |
 | — | Personalización de perfil Pro (banner, color de acento y badge Pro en reseñas, comentarios, listas y navbar) | Juan Ignacio Esterri | En curso en la rama `feature/profile-customization` (falta abrir el issue) |
-| — | Anuncios para usuarios Free (tabla `ADS`, panel lateral y CRUD de administración) | Santiago Siena | En curso en la rama `feature/ads-2` (falta abrir el issue) |
+| — | Anuncios para usuarios Free (tabla `ADS`, panel lateral y CRUD de administración) | Santiago Siena | En curso en la rama `feature/ads-3`, que sigue a `feature/ads-2`: intervalo de 20 segundos, rotación que arranca al azar, el anuncio no aparece sobre un modal abierto, vista previa de la imagen en el alta y los dos tests de la feature (falta abrir el issue) |
 
 > Las diez filas sin número de más arriba se trabajaron antes de abrir su issue:
 > cuatro entraron juntas por el PR #13, la de CUU 4 parte 2 por el PR #15, la de
@@ -166,6 +166,9 @@ Gallo.
 | Dos integrantes escribieron `optional-auth.ts` en paralelo, con comportamientos opuestos ante un token inválido | Se resolvió a favor de **ignorar el token inválido y seguir como visitante**, en lugar de cortar con 401. El `httpClient` no maneja el 401, así que cortar dejaría a alguien con la sesión vencida viendo un error en una página pública (`/reviews`) en vez del contenido | 10/09 |
 | El precio de un plan con centavos se mostraba redondeado ($1.750,50 salía como "$ 1.751") | `Plan.priceLabel` muestra los decimales solo cuando el monto los tiene | 10/09 |
 | `.review-card` estaba definida dos veces (`_review.scss` y `_members-explore.scss`) y solo se resolvía bien por el orden de los imports | La colisión desapareció al eliminar `/members` y su hoja de estilos | 10/09 |
+| Pausar o reanudar un anuncio parecía recargar el panel de administración: el listado desaparecía un instante detrás del "Cargando anuncios..." y el cartel de confirmación aparecía de la nada empujando la tabla | Las cuatro operaciones actualizan la fila en memoria con el anuncio que devuelve la API (`setData` de `useFetch`) en vez de volver a pedir la lista con `reload`, que prendía `isLoading`. El cartel quedó siempre en pantalla, con un tono `neutral` que dice "Sin cambios", así el hueco está reservado desde el primer render | 30/09 |
+| El anuncio de un usuario Free podía aparecer arriba de un formulario a medio llenar (una reseña, una lista) | `AdRotator` posterga la aparición mientras haya un diálogo abierto, que reconoce por el `aria-modal="true"` de `ConfirmDialog` y `FormModal`. Se hizo más visible al bajar el intervalo de 60 a 20 segundos | 30/09 |
+| La rotación de anuncios arrancaba siempre en el mismo: el índice vive en memoria y cada recarga de la página lo devolvía a cero | El índice inicial se sortea cuando llegan los anuncios, y desde ahí la rotación sigue avanzando de a uno | 30/09 |
 
 ## Deuda de proceso
 

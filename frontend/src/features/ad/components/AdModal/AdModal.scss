@@ -48,6 +48,12 @@ $ad-accent: #0b6e2f;
   // Select 1200. El anuncio va arriba de todo para que no quede escondido detrás
   // de nada; como no bloquea, taparle una punta a un modal abierto no impide
   // seguir usándolo.
+  //
+  // Que el anuncio APAREZCA arriba de un formulario a medio llenar es otra cosa, y
+  // eso no se arregla acá sino en AdRotator, que posterga la aparición mientras
+  // haya un diálogo abierto. Queda arriba igual para el caso inverso (el anuncio
+  // ya estaba y recién después se abre el modal): si bajara de 1100, el velo del
+  // modal lo taparía y no se podría ni saltarlo hasta cerrar el diálogo.
   z-index: 1300;
   display: flex;
   // Mobile: el panel se apoya abajo, que es donde llega el pulgar.
