@@ -1,10 +1,21 @@
 // Formulario de alta y edición de un anuncio (título, descripción, imagen y
 // enlace). Es controlado y no guarda nada: delega el submit al padre, igual que
 // PlanForm.
+//
+// Valida con reglas propias (core/utils/validators), no con las del navegador.
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Button } from '../../../core/components/Button';
 import { FormField, TextInput } from '../../../core/components/FormField';
+import {
+  fieldErrorProps,
+  hasErrors,
+  isUrl,
+  maxLength,
+  required,
+  validateField,
+} from '../../../core/utils/validators';
+import type { FieldErrors, Rule } from '../../../core/utils/validators';
 import type { AdInput } from '../services/adService';
 import '../styles/_ad-admin.scss';
 
@@ -44,6 +55,39 @@ const EMPTY_VALUES: AdFormValues = {
   targetUrl: '',
 };
 
+const TARGET_MESSAGE = 'El enlace tiene que ser una URL (https://...) o una ruta del sitio (/pro).';
+
+/**
+ * El enlace admite dos formas: una URL completa, que se abre en otra pestaña, o
+ * una ruta del propio sitio ("/pro"), que es lo que lleva el anuncio de la
+ * membresía. Es el mismo refine de targetUrlSchema en ad.schema.ts.
+ */
+const isUrlOrSitePath: Rule = (value) =>
+  value.trim().startsWith('/') ? null : isUrl(TARGET_MESSAGE)(value);
+
+/** Valida el anuncio con las mismas reglas y mensajes que ad.schema.ts del backend. */
+function validateAdForm(values: AdFormValues): FieldErrors<keyof AdFormValues> {
+  return {
+    title: validateField(values.title, [
+      required('El título del anuncio no puede estar vacío.'),
+      maxLength(80, 'El título del anuncio no puede tener más de 80 caracteres.'),
+    ]),
+    description: validateField(values.description, [
+      maxLength(200, 'La descripción no puede tener más de 200 caracteres.'),
+    ]),
+    // La imagen es una ruta dentro de public/ y no una URL completa, así que no
+    // se le exige formato (el backend tampoco): solo que esté y su largo.
+    urlImage: validateField(values.urlImage, [
+      required('El anuncio necesita una imagen.'),
+      maxLength(500, 'La ruta de la imagen no puede tener más de 500 caracteres.'),
+    ]),
+    targetUrl: validateField(values.targetUrl, [
+      maxLength(500, 'El enlace del anuncio no puede tener más de 500 caracteres.'),
+      isUrlOrSitePath,
+    ]),
+  };
+}
+
 export const AdForm = ({
   initialValues,
   isSubmitting,
@@ -54,6 +98,11 @@ export const AdForm = ({
   const isEditing = initialValues !== undefined;
 
   const [values, setValues] = useState<AdFormValues>(initialValues ?? EMPTY_VALUES);
+  // Errores visibles recién después del primer intento de guardar; desde ahí se
+  // recalculan en cada tecla (criterio común a todos los formularios).
+  const [wasSubmitted, setWasSubmitted] = useState(false);
+
+  const errors: FieldErrors<keyof AdFormValues> = wasSubmitted ? validateAdForm(values) : {};
 
   /** Actualiza un solo campo, dejando los demás como estaban. */
   const handleChange = (field: keyof AdFormValues, value: string) => {
@@ -62,6 +111,8 @@ export const AdForm = ({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setWasSubmitted(true);
+    if (hasErrors(validateAdForm(values))) return;
 
     const succeeded = await onSubmit({
       title: values.title.trim(),
@@ -79,26 +130,31 @@ export const AdForm = ({
 
     // En una edición los campos quedan como están porque siguen siendo los datos
     // del anuncio; en un alta se vacían para poder cargar el siguiente.
-    if (succeeded && !isEditing) setValues(EMPTY_VALUES);
+    if (succeeded && !isEditing) {
+      setValues(EMPTY_VALUES);
+      setWasSubmitted(false);
+    }
   };
 
   return (
-    <form className="ad-form" onSubmit={handleSubmit}>
-      <FormField id="ad-title" label="Título">
+    <form className="ad-form" onSubmit={handleSubmit} noValidate>
+      <FormField id="ad-title" label="Título" error={errors.title}>
         <TextInput
           id="ad-title"
           type="text"
           placeholder="Vinilos Club"
           value={values.title}
           onChange={(e) => handleChange('title', e.target.value)}
-          // El límite se valida igual en el backend; acá es para avisar antes de
-          // gastar una request.
-          maxLength={80}
-          required
+          {...fieldErrorProps('ad-title', errors.title)}
         />
       </FormField>
 
-      <FormField id="ad-description" label="Descripción" hint="(opcional)">
+      <FormField
+        id="ad-description"
+        label="Descripción"
+        hint="(opcional)"
+        error={errors.description}
+      >
         <TextInput
           as="textarea"
           id="ad-description"
@@ -106,7 +162,7 @@ export const AdForm = ({
           placeholder="Una línea corta: es el texto que va debajo de la imagen."
           value={values.description}
           onChange={(e) => handleChange('description', e.target.value)}
-          maxLength={200}
+          {...fieldErrorProps('ad-description', errors.description)}
         />
       </FormField>
 
@@ -114,6 +170,7 @@ export const AdForm = ({
         id="ad-image"
         label="Imagen"
         hint="(ruta dentro de public/, en vertical 3:4)"
+        error={errors.urlImage}
       >
         <TextInput
           id="ad-image"
@@ -121,18 +178,18 @@ export const AdForm = ({
           placeholder="/images/ads/ad-vinyl.jpg"
           value={values.urlImage}
           onChange={(e) => handleChange('urlImage', e.target.value)}
-          maxLength={500}
-          required
+          {...fieldErrorProps('ad-image', errors.urlImage)}
         />
       </FormField>
 
       {/* type="text" y no type="url": el navegador rechazaría "/pro", que es
-          justamente lo que lleva el anuncio de la propia membresía. Quien valida
-          las dos formas es el backend. */}
+          justamente lo que lleva el anuncio de la propia membresía. Las dos
+          formas las acepta isUrlOrSitePath, igual que el backend. */}
       <FormField
         id="ad-target"
         label="Enlace"
         hint="(opcional: https://… se abre en otra pestaña, /pro navega dentro del sitio)"
+        error={errors.targetUrl}
       >
         <TextInput
           id="ad-target"
@@ -140,7 +197,7 @@ export const AdForm = ({
           placeholder="https://example.com/vinilos-club"
           value={values.targetUrl}
           onChange={(e) => handleChange('targetUrl', e.target.value)}
-          maxLength={500}
+          {...fieldErrorProps('ad-target', errors.targetUrl)}
         />
       </FormField>
 

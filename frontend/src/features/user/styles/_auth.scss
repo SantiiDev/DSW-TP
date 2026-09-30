@@ -82,56 +82,6 @@
     margin: 0;
   }
 
-  // Botón de Google
-  &__google-btn {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-sm;
-    padding: 0.7rem $spacing-md;
-    background-color: transparent;
-    border: 1px solid #444;
-    border-radius: $radius;
-    color: $color-text;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.05);
-      border-color: #666;
-    }
-  }
-
-  &__google-icon {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-  }
-
-  // Separador "o"
-  &__divider {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: $spacing-md;
-  }
-
-  &__divider-line {
-    flex: 1;
-    height: 1px;
-    background-color: $color-nav-border;
-  }
-
-  &__divider-text {
-    font-size: 0.85rem;
-    color: $color-text-secondary;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
   // Formulario
   &__form {
     width: 100%;
@@ -171,10 +121,23 @@
     &::placeholder {
       color: color.adjust($color-text-secondary, $lightness: -20%);
     }
+
+    // Campo con error de validación: se engancha de aria-invalid, el mismo
+    // atributo que le avisa al lector de pantalla (igual que FormField).
+    &[aria-invalid='true'] {
+      border-color: $color-error;
+    }
+  }
+
+  // Mensaje de validación debajo de un campo.
+  &__field-error {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-error;
   }
 
   // Mensaje de error del login/registro: credenciales incorrectas, email ya
-  // registrado, contraseñas que no coinciden, servidor caído.
+  // registrado, servidor caído. Los errores de cada campo van aparte (__field-error).
   &__error {
     width: 100%;
     margin: 0;

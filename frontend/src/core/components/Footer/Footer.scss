@@ -21,12 +21,10 @@
     grid-template-columns: 1fr;
     gap: $spacing-xl;
     
+    // Tres columnas de enlaces: entran lado a lado desde SM, porque cada una
+    // tiene solo un título corto y dos links.
     @media (min-width: $bp-sm) {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    @media (min-width: $bp-md) {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
   }
   
@@ -34,10 +32,6 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-md;
-    
-    &--newsletter {
-      gap: $spacing-sm;
-    }
   }
   
   &__title {
@@ -73,59 +67,6 @@
       &:hover {
         color: color.adjust($color-primary, $lightness: 10%);
       }
-    }
-  }
-  
-  &__text {
-    color: $color-text-secondary;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    margin: 0 0 $spacing-sm 0;
-  }
-  
-  &__form {
-    display: flex;
-    gap: $spacing-sm;
-  }
-  
-  &__input {
-    flex: 1;
-    background-color: $color-bg-light;
-    // Con qué color se tapa el fondo del navegador si autocompleta el mail
-    // (ver la regla de :-webkit-autofill en base/_reset.scss).
-    --autofill-bg: #{$color-bg-light};
-    border: 1px solid transparent;
-    border-radius: $radius;
-    padding: 0.6rem 1.2rem;
-    color: $color-text;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.2s ease;
-    
-    &:focus {
-      border-color: $color-primary;
-    }
-    
-    &::placeholder {
-      color: color.adjust($color-text-secondary, $lightness: -20%);
-    }
-  }
-  
-  &__button {
-    background-color: $color-primary;
-    color: $color-nav-bg;
-    border: none;
-    border-radius: $radius;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: color.adjust($color-primary, $lightness: 5%);
     }
   }
   

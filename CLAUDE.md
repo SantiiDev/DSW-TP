@@ -80,6 +80,26 @@ quedó a cargo de Siena.
 Ya está creada (`src/core/`, `src/features/<feature>/{components,models,pages,services,styles}`).
 No modificar ni alterar las carpetas sin antes preguntar.
 
+**Una carpeta por componente** (pedido de la cátedra). Cada componente y cada página vive en
+una carpeta con su nombre en PascalCase, con todo lo suyo adentro:
+
+```
+core/components/SegmentedControl/
+  SegmentedControl.tsx        el componente
+  SegmentedControl.scss       sus estilos, con el mismo nombre (sin guion bajo)
+  SegmentedControl.test.tsx   su test, si tiene
+  index.ts                    export * from './SegmentedControl';
+```
+
+- El `index.ts` hace que se siga importando como `core/components/SegmentedControl`, sin repetir
+  el nombre: mover un componente a su carpeta no obliga a tocar los imports de nadie.
+- Cada componente importa **su** `.scss`. `styles/main.scss` queda solo con lo global
+  (`abstracts` y `base`): si un componente también se importa ahí, su CSS sale duplicado.
+- Variables que comparten varios componentes de una feature van en un parcial de tokens
+  (`features/<feature>/styles/_tokens.scss`), que no genera CSS.
+- Ya migrados: `core/components` y la feature `membership`. Las demás features se migran con el
+  mismo patrón, cada una por su dueño.
+
 ### Backend
 
 Misma idea que el frontend: **`features/` es el dominio y `shared/` es lo transversal**
@@ -121,7 +141,8 @@ Dos reglas de ubicación que no son obvias:
 - Identificadores de código (variables, funciones, componentes, archivos, carpetas): **en inglés**.
 - Ramas de git: en inglés, `feature/<issue-number>-<short-description>` (ej: `feature/4-artist-crud`).
 - Frontend: componentes en PascalCase (`ArtistCard.tsx`); hooks en camelCase con prefijo `use`
-  (`useArtistList.ts`); parciales de estilos en kebab-case (`_artist-card.scss`).
+  (`useArtistList.ts`); estilos de un componente con su mismo nombre (`ArtistCard.scss`), y
+  parciales de `abstracts` o de tokens con guion bajo (`_variable.scss`, `_tokens.scss`).
 - Backend: archivos en kebab-case con sufijo de capa (`album.controller.ts`, `album.service.ts`).
 - Comentarios: se permite español para que todo el equipo los entienda fácil, pero deben ser
   claros, breves y en el mismo idioma dentro de un mismo archivo.
@@ -143,6 +164,23 @@ Dos reglas de ubicación que no son obvias:
 - Todo fetch/servicio debe manejar estados de `loading`, `error` y datos vacíos, mostrando mensajes
   amigables en la UI (nunca un error crudo de consola).
 
+## Validación de formularios (frontend)
+
+- **No usar la validación del navegador** (pedido de la cátedra): el `<form>` lleva `noValidate` y
+  los controles no llevan `required`, `minLength`, `maxLength`, `pattern`, `type="email"` ni
+  `type="url"` (para el teclado del celular se usa `type="text"` + `inputMode`). `maxLength`
+  tampoco: corta en silencio el texto que se pega; el tope se avisa con la regla `maxLength`.
+- Un campo obligatorio que no es de texto (un `Select`, las estrellas, los ítems de una lista)
+  también se valida con mensaje: no se deshabilita el botón de guardar sin explicar por qué.
+- Las reglas salen de `core/utils/validators` (`required`, `isEmail`, `minLength`, `isUrl`, ...) y
+  copian los schemas de Zod del backend, con sus mismos mensajes. Las reglas que se repiten entre
+  formularios van en un archivo de la feature (ej: `features/user/models/userRules.ts`).
+- El mensaje va debajo del campo con `<FormField error={...}>`, y el control recibe
+  `{...fieldErrorProps(id, error)}`: pone `aria-invalid`, que además pinta el borde en rojo.
+- Los errores se muestran recién después del primer intento de enviar, y desde ahí se recalculan
+  en cada tecla. Mientras haya errores no se llama a la API.
+- El backend sigue validando igual: esa es la validación que vale; la del frontend solo avisa antes.
+
 ## Modelado de datos (frontend)
 
 - Representar los datos que van/vienen de la API con **clases** en `features/<x>/models/`.
@@ -151,6 +189,9 @@ Dos reglas de ubicación que no son obvias:
   el resto de la app nunca ve el JSON crudo.
 - Cada feature debe tener al menos un servicio propio que centralice sus llamadas HTTP, y ese
   servicio debe usar el `httpClient` compartido de `core/services/`, no `fetch` directo.
+- **Única excepción**: `features/home/services/contactService.ts` usa `fetch` para mandar el
+  formulario de contacto a Web3Forms. `httpClient` le pega a nuestra API y adjunta el token de
+  sesión: usarlo con un servicio externo le mandaría ese token a un tercero.
 
 ## API y errores (backend)
 

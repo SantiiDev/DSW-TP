@@ -1,6 +1,5 @@
-// Componente del pie de página (Footer) de la aplicación, que contiene enlaces rápidos, la suscripción al boletín de noticias y derechos reservados.
+// Componente del pie de página (Footer) de la aplicación: los enlaces rápidos y los derechos reservados.
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 import './Footer.scss';
 
 export const Footer = () => {
@@ -30,22 +29,6 @@ export const Footer = () => {
               <li><Link to="/faq" className="footer__link">Preguntas frecuentes</Link></li>
               <li><Link to="/contact" className="footer__link">Contacto</Link></li>
             </ul>
-          </div>
-
-          <div className="footer__column footer__column--newsletter">
-            <h3 className="footer__title">Suscríbete a nuestro boletín informativo</h3>
-            <p className="footer__text">Mantente al día de los últimos lanzamientos, noticias y ofertas.</p>
-            <form className="footer__form" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Dirección de correo electrónico"
-                className="footer__input"
-                required
-              />
-              <button type="submit" className="footer__button">
-                <ArrowRight size={20} />
-              </button>
-            </form>
           </div>
         </div>
 

@@ -65,6 +65,24 @@ export const sameAs =
     value === other ? null : message;
 
 /**
+ * El valor es una dirección web completa (http o https). Es lo que exige z.url()
+ * en el backend para las imágenes de perfil y de banner. Un campo vacío lo
+ * resuelve `required`, o se acepta si el campo es opcional.
+ */
+export const isUrl =
+  (message: string): Rule =>
+  (value) => {
+    if (value.trim() === '') return null;
+    try {
+      const { protocol } = new URL(value.trim());
+      return protocol === 'http:' || protocol === 'https:' ? null : message;
+    } catch {
+      // new URL() tira error con cualquier cosa que no sea una URL completa.
+      return message;
+    }
+  };
+
+/**
  * El valor es un número entre `min` y `max`. Acepta coma o punto decimal, que
  * es como se escribe un monto en Argentina ("1750,50").
  */
@@ -74,6 +92,19 @@ export const isNumberBetween =
     if (value.trim() === '') return null;
     const number = Number(value.trim().replace(',', '.'));
     return Number.isFinite(number) && number >= min && number <= max ? null : message;
+  };
+
+/**
+ * El valor es un número ENTERO entre `min` y `max`: un año, un número de pista,
+ * una duración en segundos. Un "2001.5" o un "12a" no pasan.
+ */
+export const isIntegerBetween =
+  (min: number, max: number, message: string): Rule =>
+  (value) => {
+    if (value.trim() === '') return null;
+    if (!/^-?\d+$/.test(value.trim())) return message;
+    const number = Number(value.trim());
+    return number >= min && number <= max ? null : message;
   };
 
 /**

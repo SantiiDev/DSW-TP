@@ -7,10 +7,17 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Button } from '../../../core/components/Button';
-import { FormField, TextInput } from '../../../core/components/FormField';
+import { FormField, TextInput } from '../../../core/components/FormField';
+import { fieldErrorProps, maxLength, required, validateField } from '../../../core/utils/validators';
 import type { GenreInput } from '../services/genreService';
 import '../styles/_genre.scss';
 
+// Mismas reglas y mensajes que genre.schema.ts del backend.
+const NAME_RULES = [
+  required('El nombre del género no puede estar vacío.'),
+  maxLength(60, 'El nombre del género no puede tener más de 60 caracteres.'),
+];
+
 type GenreFormProps = {
   /**
    * Valores con los que arranca el formulario. En un alta va vacío; en una edición
@@ -39,29 +46,36 @@ export const GenreForm = ({
   const isEditing = initialValues !== undefined;
 
   const [name, setName] = useState(initialValues?.name ?? '');
+  // El error se muestra recién después del primer intento de guardar, y desde ahí
+  // se recalcula en cada tecla (criterio común a todos los formularios).
+  const [wasSubmitted, setWasSubmitted] = useState(false);
+
+  const nameError = wasSubmitted ? validateField(name, NAME_RULES) : undefined;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setWasSubmitted(true);
+    if (validateField(name, NAME_RULES)) return;
 
-    const succeeded = await onSubmit({ name });
+    const succeeded = await onSubmit({ name: name.trim() });
     // En una edición el campo queda como está porque sigue siendo el dato del
     // género; en un alta se vacía para poder cargar el siguiente.
-    if (succeeded && !isEditing) setName('');
+    if (succeeded && !isEditing) {
+      setName('');
+      setWasSubmitted(false);
+    }
   };
 
   return (
-    <form className="genre-form" onSubmit={handleSubmit}>
-      <FormField id="genre-name" label="Nombre">
+    <form className="genre-form" onSubmit={handleSubmit} noValidate>
+      <FormField id="genre-name" label="Nombre" error={nameError}>
         <TextInput
           id="genre-name"
           type="text"
           placeholder="Rock Nacional, Jazz, Trip Hop..."
           value={name}
           onChange={(e) => setName(e.target.value)}
-          // El límite se valida igual en el backend; acá es para avisar antes de
-          // gastar una request.
-          maxLength={60}
-          required
+          {...fieldErrorProps('genre-name', nameError)}
         />
       </FormField>
 

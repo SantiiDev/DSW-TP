@@ -6,10 +6,21 @@
 // existe NumberInput: un <input type="number"> cambia el valor solo si se lo
 // scrollea sin querer, y acá eso sería cambiarle el precio a un plan. La
 // conversión a número se hace una sola vez, al enviar.
+//
+// Valida con reglas propias (core/utils/validators) y no con las del navegador.
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Button } from '../../../../core/components/Button';
 import { FormField, TextInput } from '../../../../core/components/FormField';
+import {
+  fieldErrorProps,
+  hasErrors,
+  isNumberBetween,
+  maxLength,
+  required,
+  validateField,
+} from '../../../../core/utils/validators';
+import type { FieldErrors } from '../../../../core/utils/validators';
 import type { PlanInput } from '../../services/membershipService';
 import './PlanForm.scss';
 
@@ -46,6 +57,26 @@ type PlanFormProps = {
 const EMPTY_VALUES: PlanFormValues = { name: '', amount: '', description: '' };
 
 /**
+ * Valida el plan con las mismas reglas y mensajes que plan.schema.ts del backend.
+ * El monto tope es el que entra en la columna DECIMAL(10,2).
+ */
+function validatePlanForm(values: PlanFormValues): FieldErrors<keyof PlanFormValues> {
+  return {
+    name: validateField(values.name, [
+      required('El nombre del plan no puede estar vacío.'),
+      maxLength(50, 'El nombre del plan no puede tener más de 50 caracteres.'),
+    ]),
+    amount: validateField(values.amount, [
+      required('Ingresá el monto (0 si el plan es gratis).'),
+      isNumberBetween(0, 99999999.99, 'El monto tiene que estar entre 0 y 99.999.999,99.'),
+    ]),
+    description: validateField(values.description, [
+      maxLength(500, 'La descripción no puede tener más de 500 caracteres.'),
+    ]),
+  };
+}
+
+/**
  * Deja pasar solo lo que puede formar un precio: dígitos y un único punto
  * decimal, con dos decimales como máximo. Es el mismo límite que valida el
  * backend, que guarda el monto en un DECIMAL(10,2).
@@ -76,6 +107,11 @@ export const PlanForm = ({
   const isEditing = initialValues !== undefined;
 
   const [values, setValues] = useState<PlanFormValues>(initialValues ?? EMPTY_VALUES);
+  // Errores visibles recién después del primer intento de guardar; desde ahí se
+  // recalculan en cada tecla.
+  const [wasSubmitted, setWasSubmitted] = useState(false);
+
+  const errors: FieldErrors<keyof PlanFormValues> = wasSubmitted ? validatePlanForm(values) : {};
 
   /** Actualiza un solo campo, dejando los demás como estaban. */
   const handleChange = (field: keyof PlanFormValues, value: string) => {
@@ -84,11 +120,13 @@ export const PlanForm = ({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setWasSubmitted(true);
+    if (hasErrors(validatePlanForm(values))) return;
 
     const succeeded = await onSubmit({
-      name: values.name,
-      // El campo es obligatorio, así que acá siempre hay un número; el Number('')
-      // daría 0 y el required del input no deja llegar a ese caso.
+      name: values.name.trim(),
+      // La validación ya garantizó que hay un número: Number('') daría 0, pero un
+      // monto vacío no llega hasta acá.
       amount: Number(values.amount),
       // El backend traduce el string vacío a null igual, pero mandarlo ya
       // convertido evita que un plan quede con la descripción en "".
@@ -97,27 +135,32 @@ export const PlanForm = ({
 
     // En una edición los campos quedan como están porque siguen siendo los datos
     // del plan; en un alta se vacían para poder cargar el siguiente.
-    if (succeeded && !isEditing) setValues(EMPTY_VALUES);
+    if (succeeded && !isEditing) {
+      setValues(EMPTY_VALUES);
+      setWasSubmitted(false);
+    }
   };
 
   return (
-    <form className="plan-form" onSubmit={handleSubmit}>
+    <form className="plan-form" onSubmit={handleSubmit} noValidate>
       <div className="plan-form__row">
-        <FormField id="plan-name" label="Nombre">
+        <FormField id="plan-name" label="Nombre" error={errors.name}>
           <TextInput
             id="plan-name"
             type="text"
             placeholder="Pro, Free, Estudiante..."
             value={values.name}
             onChange={(e) => handleChange('name', e.target.value)}
-            // El límite se valida igual en el backend; acá es para avisar antes
-            // de gastar una request.
-            maxLength={50}
-            required
+            {...fieldErrorProps('plan-name', errors.name)}
           />
         </FormField>
 
-        <FormField id="plan-amount" label="Monto del pago único" hint="(en pesos, 0 si es gratis)">
+        <FormField
+          id="plan-amount"
+          label="Monto del pago único"
+          hint="(en pesos, 0 si es gratis)"
+          error={errors.amount}
+        >
           <TextInput
             id="plan-amount"
             type="text"
@@ -125,12 +168,17 @@ export const PlanForm = ({
             placeholder="3500"
             value={values.amount}
             onChange={(e) => handleChange('amount', filterAmount(e.target.value))}
-            required
+            {...fieldErrorProps('plan-amount', errors.amount)}
           />
         </FormField>
       </div>
 
-      <FormField id="plan-description" label="Descripción" hint="(opcional)">
+      <FormField
+        id="plan-description"
+        label="Descripción"
+        hint="(opcional)"
+        error={errors.description}
+      >
         <TextInput
           as="textarea"
           id="plan-description"
@@ -138,7 +186,7 @@ export const PlanForm = ({
           placeholder="Qué incluye el plan. Es el texto que se muestra en la página de venta."
           value={values.description}
           onChange={(e) => handleChange('description', e.target.value)}
-          maxLength={500}
+          {...fieldErrorProps('plan-description', errors.description)}
         />
       </FormField>
 

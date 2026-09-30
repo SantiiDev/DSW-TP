@@ -151,6 +151,11 @@ $star-color: #f5c518;
     color: $color-text-secondary;
     font-size: 0.75rem;
     text-align: right;
+
+    // Pasado el tope: el mensaje de validación explica el resto.
+    &--over {
+      color: $color-error;
+    }
   }
 
   &__actions {

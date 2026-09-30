@@ -3,14 +3,19 @@
 // Es un componente controlado: no llama a la API directamente, delega el submit
 // al padre a través de la prop onSubmit (que en UserProfilePage usa el
 // updateProfile del AuthContext).
+//
+// Valida con reglas propias (models/userRules), no con las del navegador.
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Alert } from '../../../core/components/Alert';
 import { Avatar } from '../../../core/components/Avatar';
 import { Button } from '../../../core/components/Button';
 import { FormField, TextInput } from '../../../core/components/FormField';
+import { fieldErrorProps, hasErrors, validateField } from '../../../core/utils/validators';
+import type { FieldErrors } from '../../../core/utils/validators';
 import { DEFAULT_BANNER_POSITION, DEFAULT_PROFILE_COLOR } from '../models/User';
 import type { ProfileColor } from '../models/User';
+import { EMAIL_RULES, IMAGE_URL_RULES, USERNAME_RULES } from '../models/userRules';
 import type { UpdateUserInput } from '../services/userService';
 import { ProfileCustomizationFields } from './ProfileCustomizationFields';
 
@@ -18,6 +23,23 @@ import { ProfileCustomizationFields } from './ProfileCustomizationFields';
 // que devuelve la imagen directamente, así que sirve como referencia de "URL que
 // sí funciona" cuando alguien pega el link de una página por error.
 const EXAMPLE_AVATAR_URL = 'https://picsum.photos/200';
+
+type UserFormField = 'avatarUrl' | 'username' | 'email' | 'bannerUrl';
+
+type UserFormValues = Record<UserFormField, string>;
+
+/**
+ * Valida el perfil. El banner solo se valida si la cuenta puede personalizar:
+ * un FREE no tiene el campo, y no tendría cómo corregir un error que no ve.
+ */
+function validateUserForm(values: UserFormValues, canCustomize: boolean): FieldErrors<UserFormField> {
+  return {
+    avatarUrl: validateField(values.avatarUrl, IMAGE_URL_RULES),
+    username: validateField(values.username, USERNAME_RULES),
+    email: validateField(values.email, EMAIL_RULES),
+    bannerUrl: canCustomize ? validateField(values.bannerUrl, IMAGE_URL_RULES) : undefined,
+  };
+}
 
 type UserFormProps = {
   initialUsername: string;
@@ -66,8 +88,19 @@ export const UserForm = ({
     initialProfileColor ?? DEFAULT_PROFILE_COLOR
   );
 
+  // Errores visibles recién después del primer intento de guardar; desde ahí se
+  // recalculan en cada tecla (mismo criterio que AuthModal).
+  const [wasSubmitted, setWasSubmitted] = useState(false);
+  const values: UserFormValues = { avatarUrl, username, email, bannerUrl };
+  const errors: FieldErrors<UserFormField> = wasSubmitted
+    ? validateUserForm(values, canCustomize)
+    : {};
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    setWasSubmitted(true);
+    if (hasErrors(validateUserForm(values, canCustomize))) return;
+
     // url_avatar viaja aunque esté vacío: así el backend sabe que hay que borrar
     // la foto y volver al avatar por defecto.
     const input: UpdateUserInput = { username, email, url_avatar: avatarUrl.trim() };
@@ -84,7 +117,7 @@ export const UserForm = ({
   };
 
   return (
-    <form className="user-form" onSubmit={handleSubmit}>
+    <form className="user-form" onSubmit={handleSubmit} noValidate>
       {error && <Alert tone="error">{error}</Alert>}
 
       {/* Vista previa en vivo: el usuario ve cómo queda la foto antes de guardar. */}
@@ -100,14 +133,16 @@ export const UserForm = ({
         </p>
       </div>
 
-      <FormField id="user-form-avatar" label="Foto de perfil (URL)">
+      <FormField id="user-form-avatar" label="Foto de perfil (URL)" error={errors.avatarUrl}>
+        {/* type="text" + inputMode: type="url" trae la validación del navegador. */}
         <TextInput
           id="user-form-avatar"
-          type="url"
+          type="text"
+          inputMode="url"
           placeholder="https://ejemplo.com/mi-foto.jpg"
           value={avatarUrl}
           onChange={(e) => setAvatarUrl(e.target.value)}
-          maxLength={500}
+          {...fieldErrorProps('user-form-avatar', errors.avatarUrl)}
         />
 
         {/* El error más común no es una URL mal escrita sino el link de la página
@@ -130,25 +165,26 @@ export const UserForm = ({
         </button>
       </FormField>
 
-      <FormField id="user-form-username" label="Nombre de usuario">
+      <FormField id="user-form-username" label="Nombre de usuario" error={errors.username}>
         <TextInput
           id="user-form-username"
           type="text"
+          autoComplete="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          minLength={3}
-          maxLength={50}
-          required
+          {...fieldErrorProps('user-form-username', errors.username)}
         />
       </FormField>
 
-      <FormField id="user-form-email" label="Correo electrónico">
+      <FormField id="user-form-email" label="Correo electrónico" error={errors.email}>
         <TextInput
           id="user-form-email"
-          type="email"
+          type="text"
+          inputMode="email"
+          autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
+          {...fieldErrorProps('user-form-email', errors.email)}
         />
       </FormField>
 
@@ -156,6 +192,7 @@ export const UserForm = ({
         canCustomize={canCustomize}
         username={username}
         bannerUrl={bannerUrl}
+        bannerUrlError={errors.bannerUrl}
         bannerPosition={bannerPosition}
         profileColor={profileColor}
         onBannerUrlChange={setBannerUrl}

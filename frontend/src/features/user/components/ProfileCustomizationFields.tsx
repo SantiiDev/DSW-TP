@@ -8,7 +8,8 @@ import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Alert } from '../../../core/components/Alert';
 import { ButtonLink } from '../../../core/components/Button';
-import { FormField, TextInput } from '../../../core/components/FormField';
+import { FormField, TextInput } from '../../../core/components/FormField';
+import { fieldErrorProps } from '../../../core/utils/validators';
 import { PROFILE_COLOR_LABELS, PROFILE_COLORS } from '../models/User';
 import type { ProfileColor } from '../models/User';
 import { ProfileBanner } from './ProfileBanner';
@@ -18,6 +19,8 @@ type ProfileCustomizationFieldsProps = {
   canCustomize: boolean;
   username: string;
   bannerUrl: string;
+  /** Mensaje de validación del banner. Lo calcula UserForm, que es el dueño del <form>. */
+  bannerUrlError?: string;
   /** Qué franja de la imagen se ve: 0 arriba, 100 abajo. */
   bannerPosition: number;
   profileColor: ProfileColor;
@@ -30,6 +33,7 @@ export const ProfileCustomizationFields = ({
   canCustomize,
   username,
   bannerUrl,
+  bannerUrlError,
   bannerPosition,
   profileColor,
   onBannerUrlChange,
@@ -77,14 +81,20 @@ export const ProfileCustomizationFields = ({
         />
       </div>
 
-      <FormField id="user-form-banner" label="Banner del perfil (URL)" hint="(opcional)">
+      <FormField
+        id="user-form-banner"
+        label="Banner del perfil (URL)"
+        hint="(opcional)"
+        error={bannerUrlError}
+      >
         <TextInput
           id="user-form-banner"
-          type="url"
+          type="text"
+          inputMode="url"
           placeholder="https://ejemplo.com/mi-portada.jpg"
           value={bannerUrl}
           onChange={(e) => onBannerUrlChange(e.target.value)}
-          maxLength={500}
+          {...fieldErrorProps('user-form-banner', bannerUrlError)}
         />
       </FormField>
 
