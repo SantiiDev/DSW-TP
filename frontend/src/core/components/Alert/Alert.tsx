@@ -10,14 +10,28 @@
 import type { ReactNode } from 'react';
 import './Alert.scss';
 
+/**
+ * `neutral` es el aviso que no dice nada: sirve para dejar el cartel SIEMPRE en
+ * pantalla y que su hueco no aparezca y desaparezca corriendo lo de abajo (lo usa
+ * el panel de anuncios con su "Sin cambios"). Como no informa de nada que acabe de
+ * pasar, es el único tono que no va en una región viva: anunciarle "Sin cambios"
+ * a un lector de pantalla sería ruido.
+ */
 type AlertProps = {
-  tone: 'error' | 'success' | 'warning';
+  tone: 'error' | 'success' | 'warning' | 'neutral';
   children: ReactNode;
 };
 
+/** Devuelve el rol de accesibilidad que le corresponde a cada tono. */
+function roleFor(tone: AlertProps['tone']): 'alert' | 'status' | undefined {
+  if (tone === 'error') return 'alert';
+  if (tone === 'neutral') return undefined;
+  return 'status';
+}
+
 export const Alert = ({ tone, children }: AlertProps) => {
   return (
-    <p className={`alert alert--${tone}`} role={tone === 'error' ? 'alert' : 'status'}>
+    <p className={`alert alert--${tone}`} role={roleFor(tone)}>
       {children}
     </p>
   );

@@ -26,15 +26,47 @@ import { AdModal } from '../AdModal';
  */
 const SILENT_ROUTES = ['/pro/checkout', '/pro/return'];
 
+/**
+ * Cuánto navega un usuario FREE antes de que aparezca el próximo anuncio.
+ *
+ * Está acá arriba con nombre y no suelto en el setTimeout para que se vea de una
+ * cada cuánto aparece la publicidad, que es la decisión que se ajusta.
+ */
+const AD_INTERVAL_MS = 20_000;
+
+/** Cada cuánto se vuelve a mirar si el diálogo que frenó al anuncio ya se cerró. */
+const DIALOG_RECHECK_MS = 3_000;
+
+/**
+ * ¿Hay un diálogo abierto en pantalla?
+ *
+ * Los dos modales del sitio (ConfirmDialog y FormModal) se marcan con
+ * `aria-modal="true"`, que es lo que le avisa al lector de pantalla que atrapan
+ * la atención. Se pregunta por ese atributo y no por una clase porque es
+ * exactamente lo que interesa saber acá: si el usuario está escribiendo una
+ * reseña, armando una lista o confirmando una baja, el anuncio no interrumpe.
+ *
+ * El propio AdModal NO lleva `aria-modal` (no bloquea nada, ver AdModal.tsx), así
+ * que este chequeo no se detecta a sí mismo.
+ */
+function isDialogOpen(): boolean {
+  return document.querySelector('[aria-modal="true"]') !== null;
+}
+
 export const AdRotator = () => {
   const { state } = useAuth();
   const { pathname } = useLocation();
 
   const [ads, setAds] = useState<Ad[]>([]);
-  // Cuál de los anuncios toca. Avanza de a uno y vuelve al principio: así se ven
-  // los cinco, en vez de depender de la suerte de un sorteo.
+  // Cuál de los anuncios toca. Arranca en uno al azar (ver el efecto de abajo) y
+  // desde ahí avanza de a uno y vuelve al principio: así se ven todos, en vez de
+  // depender de la suerte de un sorteo en cada aparición.
   const [index, setIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  // true cuando el anuncio ya tendría que haber salido pero había un diálogo
+  // abierto. Mientras esté así, el reloj de abajo no cuenta y lo único que corre es
+  // el recontrol que espera a que ese diálogo se cierre.
+  const [isPostponed, setIsPostponed] = useState(false);
 
   // Solo un FREE con la sesión abierta ve publicidad. Un visitante sin cuenta
   // tampoco: la vitrina pública queda limpia para el que todavía no se registró.
@@ -53,7 +85,14 @@ export const AdRotator = () => {
     adService
       .listActive()
       .then((loaded) => {
-        if (!cancelled) setAds(loaded);
+        if (cancelled) return;
+
+        setAds(loaded);
+        // La rotación arranca en un anuncio al azar y no siempre en el primero.
+        // El índice vive en memoria, así que sin esto cada recarga de la página
+        // volvería a empezar por el mismo: con cinco anuncios cargados, el
+        // primero se vería muchas más veces que los otros cuatro.
+        if (loaded.length > 0) setIndex(Math.floor(Math.random() * loaded.length));
       })
       .catch(() => {
         if (!cancelled) setAds([]);
@@ -70,19 +109,51 @@ export const AdRotator = () => {
   // El reloj del próximo anuncio.
   //
   // Depende de `isOpen`, así que se rearma recién cuando el usuario salta el que
-  // está viendo: el minuto es siempre de navegación real y no corre mientras hay
+  // está viendo: la espera es siempre de navegación real y no corre mientras hay
   // un anuncio en pantalla. Navegar de una página a otra no lo reinicia, porque
   // `pathname` entra por `canShowAds` y no como dependencia suelta; entrar al
   // checkout sí lo cancela, y salir de ahí lo vuelve a arrancar desde cero.
   //
   // Al usuario no se le muestra en ningún lado cuánto falta: la publicidad
   // aparece sola, como en cualquier sitio.
+  //
+  // Si al cumplirse la espera hay un diálogo abierto, el anuncio NO sale: queda
+  // postergado. Interrumpir a alguien que está a mitad de un formulario sería peor
+  // que esperar, y además el panel se dibujaría justo encima de lo que completa.
   useEffect(() => {
-    if (!canShowAds || isOpen) return;
+    if (!canShowAds || isOpen || isPostponed) return;
 
-    const timeoutId = setTimeout(() => setIsOpen(true), 60_000);
+    const timeoutId = setTimeout(() => {
+      if (isDialogOpen()) {
+        setIsPostponed(true);
+        return;
+      }
+
+      setIsOpen(true);
+    }, AD_INTERVAL_MS);
+
     return () => clearTimeout(timeoutId);
-  }, [canShowAds, isOpen]);
+  }, [canShowAds, isOpen, isPostponed]);
+
+  // El recontrol: corre SOLO mientras el anuncio está postergado, y lo único que
+  // hace es mirar si el diálogo ya se cerró. Cuando se cierra, la espera de arriba
+  // arranca de nuevo completa, con el mismo criterio que rige todo el reloj: los 20
+  // segundos son de navegación, y mientras hay un diálogo abierto el usuario no está
+  // navegando.
+  //
+  // Va como intervalo y no como un timeout que se rearma porque un intervalo sigue
+  // disparando sin depender de que React vuelva a renderizar: con un booleano que ya
+  // está en true, poner el mismo valor otra vez no provoca render y el reloj quedaría
+  // muerto.
+  useEffect(() => {
+    if (!isPostponed) return;
+
+    const intervalId = setInterval(() => {
+      if (!isDialogOpen()) setIsPostponed(false);
+    }, DIALOG_RECHECK_MS);
+
+    return () => clearInterval(intervalId);
+  }, [isPostponed]);
 
   /** Cierra el anuncio actual y deja preparado el siguiente de la rotación. */
   const handleSkip = () => {

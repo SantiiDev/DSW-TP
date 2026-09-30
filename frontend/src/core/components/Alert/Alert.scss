@@ -21,6 +21,15 @@
     color: $color-primary;
   }
 
+  // El tono que no dice nada: mismo tamaño y misma caja que los otros, pero
+  // apagado, para que se lea como "acá va a aparecer el aviso" y no como un
+  // mensaje. Es lo que reserva el lugar y evita que la pantalla salte.
+  &--neutral {
+    background-color: rgba($color-text-secondary, 0.08);
+    border-color: rgba($color-text-secondary, 0.25);
+    color: $color-text-secondary;
+  }
+
   // Mismo dorado que el ícono "gold" de SectionHeader: un aviso no es un error
   // (no se rechazó nada) ni una confirmación, así que no le pega ni el rojo ni
   // el verde de los otros dos tonos.

@@ -8,6 +8,7 @@
 //   Música       -> ABM del catálogo (artistas, álbumes y canciones)
 //   Solicitudes  -> moderación de los aportes que mandan los usuarios Pro
 //   Planes       -> ABM de los planes de membresía
+//   Anuncios     -> ABM de la publicidad que ven los usuarios Free
 //
 // La página no sabe nada del contenido de cada pestaña: solo decide cuál está
 // activa. Cada panel se encarga de sus propios datos, así que abrir el panel no

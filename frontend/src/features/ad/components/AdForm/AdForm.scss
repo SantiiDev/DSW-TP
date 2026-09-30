@@ -14,4 +14,43 @@
     justify-content: flex-end;
     gap: $spacing-sm;
   }
+
+  // Vista previa de la imagen. Va con el mismo 3:4 que tiene el panel del anuncio
+  // para que se vea el encuadre real, y con un tamaño chico porque comparte el
+  // modal con los cuatro campos.
+  //
+  // La caja mide siempre lo mismo, con imagen o sin ella: si apareciera solo
+  // cuando la ruta carga, el formulario entero se movería mientras se escribe.
+  &__preview {
+    width: 96px;
+    aspect-ratio: 3 / 4;
+    border: 1px dashed rgba($color-text-secondary, 0.4);
+    border-radius: $radius;
+    background-color: $color-bg;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    @media (min-width: $bp-md) {
+      width: 120px;
+    }
+  }
+
+  &__preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__preview-empty {
+    margin: 0;
+    padding: $spacing-sm;
+    font-size: 0.7rem;
+    line-height: 1.3;
+    text-align: center;
+    color: $color-text-secondary;
+  }
 }

@@ -57,8 +57,12 @@ quedó a cargo de Siena.
 - Node + **Express** + **TypeScript**.
 - ORM: **Sequelize v6**, tipando las entidades con `InferAttributes` / `InferCreationAttributes`
   (tipado nativo de Sequelize). No usar `sequelize-typescript` ni decoradores.
-- Base de datos: **MySQL** en servicio cloud gestionado (Aiven). Nunca una DB embebida ni local.
-  La conexión requiere SSL: configurar `dialectOptions.ssl` con el CA que provee el servicio.
+- Base de datos: **MySQL 8**, siempre como servicio aparte al que la app se conecta por red.
+  **Nunca una DB embebida** (SQLite y compañía quedan descartadas por la cátedra). En
+  desarrollo corre local (`DB_HOST=127.0.0.1`, `DB_SSL=false`), por acuerdo con la cátedra;
+  en producción, un servicio cloud gestionado. Lo único que cambia entre los dos es el `.env`:
+  con `DB_SSL=true` el CA del proveedor se pega en `DB_SSL_CA` y de ahí sale
+  `dialectOptions.ssl`. Ver "Pasaje a producción" en el README del backend.
 - Validación de entrada: **Zod**, aplicada mediante un middleware antes del controller.
 - Autenticación: JWT propio + bcrypt para el hash de contraseñas.
 - Pasarela de pago: MercadoPago Checkout Pro (sandbox) con webhook. Se le habla con

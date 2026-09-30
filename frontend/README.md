@@ -38,13 +38,28 @@ consulta ninguna API externa, todo sale de nuestra propia API.
 
 Son de dos tipos, y la diferencia es qué tan lejos llega cada uno.
 
-**Test de componente** — `src/core/components/SegmentedControl.test.tsx`, con
-Vitest y React Testing Library. Monta el componente solo, en un DOM simulado
-(`jsdom`), y verifica que renderice una opción por cada `option`, que marque con
-`aria-pressed` únicamente la elegida, y que al hacer click avise al padre con el
-valor correcto. Se eligió `SegmentedControl` porque no depende del router, ni del
-`AuthContext`, ni de la API: se monta con un `render()` pelado, sin mocks. No hace
-falta tener nada levantado:
+**Tests de componente** — con Vitest y React Testing Library, montando el
+componente solo en un DOM simulado (`jsdom`). El requisito de la cátedra es uno; hay
+siete, uno por cada pieza donde la regla vive en lo que se dibuja y no se puede
+verificar leyendo el backend:
+
+| Test | Qué fija |
+| :--- | :------- |
+| `core/components/SegmentedControl/SegmentedControl.test.tsx` | Una opción por cada `option`, `aria-pressed` solo en la elegida y el aviso al padre al hacer click |
+| `features/membership/components/MembershipPanel/MembershipPanel.test.tsx` | La regla del pago único: el panel no ofrece renovar ni dar de baja |
+| `features/membership/components/RevenueDashboard/RevenueDashboard.test.tsx` | El tablero de métricas con ventas y sin ninguna |
+| `features/membership/components/PlanForm/PlanForm.test.tsx` | La validación propia del formulario de planes |
+| `features/user/components/CreateUserForm/CreateUserForm.test.tsx` | La validación del alta de usuarios |
+| `features/home/pages/ContactPage/ContactPage.test.tsx` | El formulario de contacto, incluido el caso sin access key |
+| `features/ad/components/AdModal/AdModal.test.tsx` | El anuncio no se puede saltar antes de los 5 segundos, y su imagen se envuelve en un enlace solo si tiene destino |
+
+`SegmentedControl` es el más simple a propósito: no depende del router, ni del
+`AuthContext`, ni de la API, así que se monta con un `render()` pelado y sin mocks.
+Los demás mockean su servicio o se envuelven en un `MemoryRouter`.
+
+Hay además un test que no monta ningún componente: `core/utils/validators.test.ts`
+prueba las reglas de validación (`required`, `isEmail`, `minLength`, `isUrl`, …) como
+funciones sueltas, que es lo que son. Nada de esto necesita tener algo levantado:
 
 ```bash
 npm test
@@ -227,17 +242,20 @@ modal de registro a alguien que ya entró.
 
 ### Panel de administración (`/admin`)
 
-Solo para `ADMIN` (`<ProtectedRoute roles={['ADMIN']}>`). Adentro se divide en tres
+Solo para `ADMIN` (`<ProtectedRoute roles={['ADMIN']}>`). Adentro se divide en seis
 pestañas, cada una con su propio componente de panel:
 
-| Pestaña | Componente | Estado |
-| :------ | :--------- | :----- |
-| Usuarios | `AdminUsersPanel` | funcionando contra `/api/users` |
-| Música | `AdminMusicPanel` | shell listo; espera los endpoints de artista, álbum y canción |
-| Solicitudes | `AdminRequestsPanel` | shell listo; espera la moderación de aportes (CUU 3) |
+| Pestaña | Componente | Qué gestiona |
+| :------ | :--------- | :----------- |
+| Métricas | `RevenueAdminSection` | Ventas de la membresía y usuarios por plan. Es la que abre por defecto |
+| Usuarios | `AdminUsersPanel` | Alta de cuentas, cambio de rol y suspensión |
+| Música | `AdminMusicPanel` | ABM del catálogo: artistas, álbumes y canciones |
+| Solicitudes | `AdminRequestsPanel` | Moderación de los aportes que mandan los usuarios Pro (CUU 3) |
+| Planes | `PlanAdminSection` | ABM de los planes de membresía |
+| Anuncios | `AdAdminSection` | ABM de la publicidad que ven los usuarios Free |
 
 La página solo decide qué pestaña está activa: **cada panel pide sus propios datos**,
-así abrir el panel no dispara las requests de las tres áreas a la vez.
+así abrir el panel no dispara las requests de las seis áreas a la vez.
 
 La barra de pestañas es el componente compartido `core/components/Tabs`, el mismo que
 usa el perfil: si cambia el diseño de las pestañas, cambia en las dos pantallas a la
@@ -246,6 +264,34 @@ deciden `ProfileTabs` y `AdminPage`.
 
 El panel vivía en `/admin/users` cuando solo gestionaba cuentas; esa URL sigue
 funcionando porque redirige a `/admin`.
+
+### La publicidad que ve un usuario Free
+
+Es la contracara de la promesa de la membresía: el sitio ofrece "sin anuncios" como
+beneficio Pro, así que tiene que haber un anuncio que sacarse. La feature `ad` tiene
+dos mitades: el ABM de la pestaña **Anuncios** de `/admin`, y el panel que aparece en
+la navegación.
+
+Quién lo ve y cuándo lo decide `AdRotator`, montado una sola vez en `App.tsx`:
+
+- **solo un `FREE` con la sesión abierta.** Un visitante sin cuenta no ve ninguno: la
+  vitrina pública queda limpia para quien todavía no se registró;
+- **cada 20 segundos de navegación real.** El reloj no corre mientras hay un anuncio
+  en pantalla, y cambiar de página no lo reinicia;
+- **nunca en el flujo de pago** (`/pro/checkout`, `/pro/return`): cortar a alguien que
+  está por contratar la membresía con la publicidad que viene a sacarse sería la peor
+  forma de perder la venta;
+- **nunca encima de un diálogo abierto.** Si al cumplirse la espera hay un modal en
+  pantalla (una reseña a medio escribir, una lista que se está armando), el anuncio se
+  posterga y se vuelve a intentar unos segundos después. Los modales del sitio se
+  reconocen por su `aria-modal="true"`.
+
+El panel (`AdModal`) **no bloquea el sitio**: flota a un costado y se puede seguir
+navegando con él en pantalla, pero no se va solo. No se cierra con Escape ni con un
+click al costado y no tiene una X: la única salida es "Saltar", que se habilita a los
+cinco segundos. Por eso tampoco se marca como `aria-modal`, que le mentiría al lector
+de pantalla. Todos los anuncios llevan además el acceso a `/pro`, que es el motivo por
+el que el anuncio existe.
 
 ## Convenciones
 
