@@ -13,7 +13,7 @@ import { Plus } from 'lucide-react';
 import { Alert } from '../../../../core/components/Alert';
 import { Button } from '../../../../core/components/Button';
 import { FormModal } from '../../../../core/components/FormModal';
-import { Loader } from '../../../../core/components/Loader';
+import { RefreshableBody } from '../../../../core/components/RefreshableBody';
 import { ConfirmDialog } from '../../../../core/components/Modal';
 import { useFetch } from '../../../../core/hooks/useFetch';
 import { getErrorMessage } from '../../../../core/utils/errorHandler';
@@ -156,20 +156,23 @@ export const GenreAdminSection = () => {
         </Button>
       </div>
 
-      {isLoading ? (
-        <Loader message="Cargando géneros..." />
-      ) : genres.length === 0 ? (
-        <p className="genre-admin__empty">
-          Todavía no hay géneros cargados. Agregá el primero con el botón de arriba.
-        </p>
-      ) : (
+      <RefreshableBody
+        isLoading={isLoading}
+        loadingMessage="Cargando géneros..."
+        isEmpty={genres.length === 0}
+        empty={
+          <p className="genre-admin__empty">
+            Todavía no hay géneros cargados. Agregá el primero con el botón de arriba.
+          </p>
+        }
+      >
         <GenreAdminTable
           genres={genres}
           busyGenreId={busyGenreId}
           onEdit={handleOpenForm}
           onDelete={setGenreToDelete}
         />
-      )}
+      </RefreshableBody>
 
       {/* El mismo modal sirve para el alta y para la edición: lo que cambia son
           el título, los valores iniciales y a qué handler se manda. La key lo

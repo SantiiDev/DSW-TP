@@ -15,6 +15,7 @@ import { Alert } from '../../../../core/components/Alert';
 import { Button } from '../../../../core/components/Button';
 import { FormModal } from '../../../../core/components/FormModal';
 import { Loader } from '../../../../core/components/Loader';
+import { SearchBar } from '../../../../core/components/SearchBar';
 import { ShowMore } from '../../../../core/components/ShowMore';
 import { ConfirmDialog } from '../../../../core/components/Modal';
 import { useAuth } from '../../../../core/context/AuthContext';
@@ -41,6 +42,18 @@ export const AdminUsersPanel = () => {
   const { data, isLoading, error, setData, setError } = useFetch(() => userService.list());
   const users = data ?? [];
 
+  // Texto del buscador. La lista ya llegó entera (userService.list no filtra), así que
+  // se filtra acá, al instante y sin pedir nada: no hace falta la pausa de
+  // useAppliedSearch, que existe para no disparar una request por tecla.
+  const [search, setSearch] = useState('');
+  const query = search.trim().toLowerCase();
+  const filteredUsers = query
+    ? users.filter(
+        (user) =>
+          user.username.toLowerCase().includes(query) || user.email.toLowerCase().includes(query)
+      )
+    : users;
+
   const [isCreating, setIsCreating] = useState(false);
   // El alta vive en un modal: a la pestaña se entra a mirar y a cambiar roles
   // mucho más seguido que a crear cuentas a mano.
@@ -55,10 +68,10 @@ export const AdminUsersPanel = () => {
   // Cambios de rol en borrador: se aplican recién al apretar "Guardar cambios".
   const { pendingRoles, pendingCount, isSavingRoles, selectRole, discardRoles, dropPendingRole, saveRoles } =
     usePendingRoles(setData, setError);
-  // Cuántas filas se muestran (paginado del lado del cliente). No hay filtro que
-  // la reinicie: el panel no tiene buscador ni selector de estado, así que crece
-  // solo con "Ver más" mientras dure la sesión en esta pestaña.
-  const { visibleItems: visibleUsers, hasMore: hasMoreUsers, showMore } = useShowMore(users, PAGE_SIZE);
+  // Cuántas filas se muestran (paginado del lado del cliente). Al cambiar la
+  // búsqueda vuelve a la primera página: el "Ver más" de un resultado no tiene
+  // sentido sobre otro.
+  const { visibleItems: visibleUsers, hasMore: hasMoreUsers, showMore } = useShowMore(filteredUsers, PAGE_SIZE, query);
 
   // Las cuentas dadas de baja siguen en el listado, así que se cuentan aparte
   // para que el admin sepa cuántas hay sin recorrer la tabla entera.
@@ -161,10 +174,19 @@ export const AdminUsersPanel = () => {
           </Button>
         </div>
 
+        <SearchBar
+          value={search}
+          placeholder="Buscar un usuario por nombre o email..."
+          onChange={setSearch}
+          onClear={() => setSearch('')}
+        />
+
         {isLoading ? (
           <Loader message="Cargando usuarios..." />
         ) : users.length === 0 ? (
           <p className="admin-users__empty">Todavía no hay usuarios registrados.</p>
+        ) : filteredUsers.length === 0 ? (
+          <p className="admin-users__empty">No hay usuarios que coincidan con "{search.trim()}".</p>
         ) : (
           <>
             <UserAdminTable
@@ -181,7 +203,7 @@ export const AdminUsersPanel = () => {
             {hasMoreUsers && (
               <ShowMore
                 shown={visibleUsers.length}
-                total={users.length}
+                total={filteredUsers.length}
                 noun="usuarios"
                 onShowMore={showMore}
               />

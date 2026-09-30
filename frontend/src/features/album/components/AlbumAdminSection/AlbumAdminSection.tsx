@@ -85,7 +85,7 @@ function toFormValues(album: Album): AlbumInput {
 export const AlbumAdminSection = () => {
   const { state: authState } = useAuth();
   const [stateFilter, setStateFilter] = useState<ContentState>('approved');
-  const { search, setSearch, appliedSearch, applySearch, clearSearch } = useAppliedSearch();
+  const { search, setSearch, appliedSearch, clearSearch } = useAppliedSearch();
 
   // La clave junta los dos valores de los que depende el listado: cambiar
   // cualquiera de los dos lo vuelve a pedir (el filtrado lo resuelve la API) y
@@ -131,9 +131,7 @@ export const AlbumAdminSection = () => {
         search={{
           value: search,
           placeholder: 'Buscar un álbum por título...',
-          hasActiveSearch: appliedSearch !== '',
           onChange: setSearch,
-          onSearch: applySearch,
           onClear: clearSearch,
         }}
         isLoading={isLoading}

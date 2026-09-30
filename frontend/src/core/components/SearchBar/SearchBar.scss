@@ -1,19 +1,11 @@
-// Estilos de la barra de búsqueda reutilizable (core/components/SearchBar.tsx).
-// Los botones son el componente Button, que trae los suyos: acá va solo el campo.
+// Estilos de la barra de búsqueda reutilizable (SearchBar.tsx).
 @use '../../../styles/abstracts/variable' as *;
 
 .search-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-
   &__field {
     position: relative;
     display: flex;
     align-items: center;
-    // Crece para ocupar el ancho libre, pero no baja de 220px: más angosto que
-    // eso no entra un título completo.
-    flex: 1 1 220px;
   }
 
   &__icon {
@@ -32,8 +24,8 @@
     --autofill-bg: #{$color-bg-light};
     border: 1px solid $color-nav-border;
     border-radius: $radius;
-    // El padding izquierdo deja lugar para la lupa.
-    padding: 0.6rem 1rem 0.6rem 2.4rem;
+    // Padding a los dos lados: a la izquierda entra la lupa y a la derecha la cruz.
+    padding: 0.6rem 2.4rem;
     color: $color-text;
     font: inherit;
     font-size: 0.9rem;
@@ -42,6 +34,29 @@
 
     &:focus {
       border-color: $color-primary;
+    }
+
+    // Se oculta la cruz nativa de Chrome/Edge: la pone el componente, que sí
+    // se ve igual en todos los navegadores.
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
+  }
+
+  &__clear {
+    position: absolute;
+    right: 0.5rem;
+    display: flex;
+    padding: 0.25rem;
+    background: none;
+    border: none;
+    border-radius: $radius;
+    color: $color-text-secondary;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      color: $color-text;
     }
   }
 }

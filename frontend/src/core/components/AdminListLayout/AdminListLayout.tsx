@@ -9,7 +9,7 @@
 //     title={`Álbumes del catálogo (${albums.length})`}
 //     filter={<Select ... />}
 //     action={<Button>Agregar álbum</Button>}
-//     search={{ value, placeholder, hasActiveSearch, onChange, onSearch, onClear }}
+//     search={{ value, placeholder, onChange, onClear }}
 //     isLoading={isLoading}
 //     loadingMessage="Cargando álbumes..."
 //     isEmpty={albums.length === 0}
@@ -19,7 +19,7 @@
 //   </AdminListLayout>
 import type { ComponentProps, ReactNode } from 'react';
 import { Alert } from '../Alert';
-import { Loader } from '../Loader';
+import { RefreshableBody } from '../RefreshableBody';
 import { SearchBar } from '../SearchBar';
 import './AdminListLayout.scss';
 
@@ -80,13 +80,14 @@ export const AdminListLayout = ({
 
       <SearchBar {...search} />
 
-      {isLoading ? (
-        <Loader message={loadingMessage} />
-      ) : isEmpty ? (
-        <p className="admin-list__empty">{emptyMessage}</p>
-      ) : (
-        children
-      )}
+      <RefreshableBody
+        isLoading={isLoading}
+        loadingMessage={loadingMessage}
+        isEmpty={isEmpty}
+        empty={<p className="admin-list__empty">{emptyMessage}</p>}
+      >
+        {children}
+      </RefreshableBody>
     </div>
   );
 };
