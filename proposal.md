@@ -139,6 +139,16 @@ issue y las correcciones de bugs están en
 |[#16](https://github.com/SantiiDev/DSW-TP/pull/16)|`feature/12-user-ranking`|Ranking global de usuarios más activos|16/09|
 |[#17](https://github.com/SantiiDev/DSW-TP/pull/17)|`custom-lists`|CRUD completo de listas personalizadas (`LISTS`, `LIST_ALBUMS` y `LIST_LIKES`) y `/lists` conectada a la API|17/09|
 |[#18](https://github.com/SantiiDev/DSW-TP/pull/18)|`fixed-list`|Correcciones sobre el CRUD de listas|18/09|
+|[#19](https://github.com/SantiiDev/DSW-TP/pull/19)|`fixed-list2`|Listas de canciones (`LISTS.type` + `LIST_SONGS`) y alta de listas restringida a `PRO`/`ADMIN`|21/09|
+|[#20](https://github.com/SantiiDev/DSW-TP/pull/20)|`feature/admin-revenue-dashboard`|Dashboard de administración con métricas de ingresos|24/09|
+|[#21](https://github.com/SantiiDev/DSW-TP/pull/21)|`fix/minor-bugs`|Tope de filas del panel lateral y del ranking, y `z-index` del `Select` sobre los modales|27/09|
+|[#22](https://github.com/SantiiDev/DSW-TP/pull/22)|`feature/profile-customization`|Personalización de perfil Pro: banner, color de acento y badge Pro|28/09|
+|[#23](https://github.com/SantiiDev/DSW-TP/pull/23)|`feature/ads-2`|Publicidad para usuarios Free: tabla `ADS`, CRUD de administración y panel rotativo|29/09|
+|[#24](https://github.com/SantiiDev/DSW-TP/pull/24)|`refactor/component-folders`|Una carpeta por componente en todo el frontend|29/09|
+|[#25](https://github.com/SantiiDev/DSW-TP/pull/25)|`fix/custom-form-validation`|Validación de formularios propia, sin la del navegador|30/09|
+|[#26](https://github.com/SantiiDev/DSW-TP/pull/26)|`refactor/tech-debt`|Los beneficios Pro dejan de prometer lo que no existe|30/09|
+|[#27](https://github.com/SantiiDev/DSW-TP/pull/27)|`feature/ads-3`|Ajustes de anuncios y los dos tests de la feature|30/09|
+|[#28](https://github.com/SantiiDev/DSW-TP/pull/28)|`feature/admin-panel-improvements`|Buscador en vivo y recargas sin parpadeo en el panel de administración|30/09|
 
 El PR #5 que aparece en el historial del repositorio pertenece al repositorio
 original `utnfrrodsw/tp`, anterior al fork, y no es trabajo del grupo.
