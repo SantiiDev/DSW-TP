@@ -65,18 +65,24 @@ Los títulos son los de las ramas que salieron de cada issue.
 | — | Listas de canciones (`LISTS.type` + `LIST_SONGS`) y alta de listas restringida a `PRO`/`ADMIN` | Santiago Siena | Cerrado (entró por el PR #19; falta abrir el issue) |
 | — | Correcciones de listas, paginado del panel de administración y de las contribuciones del perfil | Juan Ignacio Esterri | Cerrado (entró por commits directos a `develop`; falta abrir el issue) |
 | — | Membresía Pro como **pago único** en lugar de suscripción mensual | Santino Gallo | Cerrado (entró por un commit directo a `develop`; falta abrir el issue) |
-| — | Dashboard de administración con métricas de ingresos | Santino Gallo | En curso en la rama `feature/admin-revenue-dashboard` (falta abrir el issue y renombrar la rama con su número) |
-| — | Personalización de perfil Pro (banner, color de acento y badge Pro en reseñas, comentarios, listas y navbar) | Juan Ignacio Esterri | En curso en la rama `feature/profile-customization` (falta abrir el issue) |
-| — | Anuncios para usuarios Free (tabla `ADS`, panel lateral y CRUD de administración) | Santiago Siena | En curso en la rama `feature/ads-3`, que sigue a `feature/ads-2`: intervalo de 20 segundos, rotación que arranca al azar, el anuncio no aparece sobre un modal abierto, vista previa de la imagen en el alta y los dos tests de la feature (falta abrir el issue) |
+| — | Dashboard de administración con métricas de ingresos | Santino Gallo | Cerrado (entró por el PR #20; falta abrir el issue) |
+| — | Personalización de perfil Pro (banner, color de acento y badge Pro en reseñas, comentarios, listas y navbar) | Juan Ignacio Esterri | Cerrado (entró por el PR #22; falta abrir el issue) |
+| — | Anuncios para usuarios Free (tabla `ADS`, panel lateral y CRUD de administración) | Santiago Siena | Cerrado (entró por los PR #23 y #27: el segundo bajó el intervalo a 20 segundos, hizo arrancar la rotación al azar, evitó que el anuncio tape un modal abierto y sumó la vista previa de la imagen y los dos tests de la feature; falta abrir el issue) |
+| — | Correcciones de interfaz: tope de filas del panel lateral y del ranking, y `z-index` del `Select` sobre los modales | Juan Ignacio Esterri | Cerrado (entró por el PR #21; falta abrir el issue) |
+| — | Una carpeta por componente en todo el frontend | Santino Gallo | Cerrado (entró por el PR #24; falta abrir el issue) |
+| — | Validación de formularios propia, sin la del navegador | Santino Gallo | Cerrado (entró por el PR #25; falta abrir el issue) |
+| — | Los beneficios Pro dejan de prometer lo que no existe | Santino Gallo | Cerrado (entró por el PR #26; falta abrir el issue) |
+| — | Buscador en vivo y recargas sin parpadeo en el panel de administración | Juan Ignacio Esterri | Cerrado (entró por el PR #28; falta abrir el issue) |
 
-> Las diez filas sin número de más arriba se trabajaron antes de abrir su issue:
-> cuatro entraron juntas por el PR #13, la de CUU 4 parte 2 por el PR #15, la de
-> listas personalizadas por los PR #17 y #18, la de listas de canciones por el
-> PR #19, y las dos de los commits directos a `develop`. Hay que crearlas en
-> el GitHub Project y vincularlas a esos pull requests, para que la trazabilidad
-> quede completa antes de la entrega. Las tres filas "En curso" del final (el
-> dashboard de ingresos, la personalización de perfil y los anuncios) también
-> necesitan su issue.
+> **Las diecisiete filas sin número están todas cerradas, pero ninguna tiene su
+> issue abierto.** Se trabajaron antes de crearlo: cuatro entraron juntas por el
+> PR #13, la de CUU 4 parte 2 por el PR #15, la de listas personalizadas por los
+> PR #17 y #18, la de listas de canciones por el PR #19, las ocho últimas por los
+> PR #20 al #28, y las dos restantes por commits directos a `develop`. Hay que
+> crearlas en el GitHub Project y vincularlas a esos pull requests, para que la
+> trazabilidad quede completa antes de la entrega: es el ítem de mayor prioridad
+> de los que quedan, porque sin eso la mitad del trabajo no tiene el recorrido
+> issue → rama → PR que este mismo documento declara como método.
 
 > Los números #11 y #12 salen del nombre de las ramas
 > (`feature/11-testing-setup` y `feature/12-user-ranking`), que por convención
@@ -139,6 +145,15 @@ Gallo.
 | [#17](https://github.com/SantiiDev/DSW-TP/pull/17) | `custom-lists` | CRUD completo de listas personalizadas (backend + frontend): entidades `LISTS`, `LIST_ALBUMS` y `LIST_LIKES`, la feature `list` en las dos apps y las tres secciones de `/lists` conectadas a la API | 17/09 | Santiago Siena |
 | [#18](https://github.com/SantiiDev/DSW-TP/pull/18) | `fixed-list` | Correcciones sobre el CRUD de listas | 18/09 | Santiago Siena |
 | [#19](https://github.com/SantiiDev/DSW-TP/pull/19) | `fixed-list2` | Listas de canciones (`LISTS.type` + `LIST_SONGS`), alta de listas restringida a `PRO`/`ADMIN` con el cartel `ProOnlyNotice`, gestor y selector de ítems genéricos (`ListItemManager` / `ListItemPicker`), `useCopyLink` para compartir, y la actualización de `der.md`, `proposal.md`, `estado-alcance.md` y este archivo | 21/09 | Santiago Siena |
+| [#20](https://github.com/SantiiDev/DSW-TP/pull/20) | `feature/admin-revenue-dashboard` | Dashboard de administración con métricas de ingresos: pestaña **Métricas** de `/admin`, `GET /api/payments/stats` restringido a `ADMIN` y el seed de ventas de demo para la defensa | 24/09 | Santino Gallo |
+| [#21](https://github.com/SantiiDev/DSW-TP/pull/21) | `fix/minor-bugs` | Tope de filas en el panel lateral de sugerencias y en el ranking para evitar el doble scroll, `z-index` del panel de `Select` por encima de los modales, y limpieza del alcance voluntario en la documentación | 27/09 | Juan Ignacio Esterri |
+| [#22](https://github.com/SantiiDev/DSW-TP/pull/22) | `feature/profile-customization` | Personalización de perfil Pro en las dos apps: banner, color de acento y badge Pro metálico, con las columnas `USERS.url_banner`, `USERS.banner_position` y `USERS.profile_color` documentadas en el DER | 28/09 | Juan Ignacio Esterri |
+| [#23](https://github.com/SantiiDev/DSW-TP/pull/23) | `feature/ads-2` | Publicidad para usuarios Free: tabla `ADS`, CRUD de administración en la pestaña **Anuncios** de `/admin` y el panel que rota anuncios mientras un `FREE` navega | 29/09 | Santiago Siena |
+| [#24](https://github.com/SantiiDev/DSW-TP/pull/24) | `refactor/component-folders` | Una carpeta por componente en todo el frontend (pedido de la cátedra): cada componente y cada página con su `.tsx`, su `.scss`, su test y su `index.ts` | 29/09 | Santino Gallo |
+| [#25](https://github.com/SantiiDev/DSW-TP/pull/25) | `fix/custom-form-validation` | Validación de formularios propia en lugar de la del navegador: `noValidate`, reglas desde `core/utils/validators` que copian los schemas de Zod, y el mensaje debajo del campo con `FormField` | 30/09 | Santino Gallo |
+| [#26](https://github.com/SantiiDev/DSW-TP/pull/26) | `refactor/tech-debt` | Los beneficios Pro dejan de prometer lo que no existe: se corrigieron `ProComparison`, `ProBenefits`, `ProSalesView`, `ProCheckoutPage`, `ProMemberView` y las preguntas frecuentes | 30/09 | Santino Gallo |
+| [#27](https://github.com/SantiiDev/DSW-TP/pull/27) | `feature/ads-3` | Ajustes sobre los anuncios: intervalo de 20 segundos, rotación que arranca en un anuncio al azar, el anuncio no aparece sobre un modal abierto, vista previa de la imagen en el alta y los dos tests de la feature (`ad.schema` y `AdModal`) | 30/09 | Santiago Siena |
+| [#28](https://github.com/SantiiDev/DSW-TP/pull/28) | `feature/admin-panel-improvements` | Buscador en vivo y recargas sin parpadeo en el panel de administración | 30/09 | Juan Ignacio Esterri |
 
 > Las ramas `custom-lists`, `fixed-list` y `fixed-list2` se borraron después de
 > mergearse, así que el trabajo se sigue por su pull request y no por la rama.
@@ -198,18 +213,22 @@ trazabilidad del trabajo:
 - **El pago único también entró por un commit directo a `develop`**: `587ca90`
   (22/09). Es un cambio de alcance con 30 archivos tocados, de los que más tenía
   que haber salido por una rama y un pull request.
-- **`main` está 54 commits atrás de `develop`.** La entrega de regularidad tiene
+- **Después del PR #26 entraron dos commits directos más a `develop`**:
+  `12fdf81` ("Fix error load") y `da1b944` ("Fix css errors"), los dos del 30/09.
+  Mismo caso que los anteriores: son correcciones, pero tendrían que haber salido
+  por una rama.
+- **`main` está 98 commits atrás de `develop`.** La entrega de regularidad tiene
   que salir de un merge de `develop` a `main`.
 - **La carga de trabajo está repartida de forma despareja** en el historial: de
-  los 56 commits del desarrollo (sin contar merges ni el historial heredado del
-  fork), 37 son de Santino Gallo, 11 de Juan Ignacio Esterri y 8 de Santiago
+  los 72 commits del desarrollo (sin contar merges ni el historial heredado del
+  fork), 44 son de Santino Gallo, 18 de Juan Ignacio Esterri y 10 de Santiago
   Siena. La cátedra evalúa la participación de cada integrante, así que conviene
   repartir lo que falta de manera que el historial lo refleje: ese es el criterio
   con el que se asignaron los [pendientes de abrir](#pendientes-de-abrir).
 
-  > Medición al 24/09/2026. La cifra anterior (52 commits: 36 / 9 / 7) era del
-  > 19/09 y quedó vieja: entre el 21/09 y el 22/09 entraron el PR #19 y tres
-  > commits directos. Para recalcularla:
+  > Medición al 03/10/2026. La cifra anterior (56 commits: 37 / 11 / 8) era del
+  > 24/09 y quedó vieja: entre el 24/09 y el 30/09 entraron los PR #20 al #28 y
+  > dos commits directos. Para recalcularla:
   > `git log --no-merges --format="%an" --since=2026-07-01 | sort | uniq -c`
   > (en PowerShell, `... | Group-Object | Select-Object Count, Name`).
   > Las identidades `SantiiDev` y `Santino Gallo` son la misma persona.

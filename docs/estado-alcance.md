@@ -4,7 +4,7 @@ Qué está terminado y qué falta, punto por punto, contra el alcance comprometi
 en la [propuesta](../proposal.md) y los requisitos del
 [enunciado](enunciado.md).
 
-Última revisión: **29/09/2026**.
+Última revisión: **03/10/2026**.
 
 ## Requisitos técnicos
 
@@ -55,7 +55,7 @@ en la [propuesta](../proposal.md) y los requisitos del
 |:-|:-:|:-|
 | Login y protección de rutas según el nivel de usuario | ✅ | `ProtectedRoute` + `AuthContext` |
 | Ambientes definidos | ✅ | `.env` con prefijo `VITE_` |
-| 1 test unitario de un componente | ✅ | Vitest + React Testing Library. Hay siete, detallados en el [README del frontend](../frontend/README.md#tests): [`SegmentedControl`](../frontend/src/core/components/SegmentedControl/SegmentedControl.test.tsx) (el más simple, sin mocks), [`MembershipPanel`](../frontend/src/features/membership/components/MembershipPanel/MembershipPanel.test.tsx), que fija la regla del pago único —el panel no ofrece renovar ni dar de baja—, [`RevenueDashboard`](../frontend/src/features/membership/components/RevenueDashboard/RevenueDashboard.test.tsx), el tablero de métricas con y sin ventas, y [`AdModal`](../frontend/src/features/ad/components/AdModal/AdModal.test.tsx), que el anuncio no se pueda saltar antes de los 5 segundos, más los de `PlanForm`, `CreateUserForm` y `ContactPage` |
+| 1 test unitario de un componente | ✅ | Vitest + React Testing Library. Hay siete, detallados en el [README del frontend](../frontend/README.md#tests): [`SegmentedControl`](../frontend/src/core/components/SegmentedControl/SegmentedControl.test.tsx) (el más simple, sin mocks), [`MembershipPanel`](../frontend/src/features/membership/components/MembershipPanel/MembershipPanel.test.tsx), que fija la regla del pago único —el panel no ofrece renovar ni dar de baja—, [`RevenueDashboard`](../frontend/src/features/membership/components/RevenueDashboard/RevenueDashboard.test.tsx), el tablero de métricas con y sin ventas, y [`AdModal`](../frontend/src/features/ad/components/AdModal/AdModal.test.tsx), que el anuncio no se pueda saltar antes de los 5 segundos, más los de `PlanForm`, `CreateUserForm` y `ContactPage`. A esos siete se suma [`validators.test.ts`](../frontend/src/core/utils/validators.test.ts), que no es de un componente sino de las reglas de validación compartidas: ocho archivos de test en total |
 | 1 test end-to-end | ✅ | Playwright: el login completo desde el navegador ([test](../frontend/e2e/login.spec.ts)) |
 
 ## Requisitos funcionales

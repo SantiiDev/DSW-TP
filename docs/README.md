@@ -62,5 +62,6 @@ en el README del backend:
 2. **[Arquitectura en capas](../backend/README.md#arquitectura-en-capas)** —
    `routes → controller → service → repository → entity`, sin saltear capas.
 3. **[Membresías y pasarela de pago](../backend/README.md#membresías-y-pasarela-de-pago)** —
-   por qué la renovación es manual y no débito automático, y qué hace cada paso
-   del circuito de MercadoPago.
+   por qué la membresía Pro es un [pago único](../backend/README.md#pago-único-no-suscripción-recurrente)
+   y no una suscripción recurrente, y qué hace cada paso del circuito de
+   MercadoPago.
