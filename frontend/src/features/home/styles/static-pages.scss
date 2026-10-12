@@ -1,0 +1,228 @@
+// Estilos compartidos por las páginas estáticas (términos, privacidad, FAQ y contacto).
+@use 'sass:color';
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.static-page {
+  padding: calc($spacing-xl + 40px) $spacing-md $spacing-xl;
+  // Se descuenta el alto real del navbar y no un valor fijo: con 200px la página
+  // quedaba más corta que la pantalla y el footer asomaba sin hacer scroll.
+  min-height: calc(100vh - #{$navbar-height});
+  background-color: $color-bg;
+  color: $color-text;
+
+  &__container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: $spacing-md;
+    color: $color-text;
+    border-bottom: 1px solid $color-nav-border;
+    padding-bottom: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.5rem;
+    }
+  }
+
+  &__content {
+    h2 {
+      font-size: 1.5rem;
+      margin-top: $spacing-lg;
+      margin-bottom: $spacing-sm;
+      color: $color-text;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      margin-top: $spacing-md;
+      margin-bottom: $spacing-sm;
+      color: $color-text;
+    }
+
+    p {
+      margin-bottom: $spacing-md;
+      color: $color-text-secondary;
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+
+    ul, ol {
+      margin-bottom: $spacing-md;
+      padding-left: $spacing-md;
+      color: $color-text-secondary;
+
+      li {
+        margin-bottom: $spacing-sm;
+        line-height: 1.5;
+      }
+    }
+
+    a {
+      color: $color-primary;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    margin-top: $spacing-lg;
+    background-color: $color-bg-light;
+    padding: $spacing-lg;
+    border-radius: $radius;
+    border: 1px solid $color-nav-border;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      label {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: $color-text-secondary;
+      }
+
+      input, textarea {
+        background-color: $color-bg;
+        border: 1px solid $color-nav-border;
+        border-radius: $radius;
+        padding: 12px;
+        color: $color-text;
+        font-family: inherit;
+        outline: none;
+
+        &:focus {
+          border-color: $color-primary;
+        }
+
+        // Campo con error: se engancha de aria-invalid, igual que FormField.
+        &[aria-invalid='true'] {
+          border-color: $color-error;
+        }
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+    }
+
+    // Mensaje de validación debajo de un campo.
+    .form-group__error {
+      margin: 0;
+      font-size: 0.8rem;
+      color: $color-error;
+    }
+
+    // Trampa para bots (ver contactService): fuera de la pantalla y fuera del
+    // orden de tabulación, así ninguna persona la ve ni la completa.
+    .form-group--honeypot {
+      position: absolute;
+      left: -9999px;
+    }
+
+    button {
+      background-color: $color-primary;
+      color: #000;
+      font-weight: 700;
+      padding: 12px 24px;
+      border-radius: $radius;
+      border: none;
+      align-self: flex-start;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      // Solo contraste: el verde se aclara, el botón no se levanta.
+      &:hover {
+        background-color: color.adjust($color-primary, $lightness: 6%);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  // "Enviar otro mensaje", debajo del aviso de éxito del contacto.
+  &__link-btn {
+    margin-top: $spacing-md;
+    padding: 0;
+    background: none;
+    border: none;
+    color: $color-primary;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    margin-top: $spacing-lg;
+  }
+
+  &__faq-item {
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    overflow: hidden;
+
+    &.active .static-page__faq-answer {
+      display: block;
+    }
+    
+    &.active .static-page__faq-question svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__faq-question {
+    width: 100%;
+    text-align: left;
+    padding: $spacing-md;
+    background: none;
+    border: none;
+    color: $color-text;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+
+    svg {
+      transition: transform 0.3s ease;
+      color: $color-text-secondary;
+    }
+  }
+
+  &__faq-answer {
+    display: none;
+    padding: 0 $spacing-md $spacing-md;
+    color: $color-text-secondary;
+    line-height: 1.6;
+    border-top: 1px solid $color-nav-border;
+    padding-top: $spacing-md;
+  }
+}

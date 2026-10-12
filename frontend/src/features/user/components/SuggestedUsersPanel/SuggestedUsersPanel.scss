@@ -1,0 +1,67 @@
+// Estilos de SuggestedUsersPanel.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
+.suggested-users {
+  // El feed lo lleva hasta acá con un scroll suave desde su estado vacío, y el
+  // navbar es fijo: sin este margen el título del panel queda tapado. Es el
+  // mismo criterio que usa core/utils/scrollToSection.
+  scroll-margin-top: 80px;
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background-color: rgba($color-bg-light, 0.5);
+    border-radius: $radius;
+    overflow: hidden;
+  }
+
+  &__message {
+    margin: 0;
+    padding: $spacing-md;
+    background-color: rgba($color-bg-light, 0.5);
+    border-radius: $radius;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+
+    &--error {
+      background-color: rgba($color-error, 0.12);
+      border: 1px solid rgba($color-error, 0.4);
+      color: $color-error;
+    }
+  }
+
+  // En tablet la lista pasa a dos columnas: a ese ancho el panel va debajo del
+  // feed y a una sola columna sería una tira vertical larguísima.
+  @media (min-width: $bp-md) {
+    &__list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      background-color: transparent;
+      gap: $spacing-sm;
+    }
+
+    .user-row {
+      border-radius: $radius;
+    }
+  }
+
+  // En desktop el panel es la columna lateral angosta y vuelve a una sola
+  // columna, que es como se lee una lista de gente.
+  @media (min-width: $bp-lg) {
+    &__list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      background-color: rgba($color-bg-light, 0.5);
+    }
+
+    .user-row {
+      border-radius: 0;
+    }
+  }
+}

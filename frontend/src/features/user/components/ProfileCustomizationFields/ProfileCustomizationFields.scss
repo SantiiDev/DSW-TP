@@ -1,0 +1,151 @@
+// Estilos de ProfileCustomizationFields.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Personalización Pro (components/ProfileCustomizationFields) ----------
+.profile-customization {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: $spacing-sm 0 0;
+  padding: $spacing-md;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  min-width: 0;
+
+  &__legend {
+    padding: 0 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--profile-accent);
+  }
+
+  // La vista previa reusa el banner de la ficha, con esquinas propias.
+  &__preview {
+    border-radius: $radius;
+    overflow: hidden;
+  }
+
+  // --- Encuadre del banner ---
+  &__position {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  &__position-edge {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+  }
+
+  // El deslizador nativo, teñido con el color de acento que se está eligiendo.
+  &__range {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--profile-accent);
+    cursor: pointer;
+  }
+
+  // --- Selector de color ---
+  &__colors {
+    margin: 0;
+    padding: 0;
+    border: none;
+    min-width: 0;
+  }
+
+  &__swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    margin-top: 0.4rem;
+  }
+
+  &__swatch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem 0.35rem 0.45rem;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    // Cada muestra pinta su propio punto con el tono del mapa de acentos.
+    @each $name, $accent in $profile-accents {
+      &--#{$name} .profile-customization__swatch-dot {
+        background-color: $accent;
+      }
+    }
+
+    // Marcada: el borde toma el color de la muestra elegida.
+    &:has(.profile-customization__radio:checked) {
+      border-color: var(--profile-accent);
+      color: $color-text;
+    }
+
+    // El foco del teclado cae en el radio escondido; se muestra en la etiqueta.
+    &:has(.profile-customization__radio:focus-visible) {
+      outline: 2px solid var(--profile-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  // El radio nativo se esconde a la vista pero sigue siendo el control real:
+  // funciona con el teclado y lo anuncia el lector de pantalla.
+  &__radio {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+  }
+
+  &__swatch-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  // --- Versión bloqueada (FREE) ---
+  &--locked {
+    flex-direction: column;
+    align-items: flex-start;
+    color: $color-text-secondary;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  &__locked-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__locked-title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__locked-hint {
+    margin: 0.2rem 0 0;
+    font-size: 0.8rem;
+  }
+}

@@ -1,0 +1,39 @@
+// Estilos de AdminListLayout.
+@use '../../../styles/abstracts/variable' as *;
+
+// --- Sección del panel de administración -----------------------------------
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__filter {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+}

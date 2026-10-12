@@ -1,0 +1,14 @@
+{
+  /* Config de compilación: `npm run build` emite dist/ a partir de src/.
+     Hereda todo de tsconfig.json y solo cambia lo que hace falta para emitir.
+
+     Los tests quedan afuera a propósito: no se publican, y con `rootDir: "src"`
+     tsc rechazaría cualquier archivo de tests/ por estar fuera de la raíz. */
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"]
+}

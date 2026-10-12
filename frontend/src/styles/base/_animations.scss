@@ -1,0 +1,31 @@
+// Animaciones compartidas por más de un componente.
+//
+// Los @keyframes son globales en CSS: da igual en qué archivo se declaren, todos
+// los ven. Viven acá y no en el parcial de un componente para que no parezca que
+// son de uno solo cuando los usan varios.
+
+// Entrada de las ventanas modales del sitio (ConfirmDialog y FormModal).
+//
+// El fondo oscuro aparece con un fundido y la tarjeta, además, sube unos pocos
+// píxeles hasta su lugar. Sin esto el diálogo se abría de golpe; con el fundido
+// sobre la página de atrás, el cambio se lee como una transición y no como un
+// corte.
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

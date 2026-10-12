@@ -1,0 +1,208 @@
+// Estilos del resumen de la contratación (/pro/checkout).
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+@use '../../styles/tokens' as *;
+
+// ─── Resumen de la contratación (/pro/checkout) ─────────────
+//
+// Dos columnas en escritorio (qué incluye | cuánto sale) que se apilan en mobile,
+// con el resumen arriba: en una pantalla chica lo primero que se quiere ver es el
+// precio y el botón, no la lista de beneficios.
+.checkout {
+  // Mismo ancho que el navbar y que el resto de las pantallas (ver el mixin).
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-xl;
+
+  // El "Volver" es el componente compartido (core/components/BackLink); acá solo
+  // se lo separa del título.
+  .back-link {
+    margin-bottom: $spacing-md;
+  }
+}
+
+.checkout__title {
+  margin: 0 0 4px;
+  font-size: 1.8rem;
+  color: $color-text;
+}
+
+.checkout__subtitle {
+  margin: 0 0 $spacing-lg;
+  color: $color-text-secondary;
+}
+
+.checkout__grid {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: $spacing-md;
+
+  // Las dos tarjetas terminan a la misma altura: sin `align-items`, la grilla
+  // estira cada columna hasta el alto de la fila. Con `start`, el resumen (que
+  // es más corto) quedaba flotando y el bloque se veía desparejo.
+  @media (min-width: $bp-lg) {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: $spacing-lg;
+  }
+}
+
+.checkout__panel,
+.checkout__summary {
+  padding: $spacing-lg;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+}
+
+// El resumen es lo que se confirma, así que se distingue del resto con el verde
+// de Pro en el borde.
+//
+// No es sticky: ahora ocupa todo el alto de su columna, así que no tiene margen
+// para acompañar el scroll. Tampoco hace falta, la pantalla entra entera.
+.checkout__summary {
+  border-color: rgba($pro-green, 0.35);
+}
+
+.checkout__panel-title {
+  margin: 0 0 $spacing-md;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $color-text-secondary;
+}
+
+.checkout__included {
+  margin: 0 0 $spacing-lg;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 10px 0;
+    color: $color-text;
+    border-bottom: 1px solid rgba($color-nav-border, 0.6);
+
+    svg {
+      flex-shrink: 0;
+      color: $pro-green;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.checkout__period {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background-color: rgba($pro-green, 0.08);
+  border-radius: $radius;
+
+  svg {
+    flex-shrink: 0;
+    color: $pro-green;
+  }
+}
+
+.checkout__period-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $color-text-secondary;
+}
+
+.checkout__period-value {
+  display: block;
+  font-weight: 600;
+  color: $color-text;
+}
+
+.checkout__disclaimer {
+  margin: $spacing-md 0 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: $color-text-secondary;
+
+  strong {
+    color: $color-text;
+  }
+}
+
+.checkout__line {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  padding: 6px 0;
+  color: $color-text;
+}
+
+.checkout__line--muted {
+  font-size: 0.88rem;
+  color: $color-text-secondary;
+}
+
+.checkout__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: $spacing-sm;
+  margin: $spacing-md 0;
+  padding-top: $spacing-md;
+  border-top: 1px solid $color-nav-border;
+  color: $color-text;
+
+  strong {
+    font-size: 1.4rem;
+    color: $pro-green;
+  }
+}
+
+.checkout__secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: $spacing-sm 0 0;
+  font-size: 0.8rem;
+  color: $color-text-secondary;
+}
+
+.checkout__steps {
+  margin: $spacing-md 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: $color-text-secondary;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+
+    svg {
+      flex-shrink: 0;
+      color: $pro-green;
+    }
+  }
+}
+
+.checkout__help {
+  display: block;
+  margin-top: $spacing-md;
+  font-size: 0.82rem;
+  text-align: center;
+  color: $color-text-secondary;
+
+  &:hover {
+    color: $color-text;
+  }
+}

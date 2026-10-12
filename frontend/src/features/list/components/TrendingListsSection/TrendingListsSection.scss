@@ -1,0 +1,25 @@
+// Estilos de TrendingListsSection.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// ─── Trending Lists Section ─────────────────────────────────
+.trending-lists {
+
+  &__feed {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+
+  // Pie del feed: "Ver más" y "Ver menos", que pueden aparecer los dos juntos.
+  &__more {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+  }
+}

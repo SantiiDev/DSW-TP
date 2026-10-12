@@ -1,0 +1,93 @@
+@use "sass:color";
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+.footer {
+  background-color: $color-bg;
+  color: $color-text;
+  padding: $spacing-xl $spacing-lg $spacing-lg;
+  border-top: 1px solid $color-nav-border;
+  
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+  }
+  
+  &__top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-xl;
+    
+    // Tres columnas de enlaces: entran lado a lado desde SM, porque cada una
+    // tiene solo un título corto y dos links.
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  &__column {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+  
+  &__title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: $color-text;
+  }
+  
+  &__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+  
+  &__link {
+    color: $color-text-secondary;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: $color-text;
+    }
+    
+    &--pro {
+      color: $color-primary;
+      font-weight: 600;
+      
+      &:hover {
+        color: color.adjust($color-primary, $lightness: 10%);
+      }
+    }
+  }
+  
+  &__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-md;
+    padding-top: $spacing-lg;
+    border-top: 1px solid $color-nav-border;
+    
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+    }
+  }
+  
+  &__copyright {
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+  
+}

@@ -1,0 +1,83 @@
+// Estilos de AlbumForm.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Formulario de alta y edición ------------------------------------------
+// Igual que .artist-form: la caja la pone la Card (o el FormModal) que lo envuelve.
+.album-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  // Año y portada comparten fila desde tablet: los dos son campos cortos y
+  // ponerlos uno debajo del otro estira el formulario sin necesidad.
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: 1fr 2fr;
+    }
+  }
+
+  // El fieldset trae borde y padding propios del navegador: se los saca para que
+  // se vea como un campo más del formulario.
+  &__genres {
+    margin: 0;
+    padding: 0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__genre-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  // Cada género es una pastilla con su casilla adentro, para que se pueda tocar
+  // entero en mobile y no solo el cuadradito.
+  &__genre {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.35rem 0.8rem;
+    background-color: $color-bg;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    // El verde de la marca en la casilla, en vez del azul del sistema.
+    input {
+      accent-color: $color-primary;
+      cursor: pointer;
+    }
+
+    // :has() mira si la casilla de adentro está marcada: es lo que permite
+    // resaltar la pastilla entera sin guardar ese estado en JavaScript.
+    &:has(input:checked) {
+      border-color: $color-primary;
+      color: $color-text;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el de confirmación (ConfirmDialog).
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}

@@ -1,0 +1,17 @@
+// Estilos de UserReviewsList.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Listado de reseñas de un usuario (pestaña del perfil) -------------------
+.user-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}

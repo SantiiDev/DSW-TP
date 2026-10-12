@@ -1,0 +1,286 @@
+// Estilos del área de socio de /pro, para quien ya es Pro.
+@use "sass:color";
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+@use '../../styles/tokens' as *;
+
+.pro-member {
+  // ── Cabecera ─────────────────────────────────────────────────
+  &__header {
+    max-width: $pro-section-max;
+    margin: 0 auto;
+    padding: $spacing-lg $spacing-md $spacing-xl;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.3rem 0.9rem;
+    border-radius: $radius;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #000;
+    background: $pro-gradient;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: $color-text;
+    word-break: break-word;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.6rem;
+    }
+  }
+
+  &__title-accent {
+    background: $pro-gradient;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  &__subtitle {
+    margin: 0;
+    max-width: 520px;
+    color: $color-text-secondary;
+    font-size: 1rem;
+  }
+
+  // Tira de datos de la membresía: se apila en mobile y va en fila desde SM.
+  // Ocupa todo el ancho de la sección para quedar alineada con la grilla de
+  // accesos directos que viene justo abajo.
+  &__status {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    width: 100%;
+    margin-top: $spacing-sm;
+    padding: $spacing-md;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    background-color: $color-bg-light;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      gap: 0;
+    }
+  }
+
+  &__status-item {
+    flex: 1;
+    // Sin esto los items no bajan del ancho de su etiqueta y la fila desborda.
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.2rem 0.6rem;
+
+    & + & {
+      @media (min-width: $bp-sm) {
+        border-left: 1px solid $color-nav-border;
+      }
+    }
+  }
+
+  &__status-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-secondary;
+  }
+
+  &__status-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__admin-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.6rem 1.4rem;
+    border-radius: $radius;
+    border: 1px solid $color-nav-border;
+    color: $color-text;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      border-color: $pro-green;
+      background-color: rgba($pro-green, 0.08);
+    }
+  }
+
+  // ── Secciones ────────────────────────────────────────────────
+  &__section {
+    max-width: $pro-section-max;
+    margin: 0 auto;
+    padding: $spacing-lg $spacing-md;
+  }
+
+  &__heading {
+    margin: 0 0 $spacing-md;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: $color-text;
+    text-align: center;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.8rem;
+    }
+  }
+
+  &__panel {
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    background-color: $color-bg-light;
+    padding: $spacing-md;
+  }
+
+  &__panel-cta {
+    @include control-centrado;
+    padding: 0.6rem 1.4rem;
+    border-radius: $radius;
+    background-color: $pro-green;
+    color: #000;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+
+    // Solo contraste: el verde se aclara, el botón no se agranda.
+    &:hover {
+      background-color: color.adjust($pro-green, $lightness: 6%);
+    }
+  }
+
+  // ── Tarjetas de membresía y soporte ──────────────────────────
+  &__cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  &__card {
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    background-color: $color-bg-light;
+    padding: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__card-text {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+  }
+
+  &__card-link {
+    margin-top: auto;
+    color: $pro-green;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // ── Grilla de accesos directos ───────────────────────────────
+  &__shortcuts {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+.pro-shortcut-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  background-color: $color-bg-light;
+  text-decoration: none;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+
+  // Solo contraste: se enciende el borde y el fondo se aclara apenas.
+  &:hover {
+    border-color: rgba($pro-green, 0.5);
+    background-color: color.adjust($color-bg-light, $lightness: 3%);
+  }
+
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: $radius;
+    background-color: rgba($pro-green, 0.12);
+    color: $pro-green;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__desc {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: $color-text-secondary;
+  }
+
+  &__link {
+    margin-top: auto;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: $pro-green;
+  }
+}

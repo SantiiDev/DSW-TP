@@ -1,0 +1,77 @@
+// Estilos de la barra de pestañas reutilizable (core/components/Tabs.tsx).
+// Nacieron en el perfil; se movieron acá cuando el panel de administración
+// necesitó las mismas pestañas, para no tener dos copias que se desincronicen.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+@use '../../../styles/abstracts/mixins' as *;
+
+.tabs {
+  border-bottom: 1px solid $color-nav-border;
+  // Con varias pestañas no entran en mobile: scrollean en horizontal en vez de
+  // romper el ancho de la página.
+  overflow-x: auto;
+  // Sin esto aparece una barra de scroll vertical mínima y no deseada: al fijar
+  // solo overflow-x, la spec de CSS calcula overflow-y como "auto" (no
+  // "visible"), y ese eje queda listo para scrollear ante cualquier desborde de
+  // un píxel por redondeo, aunque las pestañas son de una sola fila.
+  overflow-y: hidden;
+  min-width: 0;
+
+  &__list {
+    // Ancla del subrayado, que va posicionado sobre la pestaña activa.
+    position: relative;
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: $spacing-sm;
+  }
+
+  // Subrayado de la pestaña activa: uno solo para toda la barra, que se desliza
+  // de una a otra. Las dos medidas las pone el componente en variables CSS (ver
+  // Tabs.tsx); acá se decide que quede un poco más angosto que la pestaña, para
+  // que acompañe al texto y no al padding.
+  &__underline {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    height: 2px;
+    width: calc(var(--tab-width, 0) * 1px - #{$spacing-sm} * 2);
+    transform: translateX(calc(var(--tab-left, 0) * 1px + #{$spacing-sm}));
+    background-color: $color-primary;
+    border-radius: 2px;
+    // La misma curva y el mismo tiempo que la pastilla del conmutador de vista:
+    // los dos controles cambian de sección y se mueven igual.
+    //
+    // Se desliza siempre, aunque el sistema pida reducir movimiento: fue una
+    // decisión del equipo, igual que el deslizamiento de core/utils/scrollToSection.
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+      width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &__tab {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0.7rem $spacing-md;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    // Después de `font: inherit`, que reescribe el line-height.
+    @include control-centrado;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    // El subrayado ya no lo dibuja la pestaña activa: es un elemento aparte que
+    // se desliza (ver &__underline). Acá queda solo el color del texto.
+    &--active {
+      color: $color-text;
+    }
+  }
+}

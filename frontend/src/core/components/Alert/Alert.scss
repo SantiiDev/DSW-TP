@@ -1,0 +1,41 @@
+// Estilos del aviso reutilizable (core/components/Alert.tsx).
+@use 'sass:color';
+@use '../../../styles/abstracts/variable' as *;
+
+.alert {
+  margin: 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: $radius;
+  border: 1px solid transparent;
+  font-size: 0.85rem;
+
+  &--error {
+    background-color: rgba($color-error, 0.12);
+    border-color: rgba($color-error, 0.4);
+    color: color.adjust($color-error, $lightness: 15%);
+  }
+
+  &--success {
+    background-color: rgba($color-primary, 0.12);
+    border-color: rgba($color-primary, 0.4);
+    color: $color-primary;
+  }
+
+  // El tono que no dice nada: mismo tamaño y misma caja que los otros, pero
+  // apagado, para que se lea como "acá va a aparecer el aviso" y no como un
+  // mensaje. Es lo que reserva el lugar y evita que la pantalla salte.
+  &--neutral {
+    background-color: rgba($color-text-secondary, 0.08);
+    border-color: rgba($color-text-secondary, 0.25);
+    color: $color-text-secondary;
+  }
+
+  // Mismo dorado que el ícono "gold" de SectionHeader: un aviso no es un error
+  // (no se rechazó nada) ni una confirmación, así que no le pega ni el rojo ni
+  // el verde de los otros dos tonos.
+  &--warning {
+    background-color: rgba($color-warning, 0.12);
+    border-color: rgba($color-warning, 0.4);
+    color: $color-warning;
+  }
+}

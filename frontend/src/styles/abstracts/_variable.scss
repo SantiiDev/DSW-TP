@@ -1,0 +1,67 @@
+// Colors
+$color-primary: #1ED760;
+$color-bg: #121212; // Dark background typical of music apps
+$color-bg-light: #181818;
+$color-text: #FFFFFF;
+$color-text-secondary: #B3B3B3;
+$color-nav-bg: #000000;
+$color-nav-border: #282828;
+$color-error: #E2564A; // Mensajes de error de formularios y de la API
+$color-warning: #FECA57; // Avisos (alertas de advertencia, insignias destacadas)
+$color-amber: #E0A53F; // Avisos de la membresía (pago pendiente, nota del panel)
+$color-star: #F5C518; // Estrellas de las calificaciones
+$color-placeholder: #222222; // Fondo de una portada mientras carga o si no tiene imagen
+
+// Colores de acento que un PRO puede elegir para su perfil. Las claves son los
+// valores del enum USERS.profile_color: la base guarda el nombre y el tono exacto
+// se decide acá. Los reusan el perfil (banner, avatar, pestañas) y el selector
+// del formulario de edición.
+$profile-accents: (
+  'green': $color-primary,
+  'blue': #4A9DE2,
+  'purple': #9B6BF2,
+  'pink': #F062A8,
+  'orange': #FF6B35,
+  'gold': $color-warning,
+);
+
+// Typography
+$font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+
+// Layout
+// Alto de la barra de navegación. Se usa en el propio navbar y para calcular el
+// alto mínimo del contenido de cada página (ver `main` en base/_reset.scss).
+$navbar-height: 64px;
+
+// Curvatura de las esquinas. Es una sola para todo el sitio: los botones, las
+// tarjetas, los paneles, los modales y los campos de un formulario comparten la
+// misma esquina apenas marcada. Antes cada archivo elegía la suya (16px, 12px,
+// 8px...) y una tarjeta bien redondeada al lado de un botón casi recto se veía
+// despareja.
+//
+// Las excepciones son las cosas que tienen que ser redondas de verdad (el avatar,
+// la X de cerrar un modal, el spinner): esas siguen con `border-radius: 50%`.
+$radius: 4px;
+
+// Spacing
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 2rem;
+$spacing-xl: 3rem;
+
+// Ancho del contenido de una página: el mismo que usa el contenedor del navbar.
+// Es lo que hace que el borde izquierdo de cualquier sección caiga justo debajo
+// del logo. Para aplicarlo hay un mixin, `page-container` (ver _mixins).
+$content-width: 1150px;
+
+// Cómo entran las ventanas modales (los @keyframes están en base/_animations).
+// Una sola definición para el diálogo de confirmación y el de formulario, así
+// los dos se abren con el mismo tiempo y la misma curva: la tarjeta arranca
+// rápido y frena al llegar, que es lo que la hace sentir fluida.
+$modal-overlay-in: modal-overlay-in 0.25s ease-out;
+$modal-card-in: modal-card-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+// Curva de las animaciones de dibujo de los gráficos (core/components/charts):
+// arranca con impulso y frena suave. La comparten el área y la dona.
+$chart-ease: cubic-bezier(0.22, 1, 0.36, 1);

@@ -1,0 +1,218 @@
+// Estilos de ReviewCard.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Tarjeta de una reseña ---------------------------------------------------
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+
+  // Una reseña oculta solo la ven su autor y un ADMIN: se atenúa para que se note
+  // de un vistazo que no es lo que ve el resto de la comunidad.
+  &--hidden {
+    opacity: 0.6;
+    border-style: dashed;
+  }
+
+  // Franja con el color de acento del autor, si es Pro (ver el mixin).
+  @include user-accent-stripe;
+
+  // El borde se enciende al pasar por encima de la parte clickeable, que es la
+  // señal de que la reseña se puede abrir. Va en la tarjeta y no en el enlace
+  // para que se pinte el marco entero.
+  &:has(.review-card__link:hover) {
+    border-color: $color-primary;
+  }
+
+  // La parte de la tarjeta que es un enlace a la página de la reseña: todo menos
+  // la franja de botones de abajo.
+  &__link {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    text-decoration: none;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+  }
+
+  // Empuja las estrellas al extremo derecho de la cabecera.
+  &__meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__author {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin: 0;
+    color: $color-text;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  // Avatar y nombre del autor llevan a su perfil. Son enlaces aparte del de la
+  // reseña (ver ReviewCard), así que marcan su propio hover.
+  &__author-link {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: auto;
+    border-radius: 50%;
+    transition: box-shadow 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      box-shadow: 0 0 0 2px $color-primary;
+      outline: none;
+    }
+  }
+
+  &__author-name {
+    width: auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: $color-text;
+
+    &:hover,
+    &:focus-visible {
+      color: $color-primary;
+      text-decoration: underline;
+      outline: none;
+    }
+  }
+
+  &__date {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+  }
+
+  // Marca de "Editado", al lado de la fecha. Va en cursiva y más apagada: es un
+  // dato al margen, no parte de lo que escribió el autor.
+  &__edited {
+    margin-left: 4px;
+    font-style: italic;
+    opacity: 0.75;
+    cursor: help;
+  }
+
+  // El ítem reseñado. Solo aparece fuera de la ficha del ítem, donde hace falta
+  // decir de qué se está hablando. Ya no es un enlace propio: la tarjeta entera
+  // lleva a la reseña, y desde ahí se entra a la ficha del álbum o la canción.
+  &__target {
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-sm;
+    background-color: $color-bg;
+    border-radius: $radius;
+  }
+
+  &__target-title {
+    color: $color-text;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  &__target-subtitle {
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+  }
+
+  &__text {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    // Respeta los saltos de línea que escribió el usuario sin dejar que una
+    // palabra larguísima (o una URL) rompa el ancho de la tarjeta.
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+
+    // Una calificación sin texto es lo más común: el aviso va en cursiva y más
+    // apagado para que no se confunda con una reseña de verdad.
+    &--empty {
+      font-style: italic;
+      font-size: 0.85rem;
+      opacity: 0.7;
+    }
+  }
+
+  // Pista de que la reseña sigue. No es un enlace propio: lo es la tarjeta.
+  &__read-more {
+    align-self: flex-start;
+    color: $color-primary;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  // La franja de abajo: las reacciones a la izquierda y la gestión a la derecha.
+  &__footer {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid $color-nav-border;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__reactions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  // Me gusta, comentar y compartir. Se ven iguales entre sí y distintos de los
+  // botones de gestión, que son acciones sobre la reseña y no reacciones a ella.
+  &__reaction {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      color: $color-text;
+    }
+
+    // Corazón dado o hilo abierto.
+    &--active {
+      color: $color-primary;
+    }
+
+    // Sin sesión el contador se sigue viendo (es un dato público), pero el botón
+    // no se puede apretar.
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}

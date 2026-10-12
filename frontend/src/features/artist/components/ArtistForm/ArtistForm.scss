@@ -1,0 +1,22 @@
+// Estilos de ArtistForm.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+
+// --- Formulario de alta y edición ------------------------------------------
+// El fondo y el borde los pone la Card que envuelve al formulario: repetirlos acá
+// dibujaba una caja adentro de otra caja del mismo color.
+.artist-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__actions {
+    display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el de confirmación (ConfirmDialog).
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+}

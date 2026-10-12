@@ -1,0 +1,45 @@
+// Estilos de AlbumCover.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Carátula de un álbum ---------------------------------------------------
+.album-cover {
+  flex-shrink: 0;
+  border-radius: $radius;
+  // Las portadas de Deezer son cuadradas, pero un álbum cargado a mano podría
+  // traer otra proporción: cover la recorta en vez de deformarla.
+  object-fit: cover;
+  background-color: $color-bg;
+
+  &--sm {
+    width: 56px;
+    height: 56px;
+  }
+
+  &--lg {
+    width: 100%;
+    // La carátula manda el alto de la tarjeta en la grilla: cuadrada siempre,
+    // así todas las filas quedan parejas sin importar la imagen.
+    aspect-ratio: 1 / 1;
+    border-radius: $radius;
+  }
+
+  // Reserva cuando el álbum no tiene portada o la imagen no cargó.
+  &--fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__initial {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  &--lg &__initial {
+    font-size: 3rem;
+  }
+}

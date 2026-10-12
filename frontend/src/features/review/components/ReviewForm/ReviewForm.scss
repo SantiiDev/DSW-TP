@@ -1,0 +1,37 @@
+// Estilos de ReviewForm.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Formulario --------------------------------------------------------------
+// Igual que .album-form: la caja la pone el FormModal que lo envuelve.
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__counter {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.75rem;
+    text-align: right;
+
+    // Pasado el tope: el mensaje de validación explica el resto.
+    &--over {
+      color: $color-error;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    // Desde tablet los botones entran uno al lado del otro, alineados a la
+    // derecha como en el resto de los formularios del sitio.
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+  }
+}

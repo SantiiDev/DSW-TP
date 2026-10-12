@@ -1,0 +1,23 @@
+// Estilos de RelatedReviews.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Columnas de "más reseñas" -----------------------------------------------
+.related-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__title {
+    margin: 0;
+    color: $color-text;
+    font-size: 1rem;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+}

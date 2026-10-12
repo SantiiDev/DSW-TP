@@ -1,0 +1,124 @@
+// Estilos de ReviewDetailPage.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Página de una reseña (/reviews/:id) -------------------------------------
+//
+// Dos columnas desde LG, igual que la ficha de álbum: a la izquierda lo que se
+// lee de corrido (la reseña y su hilo) y a la derecha lo que se consulta de
+// reojo (las acciones y las otras reseñas).
+.review-detail {
+  // Ancla al botón "Volver", que va posicionado sobre la cabecera.
+  position: relative;
+  padding-bottom: $spacing-xl;
+
+  // Botón "Volver": arriba a la izquierda del todo, flotando sobre la cabecera.
+  // Es el mismo tratamiento que en la ficha del álbum y en la de la canción;
+  // antes iba en una franja propia entre el navbar y la cabecera, y esa franja
+  // partía el fondo de la cabecera en dos.
+  &__topbar {
+    position: absolute;
+    top: $spacing-md;
+    left: $spacing-md;
+    // Por encima de las dos capas de fondo de la cabecera (la portada
+    // desenfocada y el velo oscuro), que no llevan z-index.
+    z-index: 2;
+
+    @media (min-width: $bp-md) {
+      left: $spacing-lg;
+    }
+  }
+
+  // Los avisos (cargando, error, no encontrada) sí van alineados con el navbar,
+  // con su propio "Volver" en el flujo normal porque acá no hay cabecera.
+  &__state {
+    @include page-container;
+    padding-top: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+
+    // Los avisos ocupan el ancho completo de la caja; el "Volver" no, que por eso
+    // el contenedor alinea a la izquierda.
+    & > *:not(.back-link) {
+      width: 100%;
+    }
+  }
+
+  &__body {
+    @include page-container;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    padding-top: $spacing-lg;
+
+    @media (min-width: $bp-lg) {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    // Sin esto, un texto largo sin espacios estiraría la columna y rompería el
+    // ancho de la página entera.
+    min-width: 0;
+
+    @media (min-width: $bp-lg) {
+      flex: 1;
+    }
+  }
+
+  &__aside {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+
+    @media (min-width: $bp-lg) {
+      width: 300px;
+      flex-shrink: 0;
+      // Queda a la vista mientras se lee una reseña larga, en vez de obligar a
+      // volver hasta arriba para reaccionar.
+      position: sticky;
+      top: calc(#{$navbar-height} + #{$spacing-md});
+    }
+  }
+
+  &__comments {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    padding-top: $spacing-lg;
+    border-top: 1px solid $color-nav-border;
+  }
+
+  &__section-title {
+    margin: 0;
+    color: $color-text;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  // Lo que ve un visitante sin cuenta en lugar de las otras reseñas, que exigen
+  // token. El enlace compartido es la puerta de entrada de gente sin cuenta.
+  &__signup {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+  }
+
+  &__signup-text {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}

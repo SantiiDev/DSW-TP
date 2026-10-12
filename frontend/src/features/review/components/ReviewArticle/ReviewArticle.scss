@@ -1,0 +1,76 @@
+// Estilos de ReviewArticle.
+@use '../../../../styles/abstracts/variable' as *;
+
+// La reseña no va en una tarjeta: es el contenido principal de la página, así
+// que se apoya directo sobre el fondo, como el cuerpo de un artículo.
+.review-article {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  // El avatar arriba a la izquierda y, al lado, la firma completa: quién,
+  // cuánto le puso y cuándo.
+  &__author {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-md;
+  }
+
+  &__avatar {
+    flex-shrink: 0;
+  }
+
+  &__author-meta {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__author-name {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 1rem;
+
+    // El nombre del autor, que además lleva a su perfil. El <strong> es el
+    // mismo nombre cuando la reseña quedó sin autor y no hay a dónde ir.
+    a,
+    strong {
+      color: $color-text;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: $color-primary;
+    }
+  }
+
+  &__date {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+  }
+
+  // Acá el texto va entero: para eso se entra a la página. Va más grande y con
+  // más aire entre renglones que en la tarjeta, porque son párrafos largos.
+  &__text {
+    margin: 0;
+    color: $color-text;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+
+    &--empty {
+      color: $color-text-secondary;
+      font-style: italic;
+      font-size: 0.95rem;
+      opacity: 0.8;
+    }
+  }
+}

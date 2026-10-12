@@ -1,0 +1,39 @@
+// Estilos del indicador de carga (Loader.tsx).
+@use '../../../styles/abstracts/variable' as *;
+
+@keyframes loaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
+  padding: $spacing-xl $spacing-md;
+
+  // Variante de pantalla completa: alto de la ventana para que el flex de arriba
+  // lo centre también en vertical, no solo en horizontal.
+  &--full-page {
+    min-height: 100vh;
+  }
+
+  &__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid $color-nav-border;
+    // Un solo lado con el color de marca es lo que hace visible el giro.
+    border-top-color: $color-primary;
+    border-radius: 50%;
+    animation: loaderSpin 0.8s linear infinite;
+  }
+
+  &__message {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+}

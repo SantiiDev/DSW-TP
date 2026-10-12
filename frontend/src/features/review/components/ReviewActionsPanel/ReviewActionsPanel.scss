@@ -1,0 +1,85 @@
+// Estilos de ReviewActionsPanel.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Panel de acciones de la página de una reseña ----------------------------
+// Una sola tarjeta con las acciones como filas apiladas, separadas por una
+// línea. El overflow recorta las esquinas de la primera y la última fila, así el
+// fondo del hover no se sale del redondeo de la tarjeta.
+.review-actions {
+  display: flex;
+  flex-direction: column;
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  overflow: hidden;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+    width: 100%;
+    margin: 0;
+    padding: $spacing-md;
+    background: none;
+    border: none;
+    // La línea que separa una fila de la siguiente. En la primera no va: la
+    // tapa el borde de la tarjeta.
+    border-top: 1px solid $color-nav-border;
+    color: $color-text;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:first-child {
+      border-top: none;
+    }
+
+    &:hover {
+      background-color: $color-nav-border;
+    }
+
+    // El corazón ya dado.
+    &--active {
+      color: $color-primary;
+    }
+
+    // El conteo de "me gusta" no es un botón: no se ilumina ni cambia el cursor.
+    &--count {
+      color: $color-text-secondary;
+      font-weight: 400;
+      cursor: default;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    &--danger {
+      color: $color-error;
+    }
+  }
+
+  // Encabezado del bloque de gestión: separa las acciones sobre la reseña de las
+  // formas de reaccionar a ella.
+  &__title {
+    margin: 0;
+    padding: $spacing-md $spacing-md $spacing-sm;
+    border-top: 1px solid $color-nav-border;
+    color: $color-text-secondary;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    // La fila que le sigue no repite la línea: ya la puso este título.
+    + .review-actions__row {
+      border-top: none;
+    }
+  }
+}

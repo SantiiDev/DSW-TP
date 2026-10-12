@@ -1,0 +1,71 @@
+// Estilos de MyListsSection.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- "Mis listas" (barra lateral de /lists) ---------------------------------
+.my-lists {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  // Plegado no lleva tope de alto: son cinco tarjetas como mucho (las recorta el
+  // componente) y entran solas. Poner un max-height acá era justamente lo que
+  // rompía el "Ver más": desplegaba bien, pero la caja seguía capada y las
+  // nuevas quedaban escondidas detrás del scroll, así que parecía no hacer nada.
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  // Desplegado sí: ahí puede haber muchas más, y el scroll tiene que ser de esta
+  // caja y no de la barra lateral, para no empujar el ranking y los géneros
+  // fuera de la pantalla.
+  &__list--expanded {
+    max-height: 22rem;
+    overflow-y: auto;
+    // Aire para que la barra de scroll no se monte sobre las tarjetas.
+    padding-right: 3px;
+  }
+
+  // Es el atajo a una lista propia: solo su nombre y cuántos álbumes tiene. Va
+  // en oscuro, como el resto de la barra lateral; el verde queda para la tarjeta
+  // grande del feed, que es la que muestra la lista en sí.
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    padding: 0.6rem $spacing-md;
+    background-color: $color-bg-light;
+    border-radius: $radius;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: color.adjust($color-bg-light, $lightness: 4%);
+    }
+  }
+
+  &__item-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__item-count {
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+    flex-shrink: 0;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+}

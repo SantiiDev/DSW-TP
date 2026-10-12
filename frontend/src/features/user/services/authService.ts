@@ -1,0 +1,93 @@
+// Servicio de autenticación: centraliza las llamadas HTTP de /api/auth y mapea
+// la respuesta cruda del backend al modelo User.
+//
+// Es el único lugar del frontend que conoce la forma del JSON de la API.
+import { httpClient } from '../../../core/services/httpClient';
+import { DEFAULT_BANNER_POSITION, User } from '../models/User';
+import type { UserApiResponse } from '../models/User';
+
+export type RegisterInput = {
+  username: string;
+  email: string;
+  password: string;
+};
+
+export type LoginInput = {
+  email: string;
+  password: string;
+};
+
+/** Lo que devuelve un login o un registro exitoso: el usuario y su token. */
+export type AuthSession = {
+  user: User;
+  token: string;
+};
+
+/** Respuesta cruda de POST /auth/register y POST /auth/login. */
+type AuthApiResponse = {
+  user: UserApiResponse;
+  token: string;
+};
+
+// Pasa el JSON del backend al modelo: renombra los campos a la convención del
+// frontend (camelCase) y convierte la fecha, que viaja como texto ISO.
+// Se exporta porque userService.ts (mismo feature) la reutiliza para no repetir
+// el mapeo campo por campo.
+export function toUser(data: UserApiResponse): User {
+  return new User(
+    data.id_user,
+    data.username,
+    // En el perfil de otro usuario la API no manda el email; el modelo lo
+    // representa como string vacío para no arrastrar undefined por toda la UI.
+    data.email ?? '',
+    data.rol,
+    // Respuestas viejas sin el campo se toman como cuentas activas: el estado se
+    // agregó después y el default de la base es 'active'.
+    data.state ?? 'active',
+    data.url_avatar,
+    // Una sesión guardada antes de que existieran estos campos no los trae.
+    data.url_banner ?? null,
+    data.banner_position ?? DEFAULT_BANNER_POSITION,
+    data.profile_color ?? null,
+    new Date(data.registration_date)
+  );
+}
+
+function toSession(data: AuthApiResponse): AuthSession {
+  return { user: toUser(data.user), token: data.token };
+}
+
+export const authService = {
+  /** Da de alta una cuenta nueva (siempre con rol FREE) y devuelve la sesión ya iniciada. */
+  async register(input: RegisterInput): Promise<AuthSession> {
+    const data = await httpClient.post<AuthApiResponse>('/auth/register', input);
+    return toSession(data);
+  },
+
+  /** Valida las credenciales contra el backend y devuelve la sesión. */
+  async login(input: LoginInput): Promise<AuthSession> {
+    const data = await httpClient.post<AuthApiResponse>('/auth/login', input);
+    return toSession(data);
+  },
+
+  /**
+   * Pide un token nuevo con el rol actualizado del usuario.
+   *
+   * Hace falta después de pagar: el rol viaja DENTRO del token, así que el que
+   * está guardado sigue diciendo FREE aunque el usuario ya sea PRO en la base, y
+   * el backend le rechazaría las rutas que acaba de comprar.
+   */
+  async refresh(): Promise<AuthSession> {
+    const data = await httpClient.post<AuthApiResponse>('/auth/refresh');
+    return toSession(data);
+  },
+
+  /**
+   * Devuelve el usuario dueño del token que el httpClient manda automáticamente.
+   * Se usa al abrir la app para saber si la sesión guardada sigue siendo válida.
+   */
+  async getCurrentUser(): Promise<User> {
+    const data = await httpClient.get<UserApiResponse>('/auth/me');
+    return toUser(data);
+  },
+};

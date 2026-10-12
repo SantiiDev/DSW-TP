@@ -1,0 +1,44 @@
+// Estilos de SongContributionsList.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Aportes del perfil (pestaña "Aportes") --------------------------------
+.song-contributions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  // Una canción por fila: sin portada no hay nada que ganar con una grilla.
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+}
+
+// Mismo caso que .album-contributions en _album.scss: en la pestaña "Aportes"
+// del perfil la lista va debajo del selector de segmentos, y el panel que los
+// contiene no separa a sus hijos.
+.profile-panel .song-contributions {
+  margin-top: $spacing-md;
+}

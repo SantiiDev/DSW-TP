@@ -1,0 +1,222 @@
+// Estilos de ProfileHeader.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Cabecera -------------------------------------------------------------
+.profile-header {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  // Recorta el banner contra las esquinas redondeadas de la tarjeta.
+  overflow: hidden;
+
+  // Banner de los perfiles Pro. El fondo es el degradé que se ve cuando no hay
+  // imagen (o no carga); si hay, la imagen lo tapa entera.
+  &__banner {
+    height: 96px;
+    background: linear-gradient(
+      135deg,
+      var(--profile-accent) 0%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+
+    @media (min-width: $bp-md) {
+      height: 160px;
+    }
+  }
+
+  &__banner-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    // cover recorta en vez de deformar: una foto cualquiera no tiene la
+    // proporción apaisada de la franja.
+    object-fit: cover;
+  }
+
+  // El avatar grande lleva el borde del color de acento del perfil.
+  .avatar--lg {
+    border-color: var(--profile-accent);
+  }
+
+  // Todo lo que va debajo del banner. El padding va acá y no en la tarjeta para
+  // que el banner llegue de borde a borde.
+  &__content {
+    // En mobile se achica el padding: con 2rem a cada lado los contadores quedan
+    // apretados en una pantalla de 375px.
+    padding: $spacing-md;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+
+    @media (min-width: $bp-sm) {
+      padding: $spacing-lg;
+    }
+
+    // Desde MD la identidad va a la izquierda y los contadores a la derecha.
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-md;
+    min-width: 0;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      align-items: center;
+      text-align: left;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  &__username {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $color-text;
+    word-break: break-word;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.75rem;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-sm) {
+      justify-content: flex-start;
+    }
+  }
+
+  &__since,
+  &__email {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+  &__side {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &__stats {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+
+  &__stat {
+    // Se reparten el espacio que sobra, pero ninguna baja del ancho de su
+    // etiqueta: con `min-width: 0` la columna de la derecha las apretaba contra
+    // el ancho de los botones y "Seguidores" se cortaba con puntos suspensivos.
+    // Con tres contadores entran enteros incluso en un celular de 375px.
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0 0.4rem;
+
+    @media (min-width: $bp-sm) {
+      padding: 0 $spacing-md;
+    }
+
+    // Separadores entre contadores, como en la referencia.
+    & + & {
+      border-left: 1px solid $color-nav-border;
+    }
+  }
+
+  // Los contadores de seguimiento son botones que abren la lista. Sin fondo ni
+  // borde, para que se vean como los otros dos; el hover es lo que avisa que se
+  // pueden tocar.
+  &__stat-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    width: 100%;
+    min-width: 0;
+    padding: 0.2rem 0;
+    background: none;
+    border: none;
+    border-radius: $radius;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      background-color: rgba(255, 255, 255, 0.06);
+      outline: none;
+
+      .profile-header__stat-label {
+        color: $color-primary;
+      }
+    }
+  }
+
+  &__stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: $color-text;
+    line-height: 1.1;
+
+    @media (min-width: $bp-sm) {
+      font-size: 1.35rem;
+    }
+  }
+
+  &__stat-label {
+    font-size: 0.7rem;
+    color: $color-text-secondary;
+    text-align: center;
+    // En una sola línea y siempre entera: la caja se ensancha para contenerla.
+    white-space: nowrap;
+
+    @media (min-width: $bp-sm) {
+      font-size: 0.75rem;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-sm) {
+      flex-direction: row;
+      // Los dos botones juntos son más angostos que la fila de contadores que
+      // tienen arriba. Sin esto quedan pegados a la izquierda y la columna se ve
+      // desbalanceada; centrados, acompañan a los contadores.
+      justify-content: center;
+    }
+  }
+
+}

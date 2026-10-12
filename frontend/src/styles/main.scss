@@ -1,0 +1,13 @@
+// Abstracts
+@use 'abstracts/variable' as *;
+@use 'abstracts/breakpoints' as *;
+
+// Base
+@use 'base/reset';
+@use 'base/typography';
+@use 'base/animations';
+
+// Acá va solo lo global. Los componentes NO se importan acá: cada uno, de
+// core/components y de cada feature, importa su propio .scss desde su carpeta
+// (<Componente>/<Componente>.scss). Antes las features se cargaban por los dos
+// lados (acá y desde sus componentes) y su CSS quedaba duplicado.

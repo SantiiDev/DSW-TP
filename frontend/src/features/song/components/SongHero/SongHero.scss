@@ -1,0 +1,171 @@
+// Estilos de SongHero.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Cabecera de la ficha de una canción ------------------------------------
+//
+// Misma idea que la de álbum (_album.scss): va a ancho completo, con la carátula
+// del disco ampliada y desenfocada de fondo. Cambia el reparto: acá la portada va
+// al costado y no arriba, porque el dato importante de una canción no es la
+// imagen (que ni siquiera es propia, es la del álbum) sino dónde está ubicada.
+//
+// Se repiten los valores en vez de compartir las clases con la ficha de álbum
+// para que las dos features sigan siendo independientes: si mañana la ficha de
+// álbum cambia de layout, esta no se rompe.
+.song-hero {
+  position: relative;
+  // El desenfoque del fondo se sale de la caja: sin esto aparecería una franja
+  // borrosa encima del navbar y debajo de la cabecera.
+  overflow: hidden;
+  padding: $spacing-lg $spacing-md;
+  // El espacio de más arriba es para el botón "Volver", que va flotando sobre
+  // la cabecera (ver .song-detail__topbar).
+  padding-top: calc(#{$spacing-lg} + 2.5rem);
+  // Sin línea abajo: el degradado ya cierra en el color exacto de la página, y
+  // el borde se veía como un corte justo donde la cabecera se funde con el
+  // cuerpo. Es el mismo cierre que la cabecera de una reseña.
+
+  @media (min-width: $bp-md) {
+    padding: $spacing-xl $spacing-lg;
+    padding-top: calc(#{$spacing-xl} + 1.5rem);
+  }
+
+  // La carátula del álbum otra vez, agrandada y desenfocada. Mismos valores que
+  // la cabecera de una reseña (.review-hero) y que la del álbum: con un
+  // desenfoque más suave y algo más de opacidad, el color del disco se reconoce
+  // en vez de quedar en un gris parejo.
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: cover;
+    filter: blur(28px) saturate(1.2);
+    transform: scale(1.15);
+    opacity: 0.45;
+  }
+
+  // Velo oscuro sobre el fondo: la carátula puede ser clarísima y sin esto el
+  // título quedaría ilegible. Va en un ::after y no en el backdrop para que el
+  // degradado no se desenfoque junto con la imagen ni se ague con su opacidad.
+  //
+  // El punto del 60% es lo que hace que el color se vea arriba y la cabecera
+  // igual termine en el fondo exacto de la página, sin corte contra el cuerpo.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba($color-bg, 0.5) 0%,
+      rgba($color-bg, 0.75) 60%,
+      $color-bg 100%
+    );
+  }
+
+  // El contenido va por encima de las dos capas de fondo, que son position
+  // absolute sin z-index.
+  &__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-lg;
+    width: 100%;
+    // Mismo ancho que el cuerpo, para que la carátula arranque justo arriba de
+    // la ficha técnica y no desplazada hacia adentro.
+    max-width: $content-width;
+    margin: 0 auto;
+    text-align: center;
+
+    // Desde tablet la carátula se va al costado y los datos se alinean a la
+    // izquierda, como en la referencia.
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: center;
+      text-align: left;
+    }
+  }
+
+  &__cover {
+    width: 150px;
+    flex-shrink: 0;
+    // La carátula se despega del fondo con una sombra: sin ella, sobre su propia
+    // imagen desenfocada, se pierden los bordes.
+    filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.55));
+
+    @media (min-width: $bp-md) {
+      width: 200px;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    // Sin esto, un título largo estira la fila en vez de cortarse.
+    min-width: 0;
+    width: 100%;
+
+    @media (min-width: $bp-md) {
+      align-items: flex-start;
+    }
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: $color-text;
+    overflow-wrap: anywhere;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.6rem;
+    }
+  }
+
+  &__location {
+    margin: 0;
+    font-size: 0.95rem;
+    color: $color-text-secondary;
+  }
+
+  // El título del álbum dentro de la línea de ubicación lleva a su ficha.
+  &__album-link {
+    color: $color-text;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-primary;
+      border-bottom-color: $color-primary;
+    }
+  }
+
+  &__artist {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  // La barra de contadores cierra la cabecera, separada del resto de los datos.
+  .stats-bar {
+    margin-top: $spacing-md;
+    max-width: 460px;
+  }
+}

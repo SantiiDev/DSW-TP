@@ -1,0 +1,84 @@
+// Estilos de StarRatingInput.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+@use '../../styles/tokens' as *;
+
+// --- Selector de calificación -----------------------------------------------
+.star-input {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  &__stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__star {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 0;
+  }
+
+  &__outline {
+    color: $color-nav-border;
+  }
+
+  &__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    line-height: 0;
+    // La transición hace que la vista previa acompañe al mouse en vez de saltar.
+    transition: width 0.1s ease;
+  }
+
+  &__solid {
+    color: $star-color;
+    fill: $star-color;
+  }
+
+  // Las dos mitades clickeables, invisibles, encima del dibujo. Son botones de
+  // verdad (no divs) para que se puedan tabular y activar con el teclado.
+  &__half {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    &--left {
+      left: 0;
+    }
+
+    &--right {
+      right: 0;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    // El foco tiene que verse: es la única pista de dónde está parado alguien que
+    // navega con el teclado, porque el botón en sí es transparente.
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  &__value {
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+  }
+}

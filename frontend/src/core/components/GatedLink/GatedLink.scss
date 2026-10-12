@@ -1,0 +1,35 @@
+// Estilos del enlace con sesión (core/components/GatedLink.tsx).
+//
+// Son solo reseteos: el aspecto lo pone la clase de la tarjeta que se le pase por
+// `className`. Lo único que hace este bloque es que un <button> y un <a> se vean
+// exactamente igual, para que el visitante sin cuenta y el que ya entró vean la
+// misma pantalla.
+//
+// Va TODO adentro de :where(), que vale especificidad CERO. Sin eso, el reset y
+// la clase de la tarjeta empatan (las dos son una clase) y gana la hoja que se
+// cargue última: en el build manda el orden de main.scss, pero el dev server
+// inyecta el CSS de cada componente cuando lo importa, y ese orden no es el
+// mismo. Eso hacía que en desarrollo el `padding: 0` de acá le ganara al padding
+// de .genre-card y el texto quedara pegado al borde de la tarjeta.
+//
+// Con :where(), cualquier regla de una feature le gana siempre, sin importar el
+// orden de carga.
+:where(.gated-link) {
+  // El <button> del navegador trae su propio fondo, borde, tipografía y
+  // alineación centrada; el <a>, color celeste y subrayado.
+  appearance: none;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  // Las tarjetas viven en una grilla y tienen que ocupar su celda entera. Un
+  // <button> se achica al contenido si no se le dice esto.
+  width: 100%;
+  // Sin esto, un título largo estira la celda de la grilla en vez de cortarse.
+  min-width: 0;
+}

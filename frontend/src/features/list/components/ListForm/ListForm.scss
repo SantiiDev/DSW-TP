@@ -1,0 +1,62 @@
+// Estilos de ListForm.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Formulario de alta y edición -------------------------------------------
+.list-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__actions {
+    display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el de confirmación (ConfirmDialog).
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+
+  // Selector de "Álbumes / Canciones" del alta, con su aclaración debajo. En la
+  // edición no se dibuja: el tipo de una lista no se puede cambiar.
+  &__type {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  &__type-hint {
+    margin: 0;
+    font-size: 0.78rem;
+    color: $color-text-secondary;
+  }
+
+  // Bloque de selección de ítems del alta: el contador, los ya elegidos y el
+  // buscador. En la edición no se dibuja (ver ListForm).
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding-top: $spacing-sm;
+    border-top: 1px solid rgba($color-nav-border, 0.6);
+  }
+
+  &__items-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  &__items-hint {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: $color-text-secondary;
+  }
+}

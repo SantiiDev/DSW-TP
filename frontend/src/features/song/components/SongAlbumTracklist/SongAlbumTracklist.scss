@@ -1,0 +1,117 @@
+// Estilos de SongAlbumTracklist.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Tracklist del álbum (columna lateral) ----------------------------------
+.song-tracklist {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__see-all {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-primary;
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &__note {
+    margin: 0;
+    font-size: 0.88rem;
+    color: $color-text-secondary;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    // Un disco de veinticinco pistas no puede empujar la página entera: la lista
+    // scrollea dentro de su propia caja.
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  // La línea divisoria va entre pistas, así que la lleva cada una menos la
+  // primera.
+  &__item + &__item {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0.5rem $spacing-md;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+
+  // El <a> se ilumina al pasar por encima; la pista actual no, porque no lleva
+  // a ningún lado.
+  a.song-tracklist__row:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  // La pista que se está viendo: fondo verde tenue y una barra al costado, para
+  // que se ubique de un vistazo sin leer todos los títulos.
+  &__row--current {
+    background-color: rgba($color-primary, 0.12);
+    box-shadow: inset 3px 0 0 $color-primary;
+
+    .song-tracklist__name {
+      color: $color-primary;
+      font-weight: 700;
+    }
+  }
+
+  &__number {
+    flex-shrink: 0;
+    min-width: 1.3rem;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: $color-text-secondary;
+    text-align: right;
+  }
+
+  &__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.88rem;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__duration {
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    color: $color-text-secondary;
+  }
+}

@@ -1,0 +1,130 @@
+// Estilos de AlbumInfoPanel.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Ficha técnica (columna lateral) ----------------------------------------
+.album-info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__title {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &__box {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    padding: $spacing-lg;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    min-width: 0;
+  }
+
+  // Resumen de la calificación, arriba de todo: el promedio grande con sus
+  // estrellas y cuántas reseñas hay detrás.
+  &__rating {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: $spacing-lg;
+    border-bottom: 1px solid $color-nav-border;
+    text-align: center;
+  }
+
+  &__average {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    margin: 0;
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1;
+    color: $color-text;
+  }
+
+  &__max {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $color-text-secondary;
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 0.8rem;
+    color: $color-text-secondary;
+  }
+
+  // Los datos van en dos columnas en tablet y vuelven a una sola en LG, que es
+  // donde la ficha pasa a ser una barra lateral angosta.
+  &__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+    margin: 0;
+
+    @media (min-width: $bp-sm) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  &__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $color-text-secondary;
+  }
+
+  // El <dd> trae sangría propia del navegador: hay que sacarla para que quede
+  // alineado con su etiqueta.
+  &__value {
+    margin: 0;
+    font-size: 0.95rem;
+    color: $color-text;
+    overflow-wrap: anywhere;
+  }
+
+  &__genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  // Cada género es una pastilla, igual que en la cabecera.
+  &__link {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    color: $color-text-secondary;
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      border-color: $color-primary;
+      color: $color-text;
+    }
+  }
+}

@@ -1,0 +1,17 @@
+// Estilos del formulario de cambio de precio de un plan.
+@use '../../../../styles/abstracts/variable' as *;
+
+.plan-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__actions {
+    display: flex;
+    // Abajo a la derecha, con el principal último: es donde lo busca el usuario
+    // en un diálogo, igual que en el de confirmación (ConfirmDialog).
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}

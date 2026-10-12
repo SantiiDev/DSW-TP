@@ -1,0 +1,25 @@
+// Estilos de ProfileTabContent.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Pestañas -------------------------------------------------------------
+// La barra vive en core/components/Tabs (clase .tabs): la comparten el perfil y
+// el panel de administración.
+// --- Panel de contenido ---------------------------------------------------
+.profile-panel {
+  background-color: $color-bg-light;
+  border: 1px solid $color-nav-border;
+  border-radius: $radius;
+  padding: $spacing-lg;
+  min-width: 0;
+
+  &__title {
+    margin: 0 0 $spacing-md;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+}

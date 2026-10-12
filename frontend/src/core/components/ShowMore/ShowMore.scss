@@ -1,0 +1,24 @@
+// Estilos de ShowMore.
+@use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
+
+// Pie del listado paginado: cuántas filas se ven y el botón para traer más.
+// En mobile va apilado y centrado; desde tablet, el contador a un lado y el
+// botón al otro.
+.show-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+
+  @media (min-width: $bp-md) {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 0.82rem;
+    color: $color-text-secondary;
+  }
+}

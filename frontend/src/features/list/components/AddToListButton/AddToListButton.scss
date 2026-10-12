@@ -1,0 +1,46 @@
+// Estilos de AddToListButton.
+@use 'sass:color';
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Modal "Agregar a una lista" (ficha del álbum o de la canción) ----------
+.add-to-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__lists {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    padding: 0.5rem 0.75rem;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+  }
+
+  &__item-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $color-text;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__empty {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+}

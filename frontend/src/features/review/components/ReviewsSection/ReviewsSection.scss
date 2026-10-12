@@ -1,0 +1,49 @@
+// Estilos de ReviewsSection.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+@use '../../styles/tokens' as *;
+
+// --- Sección completa --------------------------------------------------------
+.reviews-section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    // Desde tablet el título y los controles comparten fila.
+    @media (min-width: $bp-md) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  &__title {
+    margin: 0;
+    color: $color-text;
+    font-size: 1.3rem;
+  }
+
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  // Aviso al autor de una reseña que un moderador ocultó.
+  &__notice {
+    margin: 0;
+    padding: $spacing-sm $spacing-md;
+    background-color: rgba($star-color, 0.1);
+    border-left: 3px solid $star-color;
+    border-radius: $radius;
+    color: $color-text-secondary;
+    font-size: 0.85rem;
+  }
+}

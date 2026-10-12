@@ -1,0 +1,278 @@
+// Lógica de negocio del CRUD de usuarios: crear, listar, ver perfil, actualizar
+// y dar de baja. No conoce req ni res; recibe datos ya validados y al actor
+// autenticado (para chequear "dueño o admin"), y lanza errores de negocio que
+// traduce el errorHandler.
+//
+// La baja es LÓGICA: ver userService.suspend() al final del archivo.
+import bcrypt from 'bcryptjs';
+import { User } from '../../entities';
+import {
+  BadRequestError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../shared/errors/app-error';
+import { TokenPayload } from '../../shared/auth/jwt';
+import { sequelize } from '../../shared/db/sequelize';
+import { ProfileColor, UserRole, UserState } from '../../shared/types/enums';
+import { subscriptionService } from '../subscription/subscription.service';
+import { userRepository } from './user.repository';
+import { CreateUserInput, UpdateUserInput } from './user.schema';
+
+// Mismo costo que usan el registro público y el seed del admin.
+const SALT_ROUNDS = 10;
+
+/**
+ * Vista pública de un usuario: es lo único que sale en las respuestas de la API.
+ *
+ * El email es opcional porque no se muestra en el perfil de otro usuario: es un
+ * dato de contacto, no parte del perfil público. Solo viaja cuando el que pide
+ * es el dueño de la cuenta o un ADMIN.
+ */
+type PublicUser = {
+  id_user: number;
+  username: string;
+  email?: string;
+  rol: UserRole;
+  /** 'active' o 'suspended': una cuenta suspendida no puede iniciar sesión. */
+  state: UserState;
+  url_avatar: string | null;
+  /**
+   * Personalización Pro. Viajan aunque la cuenta ya sea FREE: la API devuelve lo
+   * guardado y el frontend decide si lo dibuja según el rol.
+   */
+  url_banner: string | null;
+  banner_position: number;
+  profile_color: ProfileColor | null;
+  registration_date: Date;
+};
+
+/**
+ * Arma la vista pública de un usuario.
+ * @param user usuario de la base.
+ * @param includeEmail si se incluye el email (solo para el dueño o un ADMIN).
+ */
+function toPublicUser(user: User, includeEmail = true): PublicUser {
+  return {
+    id_user: user.id_user,
+    username: user.username,
+    ...(includeEmail ? { email: user.email } : {}),
+    rol: user.rol,
+    state: user.state,
+    url_avatar: user.url_avatar ?? null,
+    url_banner: user.url_banner ?? null,
+    banner_position: user.banner_position ?? 50,
+    profile_color: user.profile_color ?? null,
+    registration_date: user.registration_date,
+  };
+}
+
+/**
+ * Corta con 403 si se quiere cargar banner o color en una cuenta que no es Pro.
+ *
+ * Mira el rol con el que va a QUEDAR la cuenta (el que viene en el mismo PATCH, o
+ * si no el de la base) y no el del token: así un token viejo de alguien que ya
+ * pasó a FREE no alcanza, y un ADMIN puede hacer Pro a alguien y cargarle el
+ * banner en la misma request.
+ *
+ * @param user cuenta editada, recién leída de la base.
+ * @param data campos del PATCH.
+ */
+function assertCanCustomize(user: User, data: UpdateUserInput): void {
+  const touchesCustomization =
+    data.url_banner !== undefined ||
+    data.banner_position !== undefined ||
+    data.profile_color !== undefined;
+  const resultingRole = data.rol ?? user.rol;
+
+  if (touchesCustomization && resultingRole === 'FREE') {
+    throw new ForbiddenError('El banner y el color de perfil son beneficios Pro.');
+  }
+}
+
+/** ¿El actor es el dueño de esa cuenta, o un ADMIN? */
+function canSeePrivateData(actor: TokenPayload, targetId: number): boolean {
+  return actor.id_user === targetId || actor.rol === 'ADMIN';
+}
+
+/**
+ * Busca el usuario por id o corta con 404 si no existe. La usan todas las
+ * operaciones que reciben un :id en la URL.
+ */
+async function findExisting(id_user: number): Promise<User> {
+  const user = await userRepository.findById(id_user);
+  if (!user) throw new NotFoundError('El usuario');
+  return user;
+}
+
+/**
+ * Corta con 403 si el actor no es dueño del recurso ni ADMIN.
+ * @param actor usuario autenticado que hace la request.
+ * @param targetId id del usuario sobre el que se quiere actuar.
+ */
+function assertOwnerOrAdmin(actor: TokenPayload, targetId: number): void {
+  if (actor.id_user !== targetId && actor.rol !== 'ADMIN') {
+    throw new ForbiddenError('Solo podés modificar tu propia cuenta.');
+  }
+}
+
+/**
+ * Corta con 409 si el username o el email ya los tiene otro usuario.
+ *
+ * Se chequea antes de escribir para poder decir qué campo está repetido; la
+ * garantía real la dan los índices únicos de la tabla, que rechazan el segundo
+ * registro si dos requests entran al mismo tiempo.
+ *
+ * @param data username y/o email a verificar.
+ * @param excludeId en una edición, el id del propio usuario: que su email
+ *   coincida consigo mismo no es un conflicto.
+ */
+async function assertAvailable(
+  data: { username?: string; email?: string },
+  excludeId?: number
+): Promise<void> {
+  if (data.username) {
+    const existing = await userRepository.findByUsername(data.username);
+    if (existing && existing.id_user !== excludeId) {
+      throw new ConflictError('Ese nombre de usuario ya está en uso.');
+    }
+  }
+
+  if (data.email) {
+    const existing = await userRepository.findByEmail(data.email);
+    if (existing && existing.id_user !== excludeId) {
+      throw new ConflictError('Ya existe una cuenta registrada con ese email.');
+    }
+  }
+}
+
+export const userService = {
+  /**
+   * Da de alta un usuario desde el panel de administración.
+   *
+   * Es distinto del registro público (auth.register): acá se puede elegir el rol,
+   * y no se emite ningún token porque el admin no queda logueado como el usuario
+   * que acaba de crear. La ruta ya restringe esto a ADMIN.
+   *
+   * @param data username, email, contraseña en texto plano y rol opcional.
+   */
+  async create(data: CreateUserInput): Promise<PublicUser> {
+    await assertAvailable({ username: data.username, email: data.email });
+
+    const user = await userRepository.create({
+      username: data.username,
+      email: data.email,
+      password: await bcrypt.hash(data.password, SALT_ROUNDS),
+      rol: data.rol ?? 'FREE',
+      url_avatar: data.url_avatar ?? null,
+    });
+
+    return toPublicUser(user);
+  },
+
+  /**
+   * Lista todos los usuarios, con email incluido: la ruta ya restringe esto a
+   * ADMIN, que es quien administra las cuentas y necesita verlo.
+   */
+  async list(): Promise<PublicUser[]> {
+    const users = await userRepository.findAll();
+    // La lambda es necesaria: pasar toPublicUser directo le mandaría el índice
+    // del map como segundo parámetro.
+    return users.map((user) => toPublicUser(user));
+  },
+
+  /**
+   * Perfil de un usuario puntual.
+   * @param id_user usuario a mostrar.
+   * @param actor usuario autenticado que hace la request; define si ve el email.
+   */
+  async getById(id_user: number, actor: TokenPayload): Promise<PublicUser> {
+    const user = await findExisting(id_user);
+    return toPublicUser(user, canSeePrivateData(actor, id_user));
+  },
+
+  /**
+   * Actualiza los datos de un usuario: username, email, avatar, y la
+   * personalización Pro (banner y color); rol y estado solo un ADMIN.
+   * @param id_user usuario a modificar.
+   * @param actor usuario autenticado que hace la request.
+   * @param data campos a cambiar, ya validados por Zod.
+   */
+  async update(id_user: number, actor: TokenPayload, data: UpdateUserInput): Promise<PublicUser> {
+    assertOwnerOrAdmin(actor, id_user);
+
+    // El rol es lo único que un usuario NO puede cambiarse a sí mismo: si no,
+    // cualquiera se haría ADMIN editando su propio perfil.
+    if (data.rol !== undefined && actor.rol !== 'ADMIN') {
+      throw new ForbiddenError('Solo un administrador puede cambiar el rol de una cuenta.');
+    }
+
+    // Lo mismo con el estado: si no, un usuario suspendido se reactivaría solo.
+    if (data.state !== undefined && actor.rol !== 'ADMIN') {
+      throw new ForbiddenError('Solo un administrador puede cambiar el estado de una cuenta.');
+    }
+
+    const user = await findExisting(id_user);
+    assertCanCustomize(user, data);
+    await assertAvailable({ username: data.username, email: data.email }, id_user);
+
+    // Si el admin le saca el PRO (lo pasa a FREE) y tenía una suscripción paga
+    // real, hay que cancelarla en la misma transacción que el cambio de rol: si
+    // no, quedaría 'active' en la base con el rol ya en FREE, y el panel de
+    // membresía seguiría mostrando a ese usuario como Pro (cancelForUser no hace
+    // nada si no tenía ninguna real, que es el caso de un PRO asignado a mano).
+    const mustCancelSubscription = user.rol === 'PRO' && data.rol === 'FREE';
+
+    const updated = mustCancelSubscription
+      ? await sequelize.transaction(async (t) => {
+          const result = await userRepository.update(user, data, t);
+          await subscriptionService.cancelForUser(id_user, t);
+          return result;
+        })
+      : await userRepository.update(user, data);
+
+    return toPublicUser(updated);
+  },
+
+  /**
+   * Da de baja la cuenta de un usuario: BAJA LÓGICA.
+   *
+   * No borra la fila, la deja en state = 'suspended'. Se hace así por dos motivos:
+   * el usuario deja reseñas y pagos que lo referencian por FK (borrarlo obligaría
+   * a borrar todo eso), y una suspensión se puede revertir, un DELETE no.
+   *
+   * A partir de acá la cuenta no puede iniciar sesión ni usar su token viejo, pero
+   * sigue existiendo para el ADMIN, que puede reactivarla con activate().
+   *
+   * @param id_user usuario a suspender.
+   * @param actor usuario autenticado que hace la request (el dueño o un ADMIN).
+   * @returns el usuario ya suspendido, para que el panel actualice la fila.
+   */
+  async suspend(id_user: number, actor: TokenPayload): Promise<PublicUser> {
+    assertOwnerOrAdmin(actor, id_user);
+    const user = await findExisting(id_user);
+
+    if (user.state === 'suspended') {
+      throw new BadRequestError('La cuenta ya está suspendida.');
+    }
+
+    const suspended = await userRepository.updateState(user, 'suspended');
+    return toPublicUser(suspended);
+  },
+
+  /**
+   * Reactiva una cuenta suspendida. Solo ADMIN: la ruta ya lo restringe.
+   * @param id_user usuario a reactivar.
+   * @returns el usuario ya activo.
+   */
+  async activate(id_user: number): Promise<PublicUser> {
+    const user = await findExisting(id_user);
+
+    if (user.state === 'active') {
+      throw new BadRequestError('La cuenta ya está activa.');
+    }
+
+    const activated = await userRepository.updateState(user, 'active');
+    return toPublicUser(activated);
+  },
+};

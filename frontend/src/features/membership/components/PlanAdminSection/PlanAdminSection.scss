@@ -1,0 +1,17 @@
+// Estilos de la pestaña "Planes" del panel de administración.
+@use '../../../../styles/abstracts/variable' as *;
+
+// La caja de cada bloque la ponen Card y DataTable; acá van solo el ritmo
+// vertical de la sección y el texto de "sin planes".
+.plan-admin {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+
+  &__empty {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+}

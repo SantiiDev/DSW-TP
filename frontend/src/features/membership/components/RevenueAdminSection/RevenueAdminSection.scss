@@ -1,0 +1,8 @@
+// Estilos de la sección "Métricas" del panel de administración.
+@use '../../../../styles/abstracts/variable' as *;
+
+.revenue-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: $spacing-md;
+}

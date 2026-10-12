@@ -1,0 +1,38 @@
+// Estilos de RefreshableBody (RefreshableBody.tsx).
+@use '../../../styles/abstracts/variable' as *;
+
+@keyframes refreshableBodySpinnerIn {
+  from {
+    opacity: 0;
+  }
+}
+
+.refreshable-body {
+  position: relative;
+
+  &__content {
+    // Mismo espaciado que tenían los hijos sueltos dentro de la sección (tabla y
+    // "Ver más", título y lista de solicitudes): envolverlos no puede cambiarlo.
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    min-width: 0;
+    transition: opacity 0.15s ease;
+
+    // Recargando: se ve lo anterior, atenuado, hasta que llega la respuesta.
+    &--refreshing {
+      opacity: 0.5;
+    }
+  }
+
+  // Spinner de la recarga, encima de lo atenuado. Aparece con una demora: si la
+  // respuesta llega rápido solo se nota la atenuación, y si tarda, se ve que está
+  // trabajando. Sin la demora, un destello de spinner en cada pausa al escribir
+  // sería otro parpadeo.
+  &__spinner {
+    position: absolute;
+    inset: 0 0 auto;
+    pointer-events: none;
+    animation: refreshableBodySpinnerIn 0.2s ease 0.4s backwards;
+  }
+}

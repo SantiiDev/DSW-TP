@@ -1,0 +1,23 @@
+// Estilos de RatedItemsList.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Grilla de ítems calificados (pestañas del perfil) -----------------------
+.rated-items {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &__grid {
+    display: grid;
+    // Las tarjetas se acomodan solas: entran las que quepan sin bajar de 140px.
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: $spacing-md;
+  }
+
+  &__more {
+    display: flex;
+    justify-content: center;
+  }
+}

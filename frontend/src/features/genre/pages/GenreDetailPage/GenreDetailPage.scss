@@ -1,0 +1,135 @@
+// Estilos de GenreDetailPage.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Ficha pública de un género --------------------------------------------
+.genre-detail {
+  // El mismo ancho que el navbar y que el resto de las pantallas (ver el mixin).
+  // Antes eran 1200px con el padding adentro, así que la lista de álbumes no
+  // arrancaba donde arranca el logo.
+  @include page-container;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media (min-width: $bp-md) {
+    @include page-container($spacing-lg);
+    padding-top: $spacing-xl;
+    padding-bottom: $spacing-xl;
+  }
+
+  // Las tres líneas del encabezado (la etiqueta "Género", el nombre y el conteo)
+  // van centradas. align-items centra cada línea como bloque y text-align se
+  // ocupa del caso en que alguna ocupe más de un renglón.
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    text-align: center;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+    color: $color-text;
+    line-height: 1.1;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.6rem;
+    }
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 0.9rem;
+    color: $color-text-secondary;
+  }
+
+  // Cuerpo de la página: en mobile los filtros van arriba de los resultados
+  // (order los sube), y desde escritorio pasan a ser una columna fija al costado.
+  &__body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+
+    @media (min-width: $bp-lg) {
+      grid-template-columns: 1fr 280px;
+      align-items: start;
+    }
+  }
+
+  &__results {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    // Sin esto, una fila muy ancha estiraría la columna del grid en vez de
+    // scrollear dentro de ella.
+    min-width: 0;
+    order: 2;
+
+    @media (min-width: $bp-lg) {
+      order: 1;
+    }
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+  }
+
+  &__results-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  // Los dos botones que alternan entre grilla y lista, pegados como un solo control.
+  &__views {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    background-color: $color-bg-light;
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+  }
+
+  &__view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.5rem;
+    background-color: transparent;
+    border: none;
+    border-radius: $radius;
+    color: $color-text-secondary;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: $color-text;
+    }
+
+    &--active {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: $color-text;
+    }
+  }
+}

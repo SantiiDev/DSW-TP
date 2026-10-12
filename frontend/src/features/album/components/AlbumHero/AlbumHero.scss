@@ -1,0 +1,198 @@
+// Estilos de AlbumHero.
+@use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
+
+// --- Cabecera de la ficha de un álbum ---------------------------------------
+//
+// Va a ancho completo de la pantalla, por fuera de la caja de lectura: el fondo
+// es la portada del disco ampliada y desenfocada, y cortarla al ancho del
+// contenido la haría ver como una imagen mal puesta.
+//
+// Adentro son tres bloques en fila: la portada, los datos del disco y los
+// contadores con el botón de calificar. En mobile se apilan en ese mismo orden.
+.album-hero {
+  position: relative;
+  // El desenfoque del fondo se sale de la caja: sin esto aparecería una franja
+  // borrosa encima del navbar y debajo de la cabecera.
+  overflow: hidden;
+  // Arranca pegada al navbar y no lleva línea abajo: la que separa la cabecera
+  // del contenido es la de la barra de secciones, que va justo después. Con las
+  // dos quedaban dos líneas paralelas.
+  padding: $spacing-lg $spacing-md;
+  // El espacio de más arriba es para el botón "Volver", que va flotando sobre
+  // la cabecera (ver .album-detail__topbar).
+  padding-top: calc(#{$spacing-lg} + 2.5rem);
+
+  @media (min-width: $bp-md) {
+    padding: $spacing-xl $spacing-lg;
+    padding-top: calc(#{$spacing-xl} + 1.5rem);
+  }
+
+  // La portada otra vez, gigante y desenfocada. El scale la agranda más allá de
+  // la caja porque el blur deja los bordes transparentes.
+  //
+  // Mismos valores que la cabecera de una reseña (.review-hero): con un
+  // desenfoque más suave y algo más de opacidad, el color del disco se reconoce
+  // en vez de quedar en un gris parejo.
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: cover;
+    filter: blur(28px) saturate(1.2);
+    transform: scale(1.15);
+    opacity: 0.45;
+  }
+
+  // Velo oscuro sobre el fondo: la portada puede ser clarísima y sin esto el
+  // título quedaría ilegible. Va en un ::after y no en el backdrop para que el
+  // degradado no se desenfoque junto con la imagen ni se ague con su opacidad.
+  //
+  // El punto del 60% es lo que hace que el color se vea arriba y la cabecera
+  // igual termine en el fondo exacto de la página, sin corte contra el cuerpo.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba($color-bg, 0.5) 0%,
+      rgba($color-bg, 0.75) 60%,
+      $color-bg 100%
+    );
+  }
+
+  // El contenido va por encima de las dos capas de fondo, que son position
+  // absolute sin z-index.
+  &__content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    // El padding lo pone la cabecera, no este hijo: es el ancho de referencia
+    // con el que se alinean la barra de secciones y el cuerpo.
+    max-width: $content-width;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    min-width: 0;
+
+    // Desde tablet la portada se pone al lado de los datos, y los contadores
+    // pasan abajo ocupando las dos columnas: todavía no hay ancho para tres.
+    @media (min-width: $bp-md) {
+      grid-template-columns: 210px minmax(0, 1fr);
+      align-items: center;
+    }
+
+    // Desde LG sí entran los tres bloques en una sola fila.
+    @media (min-width: $bp-lg) {
+      grid-template-columns: 240px minmax(0, 1fr) 300px;
+      gap: $spacing-xl;
+    }
+  }
+
+  &__cover {
+    // En mobile la portada no se estira a todo el ancho: en una pantalla de 400px
+    // quedaría una tapa gigante y el título recién abajo del pliegue.
+    width: 160px;
+    // La portada se despega del fondo con una sombra: sin ella, sobre su propia
+    // imagen desenfocada, se pierden los bordes.
+    filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.55));
+
+    @media (min-width: $bp-md) {
+      // Desde acá el ancho lo manda la columna de la grilla.
+      width: 100%;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: $color-primary;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: $color-text;
+    // Un título largo de una sola palabra no puede estirar la página en un
+    // celular.
+    overflow-wrap: anywhere;
+
+    @media (min-width: $bp-md) {
+      font-size: 2.8rem;
+    }
+  }
+
+  &__artist {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: $color-text;
+  }
+
+  &__meta {
+    margin: 0;
+    font-size: 0.85rem;
+    color: $color-text-secondary;
+  }
+
+  &__genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+    margin: $spacing-sm 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // Pastilla de género: mismo aspecto que las del formulario de álbum, para que
+  // un género se vea igual en todo el sitio.
+  &__genre {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid $color-nav-border;
+    border-radius: $radius;
+    color: $color-text-secondary;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      border-color: $color-primary;
+      color: $color-text;
+    }
+  }
+
+  // Contadores y botón de calificar: el bloque con el que se actúa sobre el
+  // disco, separado de los datos que solo se leen.
+  &__aside {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    min-width: 0;
+
+    // Mientras la grilla tiene dos columnas, este bloque va abajo cruzándolas.
+    @media (min-width: $bp-md) {
+      grid-column: 1 / -1;
+    }
+
+    @media (min-width: $bp-lg) {
+      grid-column: auto;
+    }
+  }
+}

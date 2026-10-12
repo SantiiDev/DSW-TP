@@ -1,0 +1,128 @@
+// Estilos de Gráfico de dona con su leyenda (DonutChart).
+//
+// La animación se dispara al agregar la clase o el valor "visible" cuando el
+// gráfico entra en pantalla (ver useInView).
+@use '../../../../styles/abstracts/variable' as *;
+
+.donut-chart {
+  // Dona y leyenda van lado a lado si entran; si el contenedor es angosto, la
+  // leyenda baja sola abajo de la dona. Se resuelve con wrap y no con una media
+  // query porque lo que importa es el ancho de la tarjeta, no el de la pantalla.
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md $spacing-lg;
+
+  &__ring {
+    position: relative;
+    flex-shrink: 0;
+    width: 170px;
+    height: 170px;
+  }
+
+  &__svg {
+    width: 100%;
+    height: 100%;
+    // Las porciones arrancan arriba, a las 12, y no a las 3 como un círculo de SVG.
+    transform: rotate(-90deg);
+  }
+
+  &__track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.06);
+    stroke-width: 12;
+  }
+
+  &__arc {
+    fill: none;
+    stroke-width: 12;
+    cursor: pointer;
+    transition:
+      stroke-dasharray 1s $chart-ease,
+      stroke-width 0.2s ease,
+      opacity 0.2s ease;
+
+    &--active {
+      stroke-width: 15;
+    }
+
+    &--dimmed {
+      opacity: 0.3;
+    }
+  }
+
+  &__center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.75rem;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  &__center-value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: $color-text;
+  }
+
+  &__center-label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: $color-text-secondary;
+  }
+
+  &__legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    flex: 1 1 160px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__legend-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.9rem;
+    cursor: default;
+    transition: opacity 0.2s ease;
+
+    &--dimmed {
+      opacity: 0.4;
+    }
+  }
+
+  &__swatch {
+    flex-shrink: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  &__legend-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: $color-text;
+  }
+
+  &__legend-value {
+    font-weight: 700;
+    color: $color-text-secondary;
+    font-variant-numeric: tabular-nums;
+  }
+}
