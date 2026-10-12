@@ -34,7 +34,7 @@
   // En pantallas bajas el formulario no entra entero: el diálogo scrollea solo.
   max-height: 90vh;
   overflow-y: auto;
-  padding: $spacing-lg;
+  @include card-padding;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
   border-radius: $radius;

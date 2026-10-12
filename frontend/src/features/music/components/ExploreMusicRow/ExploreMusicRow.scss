@@ -8,11 +8,18 @@
 .music-list-item {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
-  // Bastante más aire a la derecha que a la izquierda: la columna de la derecha
-  // (calificación y reseñas) quedaba pegada al borde de la fila y se leía como
-  // cortada.
-  padding: $spacing-md $spacing-xl $spacing-md $spacing-lg;
+  gap: 0.75rem;
+  // Mobile: padding chico para que el título tenga lugar. Con el padding de
+  // escritorio, el puesto, la portada y la columna de la derecha se comían todo el
+  // ancho y el título desaparecía.
+  padding: 0.75rem $spacing-md;
+
+  // Desde SM, bastante más aire a la derecha que a la izquierda: la columna de la
+  // derecha (calificación y reseñas) quedaba pegada al borde y se leía como cortada.
+  @media (min-width: $bp-sm) {
+    gap: $spacing-md;
+    padding: $spacing-md $spacing-xl $spacing-md $spacing-lg;
+  }
   background-color: $color-bg-light;
   transition: background-color 0.2s ease;
   cursor: pointer;
@@ -25,7 +32,11 @@
     color: $color-primary;
     font-size: 1.1rem;
     font-weight: 800;
-    min-width: 36px;
+    min-width: 28px;
+
+    @media (min-width: $bp-sm) {
+      min-width: 36px;
+    }
     text-align: center;
     font-variant-numeric: tabular-nums;
   }
@@ -64,6 +75,9 @@
     color: $color-text-secondary;
     font-size: 0.82rem;
     margin: 2px 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   // Columna de la derecha: la calificación arriba y las reseñas abajo. El ancho
@@ -76,8 +90,11 @@
     justify-content: center;
     gap: 2px;
     flex-shrink: 0;
-    min-width: 120px;
     text-align: right;
+
+    @media (min-width: $bp-sm) {
+      min-width: 120px;
+    }
   }
 
   &__rating {

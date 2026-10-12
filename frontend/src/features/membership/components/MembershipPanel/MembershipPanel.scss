@@ -1,10 +1,12 @@
 // Estilos de la pestaña "Membresía" del perfil: plan actual e historial de pagos.
 @use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
 @use '../../styles/tokens' as *;
 
 // ─── Panel de membresía del perfil ──────────────────────────
 .membership-card {
-  padding: $spacing-lg;
+  @include card-padding;
   // Antes este espacio salía del margen por defecto del <h3> de abajo
   // (.profile-panel__subtitle no tiene estilo propio). Con los botones
   // "Renovar"/"Dar de baja" se disimulaba; sin ellos (PRO asignado a mano, sin
@@ -73,13 +75,23 @@
   width: 100%;
   margin-top: $spacing-md;
   border-collapse: collapse;
-  font-size: 0.92rem;
+  // En celulares chicos (320px) la fecha y el importe no entraban junto con el
+  // padding de las dos tarjetas que envuelven la tabla.
+  font-size: 0.85rem;
+
+  @media (min-width: $bp-sm) {
+    font-size: 0.92rem;
+  }
 
   th,
   td {
-    padding: $spacing-sm;
+    padding: $spacing-sm 0.35rem;
     text-align: left;
     border-bottom: 1px solid $color-nav-border;
+
+    @media (min-width: $bp-sm) {
+      padding: $spacing-sm;
+    }
   }
 
   th {
@@ -91,6 +103,19 @@
 
   td {
     color: $color-text;
+    // Todo en una sola línea: la fecha y el importe se leían mal partidos en
+    // mobile ("18 / de / sept / de / 2026").
+    white-space: nowrap;
+  }
+
+  // La columna del medio (usuario o plan) es la que cede cuando no hay lugar: se
+  // corta con puntos suspensivos. `max-width: 0` + `width: 100%` es el truco para
+  // que una celda tome el ancho que sobra sin empujar la tabla fuera de la tarjeta.
+  td:nth-child(2) {
+    width: 100%;
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 

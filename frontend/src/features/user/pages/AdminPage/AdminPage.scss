@@ -234,9 +234,12 @@
         width: 100%;
       }
 
+      // Letra un punto más chica: "Canciones" llenaba su celda entera y la
+      // pastilla verde quedaba pegada al texto.
       .view-switcher__option {
-        padding-left: $spacing-sm;
-        padding-right: $spacing-sm;
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+        font-size: 0.8rem;
       }
     }
   }

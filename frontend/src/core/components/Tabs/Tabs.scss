@@ -16,6 +16,13 @@
   // un píxel por redondeo, aunque las pestañas son de una sola fila.
   overflow-y: hidden;
   min-width: 0;
+  // La barra de scroll no se dibuja: en mobile quedaba una franja gris debajo de
+  // las pestañas. Se sigue pudiendo deslizar con el dedo o la ruedita.
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   &__list {
     // Ancla del subrayado, que va posicionado sobre la pestaña activa.

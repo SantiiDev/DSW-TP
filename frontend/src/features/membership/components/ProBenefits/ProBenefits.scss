@@ -1,5 +1,6 @@
 // Estilos de la grilla de beneficios de la membresía Pro.
 @use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/mixins' as *;
 @use '../../../../styles/abstracts/breakpoints' as *;
 @use '../../styles/tokens' as *;
 
@@ -43,12 +44,19 @@
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
   border-radius: $radius;
-  padding: $spacing-xl $spacing-lg;
+  @include card-padding($spacing-xl $spacing-lg, $spacing-lg $spacing-md);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 260px;
+  // En mobile el ícono va pegado al texto: con alto mínimo la tarjeta quedaba
+  // medio vacía.
+  gap: $spacing-md;
   transition: border-color 0.3s ease;
+
+  // La altura pareja solo importa cuando hay varias tarjetas por fila.
+  @media (min-width: $bp-sm) {
+    min-height: 260px;
+  }
 
   // Solo contraste: se enciende el borde, la tarjeta no se levanta.
   &:hover {

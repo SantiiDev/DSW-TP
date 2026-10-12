@@ -1,5 +1,6 @@
 // Estilos del acordeón de preguntas frecuentes de /pro.
 @use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/mixins' as *;
 @use '../../../../styles/abstracts/breakpoints' as *;
 @use '../../styles/tokens' as *;
 
@@ -46,7 +47,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: $spacing-md $spacing-lg;
+    @include card-padding($spacing-md $spacing-lg, $spacing-md);
     background: none;
     border: none;
     color: $color-text;
@@ -82,7 +83,7 @@
       color: $color-text-secondary;
       font-size: 0.9rem;
       line-height: 1.6;
-      padding: 0 $spacing-lg $spacing-lg;
+      @include card-padding(0 $spacing-lg $spacing-lg, 0 $spacing-md $spacing-md);
       margin: 0;
     }
 

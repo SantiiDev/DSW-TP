@@ -82,6 +82,16 @@ export const Tabs = ({ items, activeId, onChange, ariaLabel }: TabsProps) => {
     });
   }, []);
 
+  /**
+   * Avisa qué pestaña se eligió y la centra en la barra. En mobile las pestañas
+   * no entran todas y la elegida podía quedar cortada contra el borde; con
+   * `block: 'nearest'` la página no se mueve en vertical, solo la barra.
+   */
+  const handleTabClick = (id: string, button: HTMLButtonElement) => {
+    button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    onChange(id);
+  };
+
   return (
     // El wrapper permite scroll horizontal: en mobile las pestañas no entran.
     <nav className="tabs" aria-label={ariaLabel}>
@@ -108,7 +118,7 @@ export const Tabs = ({ items, activeId, onChange, ariaLabel }: TabsProps) => {
             <button
               type="button"
               className={`tabs__tab ${activeId === tab.id ? 'tabs__tab--active' : ''}`}
-              onClick={() => onChange(tab.id)}
+              onClick={(e) => handleTabClick(tab.id, e.currentTarget)}
               aria-current={activeId === tab.id ? 'page' : undefined}
             >
               {tab.label}

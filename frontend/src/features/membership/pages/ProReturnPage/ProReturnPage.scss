@@ -1,5 +1,6 @@
 // Estilos de la pantalla de vuelta de MercadoPago (/pro/return).
 @use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/mixins' as *;
 @use '../../styles/tokens' as *;
 
 // ─── Pantalla de vuelta de MercadoPago (/pro/return) ────────
@@ -20,7 +21,7 @@
   align-items: center;
   gap: $spacing-md;
   max-width: 520px;
-  padding: $spacing-xl $spacing-lg;
+  @include card-padding($spacing-xl $spacing-lg, $spacing-lg $spacing-md);
   text-align: center;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;

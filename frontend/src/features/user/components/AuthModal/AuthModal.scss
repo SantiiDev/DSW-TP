@@ -24,7 +24,7 @@
     max-width: 440px;
     background-color: $color-bg-light;
     border-radius: $radius;
-    padding: $spacing-lg;
+    @include card-padding;
     border: 1px solid $color-nav-border;
     display: flex;
     flex-direction: column;

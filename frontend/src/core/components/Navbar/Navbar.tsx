@@ -1,7 +1,7 @@
 // Barra de navegación principal que provee enlaces a las secciones del sitio y opciones de usuario.
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ChevronDown, LogOut, UserRound } from 'lucide-react';
+import { ChevronDown, LogOut, Menu, UserRound, X } from 'lucide-react';
 import { useAuthModal } from '../../context/AuthModalContext';
 import { useAuth } from '../../context/AuthContext';
 import { RoleBadge } from '../../../features/user/components/RoleBadge';
@@ -9,6 +9,19 @@ import { Avatar } from '../Avatar';
 import { ConfirmDialog } from '../Modal';
 import { NavbarSearch } from '../NavbarSearch';
 import './Navbar.scss';
+
+// Secciones principales del sitio. Se dibujan dos veces: en el centro de la barra
+// (escritorio) y en el menú desplegable de mobile, así que se definen una sola vez.
+const NAV_LINKS = [
+  { to: '/music', label: 'Música', isPro: false },
+  { to: '/reviews', label: 'Reseñas', isPro: false },
+  { to: '/lists', label: 'Listas', isPro: false },
+  { to: '/pro', label: 'Pro', isPro: true },
+];
+
+// Arma la clase de un link de navegación según si es Pro y si es la página actual.
+const navLinkClass = (isPro: boolean, isActive: boolean) =>
+  `navbar__link ${isPro ? 'navbar__link--pro' : ''} ${isActive ? 'active' : ''}`;
 
 export const Navbar = () => {
   const { openLogin, openSignup } = useAuthModal();
@@ -22,6 +35,9 @@ export const Navbar = () => {
   // cuenta (perfil y cerrar sesión) aparecen al desplegarlo.
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  // Menú de navegación de mobile (el botón de las tres rayas). En pantallas chicas
+  // los links del centro no entran en la barra, así que se muestran acá.
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Cierra el menú al hacer click afuera o al apretar Escape, que es lo que
   // espera cualquiera de un desplegable.
@@ -46,6 +62,46 @@ export const Navbar = () => {
       document.removeEventListener('keydown', handleEscape);
     };
   }, [isMenuOpen]);
+
+  // El menú de mobile también se cierra con Escape.
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMobileMenuOpen(false);
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isMobileMenuOpen]);
+
+  // Se llama al elegir cualquier opción del menú de mobile, para que la página
+  // nueva no quede tapada por el menú.
+  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  // Los botones de invitado del menú de mobile abren el modal de login o de
+  // registro; antes se cierra el menú para no dejar las dos capas abiertas.
+  const handleMobileLoginClick = () => {
+    closeMobileMenu();
+    openLogin();
+  };
+
+  const handleMobileSignupClick = () => {
+    closeMobileMenu();
+    openSignup();
+  };
+
+  // Abrir el menú de usuario cierra el de mobile, y al revés: son dos
+  // desplegables que salen del mismo lugar y no tienen que verse a la vez.
+  const handleUserMenuClick = () => {
+    closeMobileMenu();
+    setIsMenuOpen((open) => !open);
+  };
+
+  const handleMobileMenuToggle = () => {
+    setIsMenuOpen(false);
+    setIsMobileMenuOpen((open) => !open);
+  };
 
   const handleConfirmLogout = () => {
     setIsLogoutDialogOpen(false);
@@ -77,10 +133,11 @@ export const Navbar = () => {
 
         {/* Center: Navigation Links */}
         <div className="navbar__center">
-          <NavLink to="/music" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Música</NavLink>
-          <NavLink to="/reviews" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Reseñas</NavLink>
-          <NavLink to="/lists" className={({ isActive }) => `navbar__link ${isActive ? 'active' : ''}`}>Listas</NavLink>
-          <NavLink to="/pro" className={({ isActive }) => `navbar__link navbar__link--pro ${isActive ? 'active' : ''}`}>Pro</NavLink>
+          {NAV_LINKS.map((link) => (
+            <NavLink key={link.to} to={link.to} className={({ isActive }) => navLinkClass(link.isPro, isActive)}>
+              {link.label}
+            </NavLink>
+          ))}
         </div>
 
         {/* Right side: sesión iniciada o botones de auth */}
@@ -93,14 +150,14 @@ export const Navbar = () => {
                   para no ofrecer una pantalla que no va a poder usar: quien
                   corta de verdad es el backend. */}
               {authState.user.isAdmin && (
-                <Link to="/admin" className="navbar__btn navbar__btn--admin">Admin</Link>
+                <Link to="/admin" className="navbar__btn navbar__btn--admin navbar__desktop-only">Admin</Link>
               )}
 
               <div className="navbar__menu" ref={menuRef}>
                 <button
                   type="button"
                   className="navbar__user"
-                  onClick={() => setIsMenuOpen((open) => !open)}
+                  onClick={handleUserMenuClick}
                   aria-expanded={isMenuOpen}
                   aria-haspopup="true"
                   aria-label="Abrir menú de usuario"
@@ -156,12 +213,58 @@ export const Navbar = () => {
             </>
           ) : (
             <>
-              <button onClick={openLogin} className="navbar__btn navbar__btn--login">Iniciar Sesión</button>
-              <button onClick={openSignup} className="navbar__btn navbar__btn--signup">Registrarse</button>
+              <button onClick={openLogin} className="navbar__btn navbar__btn--login navbar__desktop-only">Iniciar Sesión</button>
+              <button onClick={openSignup} className="navbar__btn navbar__btn--signup navbar__desktop-only">Registrarse</button>
             </>
           )}
+
+          {/* Solo en mobile: abre el menú con las secciones del sitio. */}
+          <button
+            type="button"
+            className="navbar__toggle"
+            onClick={handleMobileMenuToggle}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="navbar-mobile-menu"
+            aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          >
+            {isMobileMenuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
+          </button>
         </div>
       </div>
+
+      {/* Menú de mobile y tablet: las secciones del sitio y, según la sesión,
+          el acceso al panel de admin o los botones para entrar. Desde LG
+          (1024px) no se usa: recién ahí los links entran en la barra. */}
+      {isMobileMenuOpen && (
+        <>
+          <div className="navbar__backdrop" onClick={closeMobileMenu} aria-hidden="true" />
+          <div className="navbar__mobile-menu" id="navbar-mobile-menu">
+            {NAV_LINKS.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) => navLinkClass(link.isPro, isActive)}
+                onClick={closeMobileMenu}
+              >
+                {link.label}
+              </NavLink>
+            ))}
+
+            {authState.status === 'authenticated' && authState.user ? (
+              authState.user.isAdmin && (
+                <Link to="/admin" className="navbar__btn navbar__btn--admin" onClick={closeMobileMenu}>
+                  Panel de administración
+                </Link>
+              )
+            ) : (
+              <div className="navbar__mobile-auth">
+                <button onClick={handleMobileLoginClick} className="navbar__btn navbar__btn--login">Iniciar Sesión</button>
+                <button onClick={handleMobileSignupClick} className="navbar__btn navbar__btn--signup">Registrarse</button>
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       <ConfirmDialog
         isOpen={isLogoutDialogOpen}

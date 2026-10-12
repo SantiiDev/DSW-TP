@@ -1,10 +1,11 @@
 // Estilos de Features.
 @use 'sass:color';
 @use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/mixins' as *;
 @use '../../../../styles/abstracts/breakpoints' as *;
 
 .features {
-  padding: $spacing-xl $spacing-lg;
+  @include card-padding($spacing-xl $spacing-lg, $spacing-xl $spacing-md);
   color: $color-text;
   
   &__container {
@@ -37,13 +38,18 @@
 .features-card {
   background-color: $color-bg-light;
   border-radius: $radius;
-  padding: $spacing-xl $spacing-lg;
-  min-height: 220px;
+  @include card-padding($spacing-xl $spacing-lg, $spacing-lg $spacing-md);
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
   transition: background-color 0.3s ease;
   cursor: pointer;
+
+  // La altura mínima es para que las tarjetas de una fila midan lo mismo; en
+  // mobile van de a una y solo agregaba espacio vacío.
+  @media (min-width: $bp-md) {
+    min-height: 220px;
+  }
 
   // Solo contraste: el fondo se aclara. Antes la tarjeta se levantaba y tiraba
   // sombra; en todo el sitio el hover es un cambio de color, sin movimiento.

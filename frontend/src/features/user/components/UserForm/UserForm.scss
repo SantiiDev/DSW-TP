@@ -10,7 +10,7 @@
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
   border-radius: $radius;
-  padding: $spacing-lg;
+  @include card-padding;
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;

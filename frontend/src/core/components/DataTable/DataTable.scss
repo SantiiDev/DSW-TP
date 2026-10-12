@@ -2,6 +2,7 @@
 // Reemplaza a los bloques __table-wrapper / __table que estaban repetidos en
 // _admin.scss, _artist.scss y _genre.scss.
 @use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/breakpoints' as *;
 
 .data-table {
   width: 100%;
@@ -20,11 +21,17 @@
     max-width: 100%;
   }
 
+  // En mobile las celdas van un poco más juntas: la tabla igual scrollea en
+  // horizontal, pero así entra más de una columna a la vista.
   th,
   td {
-    padding: 0.75rem $spacing-md;
+    padding: 0.6rem 0.75rem;
     text-align: left;
     border-bottom: 1px solid $color-nav-border;
+
+    @media (min-width: $bp-sm) {
+      padding: 0.75rem $spacing-md;
+    }
   }
 
   th {
@@ -61,10 +68,12 @@
 
   // --- Piezas que se repiten dentro de las celdas --------------------------
 
-  // Grupo de botones de acción de una fila.
+  // Grupo de botones de acción de una fila. Siempre en una sola línea: si se
+  // apilaban, cada fila quedaba altísima en mobile. Si no entran, la tabla
+  // scrollea en horizontal (ver &__wrapper).
   &__actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: $spacing-sm;
   }
 

@@ -75,11 +75,15 @@
   }
 
   // En mobile ocupa su propia línea, alineada con el texto (después de la portada).
+  // Si las estrellas y la fecha no entran juntas, la fecha baja a otra línea en
+  // vez de salirse de la fila.
   &__side {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: $spacing-sm;
+    gap: 0.25rem $spacing-sm;
     width: 100%;
+    min-width: 0;
     padding-left: calc(56px + #{$spacing-md});
 
     @media (min-width: $bp-sm) {

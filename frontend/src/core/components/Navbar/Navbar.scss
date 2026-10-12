@@ -23,14 +23,23 @@
     align-items: center;
   }
 
+  // En mobile los grupos van más juntos: con 375px de ancho, el logo, el
+  // buscador y los botones de la derecha tienen que entrar en una sola fila.
   &__left, &__center, &__right {
     display: flex;
     align-items: center;
-    gap: $spacing-md;
+    gap: $spacing-sm;
+
+    @media (min-width: $bp-md) {
+      gap: $spacing-md;
+    }
   }
 
+  // El buscador es lo que se estira: `min-width: 0` lo deja achicarse en vez de
+  // empujar los botones de la derecha fuera de la pantalla.
   &__left {
     flex: 1;
+    min-width: 0;
   }
 
   &__logo {
@@ -52,9 +61,15 @@
     border-radius: $radius;
     padding: 0.4rem 0.8rem;
     width: 100%;
-    max-width: 250px;
+    min-width: 0;
     border: 1px solid transparent;
     transition: border-color 0.2s ease;
+
+    // En mobile y tablet ocupa todo el lugar libre de la barra; desde LG
+    // comparte la fila con los links del centro y se limita.
+    @media (min-width: $bp-lg) {
+      max-width: 250px;
+    }
 
     &:focus-within {
       border-color: $color-primary;
@@ -85,7 +100,7 @@
     gap: $spacing-lg;
     display: none;
 
-    @media (min-width: $bp-md) {
+    @media (min-width: $bp-lg) {
       display: flex;
     }
   }
@@ -117,9 +132,103 @@
     }
   }
 
+  // En mobile la derecha ocupa solo lo que necesita y el resto queda para el
+  // buscador. Desde LG vuelve a repartir el ancho con la izquierda, para que los
+  // links del centro queden centrados.
   &__right {
-    flex: 1;
+    flex: 0 0 auto;
     justify-content: flex-end;
+
+    @media (min-width: $bp-lg) {
+      flex: 1;
+    }
+  }
+
+  // Botones que en mobile y tablet pasan al menú desplegable (login, registro, admin).
+  // Va anidado en &__right para ganarle al `display` que pone &__btn.
+  &__right &__desktop-only {
+    display: none;
+
+    @media (min-width: $bp-lg) {
+      display: inline-flex;
+    }
+  }
+
+  // Botón de las tres rayas: solo existe por debajo de LG.
+  &__toggle {
+    @include control-centrado;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: $radius;
+    color: $color-text;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    @media (min-width: $bp-lg) {
+      display: none;
+    }
+  }
+
+  // Fondo oscuro detrás del menú de mobile: tocarlo cierra el menú.
+  &__backdrop {
+    position: fixed;
+    top: $navbar-height;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.55);
+
+    @media (min-width: $bp-lg) {
+      display: none;
+    }
+  }
+
+  // Menú de mobile: cuelga debajo de la barra, de punta a punta. El navbar es
+  // sticky, así que el menú lo acompaña aunque se haya scrolleado.
+  &__mobile-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: $spacing-sm $spacing-md $spacing-md;
+    background-color: $color-nav-bg;
+    border-bottom: 1px solid $color-nav-border;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+
+    .navbar__link {
+      justify-content: flex-start;
+      width: 100%;
+      padding: 0.85rem $spacing-md;
+      font-size: 1rem;
+    }
+
+    .navbar__btn {
+      width: 100%;
+      padding: 0.75rem $spacing-md;
+      margin-top: $spacing-sm;
+    }
+
+    @media (min-width: $bp-lg) {
+      display: none;
+    }
+  }
+
+  // Login y registro, uno al lado del otro debajo de los links.
+  &__mobile-auth {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-sm;
+
+    .navbar__btn--login {
+      border: 1px solid $color-nav-border;
+    }
   }
 
   &__btn {

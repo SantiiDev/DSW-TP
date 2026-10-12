@@ -1,11 +1,12 @@
 @use "sass:color";
 @use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/mixins' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
 
 .footer {
   background-color: $color-bg;
   color: $color-text;
-  padding: $spacing-xl $spacing-lg $spacing-lg;
+  @include card-padding($spacing-xl $spacing-lg $spacing-lg, $spacing-lg $spacing-md);
   border-top: 1px solid $color-nav-border;
   
   &__container {
@@ -13,13 +14,19 @@
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: $spacing-xl;
+    gap: $spacing-lg;
+
+    @media (min-width: $bp-sm) {
+      gap: $spacing-xl;
+    }
   }
   
   &__top {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: $spacing-xl;
+    // Mobile: dos columnas. Una sola dejaba el footer más alto que la pantalla
+    // para mostrar seis links.
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg $spacing-md;
     
     // Tres columnas de enlaces: entran lado a lado desde SM, porque cada una
     // tiene solo un título corto y dos links.

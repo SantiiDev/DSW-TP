@@ -45,6 +45,23 @@
   min-width: 0;
 }
 
+// Padding interno de una tarjeta, panel o modal. Mobile-first: en un celular de
+// 375px, 2rem por lado dejaba el contenido en menos de 300px y todo se veía
+// apretado, así que arranca en 1rem y recién desde SM toma el valor de escritorio.
+//
+//   .mi-panel { @include card-padding; }
+//   .mi-tarjeta { @include card-padding($spacing-xl $spacing-lg); }
+//
+// @param $desktop el padding desde $bp-sm (puede ser uno o dos valores).
+// @param $mobile el padding en pantallas chicas.
+@mixin card-padding($desktop: $spacing-lg, $mobile: $spacing-md) {
+  padding: $mobile;
+
+  @media (min-width: $bp-sm) {
+    padding: $desktop;
+  }
+}
+
 // Franja de color a la izquierda de algo que escribió un usuario Pro (su
 // reseña, su comentario, su lista), con su color de acento. Genera una clase
 // modificadora por color: `&--accent-green`, `&--accent-blue`, etc. El

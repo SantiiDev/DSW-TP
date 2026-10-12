@@ -12,8 +12,14 @@
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
   border-radius: $radius;
-  padding: $spacing-lg;
+  // En mobile el padding de escritorio (32px por lado) dejaba el contenido en
+  // menos de 280px y cortaba las filas de actividad.
+  padding: $spacing-md;
   min-width: 0;
+
+  @media (min-width: $bp-sm) {
+    padding: $spacing-lg;
+  }
 
   &__title {
     margin: 0 0 $spacing-md;

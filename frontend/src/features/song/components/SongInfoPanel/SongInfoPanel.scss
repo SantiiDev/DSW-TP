@@ -24,7 +24,7 @@
     grid-template-columns: 1fr;
     gap: $spacing-md;
     margin: 0;
-    padding: $spacing-lg;
+    @include card-padding;
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
     border-radius: $radius;

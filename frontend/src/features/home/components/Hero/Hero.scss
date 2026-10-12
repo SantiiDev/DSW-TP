@@ -44,10 +44,17 @@
     gap: $spacing-md;
   }
 
+  // Mobile: 2rem. Con 2.5rem el título ocupaba ocho renglones y empujaba el botón
+  // fuera de la primera pantalla.
   &__title {
     color: $color-text;
-    font-size: 2.5rem;
+    font-size: 2rem;
+    line-height: 1.15;
     margin-bottom: $spacing-sm;
+
+    @media (min-width: $bp-sm) {
+      font-size: 2.5rem;
+    }
 
     @media (min-width: $bp-md) {
       font-size: 3.5rem;
@@ -57,10 +64,14 @@
 
   &__description {
     color: $color-text-secondary;
-    font-size: 1.1rem;
+    font-size: 1rem;
     max-width: 700px;
     line-height: 1.5;
     margin-bottom: $spacing-md;
+
+    @media (min-width: $bp-sm) {
+      font-size: 1.1rem;
+    }
 
     @media (min-width: $bp-md) {
       font-size: 1.25rem;
@@ -93,8 +104,14 @@
   border-radius: $radius;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   object-fit: cover;
-  opacity: 0.45;
+  // En mobile las portadas caen detrás del texto (no hay costados libres), así
+  // que van más tenues para no competir con el título.
+  opacity: 0.25;
   filter: brightness(0.8);
+
+  @media (min-width: $bp-md) {
+    opacity: 0.45;
+  }
   
   --rot: 0deg;
   transform: rotate(var(--rot));
@@ -105,9 +122,10 @@
     100% { transform: translateY(-20px) rotate(var(--rot)); }
   }
 
-  // Base size
-  width: 110px;
-  height: 110px;
+  // Base size. En mobile, más chicas y solo las cuatro de las esquinas (ver
+  // --2 y --5): las del medio quedaban justo encima del título.
+  width: 80px;
+  height: 80px;
 
   @media (min-width: $bp-md) {
     width: 140px;
@@ -126,9 +144,14 @@
     top: 40%;
     left: 15%;
     --rot: 8deg;
-    width: 120px;
-    height: 120px;
     animation-delay: -1s;
+    display: none;
+
+    @media (min-width: $bp-md) {
+      display: block;
+      width: 120px;
+      height: 120px;
+    }
   }
   
   &--3 {
@@ -142,9 +165,12 @@
     top: 8%;
     right: 8%;
     --rot: 12deg;
-    width: 100px;
-    height: 100px;
     animation-delay: -2s;
+
+    @media (min-width: $bp-md) {
+      width: 100px;
+      height: 100px;
+    }
   }
   
   &--5 {
@@ -152,14 +178,22 @@
     right: 12%;
     --rot: -8deg;
     animation-delay: -4s;
+    display: none;
+
+    @media (min-width: $bp-md) {
+      display: block;
+    }
   }
   
   &--6 {
     bottom: 5%;
     right: 5%;
     --rot: 6deg;
-    width: 160px;
-    height: 160px;
     animation-delay: -1.5s;
+
+    @media (min-width: $bp-md) {
+      width: 160px;
+      height: 160px;
+    }
   }
 }

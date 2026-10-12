@@ -3,6 +3,7 @@
 // El overlay replica el del AuthModal para que todas las ventanas del sitio se
 // comporten y se vean igual.
 @use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/mixins' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
 
 .modal-overlay {
@@ -35,7 +36,7 @@
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
   border-radius: $radius;
-  padding: $spacing-lg;
+  @include card-padding;
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;

@@ -1,6 +1,7 @@
 // Estilos de la tabla comparativa Free vs Pro.
 @use '../../../../styles/abstracts/variable' as *;
 @use '../../../../styles/abstracts/breakpoints' as *;
+@use '../../../../styles/abstracts/mixins' as *;
 @use '../../styles/tokens' as *;
 
 // ═══════════════════════════════════════════════════════════════
@@ -36,7 +37,7 @@
   }
 
   &__th {
-    padding: $spacing-md $spacing-lg;
+    @include card-padding($spacing-md $spacing-lg, 0.75rem);
     font-weight: 800;
     font-size: 0.95rem;
     color: $color-text-secondary;
@@ -60,7 +61,7 @@
 
   &__price-row {
     td {
-      padding: $spacing-md $spacing-lg;
+      @include card-padding($spacing-md $spacing-lg, 0.75rem);
       border-bottom: 1px solid $color-nav-border;
       font-weight: 700;
     }
@@ -79,7 +80,7 @@
   }
 
   &__td {
-    padding: $spacing-md $spacing-lg;
+    @include card-padding($spacing-md $spacing-lg, 0.75rem);
     text-align: center;
     vertical-align: middle;
     font-size: 0.92rem;

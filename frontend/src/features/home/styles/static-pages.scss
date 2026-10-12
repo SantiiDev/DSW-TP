@@ -1,6 +1,7 @@
 // Estilos compartidos por las páginas estáticas (términos, privacidad, FAQ y contacto).
 @use 'sass:color';
 @use '../../../styles/abstracts/variable' as *;
+@use '../../../styles/abstracts/mixins' as *;
 @use '../../../styles/abstracts/breakpoints' as *;
 
 .static-page {
@@ -78,7 +79,7 @@
     gap: $spacing-md;
     margin-top: $spacing-lg;
     background-color: $color-bg-light;
-    padding: $spacing-lg;
+    @include card-padding;
     border-radius: $radius;
     border: 1px solid $color-nav-border;
 

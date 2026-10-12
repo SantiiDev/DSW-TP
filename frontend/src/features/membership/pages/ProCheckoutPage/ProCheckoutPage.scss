@@ -50,7 +50,7 @@
 
 .checkout__panel,
 .checkout__summary {
-  padding: $spacing-lg;
+  @include card-padding;
   background-color: $color-bg-light;
   border: 1px solid $color-nav-border;
   border-radius: $radius;

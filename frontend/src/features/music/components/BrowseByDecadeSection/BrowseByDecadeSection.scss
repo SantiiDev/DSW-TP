@@ -23,7 +23,7 @@
   display: flex;
   align-items: center;
   gap: $spacing-md;
-  padding: $spacing-md $spacing-lg;
+  @include card-padding($spacing-md $spacing-lg, $spacing-md);
   background-color: $color-bg-light;
   border: 1px solid rgba($color-primary, 0.3);
   border-radius: $radius;

@@ -1,6 +1,7 @@
 // Estilos de la vista de venta de /pro: portada, precios y llamado final.
 @use "sass:color";
 @use '../../../../styles/abstracts/variable' as *;
+@use '../../../../styles/abstracts/mixins' as *;
 @use '../../../../styles/abstracts/breakpoints' as *;
 @use '../../styles/tokens' as *;
 
@@ -218,7 +219,7 @@
     background-color: $color-bg-light;
     border: 1px solid $color-nav-border;
     border-radius: $radius;
-    padding: $spacing-xl $spacing-lg;
+    @include card-padding($spacing-xl $spacing-lg, $spacing-lg $spacing-md);
     display: flex;
     flex-direction: column;
     gap: $spacing-md;

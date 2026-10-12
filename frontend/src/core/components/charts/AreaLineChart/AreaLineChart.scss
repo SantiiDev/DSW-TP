@@ -151,9 +151,26 @@
     color: $color-text-secondary;
     transition: color 0.2s ease;
 
+    // En mobile doce meses no entran uno al lado del otro y se pisaban
+    // ("EneFebMarAbr..."): se muestra uno sí y uno no. Con `visibility` y no
+    // `display` la etiqueta sigue ocupando su lugar, así las visibles quedan
+    // debajo de su punto.
+    &:nth-child(even) {
+      visibility: hidden;
+
+      @media (min-width: $bp-sm) {
+        visibility: visible;
+      }
+    }
+
     &--active {
       color: $color-text;
       font-weight: 700;
+
+      // La del punto señalado se ve siempre, aunque sea de las que se esconden.
+      &:nth-child(even) {
+        visibility: visible;
+      }
     }
   }
 }
