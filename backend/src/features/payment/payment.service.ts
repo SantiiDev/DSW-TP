@@ -286,13 +286,16 @@ export const paymentService = {
       };
     }
 
-    // ¿Ya lo habíamos registrado? Pasa siempre que lleguen los dos avisos.
+    // ¿Ya lo habíamos registrado? Pasa siempre que lleguen los dos avisos: lo
+    // normal es que el webhook gane y la pantalla de retorno llegue segunda. Para
+    // el usuario es lo mismo que si la hubiera activado este llamado, así que el
+    // mensaje no habla de "ya estaba": eso se lee como que nunca fue FREE.
     const existing = await paymentRepository.findByGatewayId(payment.id);
     if (existing) {
       return {
         applied: false,
         status: payment.status,
-        message: 'Este pago ya estaba registrado y la membresía ya estaba activa.',
+        message: '¡Listo! Tu pago está acreditado y tu membresía Pro está activa.',
       };
     }
 
