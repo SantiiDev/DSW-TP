@@ -126,6 +126,6 @@ export const env = {
   // que el servidor no arranque a que arranque inseguro.
   auth: {
     jwtSecret: jwtSecret(),
-    jwtExpiresIn: optional('JWT_EXPIRES_IN', '7d'),
+    jwtExpiresIn: optional('JWT_EXPIRES_IN', '12h'),
   },
 } as const;
