@@ -95,13 +95,23 @@ En producción el frontend se publica en **Vercel** como sitio estático: Root
 Directory `frontend`, y las variables `VITE_*` cargadas en el panel. Van en el
 build, así que cambiarlas exige volver a deployar.
 
-[`vercel.json`](vercel.json) existe por una sola razón: las rutas las resuelve
-React Router en el navegador, y en el servidor solo hay un `index.html`. Sin la
-regla de `rewrites`, entrar directo o recargar con F5 en `/albums` o `/pro/return`
-le pide a Vercel un archivo que no existe y devuelve 404. Con la regla, toda ruta
-sirve `index.html` y React Router dibuja la pantalla que corresponde. `/pro/return`
-es el caso que no puede fallar: es a donde MercadoPago devuelve al usuario después
-de pagar.
+[`vercel.json`](vercel.json) tiene dos reglas:
+
+- **`rewrites`**: las rutas las resuelve React Router en el navegador, y en el
+  servidor solo hay un `index.html`. Sin esta regla, entrar directo o recargar con
+  F5 en `/albums` o `/pro/return` le pide a Vercel un archivo que no existe y
+  devuelve 404. Con la regla, toda ruta sirve `index.html` y React Router dibuja la
+  pantalla que corresponde. `/pro/return` es el caso que no puede fallar: es a
+  donde MercadoPago devuelve al usuario después de pagar.
+- **`headers`**: Vercel le agrega por defecto `Access-Control-Allow-Origin: *` a
+  todo lo que sirve, o sea que cualquier sitio podía leer nuestros archivos desde
+  el navegador de un visitante (hallazgo de seguridad OWASP A05, "CORS
+  permisivo"). La regla lo reemplaza por el dominio propio. Al sitio no le hace
+  falta CORS para nada: el HTML, el JS y el CSS se piden desde el mismo dominio.
+  Si el sitio cambia de dominio, hay que actualizar el valor acá.
+
+  La API no depende de esto: el backend tiene su propio CORS, limitado a los
+  orígenes de `CORS_ORIGIN` (ver el README del backend).
 
 ## Estructura
 
