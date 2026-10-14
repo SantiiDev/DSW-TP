@@ -20,6 +20,19 @@
 
   }
 
+  // ── Lugar reservado mientras carga ──
+  // Las secciones de /music cargan cada una por su lado. El spinner mide unos
+  // 150px y la grilla que lo reemplaza entre 400 y 700px, así que al llegar los
+  // datos todo lo de abajo saltaba: Lighthouse lo mide como "Cumulative Layout
+  // Shift" (CLS) y bajaba el puntaje de Performance. Reservar un alto parecido
+  // al del contenido real achica ese salto.
+  &__loading {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   // ── List Layout ────────────────────
   &__list {
     display: flex;

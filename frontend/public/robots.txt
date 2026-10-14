@@ -1,0 +1,10 @@
+# Les indica a los buscadores (Google, Bing) qué pueden recorrer del sitio.
+# Las páginas privadas (/profile, /admin) piden sesión, así que no se indexan.
+User-agent: *
+Allow: /
+Disallow: /profile
+Disallow: /admin
+Disallow: /pro/checkout
+Disallow: /pro/return
+
+Sitemap: https://musicboxd-sepia.vercel.app/sitemap.xml

@@ -79,7 +79,6 @@ $ad-accent: #0b6e2f;
   max-width: 420px;
   max-height: 90vh;
   overflow-y: auto;
-  padding: $spacing-md;
   background-color: $ad-surface;
   border: 1px solid $ad-border;
   border-radius: $radius;
@@ -87,22 +86,36 @@ $ad-accent: #0b6e2f;
   // contenido y deja claro que está flotando por encima y no incrustado. Sigue
   // siendo negra aunque el panel sea claro, porque lo que hay abajo es oscuro.
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
   animation: ad-panel-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  // Mobile: tarjeta horizontal compacta, con la imagen chica a la izquierda y el
+  // texto al lado. Como afiche vertical medía unos 600px de alto y tapaba casi
+  // toda la pantalla durante los segundos en que todavía no se puede saltar.
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  grid-template-areas:
+    'tag tag'
+    'image body'
+    'footer footer';
+  gap: $spacing-sm 0.75rem;
+  padding: 0.75rem;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
   }
 
+  // Desde tablet hay lugar al costado: vuelve a ser el afiche vertical.
   @media (min-width: $bp-md) {
     width: clamp(320px, 30vw, 420px);
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-md;
   }
 
   // "Publicidad", arriba de todo. Chica y gris a propósito: tiene que dejar claro
   // que el aviso no es contenido de Musicboxd, sin competir con el anuncio.
   &__tag {
+    grid-area: tag;
     margin: 0;
     font-size: 0.7rem;
     font-weight: 600;
@@ -114,9 +127,18 @@ $ad-accent: #0b6e2f;
   // La imagen es la protagonista: un afiche vertical que se lee de un vistazo.
   // El alto sale del aspect-ratio y no de un valor fijo, así la caja no se
   // deforma con imágenes de distinto tamaño.
+  //
+  // En mobile es una miniatura cuadrada al lado del texto (ver .ad).
   &__image-frame {
+    grid-area: image;
     width: 100%;
-    aspect-ratio: 3 / 4;
+    aspect-ratio: 1;
+    align-self: start;
+
+    @media (min-width: $bp-md) {
+      aspect-ratio: 3 / 4;
+    }
+
     overflow: hidden;
     border-radius: $radius;
     // Gris claro y no el negro del sitio: es lo que se ve el instante que la
@@ -141,34 +163,58 @@ $ad-accent: #0b6e2f;
   }
 
   &__body {
+    grid-area: body;
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
+    min-width: 0;
   }
 
   &__title {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: $ad-text;
     line-height: 1.3;
+
+    @media (min-width: $bp-md) {
+      font-size: 1.05rem;
+    }
   }
 
+  // En mobile la descripción se corta a tres renglones con puntos suspensivos,
+  // para que la tarjeta no crezca con un texto largo.
   &__description {
     margin: 0;
-    font-size: 0.85rem;
-    line-height: 1.5;
+    font-size: 0.8rem;
+    line-height: 1.45;
     color: $ad-text-soft;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+
+    @media (min-width: $bp-md) {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      display: block;
+      overflow: visible;
+    }
   }
 
   &__footer {
+    grid-area: footer;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: $spacing-sm;
-    margin-top: $spacing-sm;
     padding-top: $spacing-sm;
     border-top: 1px solid $ad-border;
+
+    @media (min-width: $bp-md) {
+      margin-top: $spacing-sm;
+    }
   }
 
   // El enganche a /pro. Va discreto: es una salida, no la acción principal del

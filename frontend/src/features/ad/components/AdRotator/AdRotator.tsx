@@ -32,7 +32,7 @@ const SILENT_ROUTES = ['/pro/checkout', '/pro/return'];
  * Está acá arriba con nombre y no suelto en el setTimeout para que se vea de una
  * cada cuánto aparece la publicidad, que es la decisión que se ajusta.
  */
-const AD_INTERVAL_MS = 20_000;
+const AD_INTERVAL_MS = 7_000;
 
 /** Cada cuánto se vuelve a mirar si el diálogo que frenó al anuncio ya se cerró. */
 const DIALOG_RECHECK_MS = 3_000;
@@ -137,7 +137,7 @@ export const AdRotator = () => {
 
   // El recontrol: corre SOLO mientras el anuncio está postergado, y lo único que
   // hace es mirar si el diálogo ya se cerró. Cuando se cierra, la espera de arriba
-  // arranca de nuevo completa, con el mismo criterio que rige todo el reloj: los 20
+  // arranca de nuevo completa, con el mismo criterio que rige todo el reloj: los 7
   // segundos son de navegación, y mientras hay un diálogo abierto el usuario no está
   // navegando.
   //

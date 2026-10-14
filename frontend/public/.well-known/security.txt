@@ -1,0 +1,5 @@
+# Cómo reportar una vulnerabilidad de Musicboxd (formato RFC 9116).
+Contact: https://musicboxd-sepia.vercel.app/contact
+Expires: 2027-10-13T00:00:00.000Z
+Preferred-Languages: es, en
+Canonical: https://musicboxd-sepia.vercel.app/.well-known/security.txt

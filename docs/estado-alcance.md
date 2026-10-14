@@ -144,7 +144,7 @@ Cosas que funcionan pero no están como deberían, ordenadas por prioridad:
    > (`proposal.md`) y siete componentes del frontend lo repiten, pero no existía
    > ningún anuncio que ver, así que el beneficio no significaba nada. Se agregó
    > la tabla `ADS` con su CRUD de `ADMIN` (pestaña **Anuncios** de `/admin`) y un
-   > panel que se le muestra a un usuario `FREE` cada 20 segundos, con un botón
+   > panel que se le muestra a un usuario `FREE` cada 7 segundos, con un botón
    > "Saltar" que se habilita a los cinco segundos y un acceso directo a `/pro`.
    > El panel **no bloquea el sitio**: flota sobre el contenido pegado a un
    > costado y se puede seguir navegando con él en pantalla, pero no se va solo.

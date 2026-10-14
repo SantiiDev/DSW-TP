@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Páginas públicas del sitio, para que los buscadores las encuentren. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://musicboxd-sepia.vercel.app/</loc></url>
+  <url><loc>https://musicboxd-sepia.vercel.app/music</loc></url>
+  <url><loc>https://musicboxd-sepia.vercel.app/reviews</loc></url>
+  <url><loc>https://musicboxd-sepia.vercel.app/lists</loc></url>
+  <url><loc>https://musicboxd-sepia.vercel.app/pro</loc></url>
+  <url><loc>https://musicboxd-sepia.vercel.app/faq</loc></url>
+  <url><loc>https://musicboxd-sepia.vercel.app/contact</loc></url>
+  <url><loc>https://musicboxd-sepia.vercel.app/terms</loc></url>
+  <url><loc>https://musicboxd-sepia.vercel.app/privacy</loc></url>
+</urlset>

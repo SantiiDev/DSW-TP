@@ -29,6 +29,32 @@ type AlbumCoverProps = {
 };
 
 /**
+ * Lado en píxeles de la imagen que se le pide a Deezer según el tamaño de la
+ * portada. Es el doble de lo que ocupa en pantalla, para que se vea nítida en
+ * celulares y pantallas de alta densidad.
+ */
+const COVER_PIXELS: Record<AlbumCoverProps['size'], number> = { sm: 120, lg: 500 };
+
+/**
+ * Pide la portada al tamaño en que se va a mostrar.
+ *
+ * El seed guardó las portadas de Deezer en 1000x1000 (unos 150 KB cada una), y
+ * /music muestra treinta a la vez: más de 4 MB de imágenes para dibujarlas a
+ * 170px. El CDN de Deezer sirve la misma imagen en cualquier tamaño cambiando
+ * ese tramo de la URL, y a 500x500 pesa un tercio (a 120x120, la trigésima parte).
+ *
+ * Las URLs que no tienen ese formato (las que carga un usuario) se devuelven
+ * tal cual.
+ *
+ * @param url URL guardada en la base.
+ * @param pixels lado de la imagen a pedir.
+ * @returns la URL con el tamaño pedido.
+ */
+function sizedCoverUrl(url: string, pixels: number): string {
+  return url.replace(/\/\d+x\d+-(\w+-\d+-\d+-\d+\.jpg)$/, `/${pixels}x${pixels}-$1`);
+}
+
+/**
  * Elige el degradado de reserva a partir del título.
  *
  * Se suman los códigos de sus letras para que un mismo álbum caiga siempre en el
@@ -65,7 +91,7 @@ export const AlbumCover = ({ title, url, size }: AlbumCoverProps) => {
   return (
     <img
       className={className}
-      src={url}
+      src={sizedCoverUrl(url, COVER_PIXELS[size])}
       alt={`Portada de ${title}`}
       loading="lazy"
       onError={() => setHasFailed(true)}

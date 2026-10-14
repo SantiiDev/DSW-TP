@@ -60,7 +60,11 @@ export const ExploreSectionShell = ({
       />
 
       {isLoading ? (
-        <Loader message="Cargando..." />
+        // La caja le reserva lugar al contenido que viene (ver el .scss): sin
+        // ella, al llegar los datos todo lo de abajo saltaba hacia abajo.
+        <div className="explore-section__loading">
+          <Loader message="Cargando..." />
+        </div>
       ) : error ? (
         <Alert tone="error">{error}</Alert>
       ) : isEmpty ? (

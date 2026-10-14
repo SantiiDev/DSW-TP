@@ -103,15 +103,34 @@ build, así que cambiarlas exige volver a deployar.
   devuelve 404. Con la regla, toda ruta sirve `index.html` y React Router dibuja la
   pantalla que corresponde. `/pro/return` es el caso que no puede fallar: es a
   donde MercadoPago devuelve al usuario después de pagar.
-- **`headers`**: Vercel le agrega por defecto `Access-Control-Allow-Origin: *` a
-  todo lo que sirve, o sea que cualquier sitio podía leer nuestros archivos desde
-  el navegador de un visitante (hallazgo de seguridad OWASP A05, "CORS
-  permisivo"). La regla lo reemplaza por el dominio propio. Al sitio no le hace
-  falta CORS para nada: el HTML, el JS y el CSS se piden desde el mismo dominio.
-  Si el sitio cambia de dominio, hay que actualizar el valor acá.
+- **`headers`**: cabeceras de seguridad que Vercel agrega a todo lo que sirve.
 
-  La API no depende de esto: el backend tiene su propio CORS, limitado a los
-  orígenes de `CORS_ORIGIN` (ver el README del backend).
+  | Cabecera | Para qué |
+  |---|---|
+  | `Access-Control-Allow-Origin` | Vercel pone `*` por defecto (cualquier sitio podía leer nuestros archivos: hallazgo OWASP A05, "CORS permisivo"). Se reemplaza por el dominio propio; el sitio no necesita CORS porque todo se pide desde el mismo dominio. |
+  | `Content-Security-Policy` | Lista blanca de lo que la página puede cargar. Si alguien lograra inyectar un `<script>`, el navegador no lo ejecuta. Scripts, estilos y fuentes solo del propio sitio; imágenes de cualquier `https:` (las portadas vienen de Deezer y los avatares y banners son URLs que carga el usuario); `fetch` solo a nuestra API y a Web3Forms. |
+  | `X-Frame-Options` y `frame-ancestors` (en la CSP) | Nadie puede meter el sitio en un `<iframe>` (evita el *clickjacking*). |
+  | `X-Content-Type-Options` | El navegador no "adivina" el tipo de un archivo: un `.txt` nunca se ejecuta como script. |
+  | `Referrer-Policy` | A otros sitios solo les llega el dominio de donde viene el usuario, no la URL completa. |
+  | `Permissions-Policy` | Apaga cámara, micrófono, ubicación, pagos del navegador y USB, que el sitio no usa. |
+  | `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy` | Aíslan la pestaña y los archivos del sitio de otras páginas. |
+
+  **Hay dos URLs escritas a mano** que hay que actualizar si cambian: el dominio
+  del sitio (en `Access-Control-Allow-Origin`) y el de la API en Render (en el
+  `connect-src` de la CSP, que tiene que coincidir con `VITE_API_URL`). Si la API
+  cambia de dominio y nadie toca la CSP, el navegador bloquea todos los pedidos.
+
+  No se usa `Cross-Origin-Embedder-Policy`: exigiría que Deezer y cualquier
+  servidor de imágenes de los usuarios mandaran una cabecera que no mandan, y
+  las portadas dejarían de verse.
+
+  La API no depende de nada de esto: el backend tiene su propio CORS, limitado a
+  los orígenes de `CORS_ORIGIN` (ver el README del backend).
+
+[`public/.well-known/security.txt`](public/.well-known/security.txt) es el archivo
+estándar (RFC 9116) que le dice a quien encuentre una vulnerabilidad cómo
+avisarnos. Lleva fecha de vencimiento (`Expires`): hay que renovarla antes de
+que pase.
 
 ## Estructura
 
@@ -312,7 +331,7 @@ Quién lo ve y cuándo lo decide `AdRotator`, montado una sola vez en `App.tsx`:
 
 - **solo un `FREE` con la sesión abierta.** Un visitante sin cuenta no ve ninguno: la
   vitrina pública queda limpia para quien todavía no se registró;
-- **cada 20 segundos de navegación real.** El reloj no corre mientras hay un anuncio
+- **cada 7 segundos de navegación real.** El reloj no corre mientras hay un anuncio
   en pantalla, y cambiar de página no lo reinicia;
 - **nunca en el flujo de pago** (`/pro/checkout`, `/pro/return`): cortar a alguien que
   está por contratar la membresía con la publicidad que viene a sacarse sería la peor
